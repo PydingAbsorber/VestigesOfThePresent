@@ -1,8 +1,11 @@
 package com.pyding.vp.item.artifacts;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.pyding.vp.item.ModCreativeModTab;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -74,11 +77,37 @@ public class MaskOfDemon extends Artifact{
         super.setStellar(text, stack);
     }
 
+    private Multimap<Attribute, AttributeModifier> createAttributeMap(Player player) {
+        Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
+
+        float missingHealthPool = (float) (((player.getHealth()/player.getMaxHealth()) * 0.4) + 1);
+
+        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", missingHealthPool, AttributeModifier.Operation.MULTIPLY_BASE));
+        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", missingHealthPool, AttributeModifier.Operation.MULTIPLY_BASE));
+
+        return attributesDefault;
+    }
+
+    @Override
+    public void onUnequip(SlotContext context, ItemStack newStack, ItemStack stack) {
+        if (context.entity() instanceof Player player) {
+            player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player));
+        }
+    }
+
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
         if(player.getHealth() <= 19)
             this.setStellar("", stack);
+        if(isSpecialActive) {
+            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player));
+            if (player.tickCount % 20 == 0) {
+                if (player.getHealth() > player.getMaxHealth() * 0.2) {
+                    player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.2));
+                }
+            }
+        } else player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player));
         /*AttributeInstance attribute = player.getAttribute(Attributes.ATTACK_DAMAGE);
         float multiplier = (float) ((((player.getHealth()/player.getMaxHealth()) * 0.4) + 1)*attribute.getValue());
         UUID uuid = UUID.fromString("794251c7-77e4-4959-8dbe-071afb64a4c9");
@@ -89,11 +118,6 @@ public class MaskOfDemon extends Artifact{
             attribute.removeModifier(uuid);
         }
         attribute.addTransientModifier(modifier);*/
-        if(isSpecialActive && player.getHealth() > player.getMaxHealth()*0.1) {
-            if(player.tickCount % 5 == 0) {
-                player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.01));
-            }
-        }
         super.curioTick(slotContext, stack);
     }
 
