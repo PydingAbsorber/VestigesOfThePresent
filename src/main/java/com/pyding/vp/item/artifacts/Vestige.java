@@ -88,7 +88,7 @@ public class Vestige extends Item implements ICurioItem {
 
     public long time;
     public long timeUlt;
-    public Player player;
+    public LocalPlayer player;
     public int progress = 0;
 
     public int specialMaxTime = 0;
@@ -151,7 +151,7 @@ public class Vestige extends Item implements ICurioItem {
             this.currentChargeUltimate = this.ultimateCharges;
         if(this.ultimateCharges == 0 || this.specialCharges == 0)
             this.init();
-        if(slotContext.entity() != null && slotContext.entity() instanceof Player && (player == null || player instanceof LocalPlayer)) {
+        if(slotContext.entity() != null && slotContext.entity() instanceof Player) {
             Player playerServer = (Player) slotContext.entity();
         }
         if(slotContext.entity() != null){
@@ -171,9 +171,7 @@ public class Vestige extends Item implements ICurioItem {
         if (color == null) {
             this.init();
         }
-
-        if (player == null)
-            player = Minecraft.getInstance().player;
+        player = Minecraft.getInstance().player;
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             if (stack == null)
                 System.out.println("Something went wrong :(((");
@@ -196,11 +194,10 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 if (isStellar(stack)) {
                     components.add(Component.literal(VPUtil.getRainbowString("Stellar: ")));
-                    components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
                 } else {
                     components.add(Component.translatable(("Stellar")).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.translatable(("vp.stellarText2")).withStyle(ChatFormatting.GRAY));
                 }
+                components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
                 int visualUlt = this.cdUltimateActive;
                 while (visualUlt > this.ultimateCd) {
                     visualUlt -= this.ultimateCd;
@@ -216,20 +213,11 @@ public class Vestige extends Item implements ICurioItem {
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString(VPUtil.generateRandomString(7)) + " :")));
                 components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                if (player != null) {
-                    CompoundTag nbt;
-                    if (player.getPersistentData() != null) {
-                        nbt = player.getPersistentData();
-                    } else {
-                        nbt = new CompoundTag();
-                    }
-                    //progress = nbt.getInt("challenge" + (vestigeNumber));
-                    progress = cap.getChallenge(vestigeNumber);
-                    components.add(Component.translatable("vp.progress").withStyle(ChatFormatting.GRAY)
-                            .append(Component.literal(" " + progress))
-                            .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber))));
-                }
-                components.add(Component.literal(cap.getChance()+" ").append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
+                progress = cap.getChallenge(vestigeNumber);
+                components.add(Component.translatable("vp.progress").withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(" " + progress))
+                        .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber))));
+                components.add(Component.literal(cap.getChance()+"% ").withStyle(ChatFormatting.DARK_PURPLE).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
                 components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY));
                 components.add(Component.literal("Each Vestige can be obtained once per 4 days").withStyle(ChatFormatting.GRAY));
             } else if (Screen.hasAltDown()) {
@@ -240,7 +228,7 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 3: {
-                        text = VPUtil.getBiomesLeft(cap.getBiomesFound()).toString();
+                        text = VPUtil.getBiomesFound(cap.getBiomesFound()).toString();
                         break;
                     }
                     case 6: {
@@ -267,8 +255,10 @@ public class Vestige extends Item implements ICurioItem {
             } else {
                 components.add(Component.translatable("vp.shift"));
                 components.add(Component.translatable("vp.ctrl"));
-                if (vestigeNumber == 2 || vestigeNumber == 3 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 15 || vestigeNumber == 16)
+                if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 15 || vestigeNumber == 16)
                     components.add(Component.translatable("vp.alt"));
+                if(vestigeNumber == 3)
+                    components.add(Component.translatable("vp.alt.atlas"));
             }
             if (isStellar(stack)) {
                 String name = symbolsRandom(stack.getDisplayName().getString());

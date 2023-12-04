@@ -47,6 +47,9 @@ public class PacketHandler {
                 .consumerMainThread(ClientToServerPacket::handle)
                 .add();
     }
+    public static void sendToClient(Object packet, ServerPlayer player) {
+        INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
 
     public static <MSG> void sendToServer(MSG message) {
         INSTANCE.sendToServer(message);

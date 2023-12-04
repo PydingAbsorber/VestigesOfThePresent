@@ -1,22 +1,23 @@
 package com.pyding.vp.capability;
 
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.artifacts.Anemoculus;
-import com.pyding.vp.item.artifacts.MaskOfDemon;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
-import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @AutoRegisterCapability
 public class PlayerCapabilityVP {
@@ -36,6 +37,38 @@ public class PlayerCapabilityVP {
 
     private Long coolDown = 0L;
     private int chance = 0;
+
+    private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
+    private Set<String> biomeNames = new HashSet<>();
+
+    public void filterBiome(String name,Player player) {
+        Matcher matcher = PATTERN.matcher(name);
+        while (matcher.find()) {
+            String biomeName = matcher.group(1);
+            if (!biomeNames.contains(biomeName) && !biomeName.contains("worldgen")) {
+                biomeNames.add(biomeName);
+                setChallenge(3, getBiomeSize(), player);
+            }
+        }
+    }
+    public void filterBiome(String name) {
+        Matcher matcher = PATTERN.matcher(name);
+        while (matcher.find()) {
+            String biomeName = matcher.group(1);
+            if (!biomeNames.contains(biomeName) && !biomeName.contains("worldgen")) {
+                biomeNames.add(biomeName);
+            }
+        }
+    }
+
+    public int getBiomeSize(){
+        int result = Arrays.asList(biomeNames.toArray()).size();
+        if(result == 0) {
+            filterBiome(biomesFound);
+            result = Arrays.asList(biomeNames.toArray()).size();
+        }
+        return result;
+    }
     public void setChance(int number){
         this.chance = number;
     }
@@ -94,7 +127,7 @@ public class PlayerCapabilityVP {
     public void addBiome(String biome, Player player){
         if(!this.biomesFound.contains(biome)) {
             this.biomesFound += biome + ",";
-            setChallenge(3,player);
+            filterBiome(biome,player);
         }
     }
 
@@ -223,7 +256,10 @@ public class PlayerCapabilityVP {
     }
 
     public int getChallenge(int vp) {
-        if (vp >= 1 && vp < totalVestiges) {
+        if(vp == 3){
+            return getBiomeSize();
+        }
+        else if (vp >= 1 && vp < totalVestiges) {
             return challenges[vp-1];
         } else {
             return 0;
@@ -319,22 +355,9 @@ public class PlayerCapabilityVP {
         if(player.level.isClientSide)
             return;
         ServerPlayer serverPlayer = (ServerPlayer) player;
-        System.out.println("in capa");
-        System.out.println(this.getNbt());
-        PacketHandler.sendToPlayer(new SendPlayerCapaToClient(this.getNbt()),serverPlayer);
-        /*CompoundTag nbt = new CompoundTag();
-        for(int i = 1; i < challenges.length; i++){
-            nbt.putInt("challenge"+i,challenges[i]);
-        }
-        nbt.putString("VPLore",loreComplete);
-        nbt.putString("VPCoolDowned",coolDowned);
-        nbt.putLong("VPCoolDown",coolDown);
-        nbt.putString("VPBiomesFound",biomesFound);
-        nbt.putString("VPMonstersKilled",monstersKilled);
-        nbt.putString("VPFoodEaten",foodEaten);
-        nbt.putString("VPTools",tools);
-        nbt.putString("VPMobs",mobsTamed);
-        nbt.putString("VPFlowers",flowers);
+        PacketHandler.sendToClient(new SendPlayerCapaToClient(this.getNbt()),serverPlayer);
+        /*
+        /*
         if(player.getPersistentData() != null){
             PacketHandler.sendToAllAround(new SendPlayerNbtToClient(player.getUUID(),nbt),player);
         }*/

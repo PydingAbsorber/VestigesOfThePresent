@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class SendPlayerCapaToClient {
-    private CompoundTag tag;
+    private final CompoundTag tag;
 
     public SendPlayerCapaToClient(CompoundTag tag) {
         this.tag = tag;
@@ -28,18 +28,19 @@ public class SendPlayerCapaToClient {
         return new SendPlayerCapaToClient(buf.readNbt());
     }
 
-    public static void handle(SendPlayerCapaToClient msg, Supplier<NetworkEvent.Context> ctx) {
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            LocalPlayer player = Minecraft.getInstance().player;
-
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.saveNBT(msg.tag);
-                System.out.println("packet sync");
-                System.out.println(msg.tag);
-            });
+            handle2();
         });
 
         ctx.get().setPacketHandled(true);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    private void handle2() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            cap.loadNBT(tag);
+        });
+    }
 }

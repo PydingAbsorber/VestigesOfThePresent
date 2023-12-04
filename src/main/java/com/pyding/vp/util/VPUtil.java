@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -18,6 +19,8 @@ import top.theillusivec4.curios.api.SlotTypeMessage;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VPUtil {
@@ -117,23 +120,32 @@ public class VPUtil {
     public static List<Item> items = new ArrayList<>();
     public static void initBiomes(){
         for (Biome biome : ForgeRegistries.BIOMES.getValues()){
-            biomes.add(biome);
+            biomes.add(biome.toString());
         }
     }
     public static List getBiomes(){
         return biomes;
     }
+    private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
+    private static Set<String> biomeNames = new HashSet<>();
 
-    public static List getBiomesLeft(String list){
-        List<String> biomesList = new ArrayList<>(Arrays.asList(list.split(",")));
-        List<String> allList = new ArrayList<>();
-        for(Object type: biomes){
-            allList.add(type.toString());
+    public static void addBiome(String name) {
+        Matcher matcher = PATTERN.matcher(name);
+        while (matcher.find()) {
+            String biomeName = matcher.group(1);
+            if (!biomeNames.contains(biomeName) && !biomeName.contains("worldgen")) {
+                biomeNames.add(biomeName); //.substring("minecraft:".length())
+            }
         }
-        allList.removeAll(biomesList);
-        return allList;
     }
-
+    public static List getBiomesFound(String list){
+        List<String> biomesList = new ArrayList<>(Arrays.asList(list.split(",")));
+        for (String name: biomesList){
+            addBiome(name);
+        }
+        return Arrays.asList(biomeNames.toArray());
+    }
+//Reference{ResourceKey[minecraft:worldgen/biome / minecraft:birch_forest]=net.minecraft.world.level.biome.Biome@e4348c0}
     public static void initItems(){
         for(Item item: ForgeRegistries.ITEMS){
             items.add(item);
@@ -193,7 +205,11 @@ public class VPUtil {
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
-        return allList;
+        List<String> filteredList = new ArrayList<>();
+        for (String name: allList){
+            filteredList.add(name.substring("entity.minecraft.".length()));
+        }
+        return filteredList;
     }
 
     public static List getMobsLeft(String list){
@@ -203,7 +219,11 @@ public class VPUtil {
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
-        return allList;
+        List<String> filteredList = new ArrayList<>();
+        for (String name: allList){
+            filteredList.add(name.substring("entity.minecraft.".length()));
+        }
+        return filteredList;
     }
 
     public static List<Block> blocks = new ArrayList<>();

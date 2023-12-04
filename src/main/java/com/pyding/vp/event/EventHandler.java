@@ -78,18 +78,16 @@ public class EventHandler {
         });
     }
     @SubscribeEvent
-    public static void loginIn(ClientPlayerNetworkEvent.LoggingIn event){
-        LocalPlayer player = event.getPlayer();
+    public static void loginIn(PlayerEvent.PlayerLoggedInEvent event){
+        Player player = event.getEntity();
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
     }
 
     @SubscribeEvent
-    public static void loginOut(ClientPlayerNetworkEvent.LoggingOut event){
-        LocalPlayer player = event.getPlayer();
-        if(player == null)
-            return;
+    public static void loginOut(PlayerEvent.PlayerLoggedOutEvent event){
+        Player player = event.getEntity();
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
@@ -117,7 +115,7 @@ public class EventHandler {
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
-        if (entity.tickCount % 60 != 0 && tag != null && tag.getFloat("HealBonus") != 0) {
+        if (entity.tickCount % 300 != 0 && tag != null && tag.getFloat("HealBonus") != 0) {
             tag.putFloat("HealBonus",0);
             entity.getPersistentData().merge(tag);
         }
@@ -128,6 +126,13 @@ public class EventHandler {
             ICuriosHelper api = CuriosApi.getCuriosHelper();
             if(playerTag.getBoolean("VPButton1")){
                 playerTag.putBoolean("VPButton1",false);
+                api.findFirstCurio(player, (stackInSlot) -> {
+                    if(stackInSlot.getItem() instanceof Vestige) {
+                        System.out.println(stackInSlot);
+                        return true;
+                    }
+                    return false;
+                });
                 api.getEquippedCurios(player).ifPresent(curio -> {
                     for(int i = 0; i < curio.getSlots(); i++){
                         ItemStack stack = curio.getStackInSlot(i);
@@ -174,7 +179,8 @@ public class EventHandler {
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player.level.getBiome(player.blockPosition()).toString(), player);
-                for(int i = 1; i < 15; i++){
+                //System.out.println(player.level.getBiome(player.blockPosition()));
+                for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
                     if(cap.getChallenge(i) >= cap.getMaximum(i) && !cap.hasCoolDown(i)){
                         cap.giveVestige(player,i);
                     }
@@ -209,6 +215,18 @@ public class EventHandler {
         });
         event.getOriginal().invalidateCaps();
     }
+
+    @SubscribeEvent
+    public static void onPlayerClonedClient(ClientPlayerNetworkEvent.Clone event){
+        event.getOldPlayer().reviveCaps();
+        event.getOldPlayer().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(oldStore -> {
+            event.getNewPlayer().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(newStore -> {
+                newStore.copyNBT(oldStore);
+            });
+        });
+        event.getOldPlayer().invalidateCaps();
+    }
+
 
     @SubscribeEvent
     public static void sleep(PlayerSleepInBedEvent event){

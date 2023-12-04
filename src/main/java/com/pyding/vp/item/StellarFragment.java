@@ -20,7 +20,7 @@ public class StellarFragment extends Item {
         ItemStack stack = player.getItemInHand(p_41434_);
         stack.split(1);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            cap.setChance();
+            cap.setChance(cap.getChance()+1);
             cap.sync(player);
         });
         return super.use(p_41432_, player, p_41434_);

@@ -35,6 +35,7 @@
   "vp.progress": "§5Progress: ",
   "vp.chance": "current chance to become ",
   "vp.chance2": "On failure +10% chance",
+  "vp.alt.atlas": "§7Press §5ALT §7to display found biomes",
   "vp.shift": "§7Press §5SHIFT §7for abilities information",
   "vp.ctrl": "§7Press §5CTRL §7for obtaining information",
   "vp.sleep": "I wanna sleep so much...",
@@ -156,5 +157,21 @@
   "vp.ultimate.16": "Each missing point of armor durability provides a shield from damage to the wearer, all peaceful and tamed creatures, as well as other players (non-stackable, replaceable). The shield increases by 10% for every 1% of healing reduction.",
   "vp.get.16": "Collect all modpack flowers that were not placed by the player.",
 
-  "vp.stellar.1": "Passive stronger x1.5 times. Anti heal cap is 99%"
+  "vp.stellar.1": "Passive: Gains durability vampirism of 10%. Each deducted point of durability will restore 10% for its equipment.",
+  "vp.stellar.2": "Ultimate: Each slain enemy will grant a shield of 10% of its max HP (stackable).",
+  "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10%.",
+  "vp.stellar.4": "Special no longer inflicts damage on itself and reduces resistance to all types of damage.",
+  "vp.stellar.5": "Passive: Each excess healing on an opponent under the aura effect will break all their equipment by 5%.",
+  "vp.stellar.6": "Passive: Maximum saturation increases by % of healing bonus.",
+  "vp.stellar.7": "Ultimate also applies a healing debt of 1000% of max HP. If the wearer survives after the ultimate, its cooldown resets by % of the difference between received damage and healing (up to 60%).",
+  "vp.stellar.8": "Passive: If the first evasion fails, damage decreases by % of evasion.",
+  "vp.stellar.9": "Ultimate: Each success increases inflicted damage by 10%.",
+  "vp.stellar.10": "Ultimate can also teleport to a random player with a 5% chance.",
+  "vp.stellar.11": "Pain Scale does not reset at full HP but decreases by 100 for each healing above 1 HP.",
+  "vp.stellar.12": "Special: Striking disappointed players removes 1 random non-vanilla enchantment from their equipment.",
+  "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
+  "vp.stellar.14": "Ultimate: Applies a healing debt of 200% of max HP.",
+  "vp.stellar.15": "Ultimate: The chance will also increase by 1% for each unit of hunger.",
+  "vp.stellar.16": "Ultimate: Creatures under the shield receive a healing bonus of +30%."
+
 }
