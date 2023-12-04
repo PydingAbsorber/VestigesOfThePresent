@@ -1,23 +1,25 @@
 package com.pyding.vp;
 
 import com.mojang.logging.LogUtils;
+import com.pyding.vp.client.ClientProxy;
+import com.pyding.vp.common.CommonProxy;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(VestigesOfPresent.MODID)
@@ -28,6 +30,8 @@ public class VestigesOfPresent
 
     public static EventHandler eventHandler;
 
+    public static final CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+
     public VestigesOfPresent()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -37,11 +41,13 @@ public class VestigesOfPresent
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::postInit);
         eventHandler = new EventHandler();
         MinecraftForge.EVENT_BUS.register(eventHandler);
+        FMLJavaModLoadingContext.get().getModEventBus().register(PROXY);
+        MinecraftForge.EVENT_BUS.register(PROXY);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init
     {
-
+        PacketHandler.register();
     }
 
     @SubscribeEvent
@@ -56,16 +62,25 @@ public class VestigesOfPresent
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) //init
         {
-
+            PROXY.initEntityRendering();
         }
     }
 
     private void postInit(InterModEnqueueEvent event) {
         LOGGER.info("Sending messages to Curios API...");
-        VPUtil.registerCurioType("vestige", 2, false, new ResourceLocation("curios:slot/prism"));
+        VPUtil.registerCurioType("vestige", 2, false, new ResourceLocation("curios:slot/vpslot"));
         VPUtil.registerCurioType("charm", 1, false, null);
         VPUtil.registerCurioType("ring", 1, false, null);
         VPUtil.registerCurioType("belt",1,false,null);
         VPUtil.registerCurioType("necklace",1,false,null);
+        VPUtil.initEntities();
+        VPUtil.initBiomes();
+        VPUtil.initItems();
+        VPUtil.initBlocks();
+        VPUtil.initFlowers();
+    }
+
+    public void onLoadComplete(FMLLoadCompleteEvent event) {
+        PROXY.loadComplete(event);
     }
 }
