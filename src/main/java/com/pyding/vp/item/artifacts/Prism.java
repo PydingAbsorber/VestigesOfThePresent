@@ -13,15 +13,16 @@ public class Prism extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(13, ChatFormatting.DARK_BLUE, 4, 10, 1, 300, 1, 60, hasDamage);
+        super.dataInit(13, ChatFormatting.RED, 4, 10, 1, 300, 1, 60, hasDamage);
     }
 
     @Override
     public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
         if(player.isCreative()) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.clearCoolDown(player);
-                cap.clearAllProgress(player);
+                if(!player.level.isClientSide)
+                    cap.clearCoolDown(player);
+                    cap.clearAllProgress(player);
             });
         }
         return super.onLeftClickEntity(stack, player, entity);

@@ -45,7 +45,7 @@ public class MaskOfDemon extends Vestige{
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
         vestigeNumber = 5;
-        color = ChatFormatting.AQUA;
+        color = ChatFormatting.BLUE;
         specialCharges = 1;
         specialCd = 1;
         specialMaxTime = 666;
@@ -66,7 +66,7 @@ public class MaskOfDemon extends Vestige{
         float attackScale = (float) ((VPUtil.missingHealth(player) * attackMultiplier) + 1)/100;
         float speedScale = (float) ((VPUtil.missingHealth(player) * speedMultiplier) + 1)/100;
 
-        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", attackScale, AttributeModifier.Operation.MULTIPLY_BASE));
+        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", attackScale, AttributeModifier.Operation.MULTIPLY_TOTAL));
         attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", speedScale, AttributeModifier.Operation.MULTIPLY_BASE));
 
         return attributesDefault;
@@ -91,23 +91,26 @@ public class MaskOfDemon extends Vestige{
                     player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.05));
                 }
             }
-            for(LivingEntity entity: VPUtil.getEntities(player,40)){
+            for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
                 CompoundTag tag = entity.getPersistentData();
                 if (tag == null) {
                     tag = new CompoundTag();
                 }
-                tag.putFloat("HealBonus",tag.getFloat("HealBonus")-VPUtil.missingHealth(player));
+                tag.putFloat("HealResMask",0-VPUtil.missingHealth(player));
+                if(isStellar(stack))
+                    tag.putBoolean("MaskStellar",true);
                 entity.getPersistentData().merge(tag);
             }
+            player.getPersistentData().putFloat("HealResMask",0-VPUtil.missingHealth(player));
         } else player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
         super.curioTick(slotContext, stack);
     }
 
     @Override
     public int setSpecialActive(long seconds, Player player) {
-        if(this.isSpecialActive) {
-            this.isSpecialActive = false;
-            seconds = 0;
+        if(isSpecialActive) {
+            time = 1;
+            return 0;
         }
         return super.setSpecialActive(seconds, player);
     }
@@ -119,22 +122,15 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
-        for (LivingEntity entity: VPUtil.getEntities(player,40)){
-            float damage = 3;
-            float healDebt = player.getMaxHealth()*3;
-            if(player.getHealth() <= player.getMaxHealth()*0.5) {
-                damage *= 2;
-                healDebt *= 2;
-            }
-            CompoundTag tag = entity.getPersistentData();
-            if (tag == null) {
-                tag = new CompoundTag();
-            }
-            tag.putFloat("HealDebt",tag.getFloat("HealDebt")+healDebt);
-            entity.getPersistentData().merge(tag);
-            if (entity == player) {
-                continue;
-            }
+        float damage = 3;
+        float healDebt = player.getMaxHealth()*3;
+        if(player.getHealth() <= player.getMaxHealth()*0.5) {
+            damage *= 2;
+            healDebt *= 2;
+        }
+        player.getPersistentData().putFloat("HealDebt",player.getPersistentData().getFloat("HealDebt")+healDebt);
+        for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
+            entity.getPersistentData().putFloat("HealDebt",entity.getPersistentData().getFloat("HealDebt")+healDebt);
             entity.hurt(DamageSource.playerAttack(player).bypassArmor(),VPUtil.getAttack(player)*damage);
         }
         super.doUltimate(seconds, player, level);

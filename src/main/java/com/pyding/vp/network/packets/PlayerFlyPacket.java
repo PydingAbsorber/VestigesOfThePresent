@@ -1,31 +1,31 @@
 package com.pyding.vp.network.packets;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
-public class SendPlayerCapaToClient {
-    private final CompoundTag tag;
+public class PlayerFlyPacket {
+    private final int number;
 
-    public SendPlayerCapaToClient(CompoundTag tag) {
-        this.tag = tag;
+    public PlayerFlyPacket(int number) {
+        this.number = number;
     }
 
-    public static void encode(SendPlayerCapaToClient msg, FriendlyByteBuf buf) {
-        buf.writeNbt(msg.tag);
+    public static void encode(PlayerFlyPacket msg, FriendlyByteBuf buf) {
+        buf.writeInt(msg.number);
     }
 
-    public static SendPlayerCapaToClient decode(FriendlyByteBuf buf) {
-        return new SendPlayerCapaToClient(buf.readNbt());
+    public static PlayerFlyPacket decode(FriendlyByteBuf buf) {
+        return new PlayerFlyPacket(buf.readInt());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -39,8 +39,27 @@ public class SendPlayerCapaToClient {
     @OnlyIn(Dist.CLIENT)
     private void handle2() {
         LocalPlayer player = Minecraft.getInstance().player;
+        if(number == 1) {
+            Vec3 motion = new Vec3(0, VPUtil.commonPower, 0);
+            player.lerpMotion(motion.x, motion.y, motion.z);
+        }
+        else if(number == 2){
+            player.getAbilities().mayfly = false;
+            player.getAbilities().flying = false;
+            player.onUpdateAbilities();
+        }
+        else if(number == -1){
+            VPUtil.fall(player,-10);
+        }
+        else if(number == 69){
+
+        }
+        else {
+            Vec3 motion = new Vec3(0, number, 0);
+            player.lerpMotion(motion.x, motion.y, motion.z);
+        }
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            cap.loadNBT(tag);
+
         });
     }
 }

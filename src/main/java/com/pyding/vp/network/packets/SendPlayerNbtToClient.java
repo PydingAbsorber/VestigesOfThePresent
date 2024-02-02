@@ -47,9 +47,6 @@ public class SendPlayerNbtToClient {
     private static void handle2(UUID playerID, CompoundTag tag) {
         Minecraft.getInstance().level.players().stream().filter(player -> player.getUUID().equals(playerID))
             .findAny().ifPresent(player -> {
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.loadNBT(tag);
-                });
                 //System.out.println("from packet " + tag);
                 player.getPersistentData().merge(tag);
             });

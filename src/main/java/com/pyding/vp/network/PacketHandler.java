@@ -46,6 +46,7 @@ public class PacketHandler {
                 .encoder(ClientToServerPacket::toBytes)
                 .consumerMainThread(ClientToServerPacket::handle)
                 .add();
+        net.registerMessage(89,PlayerFlyPacket.class, PlayerFlyPacket::encode, PlayerFlyPacket::decode, PlayerFlyPacket::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

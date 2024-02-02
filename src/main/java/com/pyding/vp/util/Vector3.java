@@ -1,12 +1,12 @@
-package com.aizistral.enigmaticlegacy.objects;
+package com.pyding.vp.util;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Objects;
 
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+/*import org.joml.Vector3f;
+import org.joml.Vector4f;*/
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.core.BlockPos;
@@ -187,13 +187,13 @@ public class Vector3 {
 		return this.x == 0 ? this.y == 0 || this.z == 0 : this.y == 0 && this.z == 0;
 	}
 
-	public Vector3f vector3f() {
+	/*public Vector3f vector3f() {
 		return new Vector3f((float) this.x, (float) this.y, (float) this.z);
-	}
+	}*/
 
-	public Vector4f vector4f() {
+	/*public Vector4f vector4f() {
 		return new Vector4f((float) this.x, (float) this.y, (float) this.z, 1);
-	}
+	}*/
 
 	@OnlyIn(Dist.CLIENT)
 	public void glVertex() {
@@ -218,9 +218,9 @@ public class Vector3 {
 		return b.multiply(m);
 	}
 
-	public Vector3 rotate(double angle, Vector3 axis) {
+	/*public Vector3 rotate(double angle, Vector3 axis) {
 		return Quat.aroundAxis(axis.normalize(), angle).rotate(this);
-	}
+	}*/
 
 	@Override
 	public boolean equals(Object o) {

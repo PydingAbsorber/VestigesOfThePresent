@@ -9,6 +9,6 @@ public class Anomaly extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(10, ChatFormatting.DARK_GREEN, 2, 60, 1, 360, 1, 1, hasDamage);
+        super.dataInit(10, ChatFormatting.LIGHT_PURPLE, 2, 60, 1, 360, 1, 1, hasDamage);
     }
 }
