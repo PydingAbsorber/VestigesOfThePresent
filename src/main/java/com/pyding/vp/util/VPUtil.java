@@ -2,20 +2,21 @@ package com.pyding.vp.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.pyding.vp.capability.PlayerCapabilityVP;
-import com.pyding.vp.item.artifacts.Midas;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
-import com.pyding.vp.network.packets.SendPlayerCapaToClient;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -23,27 +24,33 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Panda;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -126,8 +133,8 @@ public class VPUtil {
         return result.toString();
     }
 
-    public static float missingHealth(Player player){
-        return (1 - (player.getHealth() / player.getMaxHealth())) * 100;
+    public static float missingHealth(LivingEntity entity){ //0-100
+        return (1 - (entity.getHealth() / entity.getMaxHealth())) * 100;
     }
 
     public static List<LivingEntity> getEntities(Player player,double radius){
@@ -371,6 +378,7 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent){
+        entity.invulnerableTime = 0;
         percent /= 100;
         entity.hurt(source,getAttack(player)*percent);
         ItemStack stack = player.getMainHandItem();
@@ -637,6 +645,18 @@ public class VPUtil {
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
         return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
     }
+    public static List getEntitiesAroundOfType(Class entityClass,Player player,double x, double y, double z,boolean self){
+        if(self)
+            return player.level.getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+        else {
+            List list = new ArrayList<>();
+            for(Object entity: player.level.getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+                if(entity != player)
+                    list.add(entity);
+            }
+            return list;
+        }
+    }
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z,boolean self){
         if(self)
             return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
@@ -733,7 +753,8 @@ public class VPUtil {
         }
     }
 
-    public static DamageSource randomizeDamageType(DamageSource source){
+    public static DamageSource randomizeDamageType(){
+        DamageSource source = new DamageSource("ChaosCore");
         Random random = new Random();
         int numba = random.nextInt(11);
         switch (numba){
@@ -777,19 +798,20 @@ public class VPUtil {
                 source = source.bypassArmor();
                 break;
             }
-            case 11:{
+            default: {
                 source = source.setIsFire();
                 break;
             }
-            default:
-                break;
         }
         return source;
     }
 
     public static void addShield(LivingEntity entity,float amount,boolean add){
+        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
+            return;
         CompoundTag tag = entity.getPersistentData();
-        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut"));
+        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
+        +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
         float shield;
         if(!add)
             shield = amount;
@@ -800,6 +822,8 @@ public class VPUtil {
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         }
+        if(tag.getFloat("VPShieldInit") == 0)
+            tag.putFloat("VPShieldInit",shield);
     }
 
     public static float getShield(LivingEntity entity){
@@ -808,10 +832,14 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity,Player player){
+        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
         entity.setHealth(0);
         entity.die(DamageSource.playerAttack(player));
-        Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
-        attributesDefault.put(Attributes.MAX_HEALTH, new AttributeModifier(UUID.fromString("b2f5e343-120a-49f1-91b3-2909de24374e"), "vp:dead_inside", 0, AttributeModifier.Operation.MULTIPLY_TOTAL));
+    }
+    public static void deadInside(LivingEntity entity){
+        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
+        entity.setHealth(0);
+        entity.die(DamageSource.GENERIC);
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -906,25 +934,237 @@ public class VPUtil {
     }
 
     public static void dropEntityLoot(LivingEntity entity, Player player) {
-        if (entity instanceof Player || player.level.isClientSide) {
+        if (entity instanceof Player) {
             return;
         }
+        if(player.level instanceof ServerLevel serverLevel) {
+            ResourceLocation lootTableLocation = entity.getLootTable();
+            LootTable lootTable = serverLevel.getServer().getLootTables().get(lootTableLocation);
+            LootContext.Builder builder = new LootContext.Builder(serverLevel)
+                    .withParameter(LootContextParams.ORIGIN, entity.position())
+                    .withParameter(LootContextParams.THIS_ENTITY, entity)
+                    .withParameter(LootContextParams.DAMAGE_SOURCE, DamageSource.playerAttack(player))
+                    .withRandom(serverLevel.random);
 
-        ResourceLocation lootTableLocation = entity.getLootTable();
-        ServerLevel world = (ServerLevel) player.level;
-        LootTables lootTableManager = world.getServer().getLootTables();
-        LootTable lootTable = lootTableManager.get(lootTableLocation);
-
-        LootContext lootContext = (new LootContext.Builder(world))
-                .withRandom(world.random)
-                .withOptionalParameter(LootContextParams.THIS_ENTITY, entity)
-                //.withOptionalParameter(LootContextParams.LAST_DAMAGE_PLAYER, player)
-                .create(LootContextParamSets.ENTITY);
-
-        lootTable.getRandomItems(lootContext).forEach(stack -> {
-            entity.spawnAtLocation(stack);
-        });
+            List<ItemStack> list = lootTable.getRandomItems(builder.create(LootContextParamSets.ENTITY));
+            for(ItemStack stack: list){
+                ItemEntity itemEntity = new ItemEntity(serverLevel,entity.getX(),entity.getY(),entity.getZ(),stack);
+                serverLevel.addFreshEntity(itemEntity);
+            }
+        }
     }
 
+    @SafeVarargs
+    public static <T> T getRandomElement(List<T> list, T... excluding) {
+        List<T> filtered = new ArrayList<>(list);
+        Arrays.stream(excluding).forEach(filtered::remove);
+        Random random = new Random();
+        if (filtered.size() <= 0)
+            throw new IllegalArgumentException("List has no valid elements to choose");
+        else if (filtered.size() == 1)
+            return filtered.get(0);
+        else
+            return filtered.get(random.nextInt(filtered.size()));
+    }
+    public static List<ResourceKey<Level>> worlds = new ArrayList<>();
+    public static void initWorlds(){
 
+    }
+
+    public static ResourceKey<Level> getWorldKey(String name){
+        ResourceKey<Level> key = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(name));
+        return key;
+    }
+
+    public static MobEffect getRandomEffect(boolean isBenefit){
+        MobEffect effect;
+        Random random = new Random();
+        List<MobEffect> effects = new ArrayList<>();
+        for(MobEffect element: ForgeRegistries.MOB_EFFECTS){
+            if(element.isBeneficial() == isBenefit)
+                effects.add(element);
+        }
+        int numba = random.nextInt(effects.size());
+        effect = effects.get(numba);
+        return effect;
+    }
+    public static void clearEffects(LivingEntity entity, boolean isBeneficial){
+        for (MobEffectInstance effectInstance : entity.getActiveEffects()){
+            MobEffect effect = effectInstance.getEffect();
+            if (effect.isBeneficial() == isBeneficial) {
+                entity.removeEffect(effect);
+            }
+        }
+    }
+    public static List<ItemStack> getAllEquipment(LivingEntity entity){
+        List<ItemStack> list = new ArrayList<>();
+        for(ItemStack stack: entity.getArmorSlots())
+            list.add(stack);
+        list.add(entity.getMainHandItem());
+        list.add(entity.getOffhandItem());
+        return list;
+    }
+    public static void repairAll(Player player, int totalDamage){
+        for (ItemStack stack : getAllEquipment(player)) {
+            int damage = stack.getDamageValue();
+            if(damage < totalDamage) {
+                stack.setDamageValue(0);
+                totalDamage -= damage;
+            } else {
+                stack.setDamageValue(damage-totalDamage);
+                totalDamage = 0;
+            }
+        }
+        if(totalDamage > 0)
+            player.giveExperiencePoints(totalDamage);
+    }
+
+    public static void negativnoEnchant(LivingEntity entity){
+        for(ItemStack stack: getAllEquipment(entity)){
+            List<Integer> lvl = new ArrayList<>();
+            List<Enchantment> enchantments = new ArrayList<>();
+            if(stack.isEnchanted()){
+                for(Enchantment enchantment: stack.getAllEnchantments().keySet()){
+                    if(stack.getEnchantmentLevel(enchantment) < 0)
+                        continue;
+                    lvl.add(stack.getEnchantmentLevel(enchantment));
+                    enchantments.add(enchantment);
+                }
+                stack.getEnchantmentTags().clear();
+                for(int i = 0;i < lvl.size();i++){
+                    stack.enchant(enchantments.get(i),lvl.get(i)*-1);
+                }
+                stack.getOrCreateTag().putBoolean("VPEnchant",true);
+            }
+        }
+        entity.getPersistentData().putLong("VPEnchant",System.currentTimeMillis()+15000);
+    }
+
+    public static void negativnoDisenchant(LivingEntity entity){
+        for(ItemStack stack: getAllEquipment(entity)){
+            List<Integer> lvl = new ArrayList<>();
+            List<Enchantment> enchantments = new ArrayList<>();
+            if(stack.isEnchanted()){
+                for(Enchantment enchantment: stack.getAllEnchantments().keySet()){
+                    if(stack.getEnchantmentLevel(enchantment) > 0)
+                        continue;
+                    lvl.add(stack.getEnchantmentLevel(enchantment));
+                    enchantments.add(enchantment);
+                }
+                stack.getEnchantmentTags().clear();
+                for(int i = 0;i < lvl.size();i++){
+                    stack.enchant(enchantments.get(i),lvl.get(i)*-1);
+                }
+                stack.getOrCreateTag().putBoolean("VPEnchant",false);
+            }
+        }
+    }
+
+    public static void enchantCurseAll(LivingEntity entity){
+        for(ItemStack stack: getAllEquipment(entity)){
+            stack.getEnchantmentTags().clear();
+            stack.enchant(Enchantments.BINDING_CURSE,1);
+            stack.enchant(Enchantments.VANISHING_CURSE,1);
+        }
+    }
+
+    public static LivingEntity getRandomEntityNear(Player player,boolean playerCount){
+        for (LivingEntity entity: getEntities(player,10,false)) {
+            if(entity instanceof Player) {
+                if(playerCount) {
+                    return entity;
+                }
+            } else return entity;
+        }
+        return null;
+    }
+
+    public static String generateRandomDamageType(){
+        Random random = new Random();
+        List<String> list = new ArrayList<>(Arrays.asList(damageSubtypes().split(",")));
+        return list.get(random.nextInt(list.size()));
+    }
+    public static void damageAdoption(LivingEntity entity, LivingDamageEvent event){
+        String damage = entity.getPersistentData().getString("VPPrismDamage");
+
+        if(!damage.isEmpty()) {
+            if(damage.equals("bypassArmor") && event.getSource().isBypassArmor()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("damageHelmet") && event.getSource().isDamageHelmet()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("bypassEnchantments") && event.getSource().isBypassEnchantments()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("explosion") && event.getSource().isExplosion()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("bypassInvul") && event.getSource().isBypassInvul()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("bypassMagic") && event.getSource().isBypassMagic()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("fall") && event.getSource().isFall()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("magic") && event.getSource().isMagic()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("noAggro") && event.getSource().isNoAggro()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else if(damage.equals("projectile") && event.getSource().isProjectile()){
+                event.setAmount(event.getAmount()*2);
+            }
+            else {
+                event.setAmount(0);
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    public static void suckToPos(Entity entity, BlockPos targetPos, double maxPullStrength) {
+        Vec3 targetVec = Vec3.atCenterOf(targetPos);
+        Vec3 entityVec = entity.position();
+
+        Vec3 direction = targetVec.subtract(entityVec);
+        double distance = direction.length();
+
+        Vec3 normalizedDirection = direction.normalize();
+        double pullStrength = Math.min(maxPullStrength, distance / 10.0);
+
+        Vec3 pullVelocity = normalizedDirection.scale(pullStrength);
+
+        entity.setDeltaMovement(pullVelocity.x, pullVelocity.y, pullVelocity.z);
+    }
+
+    public static Multimap<Attribute, AttributeModifier> createAttributeMap(LivingEntity entity, Attribute attribute, UUID uuid, float amount, AttributeModifier.Operation operation) {
+        Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
+        attributesDefault.put(attribute, new AttributeModifier(uuid, "vp:attack_speed_modifier", amount, operation));
+        return attributesDefault;
+    }
+
+    public static List<LivingEntity> getMonstersAround(Player player,double x, double y, double z){
+        List<LivingEntity> list = new ArrayList<>();
+        for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            if(!(entity instanceof Animal))
+                list.add(entity);
+        }
+        return list;
+    }
+
+    public static List<LivingEntity> getCreaturesAround(Player player,double x, double y, double z){
+        List<LivingEntity> list = new ArrayList<>();
+        for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            if(entity instanceof Animal)
+                list.add(entity);
+        }
+        return list;
+    }
+
+    public static boolean isDamagePhysical(DamageSource source){
+        return !source.isFire() && !source.isMagic() && !source.isBypassInvul() && !source.isBypassEnchantments() && !source.isBypassMagic();
+    }
 }

@@ -27,7 +27,7 @@ displayName="Vestiges of Present" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="logo.png" #optional
+logoFile="mask.png" #optional
 # A text field displayed in the mod UI
 credits="With big strength comes big responsibility" #optional
 # A text field displayed in the mod UI
@@ -51,19 +51,19 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis lacinia magn
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.vp]] #optional
     # the modid of the dependency
-    modId="vp" #mandatory
+    modId="curios" #mandatory
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[43,)" #mandatory
+    #versionRange="[43,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-    ordering="NONE"
+    #ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
-    side="BOTH"
+    #side="BOTH"
 # Here's another dependency
-[[dependencies.vp]]
-    modId="curios"
-    mandatory=true
+#[[dependencies.vp]]
+    #modId="curios"
+    #mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
     versionRange="[1.19.2,1.20)"
     ordering="NONE"

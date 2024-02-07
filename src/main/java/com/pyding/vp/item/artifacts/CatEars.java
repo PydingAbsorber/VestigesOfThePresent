@@ -30,6 +30,7 @@ public class CatEars extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
+        player.getPersistentData().putBoolean("VPEarsSpecial",true);
         super.doSpecial(seconds, player, level);
     }
 
@@ -42,6 +43,7 @@ public class CatEars extends Vestige{
     @Override
     public void specialEnds(Player player) {
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
+        player.getPersistentData().putBoolean("VPEarsSpecial",false);
         super.specialEnds(player);
     }
 
@@ -50,4 +52,5 @@ public class CatEars extends Vestige{
         player.getPersistentData().putBoolean("VPEarsUlt",false);
         super.ultimateEnds(player);
     }
+
 }

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0":  "vp:item/mask"
+    "layer0":  "vp:item/flower"
   }
 }

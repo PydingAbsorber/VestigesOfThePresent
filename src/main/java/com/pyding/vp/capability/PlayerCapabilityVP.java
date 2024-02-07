@@ -51,8 +51,45 @@ public class PlayerCapabilityVP {
     private String commonChallenges = "";
     private String stellarChallenges = "";
 
+    private String dimensions = "";
+    private boolean debug = false;
+
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
+
+    public void addDimension(Player player,String dim){
+        if(!dimensions.contains(dim)){
+            dimensions += dim + ",";
+            sync(player);
+        }
+    }
+
+    public String getDimensions(){
+        return dimensions;
+    }
+
+    public List<String> getDimensionList(){
+        List<String> dimList = new ArrayList<>();
+        for(String name: dimensions.split(",")){
+            dimList.add(name);
+        }
+        return dimList;
+    }
+
+    public String getRandomDimension(){
+        Random random = new Random();
+        int numba = random.nextInt(getDimensionList().size());
+        return getDimensionList().get(numba);
+    }
+
+    public void removeDimension(String name){
+        String newDim = "";
+        for(String dim: dimensions.split(",")) {
+            if(!dim.equals(name))
+                newDim += dim + ",";
+        }
+        dimensions = newDim;
+    }
 
     public void filterBiome(String name,Player player) {
         Matcher matcher = PATTERN.matcher(name);
@@ -404,6 +441,7 @@ public class PlayerCapabilityVP {
         randomEntity = VPUtil.getRandomEntity().getDescriptionId();
         commonChallenges = "";
         stellarChallenges = "";
+        dimensions = "";
         sync(player);
     }
 
@@ -447,6 +485,16 @@ public class PlayerCapabilityVP {
                 return VPUtil.getFlowers().size();
         }
         return  0;
+    }
+
+    public boolean getDebug(){
+        return debug;
+    }
+    public void setDebug(Player player){
+        if(debug)
+            debug = false;
+        else debug = true;
+        sync(player);
     }
 
     public int getChallenge(int vp) {
@@ -493,6 +541,8 @@ public class PlayerCapabilityVP {
         randomEntity = source.randomEntity;
         commonChallenges = source.commonChallenges;
         stellarChallenges = source.stellarChallenges;
+        dimensions = source.dimensions;
+        debug = source.debug;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -517,6 +567,8 @@ public class PlayerCapabilityVP {
         nbt.putLong("VPCT",chaosTime);
         nbt.putString("VPCC",commonChallenges);
         nbt.putString("VPSC",stellarChallenges);
+        nbt.putString("VPDimensions",dimensions);
+        nbt.putBoolean("VPDebug",debug);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -541,6 +593,8 @@ public class PlayerCapabilityVP {
         chaosTime = nbt.getLong("VPCT");
         commonChallenges = nbt.getString("VPCC");
         stellarChallenges = nbt.getString("VPSC");
+        dimensions = nbt.getString("VPDimensions");
+        debug = nbt.getBoolean("VPDebug");
     }
 
     public CompoundTag getNbt(){
@@ -566,6 +620,8 @@ public class PlayerCapabilityVP {
         nbt.putLong("VPCT",chaosTime);
         nbt.putString("VPCC",commonChallenges);
         nbt.putString("VPSC",stellarChallenges);
+        nbt.putString("VPDimensions",dimensions);
+        nbt.putBoolean("VPDebug",debug);
         return nbt;
     }
 

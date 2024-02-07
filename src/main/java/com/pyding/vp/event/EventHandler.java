@@ -5,10 +5,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.commands.VPCommands;
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.artifacts.Anemoculus;
-import com.pyding.vp.item.artifacts.Crown;
-import com.pyding.vp.item.artifacts.Midas;
-import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.item.artifacts.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ClientToServerPacket;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
@@ -19,12 +16,16 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cat;
@@ -45,9 +46,12 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.SleepFinishedTimeEvent;
@@ -59,10 +63,7 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.util.ICuriosHelper;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
-import java.util.TimerTask;
+import java.util.*;
 
 @Mod.EventBusSubscriber(modid = VestigesOfPresent.MODID)
 public class EventHandler {
@@ -70,12 +71,16 @@ public class EventHandler {
     public void damageEventLowest(LivingDamageEvent event){
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
-
+        VPUtil.damageAdoption(entity,event);
+        Random random = new Random();
         if(event.getAmount() <= 5)
             tag.putBoolean("VPCrownDR",true);
         if(entity.getPersistentData().getBoolean("VPKillerQueen")){
             entity.getPersistentData().putBoolean("VPKillerQueen",false);
             event.setAmount(event.getAmount()*1.7f);
+        }
+        if(entity.getPersistentData().getBoolean("VPFlowerStellar") && VPUtil.isDamagePhysical(event.getSource()) ){
+            entity.getPersistentData().putBoolean("VPFlowerStellar",false);
         }
         if(event.getSource() == null)
             return;
@@ -95,34 +100,156 @@ public class EventHandler {
                     player.getPersistentData().putInt("VPMadness",player.getPersistentData().getInt("VPMadness")-1);
             }
             if(VPUtil.hasStellarVestige(ModItems.MIDAS.get(), player)){
-                event.setAmount(event.getAmount()*(1+(float)(player.getAttribute(Attributes.LUCK).getValue()/100)));
+                float luck = (float)player.getAttribute(Attributes.LUCK).getValue();
+                event.setAmount(event.getAmount()*(1+luck/10));
             }
-
+            if(entity.getPersistentData().getLong("VPEnchant") > 0)
+                event.setAmount(event.getAmount()*1.5f);
         }
         if(entity instanceof Player player){
             LivingEntity attacker = event.getEntity();
-            double playerDamage = player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+            double damagePlayer = player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
             double entityDamage = attacker.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-            if(playerDamage > entityDamage)
-                event.setAmount(event.getAmount()-(float)(playerDamage-entityDamage));
-            else event.setAmount(event.getAmount()-(float)(entityDamage-playerDamage));
+            if(damagePlayer > entityDamage)
+                event.setAmount(event.getAmount()-(float)(damagePlayer-entityDamage));
+            else event.setAmount(event.getAmount()-(float)(entityDamage-damagePlayer));
             if(player.getPersistentData().getBoolean("VPMarkUlt")){
                 player.getPersistentData().putFloat("VPDamageReduced",event.getAmount()+player.getPersistentData().getFloat("VPDamageReduced"));
                 event.setAmount(0);
             }
             if(VPUtil.hasVestige(ModItems.EARS.get(), player)){
-                float chance = (Math.min(69,(float)player.getArmorValue())/100);
-                float secondChance = (Math.min(90,(float)player.experienceLevel/10)/100);
-                if(Math.random() < chance){
-                    event.setAmount(0);
-                    event.setCanceled(true);
-                } else if (player.getPersistentData().getBoolean("VPEarsUlt") && Math.random() < secondChance) {
-                    event.setAmount(0);
-                    event.setCanceled(true);
-                } else if(VPUtil.hasStellarVestige(ModItems.EARS.get(), player)) {
-                    event.setAmount(event.getAmount()-(event.getAmount()*(float)(player.getArmorValue()/100)));
+                float armor = (float)player.getArmorValue();
+                float chance = (Math.min(69,armor)/100);
+                if(VPUtil.hasStellarVestige(ModItems.EARS.get(), player)) {
+                    event.setAmount(event.getAmount()-(event.getAmount()*chance));
                 }
             }
+            if(VPUtil.hasVestige(ModItems.ARMOR.get(), player)){
+                float amount = event.getAmount();
+                event.setAmount(event.getAmount()-(40+player.getPersistentData().getFloat("VPArmor")));
+                player.getPersistentData().putFloat("VPArmor",player.getPersistentData().getFloat("VPArmor")+amount);
+            }
+            if(VPUtil.hasVestige(ModItems.CHAOS.get(), player)){
+                double passiveChance = 0.1+player.getAttribute(Attributes.LUCK).getValue()/100;
+                if(Math.random() < passiveChance){
+                    if(Math.random() < 0.5) {
+                        if(Math.random() < 0.5){
+                            event.setAmount(event.getAmount() + random.nextInt(Integer.MAX_VALUE));
+                        } else event.setAmount(event.getAmount() - random.nextInt(Integer.MAX_VALUE));
+                    }
+                    else {
+                        player.invulnerableTime = 0;
+                        player.hurt(VPUtil.randomizeDamageType(),event.getAmount());
+                        event.setCanceled(true);
+                        event.setAmount(0);
+                    }
+                    if(Math.random() < 0.3 && VPUtil.hasStellarVestige(ModItems.CHAOS.get(), player)){
+                        for(LivingEntity livingEntity: VPUtil.getEntities(player,30,false)){
+                            livingEntity.hurt(event.getSource(),event.getAmount());
+                        }
+                    }
+                }
+                double chance = 10+random.nextInt(90);
+                if(Math.random() < chance/100 && event.getSource().getEntity() != null && event.getSource().getEntity() instanceof LivingEntity livingEntity && livingEntity != player){
+                    if(player.getPersistentData().getInt("VPChaos") > 0){
+                        player.getPersistentData().putInt("VPChaos",player.getPersistentData().getInt("VPChaos"));
+                        livingEntity.hurt(event.getSource(),event.getAmount());
+                        event.setAmount(0);
+                        event.setCanceled(true);
+                    }
+                }
+            }
+            if(VPUtil.hasVestige(ModItems.DEVOURER.get(), player) && player.getPersistentData().getInt("VPDevourerHits") > 0){
+                ICuriosHelper api = CuriosApi.getCuriosHelper();
+                List list3 = api.findCurios(player, (stackInSlot) -> {
+                    if(stackInSlot.getItem() instanceof Devourer devourer) {
+                        ItemStack stack = stackInSlot;
+                        int souls = stack.getOrCreateTag().getInt("VPDevoured");
+                        int attributesBetter = 0;
+                        if(VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
+                            attributesBetter = VPUtil.compareStats(player,entity,true);
+                        if(Math.random() < 0.01*souls)
+                            entity.getPersistentData().putInt("VPSoulRotting",entity.getPersistentData().getInt("VPSoulRotting")+1+attributesBetter);
+                        if(VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
+                            entity.getPersistentData().putInt("VPSoulRottingStellar",entity.getPersistentData().getInt("VPSoulRotting"));
+                        if(entity.getPersistentData().getInt("VPSoulRotting") >= 100)
+                            VPUtil.deadInside(entity,player);
+                        player.getPersistentData().putInt("VPDevourerHits",player.getPersistentData().getInt("VPDevourerHits")-1);
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(cap.getDebug() && !player.level.isClientSide) {
+                    player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
+                    if(event.getSource().isMagic())
+                        player.sendSystemMessage(Component.literal("§5isMagic"));
+                    if(event.getSource().isBypassMagic())
+                        player.sendSystemMessage(Component.literal("§5isBypassMagic"));
+                    if(event.getSource().isFire())
+                        player.sendSystemMessage(Component.literal("§5isFire"));
+                    if(event.getSource().isDamageHelmet())
+                        player.sendSystemMessage(Component.literal("§5isDamageHelmet"));
+                    if(event.getSource().isProjectile())
+                        player.sendSystemMessage(Component.literal("§5isProjectile"));
+                    if(event.getSource().isExplosion())
+                        player.sendSystemMessage(Component.literal("§5isExplosion"));
+                    if(event.getSource().isNoAggro())
+                        player.sendSystemMessage(Component.literal("§5isNoAggro"));
+                    if(event.getSource().isBypassInvul())
+                        player.sendSystemMessage(Component.literal("§5isBypassInvul"));
+                    if(event.getSource().isBypassEnchantments())
+                        player.sendSystemMessage(Component.literal("§5isBypassEnchantments"));
+                    if(event.getSource().isBypassArmor())
+                        player.sendSystemMessage(Component.literal("§5isBypassArmor"));
+                    if(event.getSource().isFall())
+                        player.sendSystemMessage(Component.literal("§5isFall"));
+                    player.sendSystemMessage(Component.literal("\n"));
+                    System.out.println(EnchantmentHelper.getDamageProtection(player.getArmorSlots(), event.getSource()));
+                }
+            });
+        }
+        if(event.getSource().getEntity() instanceof Player player){
+            if(VPUtil.hasStellarVestige(ModItems.BOOK.get(), player)){
+                if(player.getPersistentData().getInt("VPBookDamage") < 10 && event.getAmount() <= 5) {
+                    player.getPersistentData().putFloat("VPBookDamage", player.getPersistentData().getInt("VPBookDamage")+event.getAmount());
+                    player.getPersistentData().putInt("VPBookHits", player.getPersistentData().getInt("VPBookHits") + 1);
+                } else {
+                    event.setAmount(event.getAmount()+player.getPersistentData().getInt("VPBookDamage"));
+                    event.getSource().bypassEnchantments();
+                    player.getPersistentData().putInt("VPBookDamage", 0);
+                    player.getPersistentData().putInt("VPBookHits", 0);
+                }
+            }
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(cap.getDebug() && !player.level.isClientSide) {
+                    player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
+                    if (event.getSource().isMagic())
+                        player.sendSystemMessage(Component.literal("§5isMagic"));
+                    if (event.getSource().isBypassMagic())
+                        player.sendSystemMessage(Component.literal("§5isBypassMagic"));
+                    if (event.getSource().isFire())
+                        player.sendSystemMessage(Component.literal("§5isFire"));
+                    if (event.getSource().isDamageHelmet())
+                        player.sendSystemMessage(Component.literal("§5isDamageHelmet"));
+                    if (event.getSource().isProjectile())
+                        player.sendSystemMessage(Component.literal("§5isProjectile"));
+                    if (event.getSource().isExplosion())
+                        player.sendSystemMessage(Component.literal("§5isExplosion"));
+                    if (event.getSource().isNoAggro())
+                        player.sendSystemMessage(Component.literal("§5isNoAggro"));
+                    if (event.getSource().isBypassInvul())
+                        player.sendSystemMessage(Component.literal("§5isBypassInvul"));
+                    if (event.getSource().isBypassEnchantments())
+                        player.sendSystemMessage(Component.literal("§5isBypassEnchantments"));
+                    if (event.getSource().isBypassArmor())
+                        player.sendSystemMessage(Component.literal("§5isBypassArmor"));
+                    if (event.getSource().isFall())
+                        player.sendSystemMessage(Component.literal("§5isFall"));
+                    player.sendSystemMessage(Component.literal("\n"));
+                }
+            });
         }
 
         float shield = entity.getPersistentData().getFloat("VPShield");
@@ -132,14 +259,39 @@ public class EventHandler {
             event.setAmount(0);
         } else {
             event.setAmount(damage-shield);
+            if(entity.getPersistentData().getLong("VPFlowerStellar") > 0 && event.getSource().getEntity() != null)
+                event.getSource().getEntity().hurt(DamageSource.MAGIC,entity.getPersistentData().getFloat("VPShieldInit"));
             entity.getPersistentData().putFloat("VPShield",0);
+            entity.getPersistentData().putFloat("VPShieldInit",0);
         }
+
+
     }
     @SubscribeEvent
     public void totemUsing(LivingUseTotemEvent event){
         LivingEntity entity = event.getEntity();
         if(entity.getPersistentData().getLong("VPDeath") > 0)
             event.setCanceled(true);
+    }
+    @SubscribeEvent
+    public void attackEvent(LivingAttackEvent event){
+        LivingEntity victim = event.getEntity();
+        if(victim instanceof Player player){
+            if(VPUtil.hasVestige(ModItems.EARS.get(), player)) {
+                float armor = (float) player.getArmorValue();
+                float exp = (float) player.experienceLevel;
+                float specialAddition = (float)player.getAttribute(Attributes.MOVEMENT_SPEED).getValue()-1;
+                if(player.getPersistentData().getBoolean("VPEarsSpecial") && specialAddition > 0.05f)
+                    armor = armor+(specialAddition/0.05f);
+                float chance = (Math.min(69, armor) / 100);
+                float secondChance = (Math.min(90, exp / 10) / 100);
+                if (Math.random() < chance) {
+                    event.setCanceled(true);
+                } else if (player.getPersistentData().getBoolean("VPEarsUlt") && Math.random() < secondChance) {
+                    event.setCanceled(true);
+                }
+            }
+        }
     }
     @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
     public void deathEventLowest(LivingDeathEvent event){
@@ -149,13 +301,10 @@ public class EventHandler {
         if(!event.isCanceled()) {
             if (event.getSource().getEntity() instanceof Player player) {
                 LivingEntity entity = event.getEntity();
-                if (player.getCommandSenderWorld().dimension() == Level.NETHER && player.getHealth() <= 1) {
-                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
-                        challange.setChallenge(5, challange.getChallenge(5) + 1, player);
-                    });
-                }
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                     CompoundTag tag = entity.getPersistentData();
+                    if (player.getCommandSenderWorld().dimension() == Level.NETHER && player.getHealth() <= 1)
+                        challange.setChallenge(5, challange.getChallenge(5) + 1, player);
                     if (entity.getType().getCategory() == MobCategory.MONSTER)
                         challange.addMonsterKill(entity.getType().toString(), player);
                     if (entity.getType().getCategory() == MobCategory.CREATURE)
@@ -200,10 +349,38 @@ public class EventHandler {
                     }
                     return false;
                 });
-                if(VPUtil.hasVestige(ModItems.PRISM.get(), player)){
-
+                if(VPUtil.hasVestige(ModItems.PRISM.get(), player) && entity.getPersistentData().getLong("VPPrismBuff") > 0){
+                    List list2 = api.findCurios(player, (stackInSlot) -> {
+                        if(stackInSlot.getItem() instanceof Prism prism) {
+                            ItemStack stack = stackInSlot;
+                            double chance =  stack.getOrCreateTag().getInt("VPPrismKill");
+                            chance /= 100;
+                            VPUtil.dropEntityLoot(entity,player);
+                            System.out.println(entity.level.isClientSide);
+                            while (Math.random() < chance){
+                                VPUtil.dropEntityLoot(entity,player);
+                                chance /= 10;
+                            }
+                            prism.fuckNbt1 = true;
+                            prism.fuckNbt2 = true;
+                            stack.getOrCreateTag().putInt("VPPrismKill",stack.getOrCreateTag().getInt("VPPrismKill")+1);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
-
+                if(VPUtil.hasVestige(ModItems.DEVOURER.get(), player) && VPUtil.isBoss(entity)){
+                    List list3 = api.findCurios(player, (stackInSlot) -> {
+                        if(stackInSlot.getItem() instanceof Devourer devourer) {
+                            ItemStack stack = stackInSlot;
+                            devourer.fuckNbt1 = true;
+                            devourer.fuckNbt2 = true;
+                            stack.getOrCreateTag().putInt("VPDevoured",stack.getOrCreateTag().getInt("VPDevoured")+1);
+                            return true;
+                        }
+                        return false;
+                    });
+                }
 
 
             }
@@ -224,7 +401,12 @@ public class EventHandler {
                         VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).setExplosion(),percent);
                     }
                 }
-
+                if(VPUtil.hasVestige(ModItems.BOOK.get(), player)){
+                    if(player.getPersistentData().getBoolean("VPBook")) {
+                        if(event.getSource().getEntity() instanceof LivingEntity dealer)
+                        VPUtil.enchantCurseAll(dealer);
+                    } else VPUtil.enchantCurseAll(player);
+                }
             }
         } else {
             LivingEntity entity = event.getEntity();
@@ -235,7 +417,7 @@ public class EventHandler {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
+    /*@SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
     public void onPlayerDeath(LivingDropsEvent event) {
         if (event.getEntity() instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
@@ -244,7 +426,7 @@ public class EventHandler {
                 }
             });
         }
-    }
+    }*/
     public static boolean hasCurses(int curses,Player player){
         if(getCurses(player) >= curses)
             return true;
@@ -286,6 +468,45 @@ public class EventHandler {
                     }
                 }
             });
+        }
+    }
+
+    @SubscribeEvent
+    public static void useEvent(PlayerInteractEvent.RightClickItem event){
+        Player player = event.getEntity();
+        if(event.getItemStack().getItem() instanceof EnderEyeItem && VPUtil.hasVestige(ModItems.ANOMALY.get(), player)){
+            if(player instanceof ServerPlayer serverPlayer){
+                ICuriosHelper api = CuriosApi.getCuriosHelper();
+                List list = api.findCurios(player, (stackInSlot) -> {
+                    if(stackInSlot.getItem() instanceof Anomaly anomaly) {
+                        anomaly.fuckNbt1 = true;
+                        anomaly.fuckNbt2 = true;
+                        double x = stackInSlot.getOrCreateTag().getDouble("VPReturnX");
+                        double y = stackInSlot.getOrCreateTag().getDouble("VPReturnY");
+                        double z = stackInSlot.getOrCreateTag().getDouble("VPReturnZ");
+                        String key = stackInSlot.getOrCreateTag().getString("VPReturnKey");
+                        if(x != 0 && y != 0 && z != 0 && !key.isEmpty()) {
+                            ServerLevel serverLevel = serverPlayer.level.getServer().getLevel(VPUtil.getWorldKey(key));
+                            for(LivingEntity entity: VPUtil.getEntitiesAround(player,4,4,4,false)){
+                                if(entity instanceof ServerPlayer victim)
+                                    victim.teleportTo(serverLevel, x, y, z, 0, 0);
+                                else {
+                                    entity.changeDimension(serverLevel);
+                                    entity.teleportTo(x,y,z);
+                                }
+                            }
+                            serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);
+                        } else {
+                            for(LivingEntity entity: VPUtil.getEntitiesAround(player,4,4,4,false)){
+                                entity.teleportTo(serverPlayer.getRespawnPosition().getX(),serverPlayer.getRespawnPosition().getY(),serverPlayer.getRespawnPosition().getZ());
+                            }
+                            serverPlayer.teleportTo(serverPlayer.getRespawnPosition().getX(),serverPlayer.getRespawnPosition().getY(),serverPlayer.getRespawnPosition().getZ());
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+            }
         }
     }
     @SubscribeEvent
@@ -342,17 +563,38 @@ public class EventHandler {
         CompoundTag tag = entity.getPersistentData();
         if (tag != null) {
             float healingBonus = VPUtil.getHealBonus(entity);
+            float resedHeal = 0;
+            if(healingBonus < 0)
+                resedHeal = (event.getAmount()*(healingBonus/100));
             event.setAmount(event.getAmount()+(event.getAmount()*(healingBonus/100)));
             float healDebt = tag.getFloat("HealDebt");
             if(healDebt > 0) {
                 float lastHeal = event.getAmount();
                 event.setAmount(Math.max(0, lastHeal - healDebt));
-                if(healDebt-lastHeal > 0)
+                if(healDebt-lastHeal > 0) {
+                    resedHeal += lastHeal;
                     tag.putFloat("HealDebt", healDebt - lastHeal);
-                else tag.putFloat("HealDebt", 0);
+                }
+                else {
+                    resedHeal += event.getAmount();
+                    tag.putFloat("HealDebt", 0);
+                }
+            }
+            if(entity instanceof Player player) {
+                if(!VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) || event.getAmount() > 1 && player.getPersistentData().getFloat("VPArmor") > 0)
+                    player.getPersistentData().putFloat("VPArmor", 0);
+                if(VPUtil.hasVestige(ModItems.FLOWER.get(), player) && player.getPersistentData().getLong("VPDonutSpecial") > 0){
+                    for(LivingEntity livingEntity: VPUtil.getCreaturesAround(player,30,30,30)){
+                        livingEntity.heal(resedHeal);
+                    }
+                }
             }
             if(entity.getHealth()+event.getAmount() > entity.getMaxHealth() || entity.getPersistentData().getBoolean("VPMarkUlt")) {
                 float overHeal = entity.getHealth() + event.getAmount() - entity.getMaxHealth();
+                if(entity instanceof Player player && player.getPersistentData().getFloat("VPArmor") > 0) {
+                    if(!VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player))
+                        player.getPersistentData().putFloat("VPArmor", 0);
+                }
                 if(entity.getPersistentData().getBoolean("VPMarkUlt"))
                     overHeal = event.getAmount();
                 if(entity.getPersistentData().getBoolean("VPSweetUlt")){
@@ -373,9 +615,35 @@ public class EventHandler {
         }
     }
     @SubscribeEvent
+    public static void teleportEvent(EntityTeleportEvent event){
+        if(event.getEntity() instanceof LivingEntity entity){
+            if(entity.getPersistentData().getLong("VPAntiTP") > 0)
+                event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void entityChangeDimension(EntityTravelToDimensionEvent event){
+        if(event.getEntity() instanceof LivingEntity entity){
+            if(entity.getPersistentData().getLong("VPAntiTP") > 0)
+                event.setCanceled(true);
+        }
+    }
+    @SubscribeEvent
+    public static void playerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event){
+        Player player = event.getEntity();
+        if(player.getPersistentData().getLong("VPAntiTP") > 0)
+            event.setCanceled(true);
+    }
+    @SubscribeEvent
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
+        if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 30)
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION));
+        else entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION));
+        if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 50)
+            VPUtil.clearEffects(entity,true);
         if (entity.tickCount % 300 == 0) {
             if(tag.getFloat("HealResMask") != 0) {
                 tag.putFloat("HealResMask", 0);
@@ -386,6 +654,20 @@ public class EventHandler {
         }
         if (entity.tickCount % 2000 == 0) {
             tag.putString("VPCrownDamage","");
+        }
+        if(entity.getPersistentData().getLong("VPAntiTP") != 0 && entity.getPersistentData().getLong("VPAntiTP") <= System.currentTimeMillis())
+            entity.getPersistentData().putLong("VPAntiTP",0);
+        if(entity.getPersistentData().getLong("VPDonutSpecial") != 0 && entity.getPersistentData().getLong("VPDonutSpecial") <= System.currentTimeMillis())
+            entity.getPersistentData().putLong("VPDonutSpecial",0);
+        if(entity.getPersistentData().getLong("VPFlowerStellar") != 0 && entity.getPersistentData().getLong("VPFlowerStellar") <= System.currentTimeMillis())
+            entity.getPersistentData().putLong("VPFlowerStellar",0);
+        if(entity.getPersistentData().getLong("VPPrismBuff") != 0 && entity.getPersistentData().getLong("VPPrismBuff") <= System.currentTimeMillis()) {
+            entity.getPersistentData().putLong("VPPrismBuff", 0);
+            entity.getPersistentData().putString("VPPrismDamage","");
+        }
+        if(entity.getPersistentData().getLong("VPEnchant") != 0 && entity.getPersistentData().getLong("VPEnchant") <= System.currentTimeMillis()) {
+            entity.getPersistentData().putLong("VPEnchant", 0);
+            VPUtil.negativnoDisenchant(entity);
         }
         if(entity instanceof ServerPlayer player){  //entity.tickCount % 20 == 0 &&
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(),player.getPersistentData()),player);
@@ -427,6 +709,7 @@ public class EventHandler {
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player.level.getBiome(player.blockPosition()).toString(), player);
+                cap.addDimension(player,player.level.dimension().location().getPath());
                 for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
                     if(cap.getChallenge(i+1) >= cap.getMaximum(i+1) && !cap.hasCoolDown(i+1)){
                         cap.giveVestige(player,i+1);

@@ -23,12 +23,7 @@ public class SweetDonut extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         player.heal(player.getMaxHealth()*0.4f);
-        for (MobEffectInstance effectInstance : player.getActiveEffects()){
-            MobEffect effect = effectInstance.getEffect();
-            if (!effect.isBeneficial()) {
-                player.removeEffect(effect);
-            }
-        }
+        VPUtil.clearEffects(player,false);
         if(player.getHealth() <= player.getMaxHealth()*0.5)
             player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20,4));
         float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));

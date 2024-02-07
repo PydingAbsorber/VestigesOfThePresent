@@ -78,6 +78,7 @@ public class VestigesOfPresent
         VPUtil.initItems();
         VPUtil.initBlocks();
         VPUtil.initFlowers();
+        VPUtil.initWorlds();
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {

@@ -68,25 +68,22 @@ public class Midas extends Vestige{
                 int kills = stack.getOrCreateTag().getInt("VPKills");
                 if(Math.random() < (0.01/100)*kills)
                     stack.getOrCreateTag().putInt("VPLuck",stack.getOrCreateTag().getInt("VPLuck")+1);
-                while(kills > 0){
-                    if(kills > 9*9*9){
+                while (kills > 0 && isStellar) {
+                    if (kills > 9 * 9 * 9) {
                         player.addItem(new ItemStack(Items.GOLD_BLOCK, 9));
-                        kills -= 9*9*9;
-                    }
-                    else if(kills > 9*9){
+                        kills -= 9 * 9 * 9;
+                    } else if (kills > 9 * 9) {
                         player.addItem(new ItemStack(Items.GOLD_BLOCK, 1));
-                        kills -= 9*9;
-                    }
-                    else if(kills > 9) {
+                        kills -= 9 * 9;
+                    } else if (kills > 9) {
                         player.addItem(new ItemStack(Items.GOLD_INGOT, 1));
                         kills -= 9;
-                    }
-                    else {
+                    } else {
                         player.addItem(new ItemStack(Items.GOLD_NUGGET, 1));
                         kills -= 1;
                     }
                 }
-                stack.getOrCreateTag().putFloat("VPKills",0);
+                stack.getOrCreateTag().putInt("VPKills",0);
                 return true;
             }
             return false;
@@ -118,8 +115,8 @@ public class Midas extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
         if (!fuckNbtCheck1) {
+            player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
             super.onUnequip(slotContext, newStack, stack);
         } else fuckNbtCheck1 = false;
     }

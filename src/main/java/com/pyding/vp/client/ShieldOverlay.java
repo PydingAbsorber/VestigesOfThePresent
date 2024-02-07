@@ -65,7 +65,7 @@ public class ShieldOverlay {
             //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
             double log10 = Math.log10(shield);
             int move = (int) Math.floor(log10) + 1;
-            fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (131+20 + move), y - 20, 0x808080);
+            fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (131+20 + move), y - 20, 0x808080); //0x000000 for black
         }
 
         //94 54

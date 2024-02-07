@@ -2,12 +2,16 @@ package com.pyding.vp.item;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -17,6 +21,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class StellarFragment extends Item {
@@ -32,9 +37,6 @@ public class StellarFragment extends Item {
             cap.setChance(cap.getChance()+1);
             cap.sync(player);
         });
-        for(LivingEntity entity: VPUtil.ray(player,6,64,false)){
-            VPUtil.dropEntityLoot(entity,player);
-        }
         return super.use(p_41432_, player, p_41434_);
     }
 

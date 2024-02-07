@@ -2,6 +2,8 @@ package com.pyding.vp.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -15,6 +17,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.util.ICuriosHelper;
 
@@ -23,7 +29,7 @@ import java.util.List;
 
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("vestige")
+        dispatcher.register(Commands.literal("vestiges")
                 .then(Commands.literal("clear")
                         .requires(sender -> sender.hasPermission(2))
                         .then(Commands.literal("progress")
@@ -47,33 +53,106 @@ public class VPCommands {
                                         }
                                         return false;
                                     });
-                                    player.sendSystemMessage(Component.literal("Cooldowns refreshed successfully"));
+                                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                        cap.clearCoolDown(player);
+                                    });
+                                    player.sendSystemMessage(Component.literal("Cooldowns of Vestiges and Challenges refreshed successfully!"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                 )
-                .then(Commands.literal("progress")
+                .then(Commands.literal("info")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
-                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                                for(int i = 1; i < PlayerCapabilityVP.totalVestiges; i++){
-                                    int progress = cap.getChallenge(i);
-                                    if(i == 12)
-                                        progress = EventHandler.getCurses(player);
-                                    player.sendSystemMessage(Component.literal("Current progress for Vestige ").append(Component.translatable("vp.name."+i)));
-                                    player.sendSystemMessage(Component.translatable("vp.progress").withStyle(ChatFormatting.DARK_GREEN)
-                                            .append(Component.literal(" " + progress))
-                                            .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i))));
-                                }
-                                player.sendSystemMessage(Component.literal("Current chance for " + VPUtil.getRainbowString("Stellar:") + " " + cap.getChance()));
-                            });
+                            player.sendSystemMessage(Component.translatable("vp.info.mechanics"));
                             return Command.SINGLE_SUCCESS;
                         })
+                )
+                .then(Commands.literal("progress")
+                        .then(Commands.literal("show")
+                            .executes(context -> {
+                                ServerPlayer player = context.getSource().getPlayerOrException();
+                                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                    for(int i = 1; i < PlayerCapabilityVP.totalVestiges; i++){
+                                        int progress = cap.getChallenge(i);
+                                        if(i == 12)
+                                            progress = EventHandler.getCurses(player);
+                                        player.sendSystemMessage(Component.literal("Current progress for Vestige ").append(Component.translatable("vp.name."+i)));
+                                        player.sendSystemMessage(Component.translatable("vp.progress").withStyle(ChatFormatting.DARK_GREEN)
+                                                .append(Component.literal(" " + progress))
+                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i))));
+                                    }
+                                    player.sendSystemMessage(Component.literal("Current chance for " + VPUtil.getRainbowString("Stellar:") + " " + cap.getChance()));
+                                });
+                                return Command.SINGLE_SUCCESS;
+                            })
+                        )
+                        .then(Commands.literal("set").requires(sender -> sender.hasPermission(2))
+                                .then(Commands.argument("challengeNumber", IntegerArgumentType.integer())
+                                    .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                        .executes(context -> {
+                                            int challenge = IntegerArgumentType.getInteger(context, "challengeNumber");
+                                            int amount = IntegerArgumentType.getInteger(context, "amount");
+                                            if (challenge > PlayerCapabilityVP.totalVestiges) {
+                                                context.getSource().sendFailure(Component.literal("There is no such challenge number! >:("));
+
+                                                return 0;
+                                            }
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                                cap.setChallenge(challenge,amount,player);
+                                            });
+                                            player.sendSystemMessage(Component.literal("Progress for challenge " + challenge + " has been set to " + amount));
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                                    )
+                                )
+                        )
                 )
                 .then(Commands.literal("deadInside").requires(sender -> sender.hasPermission(2))
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             VPUtil.deadInside(player,player);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("damage").requires(sender -> sender.hasPermission(2))
+                        .then(Commands.argument("amount", FloatArgumentType.floatArg())
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    float amount = FloatArgumentType.getFloat(context, "amount");
+                                    player.hurt(DamageSource.GENERIC,amount);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("debug")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                cap.setDebug(player);
+                                player.sendSystemMessage(Component.literal("Debug now " + cap.getDebug()));
+                            });
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("itemInHandsFullInfo")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            ItemStack stack = player.getMainHandItem();
+                            if(stack != null){
+                                player.sendSystemMessage(Component.literal("Enchantments list: " + stack.getEnchantmentTags()));
+                                for(Enchantment enchantment: stack.getAllEnchantments().keySet()) {
+                                    player.sendSystemMessage(Component.literal("Ench name: " + enchantment.getDescriptionId()));
+                                    player.sendSystemMessage(Component.literal("Ench min lvl: " + enchantment.getMinLevel()));
+                                    player.sendSystemMessage(Component.literal("Ench max lvl: " + enchantment.getMaxLevel()));
+                                    player.sendSystemMessage(Component.literal("Ench lvl: " + stack.getEnchantmentLevel(enchantment)));
+                                    if(enchantment instanceof ProtectionEnchantment)
+                                        player.sendSystemMessage(Component.literal("Ench damage protection: " + enchantment.getDamageProtection(stack.getEnchantmentLevel(enchantment),DamageSource.GENERIC)));
+                                }
+                                player.sendSystemMessage(Component.literal("Tags: " + stack.getOrCreateTag()));
+                                player.sendSystemMessage(Component.literal("Damage: " + stack.getDamageValue()));
+                            }
                             return Command.SINGLE_SUCCESS;
                         })
                 )

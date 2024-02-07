@@ -107,6 +107,8 @@ public class Vestige extends Item implements ICurioItem {
 
     public int setSpecialActive(long seconds, Player player){
         //System.out.println(isSpecialActive+"from Vestige");
+        if(player.level.isClientSide)
+            return 0;
         if(this.currentChargeSpecial > 0) {
             this.time = System.currentTimeMillis() + seconds;  //active time in real seconds
             this.isSpecialActive = true;
@@ -118,6 +120,8 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setUltimateActive(long seconds, Player player){
+        if(player.level.isClientSide)
+            return 0;
         if(this.currentChargeUltimate > 0){
             float gravity = player.getPersistentData().getInt("VPGravity");
             ultimateBonusModifier = gravity*20;
@@ -190,6 +194,8 @@ public class Vestige extends Item implements ICurioItem {
         isStellar = isStellar(stack);
         ICurioItem.super.curioTick(slotContext, stack);
     }
+
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         if (color == null) {
@@ -202,16 +208,26 @@ public class Vestige extends Item implements ICurioItem {
             if (Screen.hasShiftDown()) {
                 components.add(Component.translatable("vp.passive").withStyle(color));
                 components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                if(vestigeNumber == 10)
+                    components.add(Component.translatable("vp.return").withStyle(color).append(Component.literal("\n"
+                            + stack.getOrCreateTag().getString("VPReturnKey") + " "
+                            + stack.getOrCreateTag().getDouble("VPReturnX") + "X, "
+                            + stack.getOrCreateTag().getDouble("VPReturnY") + "Y, "
+                            + stack.getOrCreateTag().getDouble("VPReturnZ") + "Z, ").withStyle(ChatFormatting.GRAY)));
                 components.add(Component.translatable("vp.special").withStyle(color)
-                        .append(Component.literal(" " + this.specialCharges).withStyle(color))
                         .append(Component.translatable("vp.charges").withStyle(color))
+                        .append(Component.literal(" " + this.specialCharges).withStyle(color))
+                        .append(Component.translatable("vp.charges2").withStyle(color))
                         .append(Component.literal(" " + this.specialCd / 20).withStyle(color)));
                 components.add(Component.translatable("vp.special." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 components.add(Component.translatable("vp.ultimate").withStyle(color)
-                        .append(Component.literal(" " + this.ultimateCharges).withStyle(color))
                         .append(Component.translatable("vp.charges").withStyle(color))
+                        .append(Component.literal(" " + this.ultimateCharges).withStyle(color))
+                        .append(Component.translatable("vp.charges2").withStyle(color))
                         .append(Component.literal(" " + this.ultimateCd / 20).withStyle(color)));
                 components.add(Component.translatable("vp.ultimate." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                if(vestigeNumber == 10)
+                    components.add(Component.translatable("vp.worlds").withStyle(color).append(Component.literal("\n" + cap.getDimensions()).withStyle(ChatFormatting.GRAY)));
                 if (damageType) {
                     components.add(Component.translatable("vp.damage").withStyle(color));
                     components.add(Component.translatable("vp.damagetype." + vestigeNumber).withStyle(ChatFormatting.GRAY));
@@ -230,14 +246,16 @@ public class Vestige extends Item implements ICurioItem {
                 while (visualSpecial > this.specialCd) {
                     visualSpecial -= this.specialCd;
                 }
-                components.add(Component.literal("Special Charges: " + this.currentChargeSpecial).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("Special Cd: " + visualSpecial).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("Ultimate Charges: " + this.currentChargeUltimate).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("Ultimate Cd: " + visualUlt).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("IsSpecialActive: " + isSpecialActive).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("IsUltimateActive: " + isUltimateActive).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("TimeSpecial: " + (time - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("TimeUltimate: " + (timeUlt - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
+                if(cap.getDebug()){
+                    components.add(Component.literal("Special Charges: " + this.currentChargeSpecial).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("Special Cd: " + visualSpecial).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("Ultimate Charges: " + this.currentChargeUltimate).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("Ultimate Cd: " + visualUlt).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("IsSpecialActive: " + isSpecialActive).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("IsUltimateActive: " + isUltimateActive).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("TimeSpecial: " + (time - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.literal("TimeUltimate: " + (timeUlt - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
+                }
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString(VPUtil.generateRandomString(7)) + " :")));
                 if(vestigeNumber == 9)
@@ -314,9 +332,15 @@ public class Vestige extends Item implements ICurioItem {
             if(vestigeNumber == 9){
                 int luck = stack.getOrCreateTag().getInt("VPLuck");
                 int kills = stack.getOrCreateTag().getInt("VPKills");
-                components.add(Component.literal("Kills: " + kills).withStyle(ChatFormatting.GRAY));
-                components.add(Component.literal("Luck: " + luck).withStyle(ChatFormatting.GRAY));
+                components.add(Component.literal("Kills: " + kills).withStyle(color));
+                components.add(Component.literal("Luck: " + luck).withStyle(color));
             }
+            if(vestigeNumber == 13)
+                components.add(Component.translatable("vp.prism").withStyle(color).append(Component.literal(stack.getOrCreateTag().getInt("VPPrismKill")+"").withStyle(ChatFormatting.GRAY)));
+            if(vestigeNumber == 15)
+                components.add(Component.translatable("vp.devourer").withStyle(color).append(Component.literal(stack.getOrCreateTag().getInt("VPDevoured")+"").withStyle(ChatFormatting.GRAY)));
+
+            components.add(Component.translatable("vp.info").withStyle(ChatFormatting.GRAY));
             if (isStellar(stack)) {
                 String name = symbolsRandom(stack);
                 Component component = Component.nullToEmpty(VPUtil.getRainbowString(name));

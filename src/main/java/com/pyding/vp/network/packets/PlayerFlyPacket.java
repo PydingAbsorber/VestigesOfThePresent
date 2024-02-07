@@ -4,6 +4,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
@@ -52,7 +53,8 @@ public class PlayerFlyPacket {
             VPUtil.fall(player,-10);
         }
         else if(number == 69){
-
+            BlockPos pos = new BlockPos(player.getPersistentData().getDouble("VPDevourerX"),player.getPersistentData().getDouble("VPDevourerY"),player.getPersistentData().getDouble("VPDevourerZ"));
+            VPUtil.suckToPos(player,pos,3);
         }
         else {
             Vec3 motion = new Vec3(0, number, 0);
