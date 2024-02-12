@@ -122,7 +122,7 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
-        float damage = 3;
+        float damage = 300;
         float healDebt = player.getMaxHealth()*3;
         if(player.getHealth() <= player.getMaxHealth()*0.5) {
             damage *= 2;
@@ -131,7 +131,7 @@ public class MaskOfDemon extends Vestige{
         player.getPersistentData().putFloat("HealDebt",player.getPersistentData().getFloat("HealDebt")+healDebt);
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
             entity.getPersistentData().putFloat("HealDebt",entity.getPersistentData().getFloat("HealDebt")+healDebt);
-            entity.hurt(DamageSource.playerAttack(player).bypassArmor(),VPUtil.getAttack(player)*damage);
+            VPUtil.dealDamage(entity,player,DamageSource.playerAttack(player).bypassArmor(),damage);
         }
         super.doUltimate(seconds, player, level);
     }

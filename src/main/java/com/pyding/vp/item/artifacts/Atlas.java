@@ -11,10 +11,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import top.theillusivec4.curios.api.SlotContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Atlas extends Vestige{
     public Atlas(){
@@ -54,13 +59,10 @@ public class Atlas extends Vestige{
             }
         }
         stellarBonus *= 10000;
-        BlockPos pos = VPUtil.rayPose(player,distance);
-        x = pos.getX();
-        y = pos.getY();
-        z = pos.getZ();
         if(player.level instanceof ServerLevel serverLevel) {
-            BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,player.blockPosition());
-            blackHole.setPos(player.getX(),player.getY(),player.getZ());
+            BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
+            BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos);
+            blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());
             serverLevel.addFreshEntity(blackHole);
         }
         return super.setUltimateActive(seconds+stellarBonus+gravity*1000, player);
@@ -82,4 +84,5 @@ public class Atlas extends Vestige{
             stackLocal = stack;
         super.curioTick(slotContext, stack);
     }
+
 }

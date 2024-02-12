@@ -43,16 +43,6 @@ public class StellarFragment extends Item {
             cap.setChance(cap.getChance()+1);
             cap.sync(player);
         });
-        if(level instanceof ServerLevel serverLevel){
-            float gravitation = 20;
-            BlackHole blackHole = new BlackHole(serverLevel,player,gravitation,player.blockPosition());
-            BlockPos pos = VPUtil.rayCords(player,serverLevel,30);
-            System.out.println(pos);
-            blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());
-            serverLevel.addFreshEntity(blackHole);
-            if(player instanceof ServerPlayer serverPlayer)
-                VPUtil.spawnParticles(serverPlayer, ParticleTypes.PORTAL, player.getX(), player.getY(), player.getZ(), 200, 1, 1, 1, 1, true);
-        }
         return super.use(level, player, p_41434_);
     }
 

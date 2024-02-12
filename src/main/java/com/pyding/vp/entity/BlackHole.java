@@ -16,6 +16,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,8 @@ public class BlackHole extends Projectile {
         setOwner(owner);
         serverPlayer = (ServerPlayer) getOwner();
         getPersistentData().putFloat("VPGravity",gravity);
-        //if(player instanceof ServerPlayer serverPlayer)
-            //PacketHandler.sendToAllAround(new SendEntityNbtToClient(getPersistentData(),position),serverPlayer);
+        int entityId = this.getId();
+        PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> this), new SendEntityNbtToClient(getPersistentData(),getId()));
     }
     @Override
     public void refreshDimensions() {

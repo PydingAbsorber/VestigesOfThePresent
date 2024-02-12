@@ -4,6 +4,7 @@ import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.commands.VPCommands;
+import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.*;
 import com.pyding.vp.network.PacketHandler;
@@ -740,11 +741,6 @@ public class EventHandler {
                     cap.setChaosTime(System.currentTimeMillis(),player);
                     cap.setRandomEntity(VPUtil.getRandomEntity(),player);
                 }
-                if(player.isSleepingLongEnough()){
-                    cap.addLore(player,2);
-                    if(!cap.getLore(player,3))
-                        cap.addLore(player,5);
-                }
             });
         }
     }
@@ -828,18 +824,15 @@ public class EventHandler {
         VPCommands.register(event.getDispatcher());
     }
 
-    /*@SubscribeEvent
+    @SubscribeEvent
     public static void sleep(PlayerSleepInBedEvent event){
 
         Player player = event.getEntity();
-        *//*player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap ->{
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap ->{
             cap.addLore(player,2);
-        });*//*
-
-        if(player.level.isClientSide)
-            System.out.println("client!!!! :(((((");
-        else System.out.println("YESS!!!!! :)))))");
-
-        PacketHandler.sendToServer(new ClientToServerPacket());
-    }*/
+            if(cap.getLore(player,3))
+                cap.addLore(player,5);
+        });
+        //PacketHandler.sendToServer(new ClientToServerPacket());
+    }
 }

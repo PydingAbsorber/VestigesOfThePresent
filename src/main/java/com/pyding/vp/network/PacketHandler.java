@@ -47,6 +47,7 @@ public class PacketHandler {
                 .consumerMainThread(ClientToServerPacket::handle)
                 .add();
         net.registerMessage(89,PlayerFlyPacket.class, PlayerFlyPacket::encode, PlayerFlyPacket::decode, PlayerFlyPacket::handle);
+        net.registerMessage(90,SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
@@ -64,5 +65,9 @@ public class PacketHandler {
         INSTANCE.send(PacketDistributor.NEAR.with(() ->
                 new PacketDistributor.TargetPoint(player.getX(), player.getY(), player.getZ(), 64,
                         player.level.dimension())),message);
+    }
+
+    public static void sendToClients(PacketDistributor.PacketTarget target, Object packet) {
+        INSTANCE.send(target, packet);
     }
 }

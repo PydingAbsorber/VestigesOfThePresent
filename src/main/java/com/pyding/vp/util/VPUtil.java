@@ -5,14 +5,17 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
+import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -57,6 +60,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
@@ -158,12 +162,12 @@ public class VPUtil {
         }
     }
 
-    public static float getAttack(Player player){
-        //float attack = (float) player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-        /*if(player.getMainHandItem().getItem() instanceof TieredItem tieredItem){
-            attack += tieredItem.getTier().getAttackDamageBonus();
-        }*/
-        return (float) player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+    public static float getAttack(Player player, boolean hasDurability){
+        float attack = (float) player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+        if(!hasDurability && player.getMainHandItem().getItem() instanceof TieredItem tieredItem){
+            attack -= tieredItem.getTier().getAttackDamageBonus();
+        }
+        return attack;
     }
 
     public static List<EntityType<?>> entities = new ArrayList<>();
@@ -383,15 +387,18 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent){
-        if(!isFriendlyFireBetween(entity,player))
+        if(isFriendlyFireBetween(entity,player))
             return;
         entity.invulnerableTime = 0;
         percent /= 100;
-        entity.hurt(source,getAttack(player)*percent);
         ItemStack stack = player.getMainHandItem();
-        stack.hurtAndBreak(1,entity,consumer -> {
-            consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
-        });
+        boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
+        if(hasDurability) {
+            stack.hurtAndBreak(1, entity, consumer -> {
+                consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
+            });
+        }
+        entity.hurt(source,getAttack(player,hasDurability)*percent);
     }
 
     public static final List<String> vanillaFlowers = Arrays.asList(
@@ -617,36 +624,40 @@ public class VPUtil {
             entity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 3 * 20));
         }
     }
+    public static List<Attribute> attributeList(){
+        List<Attribute> list = new ArrayList<>();
+        list.add(Attributes.ATTACK_DAMAGE);
+        list.add(Attributes.MOVEMENT_SPEED);
+        list.add(Attributes.ATTACK_SPEED);
+        list.add(Attributes.ARMOR);
+        list.add(Attributes.ARMOR_TOUGHNESS);
+        list.add(Attributes.ATTACK_KNOCKBACK);
+        list.add(Attributes.FLYING_SPEED);
+        list.add(Attributes.JUMP_STRENGTH);
+        list.add(Attributes.LUCK);
+        list.add(Attributes.MAX_HEALTH);
+        list.add(Attributes.KNOCKBACK_RESISTANCE);
+        return list;
+    }
 
     public static int compareStats(LivingEntity owner, LivingEntity victim, boolean self){
-        int stats = 0;
+        int selfStats = 0;
+        int enemyStats = 0;
         AttributeMap map = owner.getAttributes();
         AttributeMap map2 = victim.getAttributes();
-        if(map.getValue(Attributes.ATTACK_DAMAGE) > map2.getValue(Attributes.ATTACK_DAMAGE))
-            stats++;
-        if(map.getValue(Attributes.MOVEMENT_SPEED) > map2.getValue(Attributes.MOVEMENT_SPEED))
-            stats++;
-        if(map.getValue(Attributes.ATTACK_SPEED) > map2.getValue(Attributes.ATTACK_SPEED))
-            stats++;
-        if(map.getValue(Attributes.ARMOR) > map2.getValue(Attributes.ARMOR))
-            stats++;
-        if(map.getValue(Attributes.ARMOR_TOUGHNESS) > map2.getValue(Attributes.ARMOR_TOUGHNESS))
-            stats++;
-        if(map.getValue(Attributes.ATTACK_KNOCKBACK) > map2.getValue(Attributes.ATTACK_KNOCKBACK))
-            stats++;
-        if(map.getValue(Attributes.FLYING_SPEED) > map2.getValue(Attributes.FLYING_SPEED))
-            stats++;
-        if(map.getValue(Attributes.JUMP_STRENGTH) > map2.getValue(Attributes.JUMP_STRENGTH))
-            stats++;
-        if(map.getValue(Attributes.LUCK) > map2.getValue(Attributes.LUCK))
-            stats++;
-        if(map.getValue(Attributes.MAX_HEALTH) > map2.getValue(Attributes.MAX_HEALTH))
-            stats++;
-        if(map.getValue(Attributes.KNOCKBACK_RESISTANCE) > map2.getValue(Attributes.KNOCKBACK_RESISTANCE))
-            stats++;
+        List<Attribute> list = attributeList();
+        for(int i = 0; i < list.size(); i++){
+            if(map.hasAttribute(list.get(i)) && map2.hasAttribute(list.get(i))) {
+                if (map.getValue(list.get(i)) > map2.getValue(list.get(i)))
+                    selfStats++;
+                else enemyStats++;
+            } else if(map.hasAttribute(list.get(i)) && !map2.hasAttribute(list.get(i)))
+                selfStats++;
+            else enemyStats++;
+        }
         if(self)
-            return stats;
-        else return 11-stats;
+            return selfStats;
+        else return enemyStats;
     }
 
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
@@ -820,14 +831,19 @@ public class VPUtil {
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
         +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
         float shield;
-        if(!add)
-            shield = amount;
+        if(!add) {
+            if(amount*(1 + shieldBonus/100) > tag.getFloat("VPShield"))
+                shield = amount;
+            else return;
+        }
         else shield = tag.getFloat("VPShield") + amount;
         shield = shield*(1 + shieldBonus/100);
         if(!tag.getBoolean("VPAntiShield"))
             tag.putFloat("VPShield",shield);
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+        } else {
+            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
         if(tag.getFloat("VPShieldInit") == 0)
             tag.putFloat("VPShieldInit",shield);
@@ -1204,9 +1220,13 @@ public class VPUtil {
         Vec3 viewDirection = entity.getViewVector(1.0F);
         Vec3 targetPosition = eyePosition.add(viewDirection.x * distance, viewDirection.y * distance, viewDirection.z * distance);
         BlockHitResult hitResult = level.clip(new ClipContext(eyePosition, targetPosition, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, entity));
+        BlockPos finalBlockPos;
         if (hitResult.getType() == BlockHitResult.Type.BLOCK) {
-            return hitResult.getBlockPos();
+            finalBlockPos = hitResult.getBlockPos();
+        } else {
+            finalBlockPos = new BlockPos(targetPosition);
         }
-        return null;
+
+        return finalBlockPos;
     }
 }

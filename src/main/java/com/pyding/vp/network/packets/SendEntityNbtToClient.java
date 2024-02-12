@@ -16,37 +16,37 @@ import java.util.function.Supplier;
 
 public class SendEntityNbtToClient {
     private CompoundTag tag;
-    public BlockPos pos;
+    private int id;
 
-    public SendEntityNbtToClient(CompoundTag tag, BlockPos position) {
+    public SendEntityNbtToClient(CompoundTag tag, int identifier) {
         this.tag = tag;
-        pos = position;
+        id = identifier;
     }
 
     public static void encode(SendEntityNbtToClient msg, FriendlyByteBuf buf) {
         buf.writeNbt(msg.tag);
-        buf.writeBlockPos(msg.pos);
+        buf.writeInt(msg.id);
     }
 
     public static SendEntityNbtToClient decode(FriendlyByteBuf buf) {
-        return new SendEntityNbtToClient(buf.readNbt(), buf.readBlockPos());
+        return new SendEntityNbtToClient(buf.readNbt(), buf.readInt());
     }
 
     public static void handle(SendEntityNbtToClient msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            handle2(msg.tag, msg.pos);
+            handle2(msg.tag, msg.id);
         });
 
         ctx.get().setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void handle2(CompoundTag tag, BlockPos pos) {
-        double r = 40;
-        List<LivingEntity> entityList = Minecraft.getInstance().level.getNearbyEntities(LivingEntity.class,null,null, new AABB(pos.getX()+r,pos.getY()+r,pos.getZ()+r,pos.getX()-r,pos.getY()-r,pos.getZ()-r));
-        System.out.println(entityList);
-        for(LivingEntity entity: entityList){
-            entity.getPersistentData().merge(tag);
+    private static void handle2(CompoundTag tag, int id) {
+        var level = Minecraft.getInstance().level;
+        if (level == null) {
+            return;
         }
+        var entity = level.getEntity(id);
+        entity.getPersistentData().merge(tag);
     }
 }

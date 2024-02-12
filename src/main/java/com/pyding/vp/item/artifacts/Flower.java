@@ -3,10 +3,15 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import top.theillusivec4.curios.api.SlotContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Flower extends Vestige{
     public Flower(){
@@ -22,7 +27,7 @@ public class Flower extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
         float healRes = 0;
-        for(LivingEntity entity: VPUtil.getCreaturesAround(player,30,30,30)){
+        for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
             healRes += VPUtil.missingHealth(entity)/10;
             if(isStellar)
                 entity.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
@@ -48,6 +53,9 @@ public class Flower extends Vestige{
                 damage += stack.getDamageValue();
         }
         VPUtil.addShield(player,damage,false);
+        for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
+            VPUtil.addShield(entity,damage,false);
+        }
         super.doUltimate(seconds, player, level);
     }
 
@@ -65,5 +73,14 @@ public class Flower extends Vestige{
         player.getPersistentData().putFloat("VPHealResFlower",0);
         player.getPersistentData().putFloat("VPShieldBonusFlower",0);
         super.onEquip(slotContext, prevStack, stack);
+    }
+
+    public static List<LivingEntity> getCreaturesAround(Player player, double x, double y, double z){
+        List<LivingEntity> list = new ArrayList<>();
+        for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            if(entity instanceof Animal || entity instanceof Player)
+                list.add(entity);
+        }
+        return list;
     }
 }
