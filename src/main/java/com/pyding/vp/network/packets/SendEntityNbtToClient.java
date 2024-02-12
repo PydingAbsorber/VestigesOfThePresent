@@ -1,9 +1,11 @@
 package com.pyding.vp.network.packets;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -42,11 +44,15 @@ public class SendEntityNbtToClient {
 
     @OnlyIn(Dist.CLIENT)
     private static void handle2(CompoundTag tag, int id) {
-        var level = Minecraft.getInstance().level;
-        if (level == null) {
-            return;
+        ClientLevel level = Minecraft.getInstance().level;
+        Entity entity = level.getEntity(id);
+        System.out.println("packet");
+        System.out.println(tag);
+        System.out.println(id);
+        if(entity != null) {
+            System.out.println(entity);
+            entity.getPersistentData().merge(tag);
+            System.out.println(entity.getPersistentData());
         }
-        var entity = level.getEntity(id);
-        entity.getPersistentData().merge(tag);
     }
 }

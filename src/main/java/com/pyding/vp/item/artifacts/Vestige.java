@@ -421,12 +421,14 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void doSpecial(long seconds, Player player, Level level){}
-    public void doUltimate(long seconds, Player player, Level level){}
+    public void doUltimate(long seconds, Player player, Level level){
+        player.getPersistentData().putInt("VPGravity",0);
+    }
     public void specialEnds(Player player){
 
     }
     public void ultimateEnds(Player player){
-        player.getPersistentData().putInt("VPGravity",0);
+
     }
 
     public void whileSpecial(Player player){

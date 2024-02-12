@@ -51,21 +51,27 @@ public class Atlas extends Vestige{
     int distance = 30;
     @Override
     public int setUltimateActive(long seconds, Player player) {
-        long gravity = player.getPersistentData().getInt("VPGravity");
+        long gravity = Math.max(30,player.getPersistentData().getInt("VPGravity"));
         long stellarBonus = 0;
         if(isStellar){
             for (LivingEntity entity : VPUtil.ray(player, 8 + gravity, distance, false)) {
                 stellarBonus++;
             }
         }
-        stellarBonus *= 10000;
+        stellarBonus = 1 + stellarBonus/10;
+        return super.setUltimateActive(seconds*stellarBonus+gravity*1000, player);
+    }
+
+    @Override
+    public void doUltimate(long seconds, Player player, Level level) {
+        long gravity = Math.max(30,player.getPersistentData().getInt("VPGravity"));
         if(player.level instanceof ServerLevel serverLevel) {
             BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
             BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos);
             blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());
             serverLevel.addFreshEntity(blackHole);
         }
-        return super.setUltimateActive(seconds+stellarBonus+gravity*1000, player);
+        super.doUltimate(seconds, player, level);
     }
 
     @Override

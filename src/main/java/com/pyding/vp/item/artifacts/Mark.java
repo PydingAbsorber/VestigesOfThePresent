@@ -36,7 +36,6 @@ public class Mark extends Vestige{
     @Override
     public int setUltimateActive(long seconds, Player player) {
         if(player.getHealth() < player.getMaxHealth()*0.3){
-            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
             seconds += 10 * 1000;
         }
         return super.setUltimateActive(seconds, player);
@@ -54,6 +53,9 @@ public class Mark extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        if(player.getHealth() < player.getMaxHealth()*0.3){
+            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
+        }
         player.getPersistentData().putBoolean("VPMarkUlt",true);
         player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*10);
         super.doUltimate(seconds, player, level);

@@ -87,7 +87,7 @@ public class EventHandler {
             return;
         if(event.getSource().getEntity() instanceof Player player){
             if(event.getSource().isFall() && player.getPersistentData().getInt("VPGravity") < 30)
-                player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
+                player.getPersistentData().putInt("VPGravity",Math.min(30,player.getPersistentData().getInt("VPGravity")+1));
             if(VPUtil.hasVestige(ModItems.ANEMOCULUS.get(),player) && !entity.isOnGround()){
                 event.setAmount(event.getAmount()*7);
                 VPUtil.equipmentDurability(10,entity,player,VPUtil.hasStellarVestige(ModItems.ANEMOCULUS.get(),player));
@@ -640,6 +640,8 @@ public class EventHandler {
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
+        if (entity.getPersistentData().getInt("VPGravity") > 30)
+            entity.getPersistentData().putInt("VPGravity", 30);
         if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 30)
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION));
         else entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION));
