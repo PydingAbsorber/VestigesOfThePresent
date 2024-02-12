@@ -85,7 +85,7 @@ public class EventHandler {
         if(event.getSource() == null)
             return;
         if(event.getSource().getEntity() instanceof Player player){
-            if(event.getSource().isFall())
+            if(event.getSource().isFall() && player.getPersistentData().getInt("VPGravity") < 30)
                 player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
             if(VPUtil.hasVestige(ModItems.ANEMOCULUS.get(),player) && !entity.isOnGround()){
                 event.setAmount(event.getAmount()*7);
@@ -702,10 +702,12 @@ public class EventHandler {
                 if(list.size() > 1)
                     slotResult = (SlotResult) list.get(1);
                 else slotResult =  api.findFirstCurio(player, (stackInSlot) -> stackInSlot.getItem() instanceof Vestige).orElse(null);
-                Vestige vestige = (Vestige) slotResult.stack().getItem();
-                if (!player.isShiftKeyDown())
-                    vestige.setSpecialActive(vestige.getSpecialMaxTime(),player);
-                else vestige.setUltimateActive(vestige.getUltimateMaxTime(),player);
+                if(slotResult != null) {
+                    Vestige vestige = (Vestige) slotResult.stack().getItem();
+                    if (!player.isShiftKeyDown())
+                        vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
+                    else vestige.setUltimateActive(vestige.getUltimateMaxTime(), player);
+                }
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player.level.getBiome(player.blockPosition()).toString(), player);

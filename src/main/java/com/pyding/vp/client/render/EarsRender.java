@@ -2,7 +2,7 @@ package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pyding.vp.VestigesOfPresent;
-import com.pyding.vp.item.artifacts.ears;
+import com.pyding.vp.item.models.ears;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;

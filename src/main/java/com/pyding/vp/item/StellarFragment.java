@@ -1,12 +1,18 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.particle.BubbleParticle;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,14 +36,24 @@ public class StellarFragment extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level p_41432_, Player player, InteractionHand p_41434_) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
         ItemStack stack = player.getItemInHand(p_41434_);
         stack.split(1);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.setChance(cap.getChance()+1);
             cap.sync(player);
         });
-        return super.use(p_41432_, player, p_41434_);
+        if(level instanceof ServerLevel serverLevel){
+            float gravitation = 20;
+            BlackHole blackHole = new BlackHole(serverLevel,player,gravitation,player.blockPosition());
+            BlockPos pos = VPUtil.rayCords(player,serverLevel,30);
+            System.out.println(pos);
+            blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());
+            serverLevel.addFreshEntity(blackHole);
+            if(player instanceof ServerPlayer serverPlayer)
+                VPUtil.spawnParticles(serverPlayer, ParticleTypes.PORTAL, player.getX(), player.getY(), player.getZ(), 200, 1, 1, 1, 1, true);
+        }
+        return super.use(level, player, p_41434_);
     }
 
     @Override

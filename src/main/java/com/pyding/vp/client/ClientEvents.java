@@ -1,6 +1,8 @@
 package com.pyding.vp.client;
 
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.client.render.BlackHoleRenderer;
+import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
 import com.pyding.vp.network.packets.ButtonPressPacket2;
@@ -8,6 +10,7 @@ import com.pyding.vp.util.KeyBinding;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -38,7 +41,12 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
-            event.registerAboveAll("thirst", ShieldOverlay.HUD_SHIELD);
+            event.registerAboveAll("vpshield", ShieldOverlay.HUD_SHIELD);
+        }
+
+        @SubscribeEvent
+        public static void rendererRegister(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(ModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
         }
     }
 }

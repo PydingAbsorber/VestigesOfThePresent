@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MinEnchLvlMixin {
     @Inject(method = "getMinLevel",at = @At("HEAD"),cancellable = true, require = 1)
     private void fuckEnchantmentsTwice(CallbackInfoReturnable<Integer> info){
-        info.setReturnValue(-255);
+        //info.setReturnValue(-255);
     }
 }

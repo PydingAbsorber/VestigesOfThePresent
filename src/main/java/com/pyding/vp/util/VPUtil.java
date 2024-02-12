@@ -9,6 +9,7 @@ import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -35,11 +36,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -49,6 +52,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -378,6 +383,8 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent){
+        if(!isFriendlyFireBetween(entity,player))
+            return;
         entity.invulnerableTime = 0;
         percent /= 100;
         entity.hurt(source,getAttack(player)*percent);
@@ -862,8 +869,6 @@ public class VPUtil {
 
     public static BlockPos rayPose(Player player, int maxDist) {
         Vector3 target = Vector3.fromEntityCenter(player);
-        List<LivingEntity> entities = new ArrayList<>();
-
         for (int distance = 1; distance < maxDist; ++distance) {
             target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
         }
@@ -1166,5 +1171,42 @@ public class VPUtil {
 
     public static boolean isDamagePhysical(DamageSource source){
         return !source.isFire() && !source.isMagic() && !source.isBypassInvul() && !source.isBypassEnchantments() && !source.isBypassMagic();
+    }
+
+    public static boolean isFriendlyFireBetween(Entity attacker, Entity target) {
+        if (attacker == null || target == null)
+            return false;
+        var team = attacker.getTeam();
+        if (team != null) {
+            return team.isAlliedTo(target.getTeam()) && !team.isAllowFriendlyFire();
+        }
+        return attacker.isAlliedTo(target);
+    }
+
+    public static void spawnParticles(ServerPlayer player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
+        if(player.level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(player, particle, force, x, y, z, count, deltaX, deltaY, deltaZ, speed);
+        }
+    }
+
+    public static boolean isEntityLookingAt(LivingEntity looker, Entity seen, double degree) {
+        degree *= 1 + (looker.distanceTo(seen) * 0.1);
+        Vec3 vec3 = looker.getViewVector(1.0F).normalize();
+        Vec3 vec31 = new Vec3(seen.getX() - looker.getX(), seen.getBoundingBox().minY + (double) seen.getEyeHeight() - (looker.getY() + (double) looker.getEyeHeight()), seen.getZ() - looker.getZ());
+        double d0 = vec31.length();
+        vec31 = vec31.normalize();
+        double d1 = vec3.dot(vec31);
+        return d1 > 1.0D - degree / d0 && looker.hasLineOfSight(seen);
+    }
+
+    public static BlockPos rayCords(LivingEntity entity, Level level, double distance){
+        Vec3 eyePosition = entity.getEyePosition(1.0F);
+        Vec3 viewDirection = entity.getViewVector(1.0F);
+        Vec3 targetPosition = eyePosition.add(viewDirection.x * distance, viewDirection.y * distance, viewDirection.z * distance);
+        BlockHitResult hitResult = level.clip(new ClipContext(eyePosition, targetPosition, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, entity));
+        if (hitResult.getType() == BlockHitResult.Type.BLOCK) {
+            return hitResult.getBlockPos();
+        }
+        return null;
     }
 }

@@ -1,10 +1,13 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.entity.BlackHole;
+import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -45,7 +48,7 @@ public class Atlas extends Vestige{
     public int setUltimateActive(long seconds, Player player) {
         long gravity = player.getPersistentData().getInt("VPGravity");
         long stellarBonus = 0;
-        if(isStellar(stackLocal)){
+        if(isStellar){
             for (LivingEntity entity : VPUtil.ray(player, 8 + gravity, distance, false)) {
                 stellarBonus++;
             }
@@ -55,11 +58,10 @@ public class Atlas extends Vestige{
         x = pos.getX();
         y = pos.getY();
         z = pos.getZ();
-        for (LivingEntity entity : VPUtil.ray(player, 8 + gravity, distance, false)) {
-            entity.getPersistentData().putInt("VPBlackHoleX",x);
-            entity.getPersistentData().putInt("VPBlackHoleX",y);
-            entity.getPersistentData().putInt("VPBlackHoleX",z);
-            entity.getPersistentData().putLong("VPBlackHoleTime",seconds+stellarBonus+gravity*1000);
+        if(player.level instanceof ServerLevel serverLevel) {
+            BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,player.blockPosition());
+            blackHole.setPos(player.getX(),player.getY(),player.getZ());
+            serverLevel.addFreshEntity(blackHole);
         }
         return super.setUltimateActive(seconds+stellarBonus+gravity*1000, player);
     }
