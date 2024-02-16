@@ -227,8 +227,10 @@ public class PlayerCapabilityVP {
     }
 
     public boolean hasCoolDown(int vp){
-        if(this.coolDowned.contains(""+vp))
-            return true;
+        for(String element: coolDowned.split(",")){
+            if (element.equals(Integer.toString(vp)))
+                return true;
+        }
         return false;
     }
     public void addGold(String gold, Player player){

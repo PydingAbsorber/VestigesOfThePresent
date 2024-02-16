@@ -1,9 +1,11 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -30,6 +32,9 @@ public class Anemoculus extends Vestige{
         else for(LivingEntity entity: VPUtil.getEntities(player,16)){
             VPUtil.suckEntity(entity,player,2,true);
         }
+        if(Math.random() < 0.5)
+            VPUtil.play(player,SoundRegistry.WIND1.get());
+        else VPUtil.play(player,SoundRegistry.WIND2.get());
         super.doSpecial(seconds, player, level);
     }
 
@@ -38,6 +43,7 @@ public class Anemoculus extends Vestige{
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
         player.onUpdateAbilities();
+        VPUtil.play(player,SoundRegistry.WIND3.get());
         super.doUltimate(seconds, player, level);
     }
 

@@ -1,0 +1,157 @@
+{
+  "wind1": {
+    "sounds": [
+      "vp:wind1"
+    ]
+  },
+  "wind2": {
+    "sounds": [
+      "vp:wind2"
+    ]
+  },
+  "black_hole": {
+    "sounds": [
+      "vp:black_hole"
+    ]
+  },
+  "horn1": {
+    "sounds": [
+      "vp:horn1"
+    ]
+  },
+  "horn2": {
+    "sounds": [
+      "vp:horn2"
+    ]
+  },
+  "shield": {
+    "sounds": [
+      "vp:shield"
+    ]
+  },
+  "shield_break": {
+    "sounds": [
+      "vp:shield_break"
+    ]
+  },
+  "death1": {
+    "sounds": [
+      "vp:death1"
+    ]
+  },
+  "death2": {
+    "sounds": [
+      "vp:death2"
+    ]
+  },
+  "chaos_core": {
+    "sounds": [
+      "vp:chaos_core"
+    ]
+  },
+  "crown": {
+    "sounds": [
+      "vp:crown"
+    ]
+  },
+  "crown_ult": {
+    "sounds": [
+      "vp:crown_ult"
+    ]
+  },
+  "devourer_bind": {
+    "sounds": [
+      "vp:devourer_bind"
+    ]
+  },
+  "explode1": {
+    "sounds": [
+      "vp:explode1"
+    ]
+  },
+  "explode2": {
+    "sounds": [
+      "vp:explode2"
+    ]
+  },
+  "rage": {
+    "sounds": [
+      "vp:rage"
+    ]
+  },
+  "success": {
+    "sounds": [
+      "vp:success"
+    ]
+  },
+  "impact": {
+    "sounds": [
+      "vp:impact"
+    ]
+  },
+  "stolas1": {
+    "sounds": [
+      "vp:stolas1"
+    ]
+  },
+  "heal1": {
+    "sounds": [
+      "vp:heal1"
+    ]
+  },
+  "heal2": {
+    "sounds": [
+      "vp:heal2"
+    ]
+  },
+  "heal3": {
+    "sounds": [
+      "vp:heal3"
+    ]
+  },
+  "magic_effect1": {
+    "sounds": [
+      "vp:magic_effect1"
+    ]
+  },
+  "magic_effect2": {
+    "sounds": [
+      "vp:magic_effect2"
+    ]
+  },
+  "magic1": {
+    "sounds": [
+      "vp:magic1"
+    ]
+  },
+  "magic2": {
+    "sounds": [
+      "vp:magic2"
+    ]
+  },
+  "magic3": {
+    "sounds": [
+      "vp:magic3"
+    ]
+  },
+  "soul": {
+    "sounds": [
+      "vp:soul"
+    ]
+  },
+  "soul2": {
+    "sounds": [
+      "vp:soul2"
+    ]
+  },
+  "soul3": {
+    "sounds": [
+      "vp:soul3"
+    ]
+  },
+  "wind3": {
+    "sounds": [
+      "vp:wind3"
+    ]
+  }
+}

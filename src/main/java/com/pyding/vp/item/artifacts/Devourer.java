@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
@@ -45,6 +46,7 @@ public class Devourer extends Vestige{
             entity.getPersistentData().putDouble("VPDevourerY",entity.getY());
             entity.getPersistentData().putDouble("VPDevourerZ",entity.getZ());
         }
+        VPUtil.play(player,SoundRegistry.DEVOURER_BIND.get());
         super.doSpecial(seconds, player, level);
     }
 
@@ -61,6 +63,7 @@ public class Devourer extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.SOUL2.get());
         player.getPersistentData().putInt("VPDevourerHits",100);
         super.doUltimate(seconds, player, level);
     }

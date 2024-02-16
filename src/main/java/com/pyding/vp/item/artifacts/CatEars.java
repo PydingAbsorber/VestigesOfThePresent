@@ -2,7 +2,10 @@ package com.pyding.vp.item.artifacts;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -29,6 +32,7 @@ public class CatEars extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player, SoundEvents.CAT_STRAY_AMBIENT);
         player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
         player.getPersistentData().putBoolean("VPEarsSpecial",true);
         super.doSpecial(seconds, player, level);
@@ -36,6 +40,7 @@ public class CatEars extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player, SoundEvents.CAT_AMBIENT);
         player.getPersistentData().putBoolean("VPEarsUlt",true);
         super.doUltimate(seconds, player, level);
     }

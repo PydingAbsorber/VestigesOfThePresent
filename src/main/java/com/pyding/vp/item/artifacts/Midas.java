@@ -2,8 +2,10 @@ package com.pyding.vp.item.artifacts;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -54,6 +56,7 @@ public class Midas extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.MAGIC1.get());
         player.getPersistentData().putFloat("VPMidasTouch",10);
         super.doSpecial(seconds, player, level);
     }
@@ -66,8 +69,10 @@ public class Midas extends Vestige{
             if(stackInSlot.getItem() instanceof Midas midas) {
                 ItemStack stack = stackInSlot;
                 int kills = stack.getOrCreateTag().getInt("VPKills");
-                if(Math.random() < (0.01/100)*kills)
-                    stack.getOrCreateTag().putInt("VPLuck",stack.getOrCreateTag().getInt("VPLuck")+1);
+                if(Math.random() < (0.01/100)*kills) {
+                    stack.getOrCreateTag().putInt("VPLuck", stack.getOrCreateTag().getInt("VPLuck") + 1);
+                    VPUtil.play(player,SoundRegistry.SUCCESS.get());
+                } else VPUtil.play(player,SoundEvents.IRON_GOLEM_DEATH);
                 while (kills > 0 && isStellar) {
                     if (kills > 9 * 9 * 9) {
                         player.addItem(new ItemStack(Items.GOLD_BLOCK, 9));

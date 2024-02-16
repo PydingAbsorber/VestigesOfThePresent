@@ -64,7 +64,7 @@ public class Atlas extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
-        long gravity = Math.max(30,player.getPersistentData().getInt("VPGravity"));
+        long gravity = Math.min(30,player.getPersistentData().getInt("VPGravity"));
         if(player.level instanceof ServerLevel serverLevel) {
             BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
             BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos);

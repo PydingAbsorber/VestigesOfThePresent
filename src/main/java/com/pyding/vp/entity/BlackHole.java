@@ -1,5 +1,6 @@
 package com.pyding.vp.entity;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.util.VPUtil;
@@ -76,23 +77,23 @@ public class BlackHole extends Projectile {
         setGlowingTag(true);
         for(LivingEntity entity: level.getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
             if(entity != player) {
-                VPUtil.suckToPos(entity,blockPosition(),r/entity.distanceTo(this));
+                VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
+                //VPUtil.moveSpiral(entity,blockPosition(),1);
+                if (entity.distanceTo(this) <= Math.max(10,gravity-10))
                 VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).bypassArmor().bypassInvul(),400/entity.distanceTo(this));
             }
         }
         if (!level.isClientSide) {
             if (tickCount > 20 * (gravity+2)) {
                 this.discard();
-                //this.playSound(SoundRegistry.BLACK_HOLE_CAST.get(), getRadius() / 2f, 1);
                 //MagicManager.spawnParticles(level, ParticleHelper.UNSTABLE_ENDER, getX(), getY() + getRadius(), getZ(), 200, 1, 1, 1, 1, true);
             } else if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
-                //TODO: stop sound
-                //this.playSound(SoundRegistry.BLACK_HOLE_LOOP.get(), getRadius() / 3f, 1);
+                this.playSound(SoundRegistry.BLACK_HOLE.get(), gravity, 1);
             }
         }
     }
 
-    private static final int loopSoundDurationInTicks = 320;
+    private static final int loopSoundDurationInTicks = 6 * 20;
 
     @Override
     public boolean displayFireAnimation() {

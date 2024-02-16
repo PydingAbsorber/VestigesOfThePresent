@@ -1,6 +1,7 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,6 +28,7 @@ public class Prism extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.SOUL2.get());
         LivingEntity entity = VPUtil.getRandomEntityNear(player,isStellar);
         if(entity != null) {
             entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis()+specialMaxTime);
@@ -37,6 +39,7 @@ public class Prism extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.SOUL.get());
         super.doUltimate(seconds, player, level);
     }
 

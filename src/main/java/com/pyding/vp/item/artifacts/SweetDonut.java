@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffect;
@@ -22,6 +23,7 @@ public class SweetDonut extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.HEAL3.get());
         player.heal(player.getMaxHealth()*0.4f);
         VPUtil.clearEffects(player,false);
         if(player.getHealth() <= player.getMaxHealth()*0.5)
@@ -40,6 +42,7 @@ public class SweetDonut extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.HEAL1.get());
         player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
         player.getPersistentData().putBoolean("VPSweetUlt",true);
         super.doUltimate(seconds, player, level);

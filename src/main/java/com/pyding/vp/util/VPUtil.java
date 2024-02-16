@@ -2,11 +2,14 @@ package com.pyding.vp.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.mojang.math.Vector3d;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
+import com.pyding.vp.network.packets.SoundPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -18,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -845,8 +849,10 @@ public class VPUtil {
         } else {
             PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
-        if(tag.getFloat("VPShieldInit") == 0)
-            tag.putFloat("VPShieldInit",shield);
+        if(tag.getFloat("VPShieldInit") == 0) {
+            tag.putFloat("VPShieldInit", shield);
+            play(entity,SoundRegistry.SHIELD.get());
+        }
     }
 
     public static float getShield(LivingEntity entity){
@@ -855,6 +861,9 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity,Player player){
+        if(Math.random() < 0.5)
+            play(entity,SoundRegistry.DEATH1.get());
+        else play(entity,SoundRegistry.DEATH2.get());
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
         entity.setHealth(0);
         entity.die(DamageSource.playerAttack(player));
@@ -934,7 +943,7 @@ public class VPUtil {
 
     public static float getHealBonus(LivingEntity entity){
         CompoundTag tag = entity.getPersistentData();
-        float healBonus = Math.max(-99,tag.getFloat("HealResMask")+tag.getFloat("VPHealResFlower")+tag.getFloat("VPHealBonusDonut")+tag.getFloat("VPHealBonusDonutPassive"));
+        float healBonus = Math.max(-99,tag.getFloat("VPHealResMask")+tag.getFloat("VPHealResFlower")+tag.getFloat("VPHealBonusDonut")+tag.getFloat("VPHealBonusDonutPassive"));
         return healBonus;
     }
 
@@ -1228,5 +1237,34 @@ public class VPUtil {
         }
 
         return finalBlockPos;
+    }
+
+    public static void moveSpiral(Entity entity, BlockPos targetPos, float deltaTime) {
+        Vec3 targetCenter = Vec3.atCenterOf(targetPos);
+        Vec3 currentPosition = entity.position();
+        Vec3 directionToCenter = targetCenter.subtract(currentPosition).normalize();
+        double distanceToCenter = currentPosition.distanceTo(targetCenter);
+
+        // theta - угол для создания спирального эффекта, зависит от времени или расстояния
+        double theta = 4.0 * Math.PI * (1.0 - distanceToCenter / 100.0); // Примерное значение, требует настройки
+        Vec3 spiralVector = new Vec3(Math.cos(theta), 0, Math.sin(theta)).scale(0.5); // Масштабирование для контроля скорости
+
+        Vec3 combinedDirection = directionToCenter.add(spiralVector).normalize();
+        double speedMultiplier = 1.0 + (1.0 - distanceToCenter / 100.0) * 5.0; // Ускорение ближе к центру
+
+        Vec3 newVelocity = combinedDirection.scale(speedMultiplier);
+        Vec3 currentVelocity = entity.getDeltaMovement();
+        Vec3 smoothedVelocity = currentVelocity.add(newVelocity.subtract(currentVelocity).scale(deltaTime));
+        entity.setDeltaMovement(smoothedVelocity);
+    }
+
+    public static void play(LivingEntity entity, SoundEvent sound){
+        if(entity.level.isClientSide)
+            entity.playSound(sound,1,1);
+        else {
+            if(entity instanceof Player player) {
+                PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new SoundPacket(sound.getLocation(), 1, 1));
+            }
+        }
     }
 }

@@ -403,7 +403,7 @@ public class Vestige extends Item implements ICurioItem {
         this.isSpecialActive = false;
         this.isUltimateActive = false;
         Player playerServer = (Player) slotContext.entity();
-        VPUtil.addShield(playerServer,0,false);
+        playerServer.getPersistentData().putFloat("VPShield",0);
         ICurioItem.super.onUnequip(slotContext, newStack, stack);
     }
 
@@ -416,7 +416,7 @@ public class Vestige extends Item implements ICurioItem {
         if(!isStellar(stack) && player.isCreative())
             setStellar(stack);
         Player playerServer = (Player) slotContext.entity();
-        VPUtil.addShield(playerServer,0,false);
+        playerServer.getPersistentData().putFloat("VPShield",0);
         ICurioItem.super.onEquip(slotContext, prevStack, stack);
     }
 

@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,12 +42,14 @@ public class Flower extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.HEAL2.get());
         player.getPersistentData().putLong("VPDonutSpecial",System.currentTimeMillis()+seconds);
         super.doSpecial(seconds, player, level);
     }
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.MAGIC2.get());
         float damage = 0;
         for(ItemStack stack: VPUtil.getAllEquipment(player)){
             if(stack.isDamaged())

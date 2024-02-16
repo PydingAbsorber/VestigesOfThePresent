@@ -41,6 +41,16 @@ public class PacketHandler {
                 .encoder(ButtonPressPacket2::toBytes)
                 .consumerMainThread(ButtonPressPacket2::handle)
                 .add();
+        net.messageBuilder(ButtonPressPacket3.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ButtonPressPacket3::new)
+                .encoder(ButtonPressPacket3::toBytes)
+                .consumerMainThread(ButtonPressPacket3::handle)
+                .add();
+        net.messageBuilder(ButtonPressPacket4.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ButtonPressPacket4::new)
+                .encoder(ButtonPressPacket4::toBytes)
+                .consumerMainThread(ButtonPressPacket4::handle)
+                .add();
         net.messageBuilder(ClientToServerPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ClientToServerPacket::new)
                 .encoder(ClientToServerPacket::toBytes)
@@ -48,6 +58,7 @@ public class PacketHandler {
                 .add();
         net.registerMessage(89,PlayerFlyPacket.class, PlayerFlyPacket::encode, PlayerFlyPacket::decode, PlayerFlyPacket::handle);
         net.registerMessage(90,SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
+        net.registerMessage(91,SoundPacket.class, SoundPacket::encode, SoundPacket::decode, SoundPacket::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

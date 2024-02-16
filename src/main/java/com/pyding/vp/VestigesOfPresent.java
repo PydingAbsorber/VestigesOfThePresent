@@ -2,6 +2,7 @@ package com.pyding.vp;
 
 import com.mojang.logging.LogUtils;
 import com.pyding.vp.client.ClientProxy;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.common.CommonProxy;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.event.EventHandler;
@@ -39,6 +40,7 @@ public class VestigesOfPresent
         modEventBus.addListener(this::commonSetup);
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
+        SoundRegistry.register(modEventBus);
         MinecraftForge.EVENT_BUS.register(this);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::postInit);
         eventHandler = new EventHandler();

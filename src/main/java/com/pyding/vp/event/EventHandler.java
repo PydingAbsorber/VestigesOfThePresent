@@ -3,6 +3,7 @@ package com.pyding.vp.event;
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.commands.VPCommands;
 import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.item.ModItems;
@@ -21,6 +22,8 @@ import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -264,6 +267,7 @@ public class EventHandler {
                 event.getSource().getEntity().hurt(DamageSource.MAGIC,entity.getPersistentData().getFloat("VPShieldInit"));
             entity.getPersistentData().putFloat("VPShield",0);
             entity.getPersistentData().putFloat("VPShieldInit",0);
+            VPUtil.play(entity,SoundRegistry.SHIELD_BREAK.get());
         }
 
 
@@ -287,8 +291,10 @@ public class EventHandler {
                 float chance = (Math.min(69, armor) / 100);
                 float secondChance = (Math.min(90, exp / 10) / 100);
                 if (Math.random() < chance) {
+                    VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
                     event.setCanceled(true);
                 } else if (player.getPersistentData().getBoolean("VPEarsUlt") && Math.random() < secondChance) {
+                    VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
                     event.setCanceled(true);
                 }
             }
@@ -310,7 +316,7 @@ public class EventHandler {
                         challange.addMonsterKill(entity.getType().toString(), player);
                     if (entity.getType().getCategory() == MobCategory.CREATURE)
                         challange.addMobTame(entity.getType().toString(), player);
-                    if(!player.isOnGround() && !entity.isOnGround())
+                    if(!player.isOnGround() && !entity.isOnGround() && !entity.isInWater())
                         challange.addCreatureKilledAir(event.getEntity().getType().toString(), player);
                     if(event.getSource().isExplosion())
                         challange.setChallenge(4,player);
@@ -648,8 +654,8 @@ public class EventHandler {
         if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 50)
             VPUtil.clearEffects(entity,true);
         if (entity.tickCount % 300 == 0) {
-            if(tag.getFloat("HealResMask") != 0) {
-                tag.putFloat("HealResMask", 0);
+            if(tag.getFloat("VPHealResMask") != 0) {
+                tag.putFloat("VPHealResMask", 0);
             }
             if(tag.getBoolean("MaskStellar")){
                 tag.putBoolean("MaskStellar", false);
@@ -672,8 +678,14 @@ public class EventHandler {
             entity.getPersistentData().putLong("VPEnchant", 0);
             VPUtil.negativnoDisenchant(entity);
         }
-        if(entity instanceof ServerPlayer player){  //entity.tickCount % 20 == 0 &&
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(),player.getPersistentData()),player);
+        if(entity.tickCount % 5 == 0 && entity instanceof ServerPlayer player){
+            CompoundTag sendNudes = new CompoundTag();
+            for (String key : player.getPersistentData().getAllKeys()) {
+                if (key.startsWith("VP") && player.getPersistentData().get(key) != null) {
+                    sendNudes.put(key, player.getPersistentData().get(key));
+                }
+            }
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(),sendNudes),player);
         }
         if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath")+ 40*1000 < System.currentTimeMillis())
             tag.putLong("VPDeath",0);
@@ -682,19 +694,22 @@ public class EventHandler {
             if(playerTag == null)
                 playerTag = new CompoundTag();
             ICuriosHelper api = CuriosApi.getCuriosHelper();
-            if(playerTag.getBoolean("VPButton1")){
-                playerTag.putBoolean("VPButton1",false);
+            if(playerTag.getBoolean("VPButton1") || playerTag.getBoolean("VPButton3")){
                 api.findFirstCurio(player, (stackInSlot) -> {
                     if(stackInSlot.getItem() instanceof Vestige vestige) {
-                        if (!player.isShiftKeyDown())
-                            vestige.setSpecialActive(vestige.getSpecialMaxTime(),player);
-                        else vestige.setUltimateActive(vestige.getUltimateMaxTime(),player);
+                        if (player.getPersistentData().getBoolean("VPButton1")) {
+                            player.getPersistentData().putBoolean("VPButton1",false);
+                            vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
+                        }
+                        else {
+                            player.getPersistentData().putBoolean("VPButton3",false);
+                            vestige.setUltimateActive(vestige.getUltimateMaxTime(),player);
+                        }
                         return true;
                     }
                     return false;
                 });
-            } else if(playerTag.getBoolean("VPButton2")) {
-                playerTag.putBoolean("VPButton2", false);
+            } else if(playerTag.getBoolean("VPButton2") || playerTag.getBoolean("VPButton4")) {
                 List list = api.findCurios(player, (stackInSlot) -> {
                     if(stackInSlot.getItem() instanceof Vestige) {
                         return true;
@@ -707,9 +722,14 @@ public class EventHandler {
                 else slotResult =  api.findFirstCurio(player, (stackInSlot) -> stackInSlot.getItem() instanceof Vestige).orElse(null);
                 if(slotResult != null) {
                     Vestige vestige = (Vestige) slotResult.stack().getItem();
-                    if (!player.isShiftKeyDown())
+                    if (player.getPersistentData().getBoolean("VPButton2")) {
+                        player.getPersistentData().putBoolean("VPButton2",false);
                         vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
-                    else vestige.setUltimateActive(vestige.getUltimateMaxTime(), player);
+                    }
+                    else {
+                        player.getPersistentData().putBoolean("VPButton4",false);
+                        vestige.setUltimateActive(vestige.getUltimateMaxTime(), player);
+                    }
                 }
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {

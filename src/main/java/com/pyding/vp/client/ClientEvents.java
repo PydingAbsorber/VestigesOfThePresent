@@ -6,6 +6,8 @@ import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
 import com.pyding.vp.network.packets.ButtonPressPacket2;
+import com.pyding.vp.network.packets.ButtonPressPacket3;
+import com.pyding.vp.network.packets.ButtonPressPacket4;
 import com.pyding.vp.util.KeyBinding;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -28,6 +30,12 @@ public class ClientEvents {
             if(KeyBinding.SECOND_KEY.consumeClick()) {
                 PacketHandler.sendToServer(new ButtonPressPacket2());
             }
+            if(KeyBinding.FIRST_KEY_ULT.consumeClick()) {
+                PacketHandler.sendToServer(new ButtonPressPacket3());
+            }
+            if(KeyBinding.SECOND_KEY_ULT.consumeClick()) {
+                PacketHandler.sendToServer(new ButtonPressPacket4());
+            }
         }
     }
 
@@ -37,6 +45,8 @@ public class ClientEvents {
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {
             event.register(KeyBinding.FIRST_KEY);
             event.register(KeyBinding.SECOND_KEY);
+            event.register(KeyBinding.FIRST_KEY_ULT);
+            event.register(KeyBinding.SECOND_KEY_ULT);
         }
 
         @SubscribeEvent

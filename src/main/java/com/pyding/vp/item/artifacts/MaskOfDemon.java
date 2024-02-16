@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -96,18 +97,19 @@ public class MaskOfDemon extends Vestige{
                 if (tag == null) {
                     tag = new CompoundTag();
                 }
-                tag.putFloat("HealResMask",0-VPUtil.missingHealth(player));
+                tag.putFloat("VPHealResMask",0-VPUtil.missingHealth(player));
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
                 entity.getPersistentData().merge(tag);
             }
-            player.getPersistentData().putFloat("HealResMask",0-VPUtil.missingHealth(player));
+            player.getPersistentData().putFloat("VPHealResMask",0-VPUtil.missingHealth(player));
         } else player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
         super.curioTick(slotContext, stack);
     }
 
     @Override
     public int setSpecialActive(long seconds, Player player) {
+        VPUtil.play(player,SoundRegistry.STOLAS1.get());
         if(isSpecialActive) {
             time = 1;
             return 0;
@@ -122,6 +124,7 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.IMPACT.get());
         float damage = 300;
         float healDebt = player.getMaxHealth()*3;
         if(player.getHealth() <= player.getMaxHealth()*0.5) {

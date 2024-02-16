@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,7 +29,14 @@ public class Book extends Vestige{
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,30,30,30,false)){
             VPUtil.negativnoEnchant(entity);
         }
+        VPUtil.play(player,SoundRegistry.MAGIC_EFFECT2.get());
         super.doSpecial(seconds, player, level);
+    }
+
+    @Override
+    public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.MAGIC_EFFECT1.get());
+        super.doUltimate(seconds, player, level);
     }
 
     @Override

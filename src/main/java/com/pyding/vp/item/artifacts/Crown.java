@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,6 +19,7 @@ public class Crown extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.CROWN.get());
         for(LivingEntity entity : VPUtil.getMonstersAround(player,20,6,20)){
             if(entity.getPersistentData().getString("VPCrownDamage").isEmpty() || entity.getPersistentData().getString("VPCrownDamage").equals(""))
                 entity.getPersistentData().putString("VPCrownDamage","bypassArmor");
@@ -27,6 +29,7 @@ public class Crown extends Vestige{
     }
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.CROWN_ULT.get());
         for(LivingEntity entity: VPUtil.ray(player,3,128,false)){
             entity.getPersistentData().putLong("VPDeath", ultimateMaxTime + System.currentTimeMillis());
         }

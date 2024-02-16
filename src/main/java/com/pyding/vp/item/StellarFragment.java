@@ -1,6 +1,7 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;

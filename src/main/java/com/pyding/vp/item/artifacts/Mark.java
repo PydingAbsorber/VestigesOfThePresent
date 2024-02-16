@@ -2,8 +2,10 @@ package com.pyding.vp.item.artifacts;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -43,6 +45,7 @@ public class Mark extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundEvents.WARDEN_HEARTBEAT);
         if(player.getHealth() > player.getMaxHealth()*0.2)
             player.setHealth(player.getHealth()-player.getMaxHealth()*0.2f);
         else player.setHealth(1);
@@ -53,6 +56,7 @@ public class Mark extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.RAGE.get());
         if(player.getHealth() < player.getMaxHealth()*0.3){
             player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
         }
