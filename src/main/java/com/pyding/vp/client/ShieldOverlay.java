@@ -16,6 +16,8 @@ import java.awt.*;
 public class ShieldOverlay {
     private static final ResourceLocation SHIELD = new ResourceLocation(VestigesOfPresent.MODID,
             "textures/gui/shield.png");
+    private static final ResourceLocation OVER_SHIELD = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/overshield.png");
     private static final ResourceLocation HEAL1 = new ResourceLocation(VestigesOfPresent.MODID,
             "textures/gui/heal1.png");
     private static final ResourceLocation HEAL2 = new ResourceLocation(VestigesOfPresent.MODID,
@@ -46,14 +48,30 @@ public class ShieldOverlay {
             int pictureSizeY = 9;
 
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < Math.min(10,player.getMaxHealth()/2); i++) {
                 GuiComponent.blit(poseStack, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
                         pictureSizeX, pictureSizeY);
             }
         }
-
+        float overShield = VPUtil.getOverShield(player); //x больше-левее, меньше-правее, y меньше-выше, больше-ниже
         float shield = VPUtil.getShield(player);
-        if(shield > 0) {
+        if(overShield > 0){
+            int sizeX = 20;
+            int sizeY = 20;
+            int pictureSizeX = 20;
+            int pictureSizeY = 20;
+            RenderSystem.setShaderTexture(0, OVER_SHIELD);
+            GuiComponent.blit(poseStack, x - (132+20), y - 42, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY);
+            Font fontRenderer = Minecraft.getInstance().font;
+            //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
+            double log10 = Math.log10(overShield);
+            int move = (int) Math.floor(log10) + 1;
+            fontRenderer.draw(poseStack, ""+Math.round(overShield * 100.0f) / 100.0f, x - (129+20 + move), y - 51, 0x9932CC); //0x000000 for black
+            if(shield > 0)
+                fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
+        }
+        else if(shield > 0) {
             int sizeX = 16;
             int sizeY = 16;
             int pictureSizeX = 16;
@@ -65,7 +83,7 @@ public class ShieldOverlay {
             //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
             double log10 = Math.log10(shield);
             int move = (int) Math.floor(log10) + 1;
-            fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (131+20 + move), y - 20, 0x808080); //0x000000 for black
+            fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
 
         //94 54

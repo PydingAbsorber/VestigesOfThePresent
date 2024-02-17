@@ -2,7 +2,6 @@ package com.pyding.vp.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.mojang.math.Vector3d;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
@@ -11,18 +10,15 @@ import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.network.packets.SoundPacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -33,17 +29,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.Panda;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
@@ -60,7 +50,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -847,7 +836,8 @@ public class VPUtil {
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
-            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+            if(!entity.level.isClientSide)
+                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
         if(tag.getFloat("VPShieldInit") == 0) {
             tag.putFloat("VPShieldInit", shield);
@@ -858,6 +848,11 @@ public class VPUtil {
     public static float getShield(LivingEntity entity){
         CompoundTag tag = entity.getPersistentData();
         return tag.getFloat("VPShield");
+    }
+
+    public static float getOverShield(LivingEntity entity){
+        CompoundTag tag = entity.getPersistentData();
+        return tag.getFloat("VPOverShield");
     }
 
     public static void deadInside(LivingEntity entity,Player player){
@@ -1019,10 +1014,12 @@ public class VPUtil {
         return effect;
     }
     public static void clearEffects(LivingEntity entity, boolean isBeneficial){
-        for (MobEffectInstance effectInstance : entity.getActiveEffects()){
+        Iterator<MobEffectInstance> iterator = entity.getActiveEffects().iterator();
+        while (iterator.hasNext()) {
+            MobEffectInstance effectInstance = iterator.next();
             MobEffect effect = effectInstance.getEffect();
             if (effect.isBeneficial() == isBeneficial) {
-                entity.removeEffect(effect);
+                iterator.remove();
             }
         }
     }
@@ -1170,16 +1167,16 @@ public class VPUtil {
         entity.setDeltaMovement(pullVelocity.x, pullVelocity.y, pullVelocity.z);
     }
 
-    public static Multimap<Attribute, AttributeModifier> createAttributeMap(LivingEntity entity, Attribute attribute, UUID uuid, float amount, AttributeModifier.Operation operation) {
+    public static Multimap<Attribute, AttributeModifier> createAttributeMap(LivingEntity entity, Attribute attribute, UUID uuid, float amount, AttributeModifier.Operation operation, String name) {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
-        attributesDefault.put(attribute, new AttributeModifier(uuid, "vp:attack_speed_modifier", amount, operation));
+        attributesDefault.put(attribute, new AttributeModifier(uuid, name, amount, operation));
         return attributesDefault;
     }
 
     public static List<LivingEntity> getMonstersAround(Player player,double x, double y, double z){
         List<LivingEntity> list = new ArrayList<>();
         for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
-            if(!(entity instanceof Animal))
+            if(!(entity instanceof Animal) && entity != player)
                 list.add(entity);
         }
         return list;
@@ -1267,4 +1264,28 @@ public class VPUtil {
             }
         }
     }
+
+    public static void addOverShield(LivingEntity entity,float amount){
+        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
+            return;
+        CompoundTag tag = entity.getPersistentData();
+        if(tag.getFloat("VPOverShield") <= 0)
+            play(entity,SoundRegistry.OVERSHIELD.get());
+        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
+                +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
+        float shield = (tag.getFloat("VPOverShield") + amount)*(1 + shieldBonus/100);
+        if(!tag.getBoolean("VPAntiShield"))
+            tag.putFloat("VPOverShield",shield);
+        if(entity instanceof ServerPlayer player) {
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+        } else {
+            if(!entity.level.isClientSide)
+                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+        }
+        if(tag.getFloat("VPOverShieldMax") < shield) {
+            tag.putFloat("VPOverShieldMax", shield);
+        }
+    }
+
+
 }

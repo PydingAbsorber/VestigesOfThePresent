@@ -45,6 +45,8 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> SOUL2 = registerSoundEvent("soul2");
     public static RegistryObject<SoundEvent> SOUL3 = registerSoundEvent("soul3");
     public static RegistryObject<SoundEvent> WIND3 = registerSoundEvent("wind3");
+    public static RegistryObject<SoundEvent> OVERSHIELD = registerSoundEvent("overshield");
+    public static RegistryObject<SoundEvent> OVERSHIELD_BREAK = registerSoundEvent("overshield_break");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {

@@ -44,6 +44,9 @@ public class StellarFragment extends Item {
             cap.setChance(cap.getChance()+1);
             cap.sync(player);
         });
+        if(player.isShiftKeyDown())
+            VPUtil.addShield(player,1,true);
+        else VPUtil.addOverShield(player,1);
         return super.use(level, player, p_41434_);
     }
 

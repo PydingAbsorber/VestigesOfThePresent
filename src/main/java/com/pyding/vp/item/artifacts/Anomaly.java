@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnderEyeItem;
@@ -66,7 +68,7 @@ public class Anomaly extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(isStellar && Math.random() < 0.05){
+                if(isStellar && (Math.random() < 0.05 || (player.getScoreboardName().equals("Pyding") && player.isCreative()))){  //don't blame me it's for test
                     for(ServerPlayer victim: serverPlayer.level.getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){
                             serverPlayer.teleportTo(victim.getLevel(),victim.getX(),victim.getY(),victim.getZ(),0,0);
@@ -97,7 +99,21 @@ public class Anomaly extends Vestige{
                         z *= -1;
                     }
                     double y = random.nextInt(260);
+                    serverPlayer.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,5*20));
                     serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);
+                    if(serverLevel.collidesWithSuffocatingBlock(serverPlayer,player.getBoundingBox())) {
+                        for (int i = 0; i < 255; i++) {
+                            if (serverLevel.collidesWithSuffocatingBlock(serverPlayer, player.getBoundingBox()))
+                                serverPlayer.setPos(serverPlayer.getX(), i, serverPlayer.getZ());
+                            else break;
+                        }
+                    } else {
+                        for (int i = 0; i < 255; i++) {
+                            if (!serverLevel.collidesWithSuffocatingBlock(serverPlayer, player.getBoundingBox().inflate(1)))
+                                serverPlayer.setPos(serverPlayer.getX(), serverPlayer.getY()-i, serverPlayer.getZ());
+                            else break;
+                        }
+                    }
                 }
             });
         }

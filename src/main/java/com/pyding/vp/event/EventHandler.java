@@ -255,7 +255,17 @@ public class EventHandler {
                 }
             });
         }
-
+        if(event.getAmount() <= 0)
+            return;
+        float overShield = VPUtil.getOverShield(entity);
+        if(overShield > 0){
+            if(event.getSource().isMagic() || event.getSource().isBypassInvul())
+                event.setAmount(event.getAmount()*0.1f);
+            entity.getPersistentData().putFloat("VPOverShield",Math.max(0,entity.getPersistentData().getFloat("VPOverShield")-event.getAmount()));
+            event.setAmount(0);
+            if(tag.getFloat("VPOverShield") <= 0)
+                VPUtil.play(entity,SoundRegistry.OVERSHIELD_BREAK.get());
+        }
         float shield = entity.getPersistentData().getFloat("VPShield");
         float damage = event.getAmount();
         if(shield > damage){
@@ -263,11 +273,13 @@ public class EventHandler {
             event.setAmount(0);
         } else {
             event.setAmount(damage-shield);
+            if(shield > 0)
+                VPUtil.play(entity,SoundRegistry.SHIELD_BREAK.get());
             if(entity.getPersistentData().getLong("VPFlowerStellar") > 0 && event.getSource().getEntity() != null)
                 event.getSource().getEntity().hurt(DamageSource.MAGIC,entity.getPersistentData().getFloat("VPShieldInit"));
             entity.getPersistentData().putFloat("VPShield",0);
             entity.getPersistentData().putFloat("VPShieldInit",0);
-            VPUtil.play(entity,SoundRegistry.SHIELD_BREAK.get());
+
         }
 
 
@@ -649,8 +661,8 @@ public class EventHandler {
         if (entity.getPersistentData().getInt("VPGravity") > 30)
             entity.getPersistentData().putInt("VPGravity", 30);
         if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 30)
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION));
-        else entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION, "vp:rotting_hp"));
+        else entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH, UUID.fromString("addff144-f58a-4c10-9c69-726515295786"),entity.getHealth()-entity.getMaxHealth(), AttributeModifier.Operation.ADDITION, "vp:rotting_hp"));
         if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 50)
             VPUtil.clearEffects(entity,true);
         if (entity.tickCount % 300 == 0) {
@@ -698,17 +710,17 @@ public class EventHandler {
                 api.findFirstCurio(player, (stackInSlot) -> {
                     if(stackInSlot.getItem() instanceof Vestige vestige) {
                         if (player.getPersistentData().getBoolean("VPButton1")) {
-                            player.getPersistentData().putBoolean("VPButton1",false);
                             vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
                         }
                         else {
-                            player.getPersistentData().putBoolean("VPButton3",false);
                             vestige.setUltimateActive(vestige.getUltimateMaxTime(),player);
                         }
                         return true;
                     }
                     return false;
                 });
+                player.getPersistentData().putBoolean("VPButton1",false);
+                player.getPersistentData().putBoolean("VPButton3",false);
             } else if(playerTag.getBoolean("VPButton2") || playerTag.getBoolean("VPButton4")) {
                 List list = api.findCurios(player, (stackInSlot) -> {
                     if(stackInSlot.getItem() instanceof Vestige) {
@@ -723,14 +735,14 @@ public class EventHandler {
                 if(slotResult != null) {
                     Vestige vestige = (Vestige) slotResult.stack().getItem();
                     if (player.getPersistentData().getBoolean("VPButton2")) {
-                        player.getPersistentData().putBoolean("VPButton2",false);
                         vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
                     }
                     else {
-                        player.getPersistentData().putBoolean("VPButton4",false);
                         vestige.setUltimateActive(vestige.getUltimateMaxTime(), player);
                     }
                 }
+                player.getPersistentData().putBoolean("VPButton2",false);
+                player.getPersistentData().putBoolean("VPButton4",false);
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player.level.getBiome(player.blockPosition()).toString(), player);

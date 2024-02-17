@@ -29,8 +29,8 @@ public class PacketHandler {
 
         INSTANCE = net;
 
-        net.registerMessage(69,SendPlayerNbtToClient.class, SendPlayerNbtToClient::encode, SendPlayerNbtToClient::decode, SendPlayerNbtToClient::handle);
-        net.registerMessage(70,SendPlayerCapaToClient.class, SendPlayerCapaToClient::encode, SendPlayerCapaToClient::decode, SendPlayerCapaToClient::handle);
+        net.registerMessage(id(),SendPlayerNbtToClient.class, SendPlayerNbtToClient::encode, SendPlayerNbtToClient::decode, SendPlayerNbtToClient::handle);
+        net.registerMessage(id(),SendPlayerCapaToClient.class, SendPlayerCapaToClient::encode, SendPlayerCapaToClient::decode, SendPlayerCapaToClient::handle);
         net.messageBuilder(ButtonPressPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ButtonPressPacket::new)
                 .encoder(ButtonPressPacket::toBytes)
@@ -56,9 +56,9 @@ public class PacketHandler {
                 .encoder(ClientToServerPacket::toBytes)
                 .consumerMainThread(ClientToServerPacket::handle)
                 .add();
-        net.registerMessage(89,PlayerFlyPacket.class, PlayerFlyPacket::encode, PlayerFlyPacket::decode, PlayerFlyPacket::handle);
-        net.registerMessage(90,SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
-        net.registerMessage(91,SoundPacket.class, SoundPacket::encode, SoundPacket::decode, SoundPacket::handle);
+        net.registerMessage(id(),PlayerFlyPacket.class, PlayerFlyPacket::encode, PlayerFlyPacket::decode, PlayerFlyPacket::handle);
+        net.registerMessage(id(),SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
+        net.registerMessage(id(),SoundPacket.class, SoundPacket::encode, SoundPacket::decode, SoundPacket::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

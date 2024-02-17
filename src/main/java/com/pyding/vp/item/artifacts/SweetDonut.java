@@ -1,8 +1,11 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -26,6 +29,8 @@ public class SweetDonut extends Vestige{
         VPUtil.play(player,SoundRegistry.HEAL3.get());
         player.heal(player.getMaxHealth()*0.4f);
         VPUtil.clearEffects(player,false);
+        if(player instanceof ServerPlayer serverPlayer)
+         PacketHandler.sendToClient(new PlayerFlyPacket(4),serverPlayer);
         if(player.getHealth() <= player.getMaxHealth()*0.5)
             player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20,4));
         float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));

@@ -158,11 +158,4 @@ public class VPCommands {
                 )
         );
     }
-
-
-    public enum CommandAction {
-        SET,
-        ADD,
-        TAKE
-    }
 }

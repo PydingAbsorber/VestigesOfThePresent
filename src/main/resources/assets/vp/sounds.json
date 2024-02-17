@@ -153,5 +153,15 @@
     "sounds": [
       "vp:wind3"
     ]
+  },
+  "overshield": {
+    "sounds": [
+      "vp:overshield"
+    ]
+  },
+  "overshield_break": {
+    "sounds": [
+      "vp:overshield_break"
+    ]
   }
 }

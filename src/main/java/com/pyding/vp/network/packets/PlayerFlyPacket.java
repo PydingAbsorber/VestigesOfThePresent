@@ -56,6 +56,12 @@ public class PlayerFlyPacket {
             BlockPos pos = new BlockPos(player.getPersistentData().getDouble("VPDevourerX"),player.getPersistentData().getDouble("VPDevourerY"),player.getPersistentData().getDouble("VPDevourerZ"));
             VPUtil.suckToPos(player,pos,3);
         }
+        else if(number == 3){
+            VPUtil.clearEffects(player,true);
+        }
+        else if(number == 4){
+            VPUtil.clearEffects(player,false);
+        }
         else {
             Vec3 motion = new Vec3(0, number, 0);
             player.lerpMotion(motion.x, motion.y, motion.z);
