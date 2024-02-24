@@ -5,6 +5,7 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -27,12 +28,14 @@ public class SweetDonut extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.HEAL3.get());
+        VPUtil.spawnParticles(player, ParticleTypes.HEART,1,1,0,-0.1,0,1,false);
         player.heal(player.getMaxHealth()*0.4f);
         VPUtil.clearEffects(player,false);
-        if(player instanceof ServerPlayer serverPlayer)
-         PacketHandler.sendToClient(new PlayerFlyPacket(4),serverPlayer);
-        if(player.getHealth() <= player.getMaxHealth()*0.5)
-            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20,4));
+        if(player instanceof ServerPlayer serverPlayer) {
+            PacketHandler.sendToClient(new PlayerFlyPacket(4), serverPlayer);
+            if (serverPlayer.getHealth() <= serverPlayer.getMaxHealth() * 0.5)
+                serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20, 4));
+        }
         float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));
         if(isStellar && VPUtil.getShield(player) < player.getMaxHealth()*3*(1+shieldBonus/100))
             VPUtil.addShield(player,player.getMaxHealth()*3,false);
@@ -66,6 +69,8 @@ public class SweetDonut extends Vestige{
     @Override
     public void whileUltimate(Player player) {
         if(VPUtil.getShield(player) > 0) {
+            if(player.tickCount % 20 == 0)
+                VPUtil.spawnParticles(player, ParticleTypes.HEART,1,1,0,-0.1,0,1,false);
             float saturation = player.getPersistentData().getFloat("VPSaturation");
             player.getPersistentData().putFloat("VPHealBonusDonut", saturation / 10);
             player.getPersistentData().putFloat("VPShieldBonusDonut", saturation);

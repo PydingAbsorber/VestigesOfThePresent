@@ -16,9 +16,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -109,7 +111,6 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public int setSpecialActive(long seconds, Player player) {
-        VPUtil.play(player,SoundRegistry.STOLAS1.get());
         if(isSpecialActive) {
             time = 1;
             return 0;
@@ -119,6 +120,8 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.STOLAS1.get());
+        VPUtil.spawnParticles(player, ParticleTypes.ENCHANTED_HIT,8,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -135,6 +138,7 @@ public class MaskOfDemon extends Vestige{
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
             entity.getPersistentData().putFloat("HealDebt",entity.getPersistentData().getFloat("HealDebt")+healDebt);
             VPUtil.dealDamage(entity,player,DamageSource.playerAttack(player).bypassArmor(),damage);
+            VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.5,0);
         }
         super.doUltimate(seconds, player, level);
     }

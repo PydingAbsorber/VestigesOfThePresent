@@ -1,9 +1,14 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +22,7 @@ import net.minecraft.world.item.EnderEyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.util.ICuriosHelper;
@@ -61,6 +67,8 @@ public class Anomaly extends Vestige{
                 }
             }
         }
+        VPUtil.spawnParticles(player, ParticleTypes.PORTAL,3,1,0,-0.1,0,1,false);
+        VPUtil.play(player,SoundRegistry.TELEPORT1.get());
         super.doSpecial(seconds, player, level);
     }
 
@@ -101,19 +109,8 @@ public class Anomaly extends Vestige{
                     double y = random.nextInt(260);
                     serverPlayer.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,5*20));
                     serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);
-                    if(serverLevel.collidesWithSuffocatingBlock(serverPlayer,player.getBoundingBox())) {
-                        for (int i = 0; i < 255; i++) {
-                            if (serverLevel.collidesWithSuffocatingBlock(serverPlayer, player.getBoundingBox()))
-                                serverPlayer.setPos(serverPlayer.getX(), i, serverPlayer.getZ());
-                            else break;
-                        }
-                    } else {
-                        for (int i = 0; i < 255; i++) {
-                            if (!serverLevel.collidesWithSuffocatingBlock(serverPlayer, player.getBoundingBox().inflate(1)))
-                                serverPlayer.setPos(serverPlayer.getX(), serverPlayer.getY()-i, serverPlayer.getZ());
-                            else break;
-                        }
-                    }
+                    VPUtil.spawnParticles(player, ParticleTypes.PORTAL,8,1,0,-0.1,0,1,false);
+                    VPUtil.play(player, SoundRegistry.TELEPORT2.get());
                 }
             });
         }

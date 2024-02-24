@@ -46,13 +46,8 @@ public class SendEntityNbtToClient {
     private static void handle2(CompoundTag tag, int id) {
         ClientLevel level = Minecraft.getInstance().level;
         Entity entity = level.getEntity(id);
-        System.out.println("packet");
-        System.out.println(tag);
-        System.out.println(id);
         if(entity != null) {
-            System.out.println(entity);
             entity.getPersistentData().merge(tag);
-            System.out.println(entity.getPersistentData());
         }
     }
 }

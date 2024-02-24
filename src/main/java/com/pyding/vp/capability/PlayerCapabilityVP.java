@@ -8,12 +8,14 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.*;
@@ -22,7 +24,7 @@ import java.util.regex.Pattern;
 
 @AutoRegisterCapability
 public class PlayerCapabilityVP {
-    public static int totalVestiges = 16;
+    public static int totalVestiges = 20;
     private int[] challenges = new int[this.totalVestiges];
     private String coolDowned = "";
     private String biomesFound = "";
@@ -53,6 +55,8 @@ public class PlayerCapabilityVP {
 
     private String dimensions = "";
     private boolean debug = false;
+
+    private String effects = "";
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
@@ -210,8 +214,10 @@ public class PlayerCapabilityVP {
     }
 
     public void addCoolDown(int vp,Player player){
-        this.coolDowned += vp + ",";
-        sync(player);
+        if(!hasCoolDown(vp)) {
+            this.coolDowned += vp + ",";
+            sync(player);
+        }
     }
 
     public String getDamageDie(){
@@ -236,6 +242,7 @@ public class PlayerCapabilityVP {
     public void addGold(String gold, Player player){
         if(!this.goldenItems.contains(gold)) {
             this.goldenItems += gold + ",";
+            sync(player);
         }
     }
     public void addCat(String cat, Player player){
@@ -244,10 +251,21 @@ public class PlayerCapabilityVP {
             setChallenge(8,player);
         }
     }
-    public void addBiome(String biome, Player player){
-        if(!this.biomesFound.contains(biome)) {
-            this.biomesFound += biome + ",";
-            filterBiome(biome,player);
+
+    public void addEffect(String effect, Player player){
+        if(!this.effects.contains(effect)) {
+            this.effects += effect + ",";
+            setChallenge(17,player);
+        }
+    }
+    public void addBiome(Player player){
+        ResourceLocation key = VPUtil.getCurrentBiome(player);
+        if(key != null) {
+            String biomeName = key.toDebugFileName();
+            if (!this.biomesFound.contains(biomeName)) {
+                this.biomesFound += biomeName + ",";
+                setChallenge(3, player);
+            }
         }
     }
 
@@ -333,6 +351,9 @@ public class PlayerCapabilityVP {
     public String getFlowers(){
         return flowers;
     }
+    public String getEffects(){
+        return effects;
+    }
     public void addMobTame(String mob, Player player){
         if(!this.mobsTamed.contains(mob)) {
             this.mobsTamed += mob + ",";
@@ -409,8 +430,13 @@ public class PlayerCapabilityVP {
                 flowers = "";
                 break;
             }
+            case 17:{
+                effects = "";
+                break;
+            }
             default: break;
         }
+        setChallenge(vp,0,player);
         sync(player);
     }
 
@@ -444,6 +470,7 @@ public class PlayerCapabilityVP {
         commonChallenges = "";
         stellarChallenges = "";
         dimensions = "";
+        effects = "";
         sync(player);
     }
 
@@ -485,6 +512,14 @@ public class PlayerCapabilityVP {
                 return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size();
             case 16:
                 return VPUtil.getFlowers().size();
+            case 17:
+                return VPUtil.getEffects().size();
+            case 18:
+                return 10;
+            case 19:
+                return 1000000;
+            case 20:
+                return VPUtil.getFlowers().size();
         }
         return  0;
     }
@@ -500,10 +535,7 @@ public class PlayerCapabilityVP {
     }
 
     public int getChallenge(int vp) {
-        if(vp == 3){
-            return getBiomeSize();
-        }
-        else if (vp >= 1 && vp <= totalVestiges) {
+        if (vp >= 1 && vp <= totalVestiges) {
             return challenges[vp-1];
         } else {
             return 0;
@@ -545,6 +577,7 @@ public class PlayerCapabilityVP {
         stellarChallenges = source.stellarChallenges;
         dimensions = source.dimensions;
         debug = source.debug;
+        effects = source.effects;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -571,6 +604,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPSC",stellarChallenges);
         nbt.putString("VPDimensions",dimensions);
         nbt.putBoolean("VPDebug",debug);
+        nbt.putString("VPEffects",effects);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -597,6 +631,7 @@ public class PlayerCapabilityVP {
         stellarChallenges = nbt.getString("VPSC");
         dimensions = nbt.getString("VPDimensions");
         debug = nbt.getBoolean("VPDebug");
+        effects = nbt.getString("VPEffects");
     }
 
     public CompoundTag getNbt(){
@@ -624,6 +659,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPSC",stellarChallenges);
         nbt.putString("VPDimensions",dimensions);
         nbt.putBoolean("VPDebug",debug);
+        nbt.putString("VPEffects",effects);
         return nbt;
     }
 
@@ -640,7 +676,7 @@ public class PlayerCapabilityVP {
     }
 
     public void sendLore(Player player, int number){
-        if(!player.level.isClientSide)
+        if(player.level.isClientSide)
             return;
         String name = VPUtil.getRainbowString(VPUtil.generateRandomString("entity".length())) + ": ";
         String playerName = player.getDisplayName().getString();
@@ -755,6 +791,22 @@ public class PlayerCapabilityVP {
             }
             case 16: {
                 stack = new ItemStack(ModItems.FLOWER.get());
+                break;
+            }
+            case 17:{
+                stack = new ItemStack(ModItems.CATALYST.get());
+                break;
+            }
+            case 18:{
+                stack = new ItemStack(ModItems.BALL.get());
+                break;
+            }
+            case 19:{
+                stack = new ItemStack(ModItems.TRIGON.get());
+                break;
+            }
+            case 20:{
+                stack = new ItemStack(ModItems.SOULBLIGHTER.get());
                 break;
             }
             default: {

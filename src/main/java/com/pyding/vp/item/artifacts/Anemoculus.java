@@ -4,7 +4,9 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.Vector3;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,16 +27,21 @@ public class Anemoculus extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
-        if(!isUltimateActive)
-            for(LivingEntity entity: VPUtil.getEntities(player,8)){
-                VPUtil.liftEntity(entity,VPUtil.commonPower);
+        if(!isUltimateActive) {
+            for (LivingEntity entity : VPUtil.getEntities(player, 8)) {
+                VPUtil.liftEntity(entity, VPUtil.commonPower);
             }
-        else for(LivingEntity entity: VPUtil.getEntities(player,16)){
-            VPUtil.suckEntity(entity,player,2,true);
+            VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
         }
-        if(Math.random() < 0.5)
-            VPUtil.play(player,SoundRegistry.WIND1.get());
-        else VPUtil.play(player,SoundRegistry.WIND2.get());
+        else {
+            if(Math.random() < 0.5)
+                VPUtil.play(player,SoundRegistry.WIND1.get());
+            else VPUtil.play(player,SoundRegistry.WIND2.get());
+            for(LivingEntity entity: VPUtil.getEntities(player,16)){
+                VPUtil.suckEntity(entity,player,2,true);
+            }
+            VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
+        }
         super.doSpecial(seconds, player, level);
     }
 
@@ -44,6 +51,7 @@ public class Anemoculus extends Vestige{
         player.getAbilities().flying = true;
         player.onUpdateAbilities();
         VPUtil.play(player,SoundRegistry.WIND3.get());
+        VPUtil.spawnParticles(player, ParticleTypes.CAMPFIRE_COSY_SMOKE,3,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
 

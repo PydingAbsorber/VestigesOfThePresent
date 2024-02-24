@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -58,12 +60,13 @@ public class Midas extends Vestige{
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.MAGIC1.get());
         player.getPersistentData().putFloat("VPMidasTouch",10);
+        VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,8,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
-
+        VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,8,1,0,-0.1,0,1,false);
         ICuriosHelper api = CuriosApi.getCuriosHelper();
         List list = api.findCurios(player, (stackInSlot) -> {
             if(stackInSlot.getItem() instanceof Midas midas) {

@@ -4,6 +4,8 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,10 +31,11 @@ public class Prism extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.SOUL2.get());
-        LivingEntity entity = VPUtil.getRandomEntityNear(player,isStellar);
+        LivingEntity entity = VPUtil.ray(player,6,60,true).get(0);
         if(entity != null) {
             entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis()+specialMaxTime);
             entity.getPersistentData().putString("VPPrismDamage",VPUtil.generateRandomDamageType());
+            VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME,entity.getX(),entity.getY(),entity.getZ(),20,0,0.5,0);
         }
         super.doSpecial(seconds, player, level);
     }
@@ -40,6 +43,7 @@ public class Prism extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.SOUL.get());
+        VPUtil.spawnParticles(player, ParticleTypes.SOUL,6,1,0,-0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
 

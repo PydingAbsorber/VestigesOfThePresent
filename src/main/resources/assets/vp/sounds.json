@@ -159,9 +159,44 @@
       "vp:overshield"
     ]
   },
-  "overshield_break": {
+  "bolt": {
     "sounds": [
-      "vp:overshield_break"
+      "vp:bolt"
+    ]
+  },
+  "catalyst1": {
+    "sounds": [
+      "vp:catalyst1"
+    ]
+  },
+  "catalyst2": {
+    "sounds": [
+      "vp:catalyst2"
+    ]
+  },
+  "magic4": {
+    "sounds": [
+      "vp:magic4"
+    ]
+  },
+  "magic5": {
+    "sounds": [
+      "vp:magic5"
+    ]
+  },
+  "teleport1": {
+    "sounds": [
+      "vp:teleport1"
+    ]
+  },
+  "teleport2": {
+    "sounds": [
+      "vp:teleport2"
+    ]
+  },
+  "trigon2": {
+    "sounds": [
+      "vp:trigon2"
     ]
   }
 }

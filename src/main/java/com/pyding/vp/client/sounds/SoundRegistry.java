@@ -47,6 +47,14 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> WIND3 = registerSoundEvent("wind3");
     public static RegistryObject<SoundEvent> OVERSHIELD = registerSoundEvent("overshield");
     public static RegistryObject<SoundEvent> OVERSHIELD_BREAK = registerSoundEvent("overshield_break");
+    public static RegistryObject<SoundEvent> BOLT = registerSoundEvent("bolt");
+    public static RegistryObject<SoundEvent> CATALYST1 = registerSoundEvent("catalyst1");
+    public static RegistryObject<SoundEvent> CATALYST2 = registerSoundEvent("catalyst2");
+    public static RegistryObject<SoundEvent> MAGIC4 = registerSoundEvent("magic4");
+    public static RegistryObject<SoundEvent> MAGIC5 = registerSoundEvent("magic5");
+    public static RegistryObject<SoundEvent> TELEPORT1 = registerSoundEvent("teleport1");
+    public static RegistryObject<SoundEvent> TELEPORT2 = registerSoundEvent("teleport2");
+    public static RegistryObject<SoundEvent> TRIGON2 = registerSoundEvent("trigon2");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {

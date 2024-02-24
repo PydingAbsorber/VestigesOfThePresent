@@ -6,6 +6,7 @@ import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -47,6 +48,7 @@ public class Devourer extends Vestige{
             entity.getPersistentData().putDouble("VPDevourerZ",entity.getZ());
         }
         VPUtil.play(player,SoundRegistry.DEVOURER_BIND.get());
+        VPUtil.rayParticles(player, ParticleTypes.DRAGON_BREATH,30,6,1,0,-1,0,5,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -65,6 +67,7 @@ public class Devourer extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.SOUL2.get());
         player.getPersistentData().putInt("VPDevourerHits",100);
+        VPUtil.spawnParticles(player, ParticleTypes.GLOW_SQUID_INK,8,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
 

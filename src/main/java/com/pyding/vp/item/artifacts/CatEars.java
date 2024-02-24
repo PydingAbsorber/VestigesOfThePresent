@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -35,6 +37,7 @@ public class CatEars extends Vestige{
         VPUtil.play(player, SoundEvents.CAT_STRAY_AMBIENT);
         player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
         player.getPersistentData().putBoolean("VPEarsSpecial",true);
+        VPUtil.spawnParticles(player, ParticleTypes.POOF,4,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -42,6 +45,7 @@ public class CatEars extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player, SoundEvents.CAT_AMBIENT);
         player.getPersistentData().putBoolean("VPEarsUlt",true);
+        VPUtil.spawnParticles(player, ParticleTypes.NOTE,8,1,0,-0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
 

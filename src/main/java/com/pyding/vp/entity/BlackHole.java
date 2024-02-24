@@ -71,8 +71,6 @@ public class BlackHole extends Projectile {
         Player player = (Player) getOwner();
         if(tickCount <= 2 && !level.isClientSide)
             PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> this), new SendEntityNbtToClient(getPersistentData(),getId()));
-        if(tickCount % 20 == 0 && level.isClientSide)
-            System.out.println(gravity);
         getPersistentData().putLong("VPAntiTP",System.currentTimeMillis()+10000);
         setGlowingTag(true);
         for(LivingEntity entity: level.getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){

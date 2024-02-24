@@ -3,6 +3,8 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -30,6 +32,7 @@ public class Killer extends Vestige{
             VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).setExplosion(),400);
             entity.getPersistentData().putBoolean("VPKillerQueen",true);
         }
+        VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -37,6 +40,7 @@ public class Killer extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.MAGIC3.get());
         player.getPersistentData().putLong("VPQueenDeath",System.currentTimeMillis()+20000);
+        VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,4,1,0,0,0,0,false);
         super.doUltimate(seconds, player, level);
     }
 }

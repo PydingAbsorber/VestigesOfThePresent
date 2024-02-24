@@ -7,6 +7,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -61,6 +63,7 @@ public class PlayerFlyPacket {
         }
         else if(number == 4){
             VPUtil.clearEffects(player,false);
+            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20, 4));
         }
         else {
             Vec3 motion = new Vec3(0, number, 0);

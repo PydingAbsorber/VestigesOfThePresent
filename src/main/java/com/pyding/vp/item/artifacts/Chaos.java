@@ -3,6 +3,8 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +28,7 @@ public class Chaos extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.CHAOS_CORE.get());
         strelyalki = 10 + new Random().nextInt(70);
+        VPUtil.spawnParticles(player, ParticleTypes.NAUTILUS,12,1,0,-0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
 
@@ -51,6 +54,7 @@ public class Chaos extends Vestige{
         Random random = new Random();
         player.getPersistentData().putInt("VPChaos",random.nextInt(10));
         VPUtil.play(player,SoundRegistry.CHAOS_CORE.get());
+        VPUtil.spawnParticles(player, ParticleTypes.NAUTILUS,12,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 

@@ -29,6 +29,10 @@ public class ModItems {
     public static final RegistryObject<Item> CHAOS = ITEMS.register("chaos", () -> new Chaos());
     public static final RegistryObject<Item> DEVOURER = ITEMS.register("devourer", () -> new Devourer());
     public static final RegistryObject<Item> FLOWER = ITEMS.register("flower", () -> new Flower());
+    public static final RegistryObject<Item> CATALYST = ITEMS.register("catalyst", () -> new Catalyst());
+    public static final RegistryObject<Item> BALL = ITEMS.register("ball", () -> new Ball());
+    public static final RegistryObject<Item> TRIGON = ITEMS.register("trigon", () -> new Trigon());
+    public static final RegistryObject<Item> SOULBLIGHTER = ITEMS.register("soulblighter", () -> new SoulBlighter());
     public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab)));
 
     public static void register(IEventBus eventBus) {

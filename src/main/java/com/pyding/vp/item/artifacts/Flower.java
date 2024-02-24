@@ -3,6 +3,8 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -55,9 +57,9 @@ public class Flower extends Vestige{
             if(stack.isDamaged())
                 damage += stack.getDamageValue();
         }
-        VPUtil.addShield(player,damage,false);
         for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
             VPUtil.addShield(entity,damage,false);
+            VPUtil.spawnParticles(player, ParticleTypes.FALLING_HONEY,entity.getX(),entity.getY()+2,entity.getZ(),8,0,0.5,0);
         }
         super.doUltimate(seconds, player, level);
     }

@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -50,7 +52,7 @@ public class Mark extends Vestige{
             player.setHealth(player.getHealth()-player.getMaxHealth()*0.2f);
         else player.setHealth(1);
         player.getPersistentData().putInt("VPMadness",player.getPersistentData().getInt("VPMadness")+1);
-
+        VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,1,1,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -62,6 +64,7 @@ public class Mark extends Vestige{
         }
         player.getPersistentData().putBoolean("VPMarkUlt",true);
         player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*10);
+        VPUtil.spawnParticles(player, ParticleTypes.FLAME,2,1,0,-0.5,0,1,false);
         super.doUltimate(seconds, player, level);
     }
 
@@ -89,5 +92,11 @@ public class Mark extends Vestige{
         player.getPersistentData().putFloat("VPDamageReduced",0);
         player.getPersistentData().putFloat("VPHealReduced",0);
         super.ultimateEnds(player);
+    }
+
+    @Override
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
+        super.onUnequip(slotContext, newStack, stack);
     }
 }

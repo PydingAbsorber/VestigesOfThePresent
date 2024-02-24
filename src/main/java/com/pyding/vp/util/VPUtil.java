@@ -10,6 +10,7 @@ import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.network.packets.SoundPacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
@@ -19,6 +20,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -29,6 +33,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -44,6 +49,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -187,34 +193,29 @@ public class VPUtil {
         }
     }
 
-    public static List biomes = new ArrayList<>();
     public static List<Item> items = new ArrayList<>();
     public static void initBiomes(){
         for (Biome biome : ForgeRegistries.BIOMES.getValues()){
-            biomes.add(biome.toString());
+            biomeNames.add(biome);
         }
     }
+    private static List<Biome> biomeNames = new ArrayList<>();
     public static List getBiomes(){
-        return biomes;
+        return biomeNames;
     }
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
-    private static Set<String> biomeNames = new HashSet<>();
 
-    public static void addBiome(String name) {
-        Matcher matcher = PATTERN.matcher(name);
-        while (matcher.find()) {
-            String biomeName = matcher.group(1);
-            if (!biomeNames.contains(biomeName) && !biomeName.contains("worldgen")) {
-                biomeNames.add(biomeName); //.substring("minecraft:".length())
-            }
-        }
-    }
-    public static List getBiomesFound(String list){
+    public static List getBiomesFound(String list, ServerLevel serverLevel){
         List<String> biomesList = new ArrayList<>(Arrays.asList(list.split(",")));
-        for (String name: biomesList){
-            addBiome(name);
+        List<String> allList = new ArrayList<>();
+        for(Biome biome: biomeNames){
+            ResourceLocation key = serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getKey(biome);
+            if(key != null)
+                allList.add(key.toDebugFileName());
         }
-        return Arrays.asList(biomeNames.toArray());
+        allList.removeAll(biomesList);
+        System.out.println(allList);
+        return allList;
     }
 //Reference{ResourceKey[minecraft:worldgen/biome / minecraft:birch_forest]=net.minecraft.world.level.biome.Biome@e4348c0}
     public static void initItems(){
@@ -394,6 +395,14 @@ public class VPUtil {
         entity.hurt(source,getAttack(player,hasDurability)*percent);
     }
 
+    public static void spawnLightning(ServerLevel world, double x, double y, double z) {
+        LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(world);
+        if (lightningBolt != null) {
+            lightningBolt.moveTo(x, y, z);
+            world.addFreshEntity(lightningBolt);
+        }
+    }
+
     public static final List<String> vanillaFlowers = Arrays.asList(
             "poppy", "dandelion", "lily_of_the_valley", "blue_orchid", "allium",
             "azure_bluet", "red_tulip", "orange_tulip", "white_tulip", "pink_tulip",
@@ -431,6 +440,24 @@ public class VPUtil {
         allEntities.addAll(getEntitiesListOfType(MobCategory.CREATURE));
         allEntities.addAll(getEntitiesListOfType(MobCategory.MONSTER));
         return allEntities.get(random.nextInt(allEntities.size()));
+    }
+
+    public static void randomTeleportChorus(LivingEntity entity){
+        double d0 = entity.getX();
+        double d1 = entity.getY();
+        double d2 = entity.getZ();
+
+        for(int i = 0; i < 16; ++i) {
+            double d3 = entity.getX() + (entity.getRandom().nextDouble() - 0.5D) * 16.0D;
+            double d4 = Mth.clamp(entity.getY() + (double)(entity.getRandom().nextInt(16) - 8), 2, 2);
+            double d5 = entity.getZ() + (entity.getRandom().nextDouble() - 0.5D) * 16.0D;
+            if (entity.isPassenger()) {
+                entity.stopRiding();
+            }
+            if (entity.randomTeleport(entity.getX(),entity.getY(),entity.getZ(), true)) {
+                break;
+            }
+        }
     }
 
     public static int getChaosTime(){
@@ -568,6 +595,9 @@ public class VPUtil {
             PacketHandler.sendToClient(new PlayerFlyPacket(1),player);
         }
         entity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 7 * 20));
+        if(Math.random() < 0.5)
+            play(entity,SoundRegistry.WIND1.get());
+        else play(entity,SoundRegistry.WIND2.get());
     }
 
     public static void suckEntity(Entity entity1, Player player,int scale, boolean items) {
@@ -1013,6 +1043,18 @@ public class VPUtil {
         effect = effects.get(numba);
         return effect;
     }
+    public static List<MobEffectInstance> getEffectsHas(LivingEntity entity, boolean isBenefit){
+        List<MobEffectInstance> effects = new ArrayList<>();
+        Iterator<MobEffectInstance> iterator = entity.getActiveEffects().iterator();
+        while (iterator.hasNext()) {
+            MobEffectInstance effectInstance = iterator.next();
+            MobEffect effect = effectInstance.getEffect();
+            if (effect.isBeneficial() == isBenefit) {
+                effects.add(effectInstance);
+            }
+        }
+        return effects;
+    }
     public static void clearEffects(LivingEntity entity, boolean isBeneficial){
         Iterator<MobEffectInstance> iterator = entity.getActiveEffects().iterator();
         while (iterator.hasNext()) {
@@ -1205,9 +1247,77 @@ public class VPUtil {
         return attacker.isAlliedTo(target);
     }
 
-    public static void spawnParticles(ServerPlayer player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player.level instanceof ServerLevel serverLevel) {
-            serverLevel.sendParticles(player, particle, force, x, y, z, count, deltaX, deltaY, deltaZ, speed);
+    public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
+        if(!player.level.isClientSide)
+            player = Minecraft.getInstance().player;
+        for(int i = 0; i < count; i++) {
+            if(Math.random() < 0.5)
+                x += Math.random()*2;
+            else x -= Math.random()*2;
+            if(Math.random() < 0.5)
+                z += Math.random()*2;
+            else z -= Math.random()*2;
+            if(Math.random() < 0.5)
+                y += Math.random()*2;
+            else y -= Math.random()*2;
+            player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+        }
+    }
+
+    public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
+        if(!player.level.isClientSide)
+            player = Minecraft.getInstance().player;
+        double startX = player.getX() - radius;
+        double startY = player.getY() - radius;
+        double startZ = player.getZ() - radius;
+        double endX = player.getX() + radius;
+        double endY = player.getY() + radius;
+        double endZ = player.getZ() + radius;
+
+        for (double x = startX; x <= endX; x += 1.0) {
+            for (double y = startY; y <= endY; y += 1.0) {
+                for (double z = startZ; z <= endZ; z += 1.0) {
+                    if(Math.random() < 0.5)
+                        x += Math.random()*2;
+                    else x -= Math.random()*2;
+                    if(Math.random() < 0.5)
+                        z += Math.random()*2;
+                    else z -= Math.random()*2;
+                    if(Math.random() < 0.5)
+                        y += Math.random()*2;
+                    else y -= Math.random()*2;
+                    player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                }
+            }
+        }
+    }
+
+    public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
+        if(!player.level.isClientSide)
+            player = Minecraft.getInstance().player;
+        BlockPos pos = rayCords(player,player.level,distance);
+        double startX = pos.getX() - radius;
+        double startY = pos.getY() - radius;
+        double startZ = pos.getZ() - radius;
+        double endX = pos.getX() + radius;
+        double endY = pos.getY() + radius;
+        double endZ = pos.getZ() + radius;
+
+        for (double x = startX; x <= endX; x += 1.0) {
+            for (double y = startY; y <= endY; y += 1.0) {
+                for (double z = startZ; z <= endZ; z += 1.0) {
+                    if(Math.random() < 0.5)
+                        x += Math.random()*2;
+                    else x -= Math.random()*2;
+                    if(Math.random() < 0.5)
+                        z += Math.random()*2;
+                    else z -= Math.random()*2;
+                    if(Math.random() < 0.5)
+                        y += Math.random()*2;
+                    else y -= Math.random()*2;
+                    player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                }
+            }
         }
     }
 
@@ -1287,5 +1397,120 @@ public class VPUtil {
         }
     }
 
+    public static void regenOverShield(LivingEntity entity,float amount){
+        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
+            return;
+        CompoundTag tag = entity.getPersistentData();
+        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
+                +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
+        float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
+        if(!tag.getBoolean("VPAntiShield")) {
+            if(tag.getFloat("VPOverShieldMax") >= shield)
+                tag.putFloat("VPOverShield", shield);
+            else tag.putFloat("VPOverShield", tag.getFloat("VPOverShieldMax"));
+        }
+        if(entity instanceof ServerPlayer player) {
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+        } else {
+            if(!entity.level.isClientSide)
+                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+        }
+    }
 
+    public static ResourceLocation getCurrentBiome(Player player) {
+        if (player.level instanceof ServerLevel serverLevel) {
+            BlockPos pos = player.blockPosition();
+            Biome biome = serverLevel.getBiome(pos).get();
+            return serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getKey(biome);
+        }
+        return null;
+    }
+
+    public static Optional<Vector3> findValidPosition(ServerPlayer player, Level world, int x, int y, int z) {
+        int checkAxis = y - 10;
+
+        for (int counter = 0; counter <= checkAxis; counter++) {
+            BlockPos below = new BlockPos(x, y - counter - 1, z);
+            BlockPos feet = new BlockPos(x, y - counter, z);
+            BlockPos head = new BlockPos(x, y - counter + 1, z);
+
+            if (world.getMinBuildHeight() >= below.getY())
+                return Optional.empty();
+
+            if (!world.isEmptyBlock(below) && world.getBlockState(below).canOcclude() && world.isEmptyBlock(feet) && world.isEmptyBlock(head))
+                return Optional.of(new Vector3(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5));
+        }
+
+        return Optional.empty();
+    }
+
+    public static List<MobEffect> effects = new ArrayList<>();
+
+    public static void initEffects(){
+        for(MobEffect effect: ForgeRegistries.MOB_EFFECTS){
+            effects.add(effect);
+        }
+    }
+
+    public static List<MobEffect> getEffects(){
+        return effects;
+    }
+
+    public static List getEffectsLeft(String list){
+        List<String> effectList = new ArrayList<>(Arrays.asList(list.split(",")));
+        List<String> allList = new ArrayList<>();
+        for(MobEffect effect: effects){
+            allList.add(effect.getDescriptionId());
+        }
+        allList.removeAll(effectList);
+        return allList;
+    }
+
+    public static List<String> getDamageKinds(){
+        List<String> damageSourceNames  = new ArrayList<>();
+        damageSourceNames.add("inFire");
+        damageSourceNames.add("lightningBolt");
+        damageSourceNames.add("onFire");
+        damageSourceNames.add("lava");
+        damageSourceNames.add("hotFloor");
+        damageSourceNames.add("inWall");
+        //damageSourceNames.add("cramming"); ?
+        damageSourceNames.add("drown");
+        damageSourceNames.add("starve");
+        damageSourceNames.add("cactus");
+        damageSourceNames.add("fall");
+        damageSourceNames.add("flyIntoWall");
+        damageSourceNames.add("outOfWorld");
+        damageSourceNames.add("generic");
+        damageSourceNames.add("magic");
+        damageSourceNames.add("wither");
+        damageSourceNames.add("anvil");
+        damageSourceNames.add("fallingBlock");
+        damageSourceNames.add("dragonBreath");
+        //damageSourceNames.add("dryout"); !!!
+        damageSourceNames.add("sweetBerryBush");
+        damageSourceNames.add("freeze");
+        damageSourceNames.add("fallingStalactite");
+        damageSourceNames.add("stalagmite");
+        damageSourceNames.add("sting");
+        damageSourceNames.add("mob");
+        damageSourceNames.add("player");
+        damageSourceNames.add("arrow");
+        damageSourceNames.add("trident");
+        damageSourceNames.add("fireworks");
+        damageSourceNames.add("witherSkull");
+        //damageSourceNames.add("thrown"); !
+        damageSourceNames.add("indirectMagic");
+        damageSourceNames.add("thorns");
+        damageSourceNames.add("explosion");
+        damageSourceNames.add("sonic_boom");
+        return damageSourceNames;
+    }
+
+    public static List getDamageKindsLeft(String list){
+        List<String> damageList = new ArrayList<>(Arrays.asList(list.split(",")));
+        List<String> allList = new ArrayList<>(getDamageKinds());
+        allList.removeAll(damageList);
+        return allList;
+    }
 }

@@ -2,6 +2,8 @@ package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -38,6 +40,7 @@ public class Armor extends Vestige{
         }
         player.hurt(DamageSource.CACTUS,VPUtil.getAttack(player,true)*(1 + debuffCount));
         player.getPersistentData().putFloat("VPArmor",player.getPersistentData().getFloat("VPArmor")+100);
+        VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,6,1,1,-0.1,-1,2,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -46,6 +49,7 @@ public class Armor extends Vestige{
         int pain = (int)player.getPersistentData().getFloat("VPArmor");
         VPUtil.repairAll(player,pain);
         player.getPersistentData().putFloat("VPArmor",0);
+        VPUtil.spawnParticles(player, ParticleTypes.CRIT,6,1,0,0,0,0,false);
         super.doUltimate(seconds, player, level);
     }
 }

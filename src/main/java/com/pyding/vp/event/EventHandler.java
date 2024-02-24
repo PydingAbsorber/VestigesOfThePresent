@@ -15,6 +15,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,12 +28,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.warden.Warden;
@@ -43,6 +46,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.Tags;
@@ -50,6 +54,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
+import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.*;
@@ -109,6 +114,15 @@ public class EventHandler {
             }
             if(entity.getPersistentData().getLong("VPEnchant") > 0)
                 event.setAmount(event.getAmount()*1.5f);
+            if(VPUtil.hasVestige(ModItems.BALL.get(), player) && event.getAmount() > entity.getHealth()){
+                int counter = 0;
+                for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,15,15,15,false)){
+                    livingEntity.hurt(event.getSource(),event.getAmount());
+                    counter++;
+                    if(counter >= 3)
+                        break;
+                }
+            }
         }
         if(entity instanceof Player player){
             LivingEntity attacker = event.getEntity();
@@ -130,7 +144,7 @@ public class EventHandler {
             }
             if(VPUtil.hasVestige(ModItems.ARMOR.get(), player)){
                 float amount = event.getAmount();
-                event.setAmount(event.getAmount()-(40+player.getPersistentData().getFloat("VPArmor")));
+                event.setAmount(Math.min(0,event.getAmount()-(40+player.getPersistentData().getFloat("VPArmor"))));
                 player.getPersistentData().putFloat("VPArmor",player.getPersistentData().getFloat("VPArmor")+amount);
             }
             if(VPUtil.hasVestige(ModItems.CHAOS.get(), player)){
@@ -185,6 +199,8 @@ public class EventHandler {
                 });
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(event.getSource().isExplosion())
+                    cap.failChallenge(18,player);
                 if(cap.getDebug() && !player.level.isClientSide) {
                     player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
                     if(event.getSource().isMagic())
@@ -270,9 +286,19 @@ public class EventHandler {
         float damage = event.getAmount();
         if(shield > damage){
             entity.getPersistentData().putFloat("VPShield",shield-damage);
+            if(event.getSource().getEntity() instanceof Player player){
+                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                   cap.setChallenge(19,cap.getChallenge(19)+(int)damage,player);
+                });
+            }
             event.setAmount(0);
         } else {
             event.setAmount(damage-shield);
+            if(event.getSource().getEntity() instanceof Player player){
+                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                    cap.setChallenge(19,cap.getChallenge(19)+(int)shield,player);
+                });
+            }
             if(shield > 0)
                 VPUtil.play(entity,SoundRegistry.SHIELD_BREAK.get());
             if(entity.getPersistentData().getLong("VPFlowerStellar") > 0 && event.getSource().getEntity() != null)
@@ -405,10 +431,9 @@ public class EventHandler {
             }
             if (event.getEntity() instanceof Player player){
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
-                    String damage = event.getSource().toString().substring("DamageSource (".length());
-                    damage = damage.substring(0,damage.length()-1);
-                    challange.addDamageDie(damage,player);
+                    challange.addDamageDie(event.getSource().getMsgId(),player);
                     challange.failChallenge(13,player);
+                    challange.failChallenge(18,player);
                 });
 
                 if(VPUtil.hasVestige(ModItems.KILLER.get(), player) && player.getPersistentData().getLong("VPQueenDeath") != 1){
@@ -425,6 +450,15 @@ public class EventHandler {
                         if(event.getSource().getEntity() instanceof LivingEntity dealer)
                         VPUtil.enchantCurseAll(dealer);
                     } else VPUtil.enchantCurseAll(player);
+                }
+            }
+            LivingEntity entity = event.getEntity();
+            if(entity.level.getNearestPlayer(entity,10) != null && VPUtil.hasVestige(ModItems.CATALYST.get(), entity.level.getNearestPlayer(entity,10))) {
+                List<MobEffectInstance> effectList = new ArrayList<>(VPUtil.getEffectsHas(entity,false));
+                for (LivingEntity iterator : VPUtil.getEntitiesAround(entity, 10, 10, 10, false)) {
+                    for(MobEffectInstance instance: effectList){
+                        iterator.addEffect(instance);
+                    }
                 }
             }
         } else {
@@ -605,6 +639,7 @@ public class EventHandler {
                 if(VPUtil.hasVestige(ModItems.FLOWER.get(), player) && player.getPersistentData().getLong("VPDonutSpecial") > 0){
                     for(LivingEntity livingEntity: VPUtil.getCreaturesAround(player,30,30,30)){
                         livingEntity.heal(resedHeal);
+                        VPUtil.spawnParticles(player, ParticleTypes.HEART,livingEntity.getX(),livingEntity.getY(),livingEntity.getZ(),4,0,0.5,0);
                     }
                 }
             }
@@ -653,6 +688,20 @@ public class EventHandler {
         Player player = event.getEntity();
         if(player.getPersistentData().getLong("VPAntiTP") > 0)
             event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void struck(EntityStruckByLightningEvent event){
+        if(event.getEntity() instanceof Player player){
+            for(LivingEntity entity: VPUtil.getEntities(player,1,false)){
+                if(entity instanceof Creeper) {
+                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                        cap.setChallenge(18,player);
+                    });
+                    break;
+                }
+            }
+        }
     }
     @SubscribeEvent
     public static void tick(LivingEvent.LivingTickEvent event){
@@ -745,7 +794,7 @@ public class EventHandler {
                 player.getPersistentData().putBoolean("VPButton4",false);
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.addBiome(player.level.getBiome(player.blockPosition()).toString(), player);
+                cap.addBiome(player);
                 cap.addDimension(player,player.level.dimension().location().getPath());
                 for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
                     if(cap.getChallenge(i+1) >= cap.getMaximum(i+1) && !cap.hasCoolDown(i+1)){
@@ -774,6 +823,17 @@ public class EventHandler {
                     cap.setChallenge(14,0,player);
                     cap.setChaosTime(System.currentTimeMillis(),player);
                     cap.setRandomEntity(VPUtil.getRandomEntity(),player);
+                }
+                if(player.isSleepingLongEnough()){
+                    cap.addLore(player,2);
+                    if(cap.getLore(player,3))
+                        cap.addLore(player,5);
+                }
+                Iterator<MobEffectInstance> iterator = player.getActiveEffects().iterator();
+                while (iterator.hasNext()) {
+                    MobEffectInstance effectInstance = iterator.next();
+                    MobEffect effect = effectInstance.getEffect();
+                    cap.addEffect(effect.getDescriptionId(),player);
                 }
             });
         }
@@ -858,7 +918,7 @@ public class EventHandler {
         VPCommands.register(event.getDispatcher());
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public static void sleep(PlayerSleepInBedEvent event){
 
         Player player = event.getEntity();
@@ -868,5 +928,5 @@ public class EventHandler {
                 cap.addLore(player,5);
         });
         //PacketHandler.sendToServer(new ClientToServerPacket());
-    }
+    }*/
 }

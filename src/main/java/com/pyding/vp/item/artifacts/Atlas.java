@@ -7,6 +7,7 @@ import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -42,6 +43,7 @@ public class Atlas extends Vestige{
             }
             VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).FALL,50+specialBonusModifier);
         }
+        VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,1,0,-1,0,5,false);
         super.doSpecial(seconds, player, level);
     }
     public ItemStack stackLocal = null;
