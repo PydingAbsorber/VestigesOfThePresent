@@ -25,7 +25,7 @@ public class Crown extends Vestige{
         for(LivingEntity entity : VPUtil.getMonstersAround(player,20,6,20)){
             if(entity.getPersistentData().getString("VPCrownDamage").isEmpty() || entity.getPersistentData().getString("VPCrownDamage").equals(""))
                 entity.getPersistentData().putString("VPCrownDamage","bypassArmor");
-            VPUtil.adaptiveDamageHurt(entity,player,entity.getPersistentData().getBoolean("VPCrownDR"),300+specialBonusModifier);
+            VPUtil.adaptiveDamageHurt(entity,player,entity.getPersistentData().getBoolean("VPCrownDR"),300);
             VPUtil.spawnParticles(player, ParticleTypes.GLOW,entity.getX(),entity.getY(),entity.getZ(),16,0,0.5,0);
         }
         super.doSpecial(seconds, player, level);

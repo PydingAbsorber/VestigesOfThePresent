@@ -126,8 +126,6 @@ public class Vestige extends Item implements ICurioItem {
     public int setUltimateActive(long seconds, Player player){
         if(this.currentChargeUltimate > 0){
             if(!player.level.isClientSide) {
-                float gravity = player.getPersistentData().getInt("VPGravity");
-                ultimateBonusModifier = gravity * 20;
                 this.timeUlt = System.currentTimeMillis() + seconds;
                 this.isUltimateActive = true;
                 this.cdUltimateActive += this.ultimateCd;
@@ -224,13 +222,15 @@ public class Vestige extends Item implements ICurioItem {
                         .append(Component.translatable("vp.charges").withStyle(color))
                         .append(Component.literal(" " + this.specialCharges).withStyle(color))
                         .append(Component.translatable("vp.charges2").withStyle(color))
-                        .append(Component.literal(" " + this.specialCd / 20).withStyle(color)));
+                        .append(Component.literal(" " + this.specialCd / 20).withStyle(color))
+                        .append(Component.translatable("vp.seconds").withStyle(color)));
                 components.add(Component.translatable("vp.special." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 components.add(Component.translatable("vp.ultimate").withStyle(color)
                         .append(Component.translatable("vp.charges").withStyle(color))
                         .append(Component.literal(" " + this.ultimateCharges).withStyle(color))
                         .append(Component.translatable("vp.charges2").withStyle(color))
-                        .append(Component.literal(" " + this.ultimateCd / 20).withStyle(color)));
+                        .append(Component.literal(" " + this.ultimateCd / 20).withStyle(color))
+                        .append(Component.translatable("vp.seconds").withStyle(color)));
                 components.add(Component.translatable("vp.ultimate." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 if(vestigeNumber == 10)
                     components.add(Component.translatable("vp.worlds").withStyle(color).append(Component.literal("\n" + cap.getDimensions()).withStyle(ChatFormatting.GRAY)));

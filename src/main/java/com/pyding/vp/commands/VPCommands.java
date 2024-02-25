@@ -2,6 +2,7 @@ package com.pyding.vp.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -56,7 +57,7 @@ public class VPCommands {
                                     player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                                         cap.clearCoolDown(player);
                                     });
-                                    player.sendSystemMessage(Component.literal("Cooldowns of Vestiges and Challenges refreshed successfully!"));
+                                    player.sendSystemMessage(Component.literal("Cooldowns of Vestiges and Challenges refreshed successfully! \nNote! That command will trigger ''cd ends'' that affect some Vestiges like Trigon or SweetDonut"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -155,6 +156,40 @@ public class VPCommands {
                             }
                             return Command.SINGLE_SUCCESS;
                         })
+                )
+                .then(Commands.literal("calculateChance")
+                        .then(Commands.argument("playerHP", FloatArgumentType.floatArg())
+                                .then(Commands.argument("entityMaxHP", FloatArgumentType.floatArg())
+                                        .then(Commands.argument("entityCurrentHP", FloatArgumentType.floatArg())
+                                            .executes(context -> {
+                                                ServerPlayer player = context.getSource().getPlayerOrException();
+                                                float playerHealth = FloatArgumentType.getFloat(context, "playerHP");
+                                                float entityMaxHP = FloatArgumentType.getFloat(context, "entityMaxHP");
+                                                float entityCurrentHP = FloatArgumentType.getFloat(context, "entityCurrentHP");
+                                                float chance = VPUtil.calculateCatchChance(playerHealth,entityMaxHP,entityCurrentHP);
+                                                player.sendSystemMessage(Component.literal("For arguments where taken \n§cplayer HP: " + playerHealth + " \n§2entity maximum HP: " + entityMaxHP + " \n§eentity current HP: " + entityCurrentHP));
+                                                player.sendSystemMessage(Component.literal("Chance for capture: §5" + String.format("%.15f", chance*100) + "%"));
+                                                return Command.SINGLE_SUCCESS;
+                                            })
+                                        )
+                                )
+                        )
+                )
+                .then(Commands.literal("addShields")
+                        .then(Commands.argument("shields", FloatArgumentType.floatArg())
+                                .then(Commands.argument("overshields", FloatArgumentType.floatArg())
+                                    .executes(context -> {
+                                        ServerPlayer player = context.getSource().getPlayerOrException();
+                                        float shields = FloatArgumentType.getFloat(context, "shields");
+                                        float overshields = FloatArgumentType.getFloat(context, "overshields");
+                                        if(shields > 0)
+                                            VPUtil.addShield(player,shields,true);
+                                        if(overshields > 0)
+                                            VPUtil.addOverShield(player,overshields);
+                                        return Command.SINGLE_SUCCESS;
+                                    })
+                                )
+                        )
                 )
         );
     }

@@ -29,7 +29,7 @@ public class Killer extends Vestige{
             VPUtil.play(player,SoundRegistry.EXPLODE1.get());
         else VPUtil.play(player,SoundRegistry.EXPLODE2.get());
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20)){
-            VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).setExplosion(),400);
+            VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).setExplosion(),400,2);
             entity.getPersistentData().putBoolean("VPKillerQueen",true);
         }
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);

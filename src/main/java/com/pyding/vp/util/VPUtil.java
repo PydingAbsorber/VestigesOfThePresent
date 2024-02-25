@@ -2,7 +2,9 @@ package com.pyding.vp.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
@@ -15,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -380,19 +383,26 @@ public class VPUtil {
         return formattedTime.toString().trim();
     }
 
-    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent){
+    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
         if(isFriendlyFireBetween(entity,player))
             return;
         entity.invulnerableTime = 0;
         percent /= 100;
         ItemStack stack = player.getMainHandItem();
+        float percentBonus = 1;
+        if(type == 1)
+            type += 0;
+        else if(type == 2)
+            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
+        else if(type == 3)
+            percentBonus += player.getPersistentData().getInt("VPGravity")*20;
         boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
         if(hasDurability) {
             stack.hurtAndBreak(1, entity, consumer -> {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
-        entity.hurt(source,getAttack(player,hasDurability)*percent);
+        entity.hurt(source,getAttack(player,hasDurability)*(percent+percentBonus));
     }
 
     public static void spawnLightning(ServerLevel world, double x, double y, double z) {
@@ -422,6 +432,37 @@ public class VPUtil {
         damage += "noAggro,";
         damage += "projectile,";
         return damage;
+    }
+
+    public static void printDamage(Player player, LivingDamageEvent event){
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            if (cap.getDebug() && !player.level.isClientSide) {
+                player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
+                if (event.getSource().isMagic())
+                    player.sendSystemMessage(Component.literal("§5isMagic"));
+                if (event.getSource().isBypassMagic())
+                    player.sendSystemMessage(Component.literal("§5isBypassMagic"));
+                if (event.getSource().isFire())
+                    player.sendSystemMessage(Component.literal("§5isFire"));
+                if (event.getSource().isDamageHelmet())
+                    player.sendSystemMessage(Component.literal("§5isDamageHelmet"));
+                if (event.getSource().isProjectile())
+                    player.sendSystemMessage(Component.literal("§5isProjectile"));
+                if (event.getSource().isExplosion())
+                    player.sendSystemMessage(Component.literal("§5isExplosion"));
+                if (event.getSource().isNoAggro())
+                    player.sendSystemMessage(Component.literal("§5isNoAggro"));
+                if (event.getSource().isBypassInvul())
+                    player.sendSystemMessage(Component.literal("§5isBypassInvul"));
+                if (event.getSource().isBypassEnchantments())
+                    player.sendSystemMessage(Component.literal("§5isBypassEnchantments"));
+                if (event.getSource().isBypassArmor())
+                    player.sendSystemMessage(Component.literal("§5isBypassArmor"));
+                if (event.getSource().isFall())
+                    player.sendSystemMessage(Component.literal("§5isFall"));
+                player.sendSystemMessage(Component.literal("\n"));
+            }
+        });
     }
 
     public static List<String> getDamageDoLeft(String list){
@@ -787,7 +828,7 @@ public class VPUtil {
             default:
                 break;
         }
-        dealDamage(entity,player,source,percent);
+        dealDamage(entity,player,source,percent,2);
         if(adopted) {
             entity.getPersistentData().putString("VPCrownDamage", adept);
             entity.getPersistentData().putBoolean("VPCrownDR",false);
@@ -872,6 +913,9 @@ public class VPUtil {
         if(tag.getFloat("VPShieldInit") == 0) {
             tag.putFloat("VPShieldInit", shield);
             play(entity,SoundRegistry.SHIELD.get());
+        }
+        if(entity instanceof Player player && Math.random() < 0.3 && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
+            addOverShield(player,shield*0.3f);
         }
     }
 
@@ -1403,7 +1447,10 @@ public class VPUtil {
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
                 +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
+        if(tag.getFloat("VPOverShield") <= 0)
+            return;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
+        System.out.println(shield + " shield to regen");
         if(!tag.getBoolean("VPAntiShield")) {
             if(tag.getFloat("VPOverShieldMax") >= shield)
                 tag.putFloat("VPOverShield", shield);
@@ -1512,5 +1559,14 @@ public class VPUtil {
         List<String> allList = new ArrayList<>(getDamageKinds());
         allList.removeAll(damageList);
         return allList;
+    }
+
+    public static float calculateCatchChance(float playerHealth, float entityMaxHealth, float entityHealth){
+        float probability;
+        float base = (0.6f+(1-(entityHealth/entityMaxHealth)));
+        if(playerHealth >= entityMaxHealth)
+            probability = base;
+        else probability = (base * (float) Math.pow(0.95f, Math.abs(playerHealth - entityMaxHealth) / 10));
+        return probability;
     }
 }

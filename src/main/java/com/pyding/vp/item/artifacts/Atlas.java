@@ -41,7 +41,7 @@ public class Atlas extends Vestige{
                 PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
                 PacketHandler.sendToClient(new PlayerFlyPacket(-2), serverPlayer);
             }
-            VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).FALL,50+specialBonusModifier);
+            VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).FALL,50,2);
         }
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,1,0,-1,0,5,false);
         super.doSpecial(seconds, player, level);

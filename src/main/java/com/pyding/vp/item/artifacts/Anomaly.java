@@ -62,7 +62,7 @@ public class Anomaly extends Vestige{
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
                     serverPlayer.teleportTo(entity.getX()-1,entity.getY(),entity.getZ()-1);
-                    VPUtil.dealDamage(entity,player,DamageSource.playerAttack(player).bypassMagic().bypassArmor(),400);
+                    VPUtil.dealDamage(entity,player,DamageSource.playerAttack(player).bypassMagic().bypassArmor(),400,2);
                     entity.getPersistentData().putLong("VPAntiTP",seconds+System.currentTimeMillis());
                 }
             }

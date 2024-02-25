@@ -32,9 +32,10 @@ public class SweetDonut extends Vestige{
         player.heal(player.getMaxHealth()*0.4f);
         VPUtil.clearEffects(player,false);
         if(player instanceof ServerPlayer serverPlayer) {
-            PacketHandler.sendToClient(new PlayerFlyPacket(4), serverPlayer);
-            if (serverPlayer.getHealth() <= serverPlayer.getMaxHealth() * 0.5)
+            if (serverPlayer.getHealth() <= serverPlayer.getMaxHealth() * 0.5) {
                 serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20, 4));
+                PacketHandler.sendToClient(new PlayerFlyPacket(4), serverPlayer);
+            }
         }
         float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));
         if(isStellar && VPUtil.getShield(player) < player.getMaxHealth()*3*(1+shieldBonus/100))
