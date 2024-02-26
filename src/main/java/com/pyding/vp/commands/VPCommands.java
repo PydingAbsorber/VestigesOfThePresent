@@ -166,7 +166,7 @@ public class VPCommands {
                                                 float playerHealth = FloatArgumentType.getFloat(context, "playerHP");
                                                 float entityMaxHP = FloatArgumentType.getFloat(context, "entityMaxHP");
                                                 float entityCurrentHP = FloatArgumentType.getFloat(context, "entityCurrentHP");
-                                                float chance = VPUtil.calculateCatchChance(playerHealth,entityMaxHP,entityCurrentHP);
+                                                double chance = VPUtil.calculateCatchChance(playerHealth,entityMaxHP,entityCurrentHP);
                                                 player.sendSystemMessage(Component.literal("For arguments where taken \n§cplayer HP: " + playerHealth + " \n§2entity maximum HP: " + entityMaxHP + " \n§eentity current HP: " + entityCurrentHP));
                                                 player.sendSystemMessage(Component.literal("Chance for capture: §5" + String.format("%.15f", chance*100) + "%"));
                                                 return Command.SINGLE_SUCCESS;

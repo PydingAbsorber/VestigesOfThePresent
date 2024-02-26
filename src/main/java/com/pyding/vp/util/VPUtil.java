@@ -217,7 +217,6 @@ public class VPUtil {
                 allList.add(key.toDebugFileName());
         }
         allList.removeAll(biomesList);
-        System.out.println(allList);
         return allList;
     }
 //Reference{ResourceKey[minecraft:worldgen/biome / minecraft:birch_forest]=net.minecraft.world.level.biome.Biome@e4348c0}
@@ -276,10 +275,48 @@ public class VPUtil {
         Random random = new Random();
         return entities.get(random.nextInt(entities.size())).toString();
     }
+    public static List<EntityType<?>> monsterList = new ArrayList<>();
+    public static List<EntityType<?>> bossList = new ArrayList<>();
+
+    public static int getBossSize(){
+        if(bossList.isEmpty())
+            return 3;
+        else return bossList.size();
+    }
+
+    public static void initMonstersAndBosses(Level level){
+        if(!monsterList.isEmpty() || !bossList.isEmpty())
+            return;
+        for(EntityType<?> type: getEntitiesListOfType(MobCategory.MONSTER)){
+            Entity entity = type.create(level);
+            if (entity instanceof LivingEntity livingEntity) {
+                double health = livingEntity.getMaxHealth();
+                if (health > 190) {
+                    bossList.add(type);
+                } else monsterList.add(type);
+            }
+        }
+    }
     public static List getMonsterLeft(String list){
         List<String> mobsList = new ArrayList<>(Arrays.asList(list.split(",")));
         List<String> allList = new ArrayList<>();
-        for(EntityType<?> type: getEntitiesListOfType(MobCategory.MONSTER)){
+        for(EntityType<?> type: monsterList){
+            allList.add(type.toString());
+        }
+        allList.removeAll(mobsList);
+        List<String> filteredList = new ArrayList<>();
+        for (String name: allList){
+            if(name.contains("entity.minecraft."))
+                name = name.substring("entity.minecraft.".length());
+            filteredList.add(name);
+        }
+        return filteredList;
+    }
+
+    public static List getBossesLeft(String list){
+        List<String> mobsList = new ArrayList<>(Arrays.asList(list.split(",")));
+        List<String> allList = new ArrayList<>();
+        for(EntityType<?> type: bossList){
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
@@ -391,6 +428,30 @@ public class VPUtil {
         ItemStack stack = player.getMainHandItem();
         float percentBonus = 1;
         if(type == 1)
+            percentBonus += 0;
+        else if(type == 2)
+            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
+        else if(type == 3)
+            percentBonus += player.getPersistentData().getInt("VPGravity")*2;
+        boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
+        if(hasDurability) {
+            stack.hurtAndBreak(1, entity, consumer -> {
+                consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
+            });
+        }
+        if(source.isBypassInvul())
+            percentBonus /= 10;
+        entity.hurt(source,getAttack(player,hasDurability)*(percent+percentBonus));
+    }
+
+    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean pierceHrt){
+        if(isFriendlyFireBetween(entity,player))
+            return;
+        if(pierceHrt)
+            entity.invulnerableTime = 0;
+        ItemStack stack = player.getMainHandItem();
+        float percentBonus = 1;
+        if(type == 1)
             type += 0;
         else if(type == 2)
             percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
@@ -402,7 +463,7 @@ public class VPUtil {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
-        entity.hurt(source,getAttack(player,hasDurability)*(percent+percentBonus));
+        entity.hurt(source,damage*(percentBonus));
     }
 
     public static void spawnLightning(ServerLevel world, double x, double y, double z) {
@@ -437,6 +498,7 @@ public class VPUtil {
     public static void printDamage(Player player, LivingDamageEvent event){
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             if (cap.getDebug() && !player.level.isClientSide) {
+                player.sendSystemMessage(event.getEntity().getType().getDescription());
                 player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
                 if (event.getSource().isMagic())
                     player.sendSystemMessage(Component.literal("§5isMagic"));
@@ -460,6 +522,12 @@ public class VPUtil {
                     player.sendSystemMessage(Component.literal("§5isBypassArmor"));
                 if (event.getSource().isFall())
                     player.sendSystemMessage(Component.literal("§5isFall"));
+                float shield = getShield(event.getEntity());
+                float overshield = getOverShield(event.getEntity());
+                if(shield > 0)
+                player.sendSystemMessage(Component.literal("§cHas Shields: " + shield));
+                if(overshield > 0)
+                player.sendSystemMessage(Component.literal("§dHas Over Shields: " + overshield));
                 player.sendSystemMessage(Component.literal("\n"));
             }
         });
@@ -902,8 +970,26 @@ public class VPUtil {
         }
         else shield = tag.getFloat("VPShield") + amount;
         shield = shield*(1 + shieldBonus/100);
-        if(!tag.getBoolean("VPAntiShield"))
-            tag.putFloat("VPShield",shield);
+        if(!tag.getBoolean("VPAntiShield")) {
+            if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
+                if(Math.random() < 0.2)
+                    addOverShield(player,shield*0.05f);
+                if(hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)) {
+                    boolean found = false;
+                    for (LivingEntity entityTarget : VPUtil.getEntities(player, 30, false)) {
+                        if (entityTarget.getPersistentData().hasUUID("VPPlayer")) {
+                            if (entityTarget.getPersistentData().getUUID("VPPlayer").equals(player.getUUID())) {
+                                found = true;
+                                entityTarget.getPersistentData().putFloat("VPShield", entityTarget.getPersistentData().getFloat("VPShield") + amount * (1 + shieldBonus / 100));
+                            }
+                        }
+                    }
+                    if (!found)
+                        tag.putFloat("VPShield", shield);
+                }
+            }
+            else tag.putFloat("VPShield", shield);
+        }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
@@ -913,9 +999,6 @@ public class VPUtil {
         if(tag.getFloat("VPShieldInit") == 0) {
             tag.putFloat("VPShieldInit", shield);
             play(entity,SoundRegistry.SHIELD.get());
-        }
-        if(entity instanceof Player player && Math.random() < 0.3 && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
-            addOverShield(player,shield*0.3f);
         }
     }
 
@@ -951,7 +1034,10 @@ public class VPUtil {
             target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
             List<LivingEntity> list = player.level.getEntitiesOfClass(LivingEntity.class, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));
             list.removeIf(entity -> entity == player || !player.hasLineOfSight(entity));
-            entities.addAll(list);
+            for(LivingEntity entity: list){
+                if(!entities.contains(entity))
+                    entities.add(entity);
+            }
 
             if (stopWhenFound && entities.size() > 0) {
                 break;
@@ -1027,7 +1113,7 @@ public class VPUtil {
     }
 
     public static boolean isBoss(LivingEntity entity){
-        if(entity.getMaxHealth() >= 200 || entity instanceof WitherBoss || entity instanceof EnderDragon || entity instanceof Warden)
+        if(entity.getMaxHealth() >= 190 || entity instanceof WitherBoss || entity instanceof EnderDragon || entity instanceof Warden)
             return true;
         return false;
     }
@@ -1181,8 +1267,10 @@ public class VPUtil {
         }
     }
 
-    public static LivingEntity getRandomEntityNear(Player player,boolean playerCount){
+    public static LivingEntity getRandomEntityNear(Player player,LivingEntity entityMain,boolean playerCount){
         for (LivingEntity entity: getEntities(player,10,false)) {
+            if(entity == entityMain)
+                continue;
             if(entity instanceof Player) {
                 if(playerCount) {
                     return entity;
@@ -1428,8 +1516,21 @@ public class VPUtil {
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
                 +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
         float shield = (tag.getFloat("VPOverShield") + amount)*(1 + shieldBonus/100);
-        if(!tag.getBoolean("VPAntiShield"))
-            tag.putFloat("VPOverShield",shield);
+        if(!tag.getBoolean("VPAntiShield")) {
+            if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
+                boolean found = false;
+                for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
+                    if (entityTarget.getPersistentData().hasUUID("VPPlayer")){
+                        if(entityTarget.getPersistentData().getUUID("VPPlayer").equals(player.getUUID())){
+                            found = true;
+                            entityTarget.getPersistentData().putFloat("VPOverShield", entityTarget.getPersistentData().getFloat("VPOverShield")+amount*(1 + shieldBonus/100));
+                        }
+                    }
+                }
+                if(!found)
+                    tag.putFloat("VPOverShield", shield);
+            } else tag.putFloat("VPOverShield", shield);
+        }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
@@ -1450,7 +1551,6 @@ public class VPUtil {
         if(tag.getFloat("VPOverShield") <= 0)
             return;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
-        System.out.println(shield + " shield to regen");
         if(!tag.getBoolean("VPAntiShield")) {
             if(tag.getFloat("VPOverShieldMax") >= shield)
                 tag.putFloat("VPOverShield", shield);
@@ -1561,12 +1661,64 @@ public class VPUtil {
         return allList;
     }
 
-    public static float calculateCatchChance(float playerHealth, float entityMaxHealth, float entityHealth){
-        float probability;
+    public static double calculateCatchChance(float playerHealth, float entityMaxHealth, float entityHealth){
+        double probability;
         float base = (0.6f+(1-(entityHealth/entityMaxHealth)));
         if(playerHealth >= entityMaxHealth)
             probability = base;
         else probability = (base * (float) Math.pow(0.95f, Math.abs(playerHealth - entityMaxHealth) / 10));
         return probability;
+    }
+
+    public static EntityType<?> entityTypeFromNbt(CompoundTag nbtTagCompound) {
+        ResourceLocation typeId = new ResourceLocation(nbtTagCompound.getString("id"));
+        return ForgeRegistries.ENTITY_TYPES.getValue(typeId);
+    }
+
+    public static void teleportRandomly(Entity entity, int radius) {
+        Random random = new Random();
+        Level world = entity.level;
+        double originalX = entity.getX();
+        double originalY = entity.getY();
+        double originalZ = entity.getZ();
+
+        for (int i = 0; i < 100; i++) {
+            double targetX = originalX + (random.nextDouble() - 0.5) * 2.0 * radius;
+            double targetY = Math.min(Math.max(originalY + (random.nextInt(2 * radius) - radius), 0), world.getMaxBuildHeight() - 1);
+            double targetZ = originalZ + (random.nextDouble() - 0.5) * 2.0 * radius;
+
+            if (isSafeLocation(world, targetX, targetY, targetZ)) {
+                entity.teleportTo(targetX, targetY, targetZ);
+                break;
+            }
+        }
+    }
+
+    private static boolean isSafeLocation(Level world, double x, double y, double z) {
+        BlockPos blockPos = new BlockPos(x, y, z);
+        return world.isEmptyBlock(blockPos)
+                && world.isEmptyBlock(blockPos.above())
+                && !world.isEmptyBlock(blockPos.below());
+    }
+
+    public static void dealParagonDamage(LivingEntity entity,Player player,float damage, int type, boolean hurt){
+        if(isFriendlyFireBetween(entity,player))
+            return;
+        ItemStack stack = player.getMainHandItem();
+        float percentBonus = 1;
+        if(type == 1)
+            percentBonus += 0;
+        else if(type == 2)
+            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
+        else if(type == 3)
+            percentBonus += player.getPersistentData().getInt("VPGravity")*20;
+        float health = damage*(1+percentBonus/100);
+        if(entity.getHealth()-health > 0) {
+            if(hurt)
+                entity.hurt(DamageSource.GENERIC,0);
+            entity.setHealth(entity.getHealth() - health);
+        } else {
+            deadInside(entity,player);
+        }
     }
 }

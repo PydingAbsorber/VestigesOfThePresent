@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -30,9 +31,10 @@ public class Trigon extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player, SoundRegistry.MAGIC5.get());
-        for(LivingEntity entity: VPUtil.ray(player,6,60,false)){
-            entity.hurt(new DamageSource("Paragon Damage").bypassInvul(),player.getMaxHealth()/10);
+        for(LivingEntity entity: VPUtil.ray(player,6,30,true)){
+            VPUtil.dealParagonDamage(entity,player,player.getMaxHealth()/10,2,true);
         }
+        VPUtil.rayParticles(player,ParticleTypes.WAX_ON,30,3,1,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -46,6 +48,7 @@ public class Trigon extends Vestige{
             float shield = VPUtil.getShield(entity);
             overshields += shield - shield*0.6f;
             entity.getPersistentData().putFloat("VPShield",shield*0.6f);
+            VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         int numba = random.nextInt(list.size());
         if(isStellar && VPUtil.getOverShield(player) > 0 && player.getPersistentData().getFloat("VPOverShieldMax") > 0 && player.tickCount % 5 == 0) {
@@ -58,9 +61,9 @@ public class Trigon extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
-        if(VPUtil.getShield(player1) > 0)
+        if(VPUtil.getOverShield(player1) > 0)
             player1.getPersistentData().putFloat("VPTrigonBonus",(1-(VPUtil.getOverShield(player1)/player1.getPersistentData().getFloat("VPOverShieldMax"))));
-        else player1.getPersistentData().putFloat("VPTrigonBonus",0);
+        else player1.getPersistentData().putFloat("VPTrigonBonus",1);
         super.curioTick(slotContext, stack);
     }
 

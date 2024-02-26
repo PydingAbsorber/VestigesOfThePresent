@@ -313,7 +313,7 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 15: {
-                        text = VPUtil.getMobsLeft(cap.getMobsTamed()).toString();
+                        text = VPUtil.getBossesLeft(cap.getBosses()).toString();
                         break;
                     }
                     case 16: {
@@ -324,6 +324,10 @@ public class Vestige extends Item implements ICurioItem {
                         text = VPUtil.getEffectsLeft(cap.getEffects()).toString();
                         break;
                     }
+                    case 20:{
+                        text = VPUtil.getMobsLeft(cap.getMobsTamed()).toString();
+                        break;
+                    }
                     default:
                         text = null;
                 }
@@ -332,7 +336,7 @@ public class Vestige extends Item implements ICurioItem {
             } else {
                 components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(color).append(Component.translatable("vp.ctrl"))));
-                if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 15 || vestigeNumber == 16 || vestigeNumber == 17)
+                if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 11 || vestigeNumber == 15 || vestigeNumber == 16 || vestigeNumber == 17 || vestigeNumber == 20)
                     components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
                 if(vestigeNumber == 3)
                     components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));

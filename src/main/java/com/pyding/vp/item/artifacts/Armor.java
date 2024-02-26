@@ -40,7 +40,7 @@ public class Armor extends Vestige{
         }
         player.hurt(DamageSource.CACTUS,VPUtil.getAttack(player,true)*(1 + debuffCount));
         player.getPersistentData().putFloat("VPArmor",player.getPersistentData().getFloat("VPArmor")+100);
-        VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,6,1,1,-0.1,-1,2,false);
+        VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
         super.doSpecial(seconds, player, level);
     }
 
@@ -49,7 +49,7 @@ public class Armor extends Vestige{
         int pain = (int)player.getPersistentData().getFloat("VPArmor");
         VPUtil.repairAll(player,pain);
         player.getPersistentData().putFloat("VPArmor",0);
-        VPUtil.spawnParticles(player, ParticleTypes.CRIT,6,1,0,0,0,0,false);
+        VPUtil.spawnParticles(player, ParticleTypes.CRIT,3,1,0,0,0,0,false);
         super.doUltimate(seconds, player, level);
     }
 }

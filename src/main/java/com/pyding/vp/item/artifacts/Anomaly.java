@@ -109,6 +109,7 @@ public class Anomaly extends Vestige{
                     double y = random.nextInt(260);
                     serverPlayer.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,5*20));
                     serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);
+                    VPUtil.teleportRandomly(serverPlayer,50);
                     VPUtil.spawnParticles(player, ParticleTypes.PORTAL,8,1,0,-0.1,0,1,false);
                     VPUtil.play(player, SoundRegistry.TELEPORT2.get());
                 }

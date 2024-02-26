@@ -56,7 +56,7 @@ public class Atlas extends Vestige{
         long gravity = Math.max(30,player.getPersistentData().getInt("VPGravity"));
         long stellarBonus = 0;
         if(isStellar){
-            for (LivingEntity entity : VPUtil.ray(player, 8 + gravity, distance, false)) {
+            for (LivingEntity entity : VPUtil.ray(player, 8 + gravity, distance, true)) {
                 stellarBonus++;
             }
         }

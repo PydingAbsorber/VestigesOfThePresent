@@ -2,16 +2,23 @@ package com.pyding.vp.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.type.util.ICuriosHelper;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShieldOverlay {
     private static final ResourceLocation SHIELD = new ResourceLocation(VestigesOfPresent.MODID,
@@ -28,10 +35,29 @@ public class ShieldOverlay {
     public static final IGuiOverlay HUD_SHIELD = ((gui, poseStack, partialTick, width, height) -> {
         int x = width / 2;
         int y = height;
-
+        Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         Player player = Minecraft.getInstance().player;
+        Font fontRenderer = Minecraft.getInstance().font;
+        ICuriosHelper api = CuriosApi.getCuriosHelper();
+        List<ItemStack> vestiges = new ArrayList<>();
+        List result = api.findCurios(player, (stackInSlot) -> {
+            if(stackInSlot.getItem() instanceof Vestige) {
+                vestiges.add(stackInSlot);
+                return true;
+            }
+            return false;
+        });
+        if(vestiges.size() > 0){
+            for(int i = 0; i < vestiges.size(); i++){
+                minecraft.getItemRenderer().renderAndDecorateItem(vestiges.get(i), x+(130+i*40),y-22);
+                if(vestiges.get(i).getItem() instanceof Vestige vestige){
+                    fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
+                    fontRenderer.draw(poseStack, ""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
+                }
+            }
+        }
         if(player.isCreative())
             return;
         float healBonus = VPUtil.getHealBonus(player);
@@ -63,7 +89,6 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, OVER_SHIELD);
             GuiComponent.blit(poseStack, x - (132+20), y - 42, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            Font fontRenderer = Minecraft.getInstance().font;
             //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
             double log10 = Math.log10(overShield);
             int move = (int) Math.floor(log10) + 1;
@@ -79,7 +104,6 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, SHIELD);
             GuiComponent.blit(poseStack, x - (130+20), y - 39, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            Font fontRenderer = Minecraft.getInstance().font;
             //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
             double log10 = Math.log10(shield);
             int move = (int) Math.floor(log10) + 1;

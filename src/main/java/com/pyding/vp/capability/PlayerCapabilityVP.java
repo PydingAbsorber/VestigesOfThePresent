@@ -57,6 +57,7 @@ public class PlayerCapabilityVP {
     private boolean debug = false;
 
     private String effects = "";
+    private String bosses = "";
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
@@ -329,6 +330,17 @@ public class PlayerCapabilityVP {
         }
     }
 
+    public String getBosses(){
+        return bosses;
+    }
+
+    public void addBossKill(String monster, Player player){
+        if(!this.bosses.contains(monster)) {
+            this.bosses += monster + ",";
+            setChallenge(15,player);
+        }
+    }
+
     public double getGoldenChance(){
         double chance = 10;
         for (String gold: goldenItems.split(","))
@@ -357,7 +369,7 @@ public class PlayerCapabilityVP {
     public void addMobTame(String mob, Player player){
         if(!this.mobsTamed.contains(mob)) {
             this.mobsTamed += mob + ",";
-            setChallenge(15,player);
+            setChallenge(20,player);
         }
     }
 
@@ -423,7 +435,7 @@ public class PlayerCapabilityVP {
                 break;
             }
             case 15:{
-                mobsTamed = "";
+                bosses = "";
                 break;
             }
             case 16:{
@@ -432,6 +444,10 @@ public class PlayerCapabilityVP {
             }
             case 17:{
                 effects = "";
+                break;
+            }
+            case 20:{
+                mobsTamed = "";
                 break;
             }
             default: break;
@@ -471,6 +487,7 @@ public class PlayerCapabilityVP {
         stellarChallenges = "";
         dimensions = "";
         effects = "";
+        bosses = "";
         sync(player);
     }
 
@@ -497,7 +514,7 @@ public class PlayerCapabilityVP {
             case 10:
                 return VPUtil.getTools().size();
             case 11:
-                return 24;
+                return VPUtil.getDamageKinds().size();
             case 12:
                 return 10;
             case 13: {
@@ -509,7 +526,7 @@ public class PlayerCapabilityVP {
             case 14:
                 return 6;
             case 15:
-                return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size();
+                return VPUtil.getBossSize();
             case 16:
                 return VPUtil.getFlowers().size();
             case 17:
@@ -519,7 +536,7 @@ public class PlayerCapabilityVP {
             case 19:
                 return 1000000;
             case 20:
-                return VPUtil.getFlowers().size();
+                return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size();
         }
         return  0;
     }
@@ -578,6 +595,7 @@ public class PlayerCapabilityVP {
         dimensions = source.dimensions;
         debug = source.debug;
         effects = source.effects;
+        bosses = source.bosses;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -605,6 +623,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPDimensions",dimensions);
         nbt.putBoolean("VPDebug",debug);
         nbt.putString("VPEffects",effects);
+        nbt.putString("VPBosses",bosses);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -632,6 +651,7 @@ public class PlayerCapabilityVP {
         dimensions = nbt.getString("VPDimensions");
         debug = nbt.getBoolean("VPDebug");
         effects = nbt.getString("VPEffects");
+        bosses = nbt.getString("VPBosses");
     }
 
     public CompoundTag getNbt(){
@@ -660,6 +680,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPDimensions",dimensions);
         nbt.putBoolean("VPDebug",debug);
         nbt.putString("VPEffects",effects);
+        nbt.putString("VPBosses",bosses);
         return nbt;
     }
 

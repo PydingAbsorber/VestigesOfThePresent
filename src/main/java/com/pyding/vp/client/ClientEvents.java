@@ -44,8 +44,8 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {
             event.register(KeyBinding.FIRST_KEY);
-            event.register(KeyBinding.SECOND_KEY);
             event.register(KeyBinding.FIRST_KEY_ULT);
+            event.register(KeyBinding.SECOND_KEY);
             event.register(KeyBinding.SECOND_KEY_ULT);
         }
 

@@ -9,6 +9,7 @@ import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;

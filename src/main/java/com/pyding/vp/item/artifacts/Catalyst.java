@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,6 +40,7 @@ public class Catalyst extends Vestige{
                     amplifier += 1;
                 entity.addEffect(new MobEffectInstance(effectInstance.getEffect(),duration,amplifier));
             }
+            VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         if(isStellar)
             debuffDefence = 5;
@@ -61,6 +63,7 @@ public class Catalyst extends Vestige{
                 player.addEffect(new MobEffectInstance(effectInstance.getEffect(),effectInstance.getDuration(),effectInstance.getAmplifier()));
                 entity.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false),10*20,random.nextInt(3)));
             }
+            VPUtil.spawnParticles(player, ParticleTypes.BUBBLE_COLUMN_UP,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         super.doUltimate(seconds, player, level);
     }

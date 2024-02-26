@@ -66,8 +66,11 @@ public class MaskOfDemon extends Vestige{
             attackMultiplier *= 1.5;
             speedMultiplier *= 1.5;
         }
-        float attackScale = (float) ((VPUtil.missingHealth(player) * attackMultiplier) + 1)/100;
-        float speedScale = (float) ((VPUtil.missingHealth(player) * speedMultiplier) + 1)/100;
+        float missingHealth = VPUtil.missingHealth(player);
+        if(isStellar)
+            missingHealth*=2;
+        float attackScale = (float) ((missingHealth * attackMultiplier) + 1)/100;
+        float speedScale = (float) ((missingHealth * speedMultiplier) + 1)/100;
 
         attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", attackScale, AttributeModifier.Operation.MULTIPLY_TOTAL));
         attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", speedScale, AttributeModifier.Operation.MULTIPLY_BASE));
@@ -99,9 +102,15 @@ public class MaskOfDemon extends Vestige{
                 if (tag == null) {
                     tag = new CompoundTag();
                 }
-                tag.putFloat("VPHealResMask",0-VPUtil.missingHealth(player));
+                float missingHealth = VPUtil.missingHealth(player);
+                if(isStellar)
+                    missingHealth*=2;
+                tag.putFloat("VPHealResMask",0-missingHealth);
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
+                if(isStellar && player.tickCount % 20 == 0 && player.getHealth() <= player.getMaxHealth()*0.5){
+                    VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.05f,1,false);
+                }
                 entity.getPersistentData().merge(tag);
             }
             player.getPersistentData().putFloat("VPHealResMask",0-VPUtil.missingHealth(player));
