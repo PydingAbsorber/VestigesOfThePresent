@@ -94,7 +94,7 @@ public class VPUtil {
     }
 
     public static long coolDown(){
-        return 8*60*60*1000;
+        return ConfigHandler.COMMON.cooldown.get()*60*60*1000;
     }
     public static String getRainbowString(String text) {
         StringBuilder coloredText = new StringBuilder();

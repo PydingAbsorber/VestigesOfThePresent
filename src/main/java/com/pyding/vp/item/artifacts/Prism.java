@@ -31,11 +31,22 @@ public class Prism extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.SOUL2.get());
-        LivingEntity entity = VPUtil.ray(player,6,60,true).get(0);
-        if(entity != null) {
-            entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis()+specialMaxTime);
-            entity.getPersistentData().putString("VPPrismDamage",VPUtil.generateRandomDamageType());
-            VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME,entity.getX(),entity.getY(),entity.getZ(),20,0,0.5,0);
+        boolean found = false;
+        for(LivingEntity entity: VPUtil.ray(player,6,60,true)) {
+            if (entity instanceof Player && !isStellar)
+                continue;
+            if (entity != null) {
+                entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime);
+                entity.getPersistentData().putString("VPPrismDamage", VPUtil.generateRandomDamageType());
+                VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, entity.getX(), entity.getY(), entity.getZ(), 20, 0, 0.5, 0);
+                found = true;
+                break;
+            }
+        }
+        if(isStellar && found){
+            player.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime);
+            player.getPersistentData().putString("VPPrismDamage", VPUtil.generateRandomDamageType());
+            VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, player.getX(), player.getY(), player.getZ(), 20, 0, 0.5, 0);
         }
         super.doSpecial(seconds, player, level);
     }

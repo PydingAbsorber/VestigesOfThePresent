@@ -74,7 +74,7 @@
   "vp.soul.exist": "The soul is captured inside: ",
   "vp.soul.empty": "There is empty inside",
   "vp.devourer": "Collected Souls: ",
-  "vp.chance2": "On failure +10% chance",
+  "vp.chance2": "On failure chance +",
   "vp.alt.atlas": " §7to display found biomes",
   "vp.alt.prism": " §7to display damage subtypes that Warden needs to be killed with left",
   "vp.short": "Short information: ",
@@ -117,7 +117,7 @@
 
   "vp.passive.1": "Against creatures in the air: +700% damage, -10% all equipment durability when hit.",
   "vp.special.1": "Lifts oneself and everyone nearby 30 blocks into the air and grants slow falling for 5 seconds. \nIf Ultimate active: instead of lifting soaks all to yourself including entities and items.",
-  "vp.ultimate.1": "Provides controlled flight for the next 10 seconds.",
+  "vp.ultimate.1": "Provides controlled flight for the next 20 seconds.",
   "vp.get.1": "Kill 20 different creatures in the air while being airborne.",
 
   "vp.passive.2": "Damage is reduced by the difference between the attack attribute of the owner and the attacker.",
@@ -143,7 +143,7 @@
   "vp.special.5": "Switchable \nGradually consumes HP down to 1, increasing damage by 4% for every 1% missing HP.",
   "vp.ultimate.5": "Applies a Healing Debt to oneself and all creatures within the 30 blocks afterwards radius for 300% of the owner's Max HP. \n(Healing Debt prevents healing until depleted, each healing will reduce it 1 to 1). \nAdditionally deals 300% damage.",
   "vp.damagetype.5": "armor-piercing",
-  "vp.get.5": "Kill 100 creatures in hell, having no more than 1 HP.",
+  "vp.get.5": "Kill 100 creatures in hell, having no more than 1 HP. Creature must have max health or attack damage higher, then yours",
 
   "vp.passive.6": "Increases all healing by 40%. \nIf current HP is below 50%, the bonus doubles. \nWhen Shields are active gives +0.1% healing bonus and +0.1% duration to next Ultimate(only self) for each Saturation stack",
   "vp.special.6": "Heals the owner for 40% of their max HP and removes negative effects. \nIf HP is below half, also applies regeneration 5 for 20 seconds.",
@@ -194,7 +194,7 @@
   "vp.get.14": "Every 10 minutes, a random modpack entity will be requested. \nWithin 10 minutes this creature must be killed or tamed, failing to comply will reset the progress. \nComplete requests 6 times in a row",
 
   "vp.passive.15": "Every slain boss yields a Soul.",
-  "vp.special.15": "Binds the soul of the nearest creature or a creature you're looking at for 5 seconds. \n(Each Soul from Passive adds +0.1 second, up to a maximum of 30 seconds). \nThe bound creature cannot move between worlds, teleport and cannot leave a 3x3x3 area.",
+  "vp.special.15": "Binds the soul of the nearest creature or a creature you're looking at for 5 seconds. \n(Each Soul from Passive adds +0.1 second, up to a maximum of 15 seconds). \nThe bound creature cannot move between worlds, teleport and cannot leave a 3x3x3 area.",
   "vp.ultimate.15": "For the next 100 hits, with a certain chance, it will increase Soul Corruption of the affected creature. \n(Chance depends on accumulated Souls from Passive, +0.1% chance for each soul). \nCreatures with Soul Corruption of 100 and above die guaranteed. (Soul Consumption resets only upon death or re-logging).",
   "vp.get.15": "Kill all bosses of modpack",
 

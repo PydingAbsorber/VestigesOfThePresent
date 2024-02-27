@@ -4,6 +4,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModCreativeModTab;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -65,6 +66,13 @@ public class Vestige extends Item implements ICurioItem {
             tag = new CompoundTag();
         return tag.getBoolean("Stellar");
     }
+
+    public boolean isDoubleStellar(ItemStack stack){
+        CompoundTag tag = stack.getTag();
+        if(tag == null)
+            tag = new CompoundTag();
+        return tag.getBoolean("DoubleStellar");
+    }
     public int vestigeNumber;
     public void dataInit(int vestigeNumber,ChatFormatting color,int specialCharges,int specialCd,int ultimateCharges,int ultimateCd,int specialMaxTime,int ultimateMaxTime,boolean hasDamage){
         this.ultimateCharges = ultimateCharges;
@@ -86,6 +94,14 @@ public class Vestige extends Item implements ICurioItem {
         if(tag == null)
             tag = new CompoundTag();
         tag.putBoolean("Stellar", true);
+        stack.setTag(tag);
+    }
+
+    public static void setDoubleStellar(ItemStack stack){
+        CompoundTag tag = stack.getTag();
+        if(tag == null)
+            tag = new CompoundTag();
+        tag.putBoolean("DoubleStellar", true);
         stack.setTag(tag);
     }
     public void init(){
@@ -196,6 +212,7 @@ public class Vestige extends Item implements ICurioItem {
             stack.setTag(tag);
         }
         isStellar = isStellar(stack);
+        isDoubleStellar = isDoubleStellar(stack);
         ICurioItem.super.curioTick(slotContext, stack);
     }
 
@@ -278,7 +295,7 @@ public class Vestige extends Item implements ICurioItem {
                         .append(Component.literal(" " + progress))
                         .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber))));
                 components.add(Component.literal(cap.getChance()+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
-                components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY));
+                components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY).append(Component.literal(ConfigHandler.COMMON.stellarChanceIncrease.get() + "%")));
                 components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown())+" ").withStyle(ChatFormatting.GRAY)));
                 if (cap.hasCoolDown(vestigeNumber))
                     components.add(Component.translatable("vp.getText2").append(Component.literal((VPUtil.formatMilliseconds(VPUtil.coolDown()-(System.currentTimeMillis() - cap.getTimeCd()))))));

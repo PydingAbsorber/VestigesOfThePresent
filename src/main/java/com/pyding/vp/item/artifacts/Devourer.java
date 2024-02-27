@@ -33,7 +33,7 @@ public class Devourer extends Vestige{
 
     @Override
     public int setSpecialActive(long seconds, Player player) {
-        seconds += 100L *(Math.min(600,souls));
+        seconds += 100L *(Math.min(150,souls));
         return super.setSpecialActive(seconds, player);
     }
 

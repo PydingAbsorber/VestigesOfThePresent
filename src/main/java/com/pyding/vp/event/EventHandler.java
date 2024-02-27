@@ -201,6 +201,10 @@ public class EventHandler {
                     if (event.getSource().isExplosion())
                         cap.failChallenge(18, player);
                 });
+                if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
+                    event.setAmount(Math.max(0, event.getAmount() - (40 + player.getPersistentData().getFloat("VPArmor"))));
+                    player.getPersistentData().putFloat("VPArmor", player.getPersistentData().getFloat("VPArmor") + event.getAmount());
+                }
                 VPUtil.printDamage(player,event);
             }
             if (event.getSource().getEntity() instanceof Player player) {
@@ -253,13 +257,6 @@ public class EventHandler {
                 entity.getPersistentData().putFloat("VPShieldInit", 0);
 
             }
-            if(event.getEntity() instanceof Player player){
-                if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
-                    float amount = event.getAmount();
-                    event.setAmount(Math.max(0, event.getAmount() - (40 + player.getPersistentData().getFloat("VPArmor"))));
-                    player.getPersistentData().putFloat("VPArmor", player.getPersistentData().getFloat("VPArmor") + amount);
-                }
-            }
         } else {
         }
     }
@@ -301,8 +298,12 @@ public class EventHandler {
                 LivingEntity entity = event.getEntity();
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                     CompoundTag tag = entity.getPersistentData();
-                    if (player.getCommandSenderWorld().dimension() == Level.NETHER && player.getHealth() <= 1)
-                        challange.setChallenge(5, challange.getChallenge(5) + 1, player);
+                    if (player.getCommandSenderWorld().dimension() == Level.NETHER && player.getHealth() <= 1) {
+                        if(entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && player.getAttribute(Attributes.ATTACK_DAMAGE).getValue() > entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue())
+                            challange.setChallenge(5, challange.getChallenge(5) + 1, player);
+                        else if(entity.getAttributes().hasAttribute(Attributes.MAX_HEALTH) && player.getAttribute(Attributes.MAX_HEALTH).getValue() > entity.getAttribute(Attributes.MAX_HEALTH).getValue())
+                            challange.setChallenge(5, challange.getChallenge(5) + 1, player);
+                    }
                     if (entity.getType().getCategory() == MobCategory.MONSTER)
                         challange.addMonsterKill(entity.getType().toString(), player);
                     if (entity.getType().getCategory() == MobCategory.CREATURE)
@@ -778,7 +779,7 @@ public class EventHandler {
                 cap.addBiome(player);
                 cap.addDimension(player,player.level.dimension().location().getPath());
                 for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
-                    if(cap.getChallenge(i+1) >= cap.getMaximum(i+1) && !cap.hasCoolDown(i+1)){
+                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1) > 0){
                         cap.giveVestige(player,i+1);
                     }
                 }

@@ -84,7 +84,7 @@ public class ShieldOverlay {
                         info = (player.getPersistentData().getFloat("VPTrigonBonus") + "%");
                     }
                     if(!info.isEmpty())
-                    fontRenderer.draw(poseStack, ""+info, x+(130+i*40),y-28, vestige.color.getColor());
+                    fontRenderer.draw(poseStack, ""+info, x+(132+i*40),y-30, vestige.color.getColor());
                 }
             }
         }

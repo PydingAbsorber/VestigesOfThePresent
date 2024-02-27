@@ -4,6 +4,7 @@ import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -133,7 +134,7 @@ public class PlayerCapabilityVP {
         this.chance = number;
     }
     public void setChance(){
-        this.chance += 10;
+        this.chance += ConfigHandler.COMMON.stellarChanceIncrease.get();
     }
     public int getChance(){
         return chance;
@@ -494,51 +495,52 @@ public class PlayerCapabilityVP {
     }
 
     public static int getMaximum(int number){
+        int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number).get();
         switch (number){
             case 1:
-                return 20;
+                return 20-reduce;
             case 2:
-                return VPUtil.getEntitiesListOfType(MobCategory.MONSTER).size();
+                return VPUtil.getEntitiesListOfType(MobCategory.MONSTER).size()-reduce;
             case 3:
-                return VPUtil.getBiomes().size();
+                return VPUtil.getBiomes().size()-reduce;
             case 4:
-                return 100;
+                return 100-reduce;
             case 5:
-                return 100;
+                return 100-reduce;
             case 6:
-                return VPUtil.getEdibleItems().size();
+                return VPUtil.getEdibleItems().size()-reduce;
             case 7:
-                return 15;
+                return 15-reduce;
             case 8:
-                return 11;
+                return 11-reduce;
             case 9:
-                return 8;
+                return 8-reduce;
             case 10:
-                return VPUtil.getTools().size();
+                return VPUtil.getTools().size()-reduce;
             case 11:
-                return VPUtil.getDamageKinds().size();
+                return VPUtil.getDamageKinds().size()-reduce;
             case 12:
-                return 10;
+                return 10-reduce;
             case 13: {
                 int max = 0;
                 for(String ignored : VPUtil.damageSubtypes().split(","))
                     max++;
-                return max;
+                return max-reduce;
             }
             case 14:
-                return 6;
+                return 6-reduce;
             case 15:
-                return VPUtil.getBossSize();
+                return VPUtil.getBossSize()-reduce;
             case 16:
-                return VPUtil.getFlowers().size();
+                return VPUtil.getFlowers().size()-reduce;
             case 17:
-                return VPUtil.getEffects().size();
+                return VPUtil.getEffects().size()-reduce;
             case 18:
-                return 10;
+                return 10-reduce;
             case 19:
-                return 1000000;
+                return 1000000-reduce;
             case 20:
-                return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size();
+                return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size()-reduce;
         }
         return  0;
     }
@@ -838,8 +840,15 @@ public class PlayerCapabilityVP {
             }
         }
         if(Math.random() < (float)getChance()/100){
+            if(getChance() >= 200){
+                Vestige.setDoubleStellar(stack);
+                if(stack.getItem() instanceof Vestige vestige){
+                    vestige.specialCharges += 1;
+                    vestige.ultimateCharges += 1;
+                }
+            }
             Vestige.setStellar(stack);
-            setChance(10);
+            setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
         } else {
             setChance();

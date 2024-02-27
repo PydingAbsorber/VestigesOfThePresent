@@ -35,13 +35,14 @@ public class Atlas extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         for(LivingEntity entity: VPUtil.ray(player,6,128,false)){
-            //player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
+            if(Math.random() < 0.5)
+                player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
             VPUtil.fall(entity,-10);
             if(entity instanceof ServerPlayer serverPlayer) {
                 PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
                 PacketHandler.sendToClient(new PlayerFlyPacket(-2), serverPlayer);
             }
-            VPUtil.dealDamage(entity,player, DamageSource.playerAttack(player).FALL,50,2);
+            VPUtil.dealDamage(entity,player, DamageSource.FALL,50,2);
         }
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,1,0,-1,0,5,false);
         super.doSpecial(seconds, player, level);

@@ -8,6 +8,7 @@ import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +17,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -48,6 +51,7 @@ public class VestigesOfPresent
         MinecraftForge.EVENT_BUS.register(eventHandler);
         FMLJavaModLoadingContext.get().getModEventBus().register(PROXY);
         MinecraftForge.EVENT_BUS.register(PROXY);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init
