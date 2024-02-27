@@ -55,7 +55,7 @@ public class PlayerFlyPacket {
             VPUtil.fall(player,-10);
         }
         else if(number == 69){
-            BlockPos pos = new BlockPos(player.getPersistentData().getDouble("VPDevourerX"),player.getPersistentData().getDouble("VPDevourerY"),player.getPersistentData().getDouble("VPDevourerZ"));
+            BlockPos pos = new BlockPos((int) player.getPersistentData().getDouble("VPDevourerX"),(int)player.getPersistentData().getDouble("VPDevourerY"),(int)player.getPersistentData().getDouble("VPDevourerZ"));
             VPUtil.suckToPos(player,pos,3);
         }
         else if(number == 3){

@@ -41,18 +41,10 @@ public class ShieldOverlay {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         Player player = Minecraft.getInstance().player;
         Font fontRenderer = Minecraft.getInstance().font;
-        ICuriosHelper api = CuriosApi.getCuriosHelper();
-        List<ItemStack> vestiges = new ArrayList<>();
-        List result = api.findCurios(player, (stackInSlot) -> {
-            if(stackInSlot.getItem() instanceof Vestige) {
-                vestiges.add(stackInSlot);
-                return true;
-            }
-            return false;
-        });
+        List<ItemStack> vestiges = VPUtil.getVestigeList(player);
         if(vestiges.size() > 0){
             for(int i = 0; i < vestiges.size(); i++){
-                minecraft.getItemRenderer().renderAndDecorateItem(vestiges.get(i), x+(130+i*40),y-22);
+                minecraft.getItemRenderer().render(vestiges.get(i), x+(130+i*40),y-22);
                 if(vestiges.get(i).getItem() instanceof Vestige vestige){
                     fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     fontRenderer.draw(poseStack, ""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());

@@ -158,7 +158,7 @@ public class EventHandler {
                             } else event.setAmount(event.getAmount() - random.nextInt(Integer.MAX_VALUE));
                         } else {
                             player.invulnerableTime = 0;
-                            player.hurt(VPUtil.randomizeDamageType(), event.getAmount());
+                            player.hurt(VPUtil.randomizeDamageType(player), event.getAmount());
                             event.setAmount(0);
                         }
                         if (Math.random() < 0.3 && VPUtil.hasStellarVestige(ModItems.CHAOS.get(), player)) {

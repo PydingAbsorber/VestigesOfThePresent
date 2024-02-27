@@ -38,7 +38,7 @@ public class Armor extends Vestige{
                 debuffCount++;
             }
         }
-        player.hurt(DamageSource.CACTUS,VPUtil.getAttack(player,true)*(1 + debuffCount));
+        player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(1 + debuffCount));
         player.getPersistentData().putFloat("VPArmor",player.getPersistentData().getFloat("VPArmor")+100);
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
         super.doSpecial(seconds, player, level);

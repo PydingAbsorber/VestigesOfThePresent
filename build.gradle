@@ -14,10 +14,10 @@ plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
-apply plugin: 'org.spongepowered.mixin'
 
-version = '1.0'
+version = '1.0.1'
 group = 'com.pyding.vop' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'vp'
 
@@ -39,7 +39,7 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.20'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -149,10 +149,21 @@ repositories {
 
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.3.2'
+
+
+    //1.20.1
+    minecraft 'net.minecraftforge:forge:1.20-46.0.12'
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    //1.19.2
+    /*minecraft 'net.minecraftforge:forge:1.19.2-43.3.2'
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.1.0")
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.1.0:api")
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'*/
+
+
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

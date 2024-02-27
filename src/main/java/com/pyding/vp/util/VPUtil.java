@@ -15,6 +15,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -23,10 +24,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -36,7 +39,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -52,47 +54,28 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotTypeMessage;
-import top.theillusivec4.curios.api.type.util.ICuriosHelper;
+import top.theillusivec4.curios.api.SlotResult;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VPUtil {
-    public static void registerCurioType(final String identifier, final int slots, final boolean isHidden, @Nullable final ResourceLocation icon) {
-        final SlotTypeMessage.Builder message = new SlotTypeMessage.Builder(identifier);
-
-        message.size(slots);
-
-        if (isHidden) {
-            message.hide();
-        }
-
-        if (icon != null) {
-            message.icon(icon);
-        }
-
-        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> message.build());
-
-    }
-
     public static long coolDown(){
         return ConfigHandler.COMMON.cooldown.get()*60*60*1000;
     }
@@ -149,14 +132,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getEntities(Player player,double radius){
-        return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius));
+        return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius));
     }
     public static List<LivingEntity> getEntities(Player player,double radius,boolean self){
         if(self)
-            return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius));
+            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius));
         else {
             List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius))){
+            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius))){
                 if(entity != player)
                     list.add(entity);
             }
@@ -208,17 +191,6 @@ public class VPUtil {
     }
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
 
-    public static List getBiomesFound(String list, ServerLevel serverLevel){
-        List<String> biomesList = new ArrayList<>(Arrays.asList(list.split(",")));
-        List<String> allList = new ArrayList<>();
-        for(Biome biome: biomeNames){
-            ResourceLocation key = serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getKey(biome);
-            if(key != null)
-                allList.add(key.toDebugFileName());
-        }
-        allList.removeAll(biomesList);
-        return allList;
-    }
 //Reference{ResourceKey[minecraft:worldgen/biome / minecraft:birch_forest]=net.minecraft.world.level.biome.Biome@e4348c0}
     public static void initItems(){
         for(Item item: ForgeRegistries.ITEMS){
@@ -439,7 +411,7 @@ public class VPUtil {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
-        if(source.isBypassInvul())
+        if(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
             percentBonus /= 20;
         entity.hurt(source,getAttack(player,hasDurability)*(percent+percentBonus));
     }
@@ -497,31 +469,13 @@ public class VPUtil {
 
     public static void printDamage(Player player, LivingDamageEvent event){
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            if (cap.getDebug() && !player.level.isClientSide) {
+            if (cap.getDebug() && !player.getCommandSenderWorld().isClientSide) {
                 player.sendSystemMessage(event.getEntity().getType().getDescription());
                 player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
-                if (event.getSource().isMagic())
-                    player.sendSystemMessage(Component.literal("§5isMagic"));
-                if (event.getSource().isBypassMagic())
-                    player.sendSystemMessage(Component.literal("§5isBypassMagic"));
-                if (event.getSource().isFire())
-                    player.sendSystemMessage(Component.literal("§5isFire"));
-                if (event.getSource().isDamageHelmet())
-                    player.sendSystemMessage(Component.literal("§5isDamageHelmet"));
-                if (event.getSource().isProjectile())
-                    player.sendSystemMessage(Component.literal("§5isProjectile"));
-                if (event.getSource().isExplosion())
-                    player.sendSystemMessage(Component.literal("§5isExplosion"));
-                if (event.getSource().isNoAggro())
-                    player.sendSystemMessage(Component.literal("§5isNoAggro"));
-                if (event.getSource().isBypassInvul())
-                    player.sendSystemMessage(Component.literal("§5isBypassInvul"));
-                if (event.getSource().isBypassEnchantments())
-                    player.sendSystemMessage(Component.literal("§5isBypassEnchantments"));
-                if (event.getSource().isBypassArmor())
-                    player.sendSystemMessage(Component.literal("§5isBypassArmor"));
-                if (event.getSource().isFall())
-                    player.sendSystemMessage(Component.literal("§5isFall"));
+                for(TagKey<DamageType> type : damageTypes()){
+                    if(event.getSource().is(type))
+                        player.sendSystemMessage(Component.translatable(type.location().toLanguageKey()));
+                }
                 float shield = getShield(event.getEntity());
                 float overshield = getOverShield(event.getEntity());
                 if(shield > 0)
@@ -576,27 +530,45 @@ public class VPUtil {
     public static boolean hasVestige(Item item,Player player){
         if(!(item instanceof Vestige))
             return false;
-        ICuriosHelper api = CuriosApi.getCuriosHelper();
-        List result = api.findCurios(player, (stackInSlot) -> {
-            if(stackInSlot.getItem() == item) {
-                return true;
-            }
-            return false;
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(item));
         });
         return result.size() > 0;
+    }
+
+    public static ItemStack getVestigeStack(Vestige vestige,Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() == vestige));
+        });
+        return result.get(0).stack();
+    }
+
+    public static List<ItemStack> getVestigeList(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() == vestige));
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
     }
 
     public static boolean hasStellarVestige(Item item,Player player){
         if(!(item instanceof Vestige))
             return false;
-        ICuriosHelper api = CuriosApi.getCuriosHelper();
-        List result = api.findCurios(player, (stackInSlot) -> {
-            if(stackInSlot.getItem() instanceof Vestige vestige && vestige == item && vestige.isStellar(stackInSlot)) {
-                return true;
-            }
-            return false;
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(item));
         });
-        return result.size() > 0;
+        for(SlotResult stack: result){
+            if(stack.stack().getItem() instanceof Vestige vestige && vestige.isStellar)
+                return true;
+        }
+        return false;
     }
     public static void equipmentDurability(float percentage,LivingEntity entity) {
         percentage = percentage / 100;
@@ -793,14 +765,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
-        return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+        return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
     }
     public static List getEntitiesAroundOfType(Class entityClass,Player player,double x, double y, double z,boolean self){
         if(self)
-            return player.level.getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+            return player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
         else {
             List list = new ArrayList<>();
-            for(Object entity: player.level.getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            for(Object entity: player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
                 if(entity != player)
                     list.add(entity);
             }
@@ -809,10 +781,10 @@ public class VPUtil {
     }
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z,boolean self){
         if(self)
-            return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
         else {
             List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
                 if(entity != player)
                     list.add(entity);
             }
@@ -822,10 +794,10 @@ public class VPUtil {
 
     public static List<LivingEntity> getEntitiesAround(LivingEntity player,double x, double y, double z,boolean self){
         if(self)
-            return player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
         else {
             List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
                 if(entity != player)
                     list.add(entity);
             }
@@ -834,126 +806,21 @@ public class VPUtil {
     }
 
     public static void adaptiveDamageHurt(LivingEntity entity, Player player, boolean adopted,float percent){
-        String damage = entity.getPersistentData().getString("VPCrownDamage");
-        DamageSource source = DamageSource.playerAttack(player);
-        String adept = "";
-        switch (damage){
-            case "bypassArmor":{
-                source.damageHelmet();
-                adept = "damageHelmet";
-                break;
-            }
-            case "damageHelmet":{
-                source.bypassEnchantments();
-                adept = "bypassEnchantments";
-                break;
-            }
-            case "bypassEnchantments": {
-                source.setExplosion();
-                adept = "explosion";
-                break;
-            }
-            case "explosion": {
-                source.bypassInvul();
-                adept = "bypassInvul";
-                break;
-            }
-            case "bypassInvul": {
-                source.bypassMagic();
-                adept = "bypassMagic";
-                break;
-            }
-            case "bypassMagic": {
-                source.setIsFall();
-                adept = "fall";
-                break;
-            }
-            case "fall": {
-                source.setMagic();
-                adept = "magic";
-                break;
-            }
-            case "magic": {
-                source.setNoAggro();
-                adept = "noAggro";
-                break;
-            }
-            case "noAggro": {
-                source.setProjectile();
-                adept = "projectile";
-                break;
-            }
-            case "projectile": {
-                source.setIsFire();
-                adept = "fire";
-                break;
-            }
-            case "fire": {
-                source.bypassArmor();
-                adept = "bypassArmor";
-                break;
-            }
-            default:
-                break;
-        }
+        int damage = entity.getPersistentData().getInt("VPCrownDamage");
+        DamageSource source = playerDamageSources(player,player).get(damage);
         dealDamage(entity,player,source,percent,2);
         if(adopted) {
-            entity.getPersistentData().putString("VPCrownDamage", adept);
+            if(damage == playerDamageSources(player,player).size())
+                damage = 0;
+            entity.getPersistentData().putInt("VPCrownDamage", damage+1);
             entity.getPersistentData().putBoolean("VPCrownDR",false);
         }
     }
 
-    public static DamageSource randomizeDamageType(){
-        DamageSource source = new DamageSource("ChaosCore");
-        Random random = new Random();
-        int numba = random.nextInt(11);
-        switch (numba){
-            case 1:{
-                source.damageHelmet();
-                break;
-            }
-            case 2:{
-                source.bypassEnchantments();
-                break;
-            }
-            case 3: {
-                source = source.setExplosion();
-                break;
-            }
-            case 4: {
-                source = source.bypassInvul();
-                break;
-            }
-            case 5: {
-                source = source.bypassMagic();
-                break;
-            }
-            case 6: {
-                source = source.setIsFall();
-                break;
-            }
-            case 7: {
-                source = source.setMagic();
-                break;
-            }
-            case 8: {
-                source = source.setNoAggro();
-                break;
-            }
-            case 9: {
-                source = source.setProjectile();
-                break;
-            }
-            case 10: {
-                source = source.bypassArmor();
-                break;
-            }
-            default: {
-                source = source.setIsFire();
-                break;
-            }
-        }
-        return source;
+    public static DamageSource randomizeDamageType(Player player){
+        List<DamageSource> sources = playerDamageSources(player,player);
+        int numba = new Random().nextInt(sources.size());
+        return sources.get(numba);
     }
 
     public static void addShield(LivingEntity entity,float amount,boolean add){
@@ -993,7 +860,7 @@ public class VPUtil {
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
-            if(!entity.level.isClientSide)
+            if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
         if(tag.getFloat("VPShieldInit") == 0) {
@@ -1018,12 +885,12 @@ public class VPUtil {
         else play(entity,SoundRegistry.DEATH2.get());
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
         entity.setHealth(0);
-        entity.die(DamageSource.playerAttack(player));
+        entity.die(player.damageSources().playerAttack(player));
     }
     public static void deadInside(LivingEntity entity){
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
         entity.setHealth(0);
-        entity.die(DamageSource.GENERIC);
+        entity.die(entity.damageSources().generic());
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -1032,7 +899,7 @@ public class VPUtil {
 
         for (int distance = 1; distance < maxDist; ++distance) {
             target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
-            List<LivingEntity> list = player.level.getEntitiesOfClass(LivingEntity.class, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));
+            List<LivingEntity> list = player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));
             list.removeIf(entity -> entity == player || !player.hasLineOfSight(entity));
             for(LivingEntity entity: list){
                 if(!entities.contains(entity))
@@ -1052,7 +919,7 @@ public class VPUtil {
         for (int distance = 1; distance < maxDist; ++distance) {
             target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
         }
-        return new BlockPos(target.x,target.y,target.z);
+        return new BlockPos((int) target.x,(int)target.y,(int)target.z);
     }
 
     public static void pullEntityTowardsCoordinates(Entity entity, BlockPos pos, double strength) {
@@ -1122,16 +989,16 @@ public class VPUtil {
         if (entity instanceof Player) {
             return;
         }
-        if(player.level instanceof ServerLevel serverLevel) {
+        if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             ResourceLocation lootTableLocation = entity.getLootTable();
-            LootTable lootTable = serverLevel.getServer().getLootTables().get(lootTableLocation);
-            LootContext.Builder builder = new LootContext.Builder(serverLevel)
-                    .withParameter(LootContextParams.ORIGIN, entity.position())
-                    .withParameter(LootContextParams.THIS_ENTITY, entity)
-                    .withParameter(LootContextParams.DAMAGE_SOURCE, DamageSource.playerAttack(player))
-                    .withRandom(serverLevel.random);
-
-            List<ItemStack> list = lootTable.getRandomItems(builder.create(LootContextParamSets.ENTITY));
+            LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(lootTableLocation);
+            Map<LootContextParam<?>, Object> lootparams = new HashMap<>();
+            lootparams.put(LootContextParams.ORIGIN, entity.position());
+            lootparams.put(LootContextParams.THIS_ENTITY, entity);
+            lootparams.put(LootContextParams.DAMAGE_SOURCE, player.damageSources().playerAttack(player));
+            LootParams params = new LootParams(serverLevel,lootparams,null,1);
+            //LootContext.Builder builder = new LootContext.Builder();
+            List<ItemStack> list = lootTable.getRandomItems(params);
             for(ItemStack stack: list){
                 ItemEntity itemEntity = new ItemEntity(serverLevel,entity.getX(),entity.getY(),entity.getZ(),stack);
                 serverLevel.addFreshEntity(itemEntity);
@@ -1157,7 +1024,7 @@ public class VPUtil {
     }
 
     public static ResourceKey<Level> getWorldKey(String name){
-        ResourceKey<Level> key = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(name));
+        ResourceKey<Level> key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation(name)), new ResourceLocation(name));
         return key;
     }
 
@@ -1286,43 +1153,18 @@ public class VPUtil {
         return list.get(random.nextInt(list.size()));
     }
     public static void damageAdoption(LivingEntity entity, LivingDamageEvent event){
-        String damage = entity.getPersistentData().getString("VPPrismDamage");
-
-        if(!damage.isEmpty()) {
-            if(damage.equals("bypassArmor") && event.getSource().isBypassArmor()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("damageHelmet") && event.getSource().isDamageHelmet()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("bypassEnchantments") && event.getSource().isBypassEnchantments()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("explosion") && event.getSource().isExplosion()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("bypassInvul") && event.getSource().isBypassInvul()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("bypassMagic") && event.getSource().isBypassMagic()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("fall") && event.getSource().isFall()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("magic") && event.getSource().isMagic()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("noAggro") && event.getSource().isNoAggro()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else if(damage.equals("projectile") && event.getSource().isProjectile()){
-                event.setAmount(event.getAmount()*2);
-            }
-            else {
-                event.setAmount(0);
-                event.setCanceled(true);
-            }
+        int damage = entity.getPersistentData().getInt("VPPrismDamage");
+        List<DamageSource> sources = playerDamageSources(entity,entity);
+        DamageSource weak = sources.get(damage);
+        System.out.println("prism");
+        System.out.println(weak);
+        System.out.println(event.getSource());
+        if(event.getSource() == weak){
+            event.setAmount(event.getAmount()*2);
+        }
+        else {
+            event.setAmount(0);
+            event.setCanceled(true);
         }
     }
 
@@ -1349,7 +1191,7 @@ public class VPUtil {
 
     public static List<LivingEntity> getMonstersAround(Player player,double x, double y, double z){
         List<LivingEntity> list = new ArrayList<>();
-        for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+        for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
             if(!(entity instanceof Animal) && entity != player)
                 list.add(entity);
         }
@@ -1358,7 +1200,7 @@ public class VPUtil {
 
     public static List<LivingEntity> getCreaturesAround(Player player,double x, double y, double z){
         List<LivingEntity> list = new ArrayList<>();
-        for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+        for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
             if(entity instanceof Animal)
                 list.add(entity);
         }
@@ -1366,7 +1208,7 @@ public class VPUtil {
     }
 
     public static boolean isDamagePhysical(DamageSource source){
-        return !source.isFire() && !source.isMagic() && !source.isBypassInvul() && !source.isBypassEnchantments() && !source.isBypassMagic();
+        return !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
     }
 
     public static boolean isFriendlyFireBetween(Entity attacker, Entity target) {
@@ -1380,7 +1222,7 @@ public class VPUtil {
     }
 
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
-        if(!player.level.isClientSide)
+        if(!player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
         for(int i = 0; i < count; i++) {
             if(Math.random() < 0.5)
@@ -1392,12 +1234,12 @@ public class VPUtil {
             if(Math.random() < 0.5)
                 y += Math.random()*2;
             else y -= Math.random()*2;
-            player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+            player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
         }
     }
 
     public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(!player.level.isClientSide)
+        if(!player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
         double startX = player.getX() - radius;
         double startY = player.getY() - radius;
@@ -1418,16 +1260,16 @@ public class VPUtil {
                     if(Math.random() < 0.5)
                         y += Math.random()*2;
                     else y -= Math.random()*2;
-                    player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                    player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
                 }
             }
         }
     }
 
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(!player.level.isClientSide)
+        if(!player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
-        BlockPos pos = rayCords(player,player.level,distance);
+        BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);
         double startX = pos.getX() - radius;
         double startY = pos.getY() - radius;
         double startZ = pos.getZ() - radius;
@@ -1447,7 +1289,7 @@ public class VPUtil {
                     if(Math.random() < 0.5)
                         y += Math.random()*2;
                     else y -= Math.random()*2;
-                    player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                    player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
                 }
             }
         }
@@ -1469,10 +1311,11 @@ public class VPUtil {
         Vec3 targetPosition = eyePosition.add(viewDirection.x * distance, viewDirection.y * distance, viewDirection.z * distance);
         BlockHitResult hitResult = level.clip(new ClipContext(eyePosition, targetPosition, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, entity));
         BlockPos finalBlockPos;
+        Vec3i what = new Vec3i((int) (viewDirection.x * distance), (int) (viewDirection.y * distance), (int) (viewDirection.z * distance));
         if (hitResult.getType() == BlockHitResult.Type.BLOCK) {
             finalBlockPos = hitResult.getBlockPos();
         } else {
-            finalBlockPos = new BlockPos(targetPosition);
+            finalBlockPos = new BlockPos(what);
         }
 
         return finalBlockPos;
@@ -1498,7 +1341,7 @@ public class VPUtil {
     }
 
     public static void play(LivingEntity entity, SoundEvent sound){
-        if(entity.level.isClientSide)
+        if(entity.getCommandSenderWorld().isClientSide)
             entity.playSound(sound,1,1);
         else {
             if(entity instanceof Player player) {
@@ -1534,7 +1377,7 @@ public class VPUtil {
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
-            if(!entity.level.isClientSide)
+            if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
         if(tag.getFloat("VPOverShieldMax") < shield) {
@@ -1559,16 +1402,15 @@ public class VPUtil {
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
-            if(!entity.level.isClientSide)
+            if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
     }
 
     public static ResourceLocation getCurrentBiome(Player player) {
-        if (player.level instanceof ServerLevel serverLevel) {
+        if (player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             BlockPos pos = player.blockPosition();
-            Biome biome = serverLevel.getBiome(pos).get();
-            return serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getKey(biome);
+            return serverLevel.getBiomeManager().getBiome(pos).unwrapKey().get().location();
         }
         return null;
     }
@@ -1677,7 +1519,7 @@ public class VPUtil {
 
     public static void teleportRandomly(Entity entity, int radius) {
         Random random = new Random();
-        Level world = entity.level;
+        Level world = entity.getCommandSenderWorld();
         double originalX = entity.getX();
         double originalY = entity.getY();
         double originalZ = entity.getZ();
@@ -1695,7 +1537,7 @@ public class VPUtil {
     }
 
     private static boolean isSafeLocation(Level world, double x, double y, double z) {
-        BlockPos blockPos = new BlockPos(x, y, z);
+        BlockPos blockPos = new BlockPos((int) x,(int) y,(int) z);
         return world.isEmptyBlock(blockPos)
                 && world.isEmptyBlock(blockPos.above())
                 && !world.isEmptyBlock(blockPos.below());
@@ -1715,10 +1557,75 @@ public class VPUtil {
         float health = damage*(1+percentBonus/100);
         if(entity.getHealth()-health > 0) {
             if(hurt)
-                entity.hurt(DamageSource.GENERIC,0);
+                entity.hurt(player.damageSources().generic(),0);
             entity.setHealth(entity.getHealth() - health);
         } else {
             deadInside(entity,player);
         }
+    }
+
+    public static List<TagKey<DamageType>> damageTypes(){
+        List<TagKey<DamageType>> damageTypes = new ArrayList<>();
+        damageTypes.add(DamageTypeTags.DAMAGES_HELMET);
+        damageTypes.add(DamageTypeTags.BYPASSES_ARMOR);
+        damageTypes.add(DamageTypeTags.BYPASSES_SHIELD);
+        damageTypes.add(DamageTypeTags.BYPASSES_INVULNERABILITY);
+        damageTypes.add(DamageTypeTags.BYPASSES_EFFECTS);
+        damageTypes.add(DamageTypeTags.BYPASSES_RESISTANCE);
+        damageTypes.add(DamageTypeTags.BYPASSES_ENCHANTMENTS);
+        damageTypes.add(DamageTypeTags.IS_FIRE);
+        damageTypes.add(DamageTypeTags.IS_PROJECTILE);
+        damageTypes.add(DamageTypeTags.WITCH_RESISTANT_TO);
+        damageTypes.add(DamageTypeTags.IS_EXPLOSION);
+        damageTypes.add(DamageTypeTags.IS_FALL);
+        damageTypes.add(DamageTypeTags.IS_DROWNING);
+        damageTypes.add(DamageTypeTags.IS_FREEZING);
+        damageTypes.add(DamageTypeTags.IS_LIGHTNING);
+        damageTypes.add(DamageTypeTags.NO_ANGER);
+        damageTypes.add(DamageTypeTags.NO_IMPACT);
+        damageTypes.add(DamageTypeTags.ALWAYS_MOST_SIGNIFICANT_FALL);
+        damageTypes.add(DamageTypeTags.WITHER_IMMUNE_TO);
+        damageTypes.add(DamageTypeTags.IGNITES_ARMOR_STANDS);
+        damageTypes.add(DamageTypeTags.BURNS_ARMOR_STANDS);
+        damageTypes.add(DamageTypeTags.AVOIDS_GUARDIAN_THORNS);
+        damageTypes.add(DamageTypeTags.ALWAYS_TRIGGERS_SILVERFISH);
+        damageTypes.add(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS);
+        return damageTypes;
+    }
+
+    public static List<DamageSource> playerDamageSources(LivingEntity player, LivingEntity entity){
+        List<DamageSource> damageSources = new ArrayList<>();
+        damageSources.add(player.damageSources().inFire());
+        damageSources.add(player.damageSources().lightningBolt());
+        damageSources.add(player.damageSources().onFire());
+        damageSources.add(player.damageSources().lava());
+        damageSources.add(player.damageSources().hotFloor());
+        damageSources.add(player.damageSources().inWall());
+        damageSources.add(player.damageSources().cramming());
+        damageSources.add(player.damageSources().drown());
+        damageSources.add(player.damageSources().starve());
+        damageSources.add(player.damageSources().cactus());
+        damageSources.add(player.damageSources().fall());
+        damageSources.add(player.damageSources().flyIntoWall());
+        damageSources.add(player.damageSources().fellOutOfWorld());
+        damageSources.add(player.damageSources().generic());
+        damageSources.add(player.damageSources().magic());
+        damageSources.add(player.damageSources().wither());
+        damageSources.add(player.damageSources().dragonBreath());
+        //damageSources.add(player.damageSources().dryOut());
+        damageSources.add(player.damageSources().sweetBerryBush());
+        damageSources.add(player.damageSources().freeze());
+        damageSources.add(player.damageSources().stalagmite());
+        damageSources.add(player.damageSources().fallingBlock(entity));
+        damageSources.add(player.damageSources().anvil(entity));
+        damageSources.add(player.damageSources().fallingStalactite(entity));
+        damageSources.add(player.damageSources().sting(entity));
+        damageSources.add(player.damageSources().mobAttack(entity));
+        damageSources.add(player.damageSources().trident(player,entity));
+        damageSources.add(player.damageSources().mobProjectile(player,entity));
+        damageSources.add(player.damageSources().thorns(entity));
+        damageSources.add(player.damageSources().explosion(player,entity));
+        damageSources.add(player.damageSources().sonicBoom(entity));
+        return damageSources;
     }
 }

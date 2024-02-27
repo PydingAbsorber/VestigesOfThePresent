@@ -56,7 +56,7 @@ public class SoundPacket {
                 // Может потребоваться доступ к клиентскому миру или Minecraft.getInstance() для воспроизведения звука
                 Player player = Minecraft.getInstance().player;
                 if (player != null) {
-                    player.level.playLocalSound(player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.MASTER, packet.volume, packet.pitch, false);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.MASTER, packet.volume, packet.pitch, false);
                 }
             }
         });

@@ -11,7 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModItems {
     public static DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, VestigesOfPresent.MODID);
 
-    public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new Item(new Item.Properties().stacksTo(1).tab(null)));
+    public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new Item(new Item.Properties().stacksTo(1)));
     //public static final RegistryObject<Item> ARTIFACT = ITEMS.register("artifact", () -> new Vestige(new Item.Properties().stacksTo(1).tab(null)));
     public static final RegistryObject<Item> ANEMOCULUS = ITEMS.register("anemoculus", () -> new Anemoculus());
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown", () -> new Crown());
@@ -33,7 +33,7 @@ public class ModItems {
     public static final RegistryObject<Item> BALL = ITEMS.register("ball", () -> new Ball());
     public static final RegistryObject<Item> TRIGON = ITEMS.register("trigon", () -> new Trigon());
     public static final RegistryObject<Item> SOULBLIGHTER = ITEMS.register("soulblighter", () -> new SoulBlighter());
-    public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab)));
+    public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

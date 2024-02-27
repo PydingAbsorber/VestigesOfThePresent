@@ -27,9 +27,9 @@ public class Ball extends Vestige{
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player, SoundRegistry.BOLT.get());
         for(LivingEntity entity: VPUtil.getEntities(player,5,true)){
-            VPUtil.dealDamage(entity,player, DamageSource.LIGHTNING_BOLT,500,2);
+            VPUtil.dealDamage(entity,player, player.damageSources().lightningBolt(),500,2);
         }
-        player.hurt(DamageSource.LIGHTNING_BOLT,VPUtil.getAttack(player,true)*500);
+        player.hurt(player.damageSources().lightningBolt(),VPUtil.getAttack(player,true)*500);
         if(level instanceof ServerLevel serverLevel)
             VPUtil.spawnLightning(serverLevel, player.getX(),player.getY(),player.getZ());
         Vec3 motion = new Vec3(0, 1, 0);
@@ -58,7 +58,7 @@ public class Ball extends Vestige{
             float shield = VPUtil.getShield(entity);
             if(shield > 0 || entity.getHealth() < player.getHealth()){
                 float damageBonus = 1+(shield*0.001f)+(entity.getArmorCoverPercentage()*2)*(entity.getArmorValue()*0.1f);
-                VPUtil.dealDamage(entity,player,DamageSource.LIGHTNING_BOLT,1000*damageBonus,3);
+                VPUtil.dealDamage(entity,player,player.damageSources().lightningBolt(),1000*damageBonus,3);
                 if(level instanceof ServerLevel serverLevel)
                     VPUtil.spawnLightning(serverLevel, entity.getX(),entity.getY(),entity.getZ());
                 if(entity.isInWaterRainOrBubble())

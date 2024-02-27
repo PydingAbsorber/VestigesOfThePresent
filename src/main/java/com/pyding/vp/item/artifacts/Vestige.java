@@ -36,7 +36,7 @@ import java.util.Random;
 
 public class Vestige extends Item implements ICurioItem {
     public Vestige() {
-        super(new Item.Properties().stacksTo(1).tab(ModCreativeModTab.tab));
+        super(new Item.Properties().stacksTo(1));
     }
     public Vestige(Properties properties){
         super(properties);
@@ -128,12 +128,12 @@ public class Vestige extends Item implements ICurioItem {
     public int setSpecialActive(long seconds, Player player){
         //System.out.println(isSpecialActive+"from Vestige");
         if(this.currentChargeSpecial > 0) {
-            if(!player.level.isClientSide) {
+            if(!player.getCommandSenderWorld().isClientSide) {
                 this.time = System.currentTimeMillis() + seconds;  //active time in real seconds
                 this.isSpecialActive = true;
                 this.cdSpecialActive += this.specialCd;     //time until cd recharges in seconds*tps
                 this.currentChargeSpecial -= 1;
-                this.doSpecial(seconds, player, player.level);
+                this.doSpecial(seconds, player, player.getCommandSenderWorld());
             } else this.localSpecial(player);
             return 0;
         } else return cdSpecialActive;
@@ -141,12 +141,12 @@ public class Vestige extends Item implements ICurioItem {
 
     public int setUltimateActive(long seconds, Player player){
         if(this.currentChargeUltimate > 0){
-            if(!player.level.isClientSide) {
+            if(!player.getCommandSenderWorld().isClientSide) {
                 this.timeUlt = System.currentTimeMillis() + seconds;
                 this.isUltimateActive = true;
                 this.cdUltimateActive += this.ultimateCd;
                 this.currentChargeUltimate -= 1;
-                this.doUltimate(seconds, player, player.level);
+                this.doUltimate(seconds, player, player.getCommandSenderWorld());
             } else this.localUltimate(player);
             return 0;
         } else return this.cdUltimateActive;
@@ -154,7 +154,7 @@ public class Vestige extends Item implements ICurioItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if(slotContext.entity().level.isClientSide) {
+        if(slotContext.entity().getCommandSenderWorld().isClientSide) {
             ICurioItem.super.curioTick(slotContext, stack);
             return;
         }
@@ -165,7 +165,7 @@ public class Vestige extends Item implements ICurioItem {
             if (isUltimateActive)
                 whileUltimate(playerServer);
             serverPlayerFromVestige = playerServer;
-            serverLevelFromVestige = playerServer.getLevel();
+            serverLevelFromVestige = (ServerLevel) playerServer.getCommandSenderWorld();
         }
         if(this.time > 0 && this.time <= System.currentTimeMillis()) {
             this.time = 0;

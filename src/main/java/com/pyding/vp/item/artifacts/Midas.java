@@ -18,10 +18,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.loot.LootContext;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
-import top.theillusivec4.curios.api.type.util.ICuriosHelper;
 
 import java.util.List;
 import java.util.UUID;
@@ -67,35 +65,28 @@ public class Midas extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,8,1,0,-0.1,0,1,false);
-        ICuriosHelper api = CuriosApi.getCuriosHelper();
-        List list = api.findCurios(player, (stackInSlot) -> {
-            if(stackInSlot.getItem() instanceof Midas midas) {
-                ItemStack stack = stackInSlot;
-                int kills = stack.getOrCreateTag().getInt("VPKills");
-                if(Math.random() < (0.01/100)*kills) {
-                    stack.getOrCreateTag().putInt("VPLuck", stack.getOrCreateTag().getInt("VPLuck") + 1);
-                    VPUtil.play(player,SoundRegistry.SUCCESS.get());
-                } else VPUtil.play(player,SoundEvents.IRON_GOLEM_DEATH);
-                while (kills > 0 && isStellar) {
-                    if (kills > 9 * 9 * 9) {
-                        player.addItem(new ItemStack(Items.GOLD_BLOCK, 9));
-                        kills -= 9 * 9 * 9;
-                    } else if (kills > 9 * 9) {
-                        player.addItem(new ItemStack(Items.GOLD_BLOCK, 1));
-                        kills -= 9 * 9;
-                    } else if (kills > 9) {
-                        player.addItem(new ItemStack(Items.GOLD_INGOT, 1));
-                        kills -= 9;
-                    } else {
-                        player.addItem(new ItemStack(Items.GOLD_NUGGET, 1));
-                        kills -= 1;
-                    }
-                }
-                stack.getOrCreateTag().putInt("VPKills",0);
-                return true;
+        ItemStack stack = VPUtil.getVestigeStack(this,player);
+        int kills = stack.getOrCreateTag().getInt("VPKills");
+        if(Math.random() < (0.01/100)*kills) {
+            stack.getOrCreateTag().putInt("VPLuck", stack.getOrCreateTag().getInt("VPLuck") + 1);
+            VPUtil.play(player,SoundRegistry.SUCCESS.get());
+        } else VPUtil.play(player,SoundEvents.IRON_GOLEM_DEATH);
+        while (kills > 0 && isStellar) {
+            if (kills > 9 * 9 * 9) {
+                player.addItem(new ItemStack(Items.GOLD_BLOCK, 9));
+                kills -= 9 * 9 * 9;
+            } else if (kills > 9 * 9) {
+                player.addItem(new ItemStack(Items.GOLD_BLOCK, 1));
+                kills -= 9 * 9;
+            } else if (kills > 9) {
+                player.addItem(new ItemStack(Items.GOLD_INGOT, 1));
+                kills -= 9;
+            } else {
+                player.addItem(new ItemStack(Items.GOLD_NUGGET, 1));
+                kills -= 1;
             }
-            return false;
-        });
+        }
+        stack.getOrCreateTag().putInt("VPKills",0);
 
         super.doUltimate(seconds, player, level);
     }

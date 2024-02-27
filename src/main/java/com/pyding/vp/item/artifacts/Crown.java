@@ -23,8 +23,6 @@ public class Crown extends Vestige{
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.CROWN.get());
         for(LivingEntity entity : VPUtil.getMonstersAround(player,20,6,20)){
-            if(entity.getPersistentData().getString("VPCrownDamage").isEmpty() || entity.getPersistentData().getString("VPCrownDamage").equals(""))
-                entity.getPersistentData().putString("VPCrownDamage","bypassArmor");
             VPUtil.adaptiveDamageHurt(entity,player,entity.getPersistentData().getBoolean("VPCrownDR"),300);
             VPUtil.spawnParticles(player, ParticleTypes.GLOW,entity.getX(),entity.getY(),entity.getZ(),16,0,0.5,0);
         }

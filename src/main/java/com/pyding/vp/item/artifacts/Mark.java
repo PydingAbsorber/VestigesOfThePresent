@@ -85,7 +85,7 @@ public class Mark extends Vestige{
         float heal = player.getPersistentData().getFloat("VPHealReduced");
         float damageFinal = damage-heal;
         if(damageFinal > 0) {
-            player.hurt(DamageSource.OUT_OF_WORLD, damageFinal);
+            player.hurt(player.damageSources().fellOutOfWorld(), damageFinal);
         }
         else cdUltimateActive -= Math.min(ultimateCd * 0.6, ultimateCd * ((VPUtil.calculatePercentageDifference(damage,heal))/100));
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap());

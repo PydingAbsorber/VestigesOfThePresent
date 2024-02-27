@@ -75,7 +75,7 @@ public class PacketHandler {
     public static <MSG> void sendToAllAround(MSG message, Player player) {
         INSTANCE.send(PacketDistributor.NEAR.with(() ->
                 new PacketDistributor.TargetPoint(player.getX(), player.getY(), player.getZ(), 64,
-                        player.level.dimension())),message);
+                        player.getCommandSenderWorld().dimension())),message);
     }
 
     public static void sendToClients(PacketDistributor.PacketTarget target, Object packet) {

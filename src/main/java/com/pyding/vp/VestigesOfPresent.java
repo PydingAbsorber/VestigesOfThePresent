@@ -6,6 +6,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.common.CommonProxy;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.event.EventHandler;
+import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
@@ -14,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -52,6 +54,8 @@ public class VestigesOfPresent
         FMLJavaModLoadingContext.get().getModEventBus().register(PROXY);
         MinecraftForge.EVENT_BUS.register(PROXY);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC); //bye  bye
+        ModCreativeModTab.register(modEventBus);
+        modEventBus.addListener(this::addCreative);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init
@@ -77,11 +81,11 @@ public class VestigesOfPresent
 
     private void postInit(InterModEnqueueEvent event) {
         LOGGER.info("Sending messages to Curios API...");
-        VPUtil.registerCurioType("vestige", 2, false, new ResourceLocation("curios:slot/vpslot"));
+        /*VPUtil.registerCurioType("vestige", 2, false, new ResourceLocation("curios:slot/vpslot"));
         VPUtil.registerCurioType("charm", 1, false, null);
         VPUtil.registerCurioType("ring", 1, false, null);
         VPUtil.registerCurioType("belt",1,false,null);
-        VPUtil.registerCurioType("necklace",1,false,null);
+        VPUtil.registerCurioType("necklace",1,false,null);*/
         VPUtil.initEntities();
         VPUtil.initBiomes();
         VPUtil.initItems();
@@ -93,5 +97,31 @@ public class VestigesOfPresent
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         PROXY.loadComplete(event);
+    }
+
+    private void addCreative(BuildCreativeModeTabContentsEvent event){
+        if(event.getTab() == ModCreativeModTab.VP_TAB.get()){
+            event.accept(ModItems.ANEMOCULUS);
+            event.accept(ModItems.CROWN);
+            event.accept(ModItems.ATLAS);
+            event.accept(ModItems.KILLER);
+            event.accept(ModItems.MASK);
+            event.accept(ModItems.DONUT);
+            event.accept(ModItems.MARK);
+            event.accept(ModItems.EARS);
+            event.accept(ModItems.MIDAS);
+            event.accept(ModItems.ANOMALY);
+            event.accept(ModItems.ATLAS);
+            event.accept(ModItems.BOOK);
+            event.accept(ModItems.PRISM);
+            event.accept(ModItems.CHAOS);
+            event.accept(ModItems.DEVOURER);
+            event.accept(ModItems.FLOWER);
+            event.accept(ModItems.CATALYST);
+            event.accept(ModItems.BALL);
+            event.accept(ModItems.TRIGON);
+            event.accept(ModItems.SOULBLIGHTER);
+            event.accept(ModItems.STELLAR);
+        }
     }
 }

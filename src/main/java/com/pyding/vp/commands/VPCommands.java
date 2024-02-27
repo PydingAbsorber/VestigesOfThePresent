@@ -122,7 +122,7 @@ public class VPCommands {
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     float amount = FloatArgumentType.getFloat(context, "amount");
-                                    player.hurt(DamageSource.GENERIC,amount);
+                                    player.hurt(player.damageSources().generic(),amount);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -149,7 +149,7 @@ public class VPCommands {
                                     player.sendSystemMessage(Component.literal("Ench max lvl: " + enchantment.getMaxLevel()));
                                     player.sendSystemMessage(Component.literal("Ench lvl: " + stack.getEnchantmentLevel(enchantment)));
                                     if(enchantment instanceof ProtectionEnchantment)
-                                        player.sendSystemMessage(Component.literal("Ench damage protection: " + enchantment.getDamageProtection(stack.getEnchantmentLevel(enchantment),DamageSource.GENERIC)));
+                                        player.sendSystemMessage(Component.literal("Ench damage protection: " + enchantment.getDamageProtection(stack.getEnchantmentLevel(enchantment),player.damageSources().generic())));
                                 }
                                 player.sendSystemMessage(Component.literal("Tags: " + stack.getOrCreateTag()));
                                 player.sendSystemMessage(Component.literal("Damage: " + stack.getDamageValue()));

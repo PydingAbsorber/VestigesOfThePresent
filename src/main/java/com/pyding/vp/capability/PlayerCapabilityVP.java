@@ -12,7 +12,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
@@ -198,7 +202,7 @@ public class PlayerCapabilityVP {
 
     public void giveVestige(Player player, int vp){
         if(!hasCoolDown(vp)){
-            if(player.level.isClientSide)
+            if(player.getCommandSenderWorld().isClientSide)
                 return;
             setChallenge(vp,0,player);
             addCoolDown(vp,player);
@@ -296,28 +300,10 @@ public class PlayerCapabilityVP {
 
     public void addDamageDo(DamageSource source, Player player){
         String damage = "";
-        if(source.isBypassArmor())
-            damage += "bypassArmor,";
-        if(source.isDamageHelmet())
-            damage += "damageHelmet,";
-        if(source.isBypassEnchantments())
-            damage += "bypassEnchantments,";
-        if(source.isExplosion())
-            damage += "explosion,";
-        if(source.isBypassInvul())
-            damage += "bypassInvul,";
-        if(source.isBypassMagic())
-            damage += "bypassMagic,";
-        if(source.isFall())
-            damage += "fall,";
-        if(source.isFire())
-            damage += "fire,";
-        if(source.isMagic())
-            damage += "magic,";
-        if(source.isNoAggro())
-            damage += "noAggro,";
-        if(source.isProjectile())
-            damage += "projectile,";
+        for(TagKey<DamageType> key: VPUtil.damageTypes()){
+            if(source.is(key))
+                damage = key.location().getNamespace()+",";
+        }
         for(String damageName: damage.split(",")) {
             if (!this.damageDo.contains(damageName)) {
                 this.damageDo += damageName + ",";
@@ -689,7 +675,7 @@ public class PlayerCapabilityVP {
     }
 
     public void sync(Player player){
-        if(player.level.isClientSide)
+        if(player.getCommandSenderWorld().isClientSide)
             return;
         ServerPlayer serverPlayer = (ServerPlayer) player;
         PacketHandler.sendToClient(new SendPlayerCapaToClient(this.getNbt()),serverPlayer);
@@ -701,7 +687,7 @@ public class PlayerCapabilityVP {
     }
 
     public void sendLore(Player player, int number){
-        if(player.level.isClientSide)
+        if(player.getCommandSenderWorld().isClientSide)
             return;
         String name = VPUtil.getRainbowString(VPUtil.generateRandomString("entity".length())) + ": ";
         String playerName = player.getDisplayName().getString();

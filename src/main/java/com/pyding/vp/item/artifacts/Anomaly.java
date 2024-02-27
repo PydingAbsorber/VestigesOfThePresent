@@ -4,28 +4,17 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnderEyeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
-import top.theillusivec4.curios.api.type.util.ICuriosHelper;
 
 import java.util.List;
 import java.util.Random;
@@ -47,22 +36,16 @@ public class Anomaly extends Vestige{
         if(player.getMainHandItem().getItem() instanceof EnderEyeItem){
             fuckNbt1 = true;
             fuckNbt2 = true;
-            ICuriosHelper api = CuriosApi.getCuriosHelper();
-            List list = api.findCurios(player, (stackInSlot) -> {
-                if(stackInSlot.getItem() instanceof Anomaly) {
-                    stackInSlot.getOrCreateTag().putDouble("VPReturnX", player.getX());
-                    stackInSlot.getOrCreateTag().putDouble("VPReturnY", player.getY());
-                    stackInSlot.getOrCreateTag().putDouble("VPReturnZ", player.getZ());
-                    stackInSlot.getOrCreateTag().putString("VPReturnKey", player.level.dimension().location().getPath());
-                    return true;
-                }
-                return false;
-            });
+            ItemStack stackInSlot = VPUtil.getVestigeStack(this,player);
+            stackInSlot.getOrCreateTag().putDouble("VPReturnX", player.getX());
+            stackInSlot.getOrCreateTag().putDouble("VPReturnY", player.getY());
+            stackInSlot.getOrCreateTag().putDouble("VPReturnZ", player.getZ());
+            stackInSlot.getOrCreateTag().putString("VPReturnKey", player.getCommandSenderWorld().dimension().location().getPath());
         } else {
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
                     serverPlayer.teleportTo(entity.getX()-1,entity.getY(),entity.getZ()-1);
-                    VPUtil.dealDamage(entity,player,DamageSource.playerAttack(player).bypassMagic().bypassArmor(),400,2);
+                    VPUtil.dealDamage(entity,player,player.damageSources().dragonBreath(),400,2);
                     entity.getPersistentData().putLong("VPAntiTP",seconds+System.currentTimeMillis());
                 }
             }
@@ -77,18 +60,18 @@ public class Anomaly extends Vestige{
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if(isStellar && (Math.random() < 0.05 || (player.getScoreboardName().equals("Pyding") && player.isCreative()))){  //don't blame me it's for test
-                    for(ServerPlayer victim: serverPlayer.level.getServer().getPlayerList().getPlayers()){
+                    for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){
-                            serverPlayer.teleportTo(victim.getLevel(),victim.getX(),victim.getY(),victim.getZ(),0,0);
+                            serverPlayer.teleportTo((ServerLevel) victim.getCommandSenderWorld(),victim.getX(),victim.getY(),victim.getZ(),0,0);
                             break;
                         }
                     }
                 }
                 else {
                     String key = cap.getRandomDimension();
-                    ServerLevel serverLevel = serverPlayer.level.getServer().getLevel(VPUtil.getWorldKey(key));
+                    ServerLevel serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(VPUtil.getWorldKey(key));
                     if (serverLevel == null) {
-                        serverLevel = serverPlayer.level.getServer().getLevel(Level.OVERWORLD);
+                        serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(Level.OVERWORLD);
                         cap.removeDimension(key);
                     }
                     Random random = new Random();

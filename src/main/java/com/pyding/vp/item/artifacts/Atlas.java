@@ -42,7 +42,7 @@ public class Atlas extends Vestige{
                 PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
                 PacketHandler.sendToClient(new PlayerFlyPacket(-2), serverPlayer);
             }
-            VPUtil.dealDamage(entity,player, DamageSource.FALL,50,2);
+            VPUtil.dealDamage(entity,player, player.damageSources().fall(),50,2);
         }
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,1,0,-1,0,5,false);
         super.doSpecial(seconds, player, level);
@@ -68,7 +68,7 @@ public class Atlas extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
         long gravity = Math.min(30,player.getPersistentData().getInt("VPGravity"));
-        if(player.level instanceof ServerLevel serverLevel) {
+        if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
             BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos);
             blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());

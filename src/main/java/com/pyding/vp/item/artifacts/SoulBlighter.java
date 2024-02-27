@@ -5,27 +5,22 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
-import top.theillusivec4.curios.api.type.util.ICuriosHelper;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -60,56 +55,48 @@ public class SoulBlighter extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
-        ICuriosHelper api = CuriosApi.getCuriosHelper();
-        VPUtil.play(player, SoundRegistry.SOUL3.get());
-        List list = api.findCurios(player, (stackInSlot) -> {
-            if(stackInSlot.getItem() instanceof SoulBlighter blighter) {
-                ItemStack stack = stackInSlot;
-                if(stack.getOrCreateTag().contains("entityData")){
-                    CompoundTag entityData = stack.getTag().getCompound("entityData");
-                    stack.getTag().remove("entityData");
+        ItemStack stack = VPUtil.getVestigeStack(this,player);
+        if(stack.getOrCreateTag().contains("entityData")){
+            CompoundTag entityData = stack.getTag().getCompound("entityData");
+            stack.getTag().remove("entityData");
+            fuckNbtCheck1 = true;
+            fuckNbtCheck2 = true;
+            BlockPos pos = VPUtil.rayCords(player,level,6);
+            entityData.remove("Pos");
+            CompoundTag wrapper = new CompoundTag();
+            wrapper.put("EntityTag", entityData);
+            EntityType type = VPUtil.entityTypeFromNbt(entityData);
+            Entity entity = type.create(level);
+            entity.load(entityData);
+            entity.getPersistentData().putUUID("VPPlayer",player.getUUID());
+            entity.absMoveTo(pos.getX() + 0.5, pos.getY()+1, pos.getZ() + 0.5, 0, 0);
+            if(Minecraft.getInstance().player != null)
+                VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
+            level.addFreshEntity(entity);
+            if(isStellar)
+                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+        } else {
+            player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
+            for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
+                double chance = VPUtil.calculateCatchChance(player.getMaxHealth(),entity.getMaxHealth(),entity.getHealth());
+                if(entity.getPersistentData().getLong("VPAstral") > 0)
+                    chance *= 2;
+                if(Math.random() < chance
+                        || (entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").equals(player.getUUID()))
+                        || player.isCreative()){
                     fuckNbtCheck1 = true;
                     fuckNbtCheck2 = true;
-                    BlockPos pos = VPUtil.rayCords(player,level,6);
-                    entityData.remove("Pos");
-                    CompoundTag wrapper = new CompoundTag();
-                    wrapper.put("EntityTag", entityData);
-                    EntityType type = VPUtil.entityTypeFromNbt(entityData);
-                    Entity entity = type.create(level);
-                    entity.load(entityData);
-                    entity.getPersistentData().putUUID("VPPlayer",player.getUUID());
-                    entity.absMoveTo(pos.getX() + 0.5, pos.getY()+1, pos.getZ() + 0.5, 0, 0);
+                    stack.getOrCreateTag().put("entityData",entity.serializeNBT());
+                    stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
                     if(Minecraft.getInstance().player != null)
                         VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
-                    level.addFreshEntity(entity);
+                    entity.remove(Entity.RemovalReason.DISCARDED);
                     if(isStellar)
-                        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-                } else {
-                    player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
-                    for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
-                        double chance = VPUtil.calculateCatchChance(player.getMaxHealth(),entity.getMaxHealth(),entity.getHealth());
-                        if(entity.getPersistentData().getLong("VPAstral") > 0)
-                            chance *= 2;
-                        if(Math.random() < chance
-                                || (entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").equals(player.getUUID()))
-                                || player.isCreative()){
-                            fuckNbtCheck1 = true;
-                            fuckNbtCheck2 = true;
-                            stack.getOrCreateTag().put("entityData",entity.serializeNBT());
-                            stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
-                            if(Minecraft.getInstance().player != null)
-                                VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
-                            entity.remove(Entity.RemovalReason.DISCARDED);
-                            if(isStellar)
-                                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-                        }
-                        break;
-                    }
+                        player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
                 }
-                return true;
+                break;
             }
-            return false;
-        });
+        }
         super.doUltimate(seconds, player, level);
     }
     @Override
@@ -203,7 +190,7 @@ public class SoulBlighter extends Vestige{
                         boolean flying = entity instanceof FlyingAnimal || entity instanceof FlyingMob;
                         Vec3 vec31 = vec3.subtract(entity.position());
                         boolean jumpFlag = false;
-                        if (!flying && entity.horizontalCollision && entity.isOnGround() && vec31.y > 0) {
+                        if (!flying && entity.horizontalCollision && entity.onGround() && vec31.y > 0) {
                             jumpFlag = true;
                         } else if (!flying && vec31.y > 0) {
                             vec31 = new Vec3(vec31.x, 0, vec31.z);
@@ -211,7 +198,7 @@ public class SoulBlighter extends Vestige{
                         float yaw = -((float) Mth.atan2(vec31.x, vec31.z)) * (180F / (float) Math.PI);
                         if (vec31.length() > 1F) {
                             vec31 = vec31.normalize();
-                            if (!player1.level.isClientSide) {
+                            if (!player1.getCommandSenderWorld().isClientSide) {
                                 entity.setYRot(yaw);
                                 entity.setYBodyRot(entity.getYRot());
                             }

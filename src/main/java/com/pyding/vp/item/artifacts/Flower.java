@@ -82,7 +82,7 @@ public class Flower extends Vestige{
 
     public static List<LivingEntity> getCreaturesAround(Player player, double x, double y, double z){
         List<LivingEntity> list = new ArrayList<>();
-        for(LivingEntity entity: player.level.getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+        for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
             if(entity instanceof Animal || entity instanceof Player)
                 list.add(entity);
         }

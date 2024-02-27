@@ -1,6 +1,8 @@
 package com.pyding.vp.mixin;
 
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -17,7 +19,7 @@ public abstract class NegativeProtectionMixin {
 
     @Inject(method = "getDamageAfterMagicAbsorb",at = @At("RETURN"),cancellable = true, require = 1)
     protected void fuckEnchantmentsFinallyIHope(DamageSource p_21193_, float p_21194_,CallbackInfoReturnable<Float> info){
-        if(!p_21193_.isBypassEnchantments()) {
+        if(!p_21193_.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)) {
             for (ItemStack stack : this.getArmorSlots()) {
                 for (Enchantment enchantment : stack.getAllEnchantments().keySet()) {
                     if (stack.getEnchantmentLevel(enchantment) < 0) {
