@@ -128,7 +128,7 @@
 
 
   "vp.passive.3": "Dealing fall damage has a 50% chance to grant 1 Gravity. \nEach Gravity provides +2% damage to Ultimates. \nMaximum Gravity numbers are 30.",
-  "vp.special.3": "Deals 50% damage in a small area ahead, forcibly disables flight, and drops to the ground. Grants Gravity for each enemy hit.",
+  "vp.special.3": "Deals 50% damage in a small area ahead, forcibly disables flight, and drops to the ground.",
   "vp.ultimate.3": "Upon having Gravities, creates a small black hole pulling in enemies. \nRadius, damage, and duration of the black hole depend on the number of Gravities.",
   "vp.damagetype.3": "falling, void",
   "vp.get.3": "Discover all modpack biomes.",

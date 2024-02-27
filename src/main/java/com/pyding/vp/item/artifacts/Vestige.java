@@ -199,7 +199,6 @@ public class Vestige extends Item implements ICurioItem {
         ICurioItem.super.curioTick(slotContext, stack);
     }
 
-
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         if (color == null) {

@@ -93,8 +93,8 @@ public class MaskOfDemon extends Vestige{
             if(player.tickCount % 5 == 0)
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             if (player.tickCount % 20 == 0) {
-                if (player.getHealth() > player.getMaxHealth() * 0.05) {
-                    player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.05));
+                if (player.getHealth() > player.getMaxHealth() * 0.1) {
+                    player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
                 }
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
@@ -109,7 +109,8 @@ public class MaskOfDemon extends Vestige{
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
                 if(isStellar && player.tickCount % 20 == 0 && player.getHealth() <= player.getMaxHealth()*0.5){
-                    VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.05f,1,false);
+                    VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.1f,1,false);
+                    VPUtil.spawnParticles(player, ParticleTypes.HEART,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }
                 entity.getPersistentData().merge(tag);
             }

@@ -2,6 +2,7 @@ package com.pyding.vp.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.item.artifacts.Catalyst;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -55,6 +56,35 @@ public class ShieldOverlay {
                 if(vestiges.get(i).getItem() instanceof Vestige vestige){
                     fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     fontRenderer.draw(poseStack, ""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
+                    String info = "";
+                    if(vestige.vestigeNumber == 3){
+                        info = String.valueOf(player.getPersistentData().getInt("VPGravity"));
+                    }
+                    if(vestige.vestigeNumber == 5){
+                        if(vestige.isStellar)
+                            info = (VPUtil.missingHealth(player)*8 + "%");
+                        else info = (VPUtil.missingHealth(player)*4 + "%");
+                    }
+                    if(vestige.vestigeNumber == 6){
+                        info = String.valueOf(player.getPersistentData().getFloat("VPSaturation"));
+                    }
+                    if(vestige.vestigeNumber == 7){
+                        info = String.valueOf(player.getPersistentData().getInt("VPMadness"));
+                    }
+                    if(vestige.vestigeNumber == 11){
+                        info = String.valueOf(player.getPersistentData().getFloat("VPArmor"));
+                    }
+                    if(vestige.vestigeNumber == 16){
+                        info = ((int)player.getPersistentData().getFloat("VPHealResFlower") + "%");
+                    }
+                    if(vestige.vestigeNumber == 17 && vestige.isStellar && vestige instanceof Catalyst catalyst){
+                        info = (catalyst.debuffDefence + "");
+                    }
+                    if(vestige.vestigeNumber == 19){
+                        info = (player.getPersistentData().getFloat("VPTrigonBonus") + "%");
+                    }
+                    if(!info.isEmpty())
+                    fontRenderer.draw(poseStack, ""+info, x+(130+i*40),y-28, vestige.color.getColor());
                 }
             }
         }

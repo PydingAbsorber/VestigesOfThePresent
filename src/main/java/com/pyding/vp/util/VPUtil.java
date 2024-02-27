@@ -440,7 +440,7 @@ public class VPUtil {
             });
         }
         if(source.isBypassInvul())
-            percentBonus /= 10;
+            percentBonus /= 20;
         entity.hurt(source,getAttack(player,hasDurability)*(percent+percentBonus));
     }
 

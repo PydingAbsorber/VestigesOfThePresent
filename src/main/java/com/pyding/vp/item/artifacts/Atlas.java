@@ -35,7 +35,7 @@ public class Atlas extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         for(LivingEntity entity: VPUtil.ray(player,6,128,false)){
-            player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
+            //player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
             VPUtil.fall(entity,-10);
             if(entity instanceof ServerPlayer serverPlayer) {
                 PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);

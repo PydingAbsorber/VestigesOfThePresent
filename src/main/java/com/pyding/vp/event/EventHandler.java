@@ -149,11 +149,6 @@ public class EventHandler {
                         event.setAmount(event.getAmount() - (event.getAmount() * chance));
                     }
                 }
-                if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
-                    float amount = event.getAmount();
-                    event.setAmount(Math.max(0, event.getAmount() - (40 + player.getPersistentData().getFloat("VPArmor"))));
-                    player.getPersistentData().putFloat("VPArmor", player.getPersistentData().getFloat("VPArmor") + amount);
-                }
                 if (VPUtil.hasVestige(ModItems.CHAOS.get(), player)) {
                     double passiveChance = 0.1 + player.getAttribute(Attributes.LUCK).getValue() / 100;
                     if (Math.random() < passiveChance) {
@@ -257,6 +252,13 @@ public class EventHandler {
                 entity.getPersistentData().putFloat("VPShield", 0);
                 entity.getPersistentData().putFloat("VPShieldInit", 0);
 
+            }
+            if(event.getEntity() instanceof Player player){
+                if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
+                    float amount = event.getAmount();
+                    event.setAmount(Math.max(0, event.getAmount() - (40 + player.getPersistentData().getFloat("VPArmor"))));
+                    player.getPersistentData().putFloat("VPArmor", player.getPersistentData().getFloat("VPArmor") + amount);
+                }
             }
         } else {
         }
@@ -496,12 +498,12 @@ public class EventHandler {
                         String key = stackInSlot.getOrCreateTag().getString("VPReturnKey");
                         if(x != 0 && y != 0 && z != 0 && !key.isEmpty()) {
                             ServerLevel serverLevel = serverPlayer.level.getServer().getLevel(VPUtil.getWorldKey(key));
-                            for(LivingEntity entity: VPUtil.getEntitiesAround(player,4,4,4,false)){
+                            for(Object entity: VPUtil.getEntitiesAroundOfType(Entity.class,player,4,4,4,true)){
                                 if(entity instanceof ServerPlayer victim)
                                     victim.teleportTo(serverLevel, x, y, z, 0, 0);
-                                else {
-                                    entity.changeDimension(serverLevel);
-                                    entity.teleportTo(x,y,z);
+                                else if(entity instanceof Entity target){
+                                    target.changeDimension(serverLevel);
+                                    target.teleportTo(x,y,z);
                                 }
                             }
                             serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);
@@ -511,6 +513,7 @@ public class EventHandler {
                             }
                             serverPlayer.teleportTo(serverPlayer.getRespawnPosition().getX(),serverPlayer.getRespawnPosition().getY(),serverPlayer.getRespawnPosition().getZ());
                         }
+                        event.setCanceled(true);
                         return true;
                     }
                     return false;

@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -202,6 +203,7 @@ public class PlayerCapabilityVP {
             addCoolDown(vp,player);
             clearProgress(vp,player);
             player.addItem(vestige(vp, player));
+            VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
         }
     }
 

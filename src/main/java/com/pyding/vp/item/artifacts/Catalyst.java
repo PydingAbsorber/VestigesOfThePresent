@@ -26,7 +26,7 @@ public class Catalyst extends Vestige{
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
         super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 120, 1, 1, hasDamage);
     }
-    int debuffDefence = 0;
+    public int debuffDefence = 0;
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player, SoundRegistry.CATALYST1.get());

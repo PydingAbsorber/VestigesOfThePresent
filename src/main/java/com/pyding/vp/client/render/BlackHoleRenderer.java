@@ -36,7 +36,7 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
         float scale = 1+gravity/5;
         poseStack.scale(scale,scale,scale);
         //poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
-        float angle = (System.currentTimeMillis() % 36000) / 25.0f;
+        float angle = (System.currentTimeMillis() % 36000) / 2.0f;
         poseStack.mulPose(Vector3f.YP.rotationDegrees(-angle));
         Player player = Minecraft.getInstance().player;
         BlackHoleModel<LivingEntity> model = new BlackHoleModel<>(BlackHoleModel.createBodyLayer().bakeRoot());
