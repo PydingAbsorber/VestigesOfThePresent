@@ -11,8 +11,6 @@ import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -26,8 +24,6 @@ import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(VestigesOfPresent.MODID)
@@ -81,13 +77,7 @@ public class VestigesOfPresent
 
     private void postInit(InterModEnqueueEvent event) {
         LOGGER.info("Sending messages to Curios API...");
-        /*VPUtil.registerCurioType("vestige", 2, false, new ResourceLocation("curios:slot/vpslot"));
-        VPUtil.registerCurioType("charm", 1, false, null);
-        VPUtil.registerCurioType("ring", 1, false, null);
-        VPUtil.registerCurioType("belt",1,false,null);
-        VPUtil.registerCurioType("necklace",1,false,null);*/
         VPUtil.initEntities();
-        //VPUtil.initBiomes();
         VPUtil.initItems();
         VPUtil.initBlocks();
         VPUtil.initFlowers();

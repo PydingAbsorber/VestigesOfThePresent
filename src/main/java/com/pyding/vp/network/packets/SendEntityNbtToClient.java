@@ -1,19 +1,14 @@
 package com.pyding.vp.network.packets;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class SendEntityNbtToClient {
@@ -44,7 +39,7 @@ public class SendEntityNbtToClient {
 
     @OnlyIn(Dist.CLIENT)
     private static void handle2(CompoundTag tag, int id) {
-        ClientLevel level = Minecraft.getInstance().level;
+        Level level = Minecraft.getInstance().level;
         Entity entity = level.getEntity(id);
         if(entity != null) {
             entity.getPersistentData().merge(tag);

@@ -11,7 +11,6 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,7 +19,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -58,8 +56,6 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotResult;
 
 import java.util.*;
 
@@ -387,13 +383,13 @@ public class EventHandler {
                 }
             }
             LivingEntity entity = event.getEntity();
-            if(entity.getCommandSenderWorld().getNearestPlayer(entity,10) != null && VPUtil.hasVestige(ModItems.CATALYST.get(), entity.getCommandSenderWorld().getNearestPlayer(entity,10))) {
+            Player playerNear = entity.getCommandSenderWorld().getNearestPlayer(entity,10);
+            if(playerNear != null && VPUtil.hasVestige(ModItems.CATALYST.get(), entity.getCommandSenderWorld().getNearestPlayer(entity,10))) {
                 List<MobEffectInstance> effectList = new ArrayList<>(VPUtil.getEffectsHas(entity,false));
                 for (LivingEntity iterator : VPUtil.getEntitiesAround(entity, 10, 10, 10, false)) {
                     for(MobEffectInstance instance: effectList){
                         iterator.addEffect(instance);
-                        if(Minecraft.getInstance().player != null)
-                            VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.BUBBLE_POP,iterator.getX(),iterator.getY(),iterator.getZ(),8,0,-0.5,0);
+                        VPUtil.spawnParticles(playerNear, ParticleTypes.BUBBLE_POP,iterator.getX(),iterator.getY(),iterator.getZ(),8,0,-0.5,0);
                     }
                 }
             }

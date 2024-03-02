@@ -44,7 +44,7 @@ public class ConfigHandler {
 
         public Common(ForgeConfigSpec.Builder builder) {
             //challengeReduction = builder.comment("Number for challenge №").define("challengeReduction", "shop_table");
-            hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp and x1.3 damage").define("hardcore", false);
+            hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp and x2 damage").define("hardcore", false);
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
             challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, 0, 2100000000);
