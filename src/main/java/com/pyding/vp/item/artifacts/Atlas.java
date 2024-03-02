@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.network.PacketHandler;
@@ -34,6 +35,7 @@ public class Atlas extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player, SoundRegistry.GRAVITY.get());
         for(LivingEntity entity: VPUtil.ray(player,6,128,false)){
             if(Math.random() < 0.5)
                 player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);

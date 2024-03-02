@@ -11,6 +11,7 @@ import com.pyding.vp.item.artifacts.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ClientToServerPacket;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -55,6 +56,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -669,7 +671,14 @@ public class EventHandler {
         if(player.getPersistentData().getLong("VPAntiTP") > 0)
             event.setCanceled(true);
     }
-
+    @SubscribeEvent
+    public static void onMobSpawn(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof LivingEntity entity && !(entity instanceof Player) && entity.getHealth() > 190 && ConfigHandler.COMMON.hardcore.get()) {
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),2, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
+            entity.setHealth(entity.getMaxHealth());
+        }
+    }
     @SubscribeEvent
     public static void struck(EntityStruckByLightningEvent event){
         if(event.getEntity() instanceof Player player && !player.level.isClientSide){

@@ -60,19 +60,22 @@ public class ShieldOverlay {
                     if(vestige.vestigeNumber == 3){
                         info = String.valueOf(player.getPersistentData().getInt("VPGravity"));
                     }
-                    if(vestige.vestigeNumber == 5){
+                    if(vestige.vestigeNumber == 5 && vestige.isSpecialActive){
                         if(vestige.isStellar)
-                            info = (VPUtil.missingHealth(player)*8 + "%");
-                        else info = (VPUtil.missingHealth(player)*4 + "%");
+                            info = ((int)VPUtil.missingHealth(player)*8 + "%");
+                        else info = ((int)VPUtil.missingHealth(player)*4 + "%");
                     }
                     if(vestige.vestigeNumber == 6){
-                        info = String.valueOf(player.getPersistentData().getFloat("VPSaturation"));
+                        info = String.valueOf((int)player.getPersistentData().getFloat("VPSaturation"));
                     }
                     if(vestige.vestigeNumber == 7){
                         info = String.valueOf(player.getPersistentData().getInt("VPMadness"));
                     }
                     if(vestige.vestigeNumber == 11){
-                        info = String.valueOf(player.getPersistentData().getFloat("VPArmor"));
+                        info = String.valueOf((int)player.getPersistentData().getFloat("VPArmor"));
+                    }
+                    if(vestige.vestigeNumber == 15){
+                        info = String.valueOf(player.getPersistentData().getInt("VPDevourerHits"));
                     }
                     if(vestige.vestigeNumber == 16){
                         info = ((int)player.getPersistentData().getFloat("VPHealResFlower") + "%");
@@ -81,10 +84,59 @@ public class ShieldOverlay {
                         info = (catalyst.debuffDefence + "");
                     }
                     if(vestige.vestigeNumber == 19){
-                        info = (player.getPersistentData().getFloat("VPTrigonBonus") + "%");
+                        info = ((int)player.getPersistentData().getFloat("VPTrigonBonus") + "%");
+                    }
+                    String durationUlt = "";
+                    String durationSpecial = "";
+                    if(vestige.vestigeNumber == 8){
+                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationUlt = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 20){
+                        int number = Math.round(vestige.time-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationSpecial = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 2){
+                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationUlt = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 1){
+                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationUlt = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 13){
+                        int number = Math.round(vestige.time-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationSpecial = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 7){
+                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationUlt = String.valueOf(number);
                     }
                     if(!info.isEmpty())
-                    fontRenderer.draw(poseStack, ""+info, x+(132+i*40),y-30, vestige.color.getColor());
+                        fontRenderer.draw(poseStack,""+info, x+(132+i*40),y-33, vestige.color.getColor());
+                    if(!durationSpecial.isEmpty())
+                        fontRenderer.draw(poseStack,""+durationSpecial, x+(132+i*40),y-33, 0x00BFFF);
+                    if(!durationUlt.isEmpty())
+                        fontRenderer.draw(poseStack,""+durationUlt, x+(132+i*40),y-33, 0x9932CC);
+                    info = "";
+                    if(vestige.vestigeNumber == 15){
+                        int show = player.getPersistentData().getInt("VPDevourerShow");
+                        if(show > 0)
+                            fontRenderer.draw(poseStack,""+show, x+(132+i*40),y-43, 0x54717B);
+                    }
+                    if(vestige.vestigeNumber == 13){
+                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            info = String.valueOf(number);
+                    }
+                    if(!info.isEmpty())
+                        fontRenderer.draw(poseStack,""+info, x+(132+i*40),y-43, 0x9932CC);
                 }
             }
         }

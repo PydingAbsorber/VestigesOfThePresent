@@ -55,6 +55,9 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> TELEPORT1 = registerSoundEvent("teleport1");
     public static RegistryObject<SoundEvent> TELEPORT2 = registerSoundEvent("teleport2");
     public static RegistryObject<SoundEvent> TRIGON2 = registerSoundEvent("trigon2");
+    public static RegistryObject<SoundEvent> FLESH = registerSoundEvent("flesh");
+    public static RegistryObject<SoundEvent> FLESH2 = registerSoundEvent("flesh2");
+    public static RegistryObject<SoundEvent> GRAVITY = registerSoundEvent("gravity");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
