@@ -54,6 +54,7 @@ public class Ball extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player, SoundRegistry.BOLT.get());
         for(LivingEntity entity: VPUtil.getEntities(player,30,true)){
             float shield = VPUtil.getShield(entity);
             if(shield > 0 || entity.getHealth() < player.getHealth()){

@@ -2,31 +2,22 @@ package com.pyding.vp.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.type.util.ICuriosHelper;
-
-import java.awt.*;
-import java.util.List;
 
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -46,14 +37,11 @@ public class VPCommands {
                         .then(Commands.literal("cooldown")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    ICuriosHelper api = CuriosApi.getCuriosHelper();
-                                    List list = api.findCurios(player, (stackInSlot) -> {
-                                        if(stackInSlot.getItem() instanceof Vestige vestige) {
+                                    for(ItemStack stack: VPUtil.getVestigeList(player)){
+                                        if(stack.getItem() instanceof Vestige vestige) {
                                             vestige.refresh(player);
-                                            return true;
                                         }
-                                        return false;
-                                    });
+                                    }
                                     player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                                         cap.clearCoolDown(player);
                                     });
@@ -175,7 +163,7 @@ public class VPCommands {
                                 )
                         )
                 )
-                .then(Commands.literal("addShields")
+                .then(Commands.literal("addShields").requires(sender -> sender.hasPermission(2))
                         .then(Commands.argument("shields", FloatArgumentType.floatArg())
                                 .then(Commands.argument("overshields", FloatArgumentType.floatArg())
                                     .executes(context -> {
@@ -190,6 +178,20 @@ public class VPCommands {
                                     })
                                 )
                         )
+                )
+                .then(Commands.literal("enableHardcore").requires(sender -> sender.hasPermission(2))
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            if(ConfigHandler.COMMON.hardcore.get()) {
+                                ConfigHandler.COMMON.hardcore.set(false);
+                                player.sendSystemMessage(Component.literal("Hardcore mode disabled. Please type /reload if changes wasn't applied."));
+                            }
+                            else {
+                                ConfigHandler.COMMON.hardcore.set(true);
+                                player.sendSystemMessage(Component.literal("Hardcore mode enabled. Please type /reload if changes wasn't applied."));
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
         );
     }

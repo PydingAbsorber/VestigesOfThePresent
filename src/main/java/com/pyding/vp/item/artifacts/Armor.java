@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,6 +29,7 @@ public class Armor extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player, SoundRegistry.FLESH.get());
         player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false), 60 * 20));
         int debuffCount = 1;
         Iterator<MobEffectInstance> iterator = player.getActiveEffects().iterator();
@@ -46,6 +48,7 @@ public class Armor extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player, SoundRegistry.FLESH2.get());
         int pain = (int)player.getPersistentData().getFloat("VPArmor");
         VPUtil.repairAll(player,pain);
         player.getPersistentData().putFloat("VPArmor",0);

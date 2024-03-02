@@ -1,7 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.entity.models.BlackHoleModel;
@@ -37,7 +37,7 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
         poseStack.scale(scale,scale,scale);
         //poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
         float angle = (System.currentTimeMillis() % 36000) / 2.0f;
-        poseStack.mulPose(Vector3f.YP.rotationDegrees(-angle));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
         Player player = Minecraft.getInstance().player;
         BlackHoleModel<LivingEntity> model = new BlackHoleModel<>(BlackHoleModel.createBodyLayer().bakeRoot());
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);

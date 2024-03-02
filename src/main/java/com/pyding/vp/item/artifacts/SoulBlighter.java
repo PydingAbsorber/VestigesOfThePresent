@@ -55,6 +55,7 @@ public class SoulBlighter extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.MAGIC3.get());
         ItemStack stack = VPUtil.getVestigeStack(this,player);
         if(stack.getOrCreateTag().contains("entityData")){
             CompoundTag entityData = stack.getTag().getCompound("entityData");
@@ -74,7 +75,8 @@ public class SoulBlighter extends Vestige{
                 VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
             level.addFreshEntity(entity);
             if(isStellar)
-                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+            cdUltimateActive = (int) (ultimateCd*0.2);
         } else {
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
@@ -92,7 +94,7 @@ public class SoulBlighter extends Vestige{
                         VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                     entity.remove(Entity.RemovalReason.DISCARDED);
                     if(isStellar)
-                        player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+                        player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
                 }
                 break;
             }
@@ -136,7 +138,7 @@ public class SoulBlighter extends Vestige{
         if (!fuckNbtCheck1) {
             super.onUnequip(slotContext, newStack, stack);
             if(stack.getOrCreateTag().contains("entityData") && isStellar)
-                player1.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+                player1.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
         } else fuckNbtCheck1 = false;
     }
 
@@ -144,6 +146,8 @@ public class SoulBlighter extends Vestige{
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
         if(!fuckNbtCheck2) {
+            if(stack.getOrCreateTag().contains("entityData") && isStellar)
+                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
             super.onEquip(slotContext, prevStack, stack);
         } else fuckNbtCheck2 = false;
     }
@@ -153,8 +157,8 @@ public class SoulBlighter extends Vestige{
         Player player1 = (Player) slotContext.entity();
         if(stack.getOrCreateTag().contains("entityData") && player1.tickCount % 20 == 0){
             VPUtil.regenOverShield(player1,stack.getOrCreateTag().getFloat("VPMaxHealth")*0.1f);
-            if(!player1.getAttributes().hasModifier(Attributes.MAX_HEALTH,UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"))){
-                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+            if(!player1.getAttributes().hasModifier(Attributes.MAX_HEALTH,UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"))){
+                player1.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
             }
         }
         for (LivingEntity entity: VPUtil.getEntities(player1,50,false)){
@@ -164,6 +168,8 @@ public class SoulBlighter extends Vestige{
                 VPUtil.spawnParticles(player1, ParticleTypes.SOUL,entity.getX(),entity.getY(),entity.getZ(),4,0,-0.5,0);
                 if(entity instanceof Mob mob) {
                     mob.getBrain().removeAllBehaviors();
+                    if(mob.getTarget() == player1)
+                        mob.setTarget(null);
                 }
                 if(player1.getLastHurtMob() != null && player1.getLastHurtMob() != entity && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity instanceof Mob mob && entity.distanceTo(player1) < 30){
                     mob.setTarget(player1.getLastHurtMob());

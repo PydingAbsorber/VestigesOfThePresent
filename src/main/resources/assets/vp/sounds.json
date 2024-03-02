@@ -198,5 +198,20 @@
     "sounds": [
       "vp:trigon2"
     ]
+  },
+  "flesh": {
+    "sounds": [
+      "vp:flesh"
+    ]
+  },
+  "flesh2": {
+    "sounds": [
+      "vp:flesh2"
+    ]
+  },
+  "gravity": {
+    "sounds": [
+      "vp:gravity"
+    ]
   }
 }

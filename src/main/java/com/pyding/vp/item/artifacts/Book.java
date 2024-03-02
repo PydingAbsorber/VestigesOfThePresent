@@ -26,10 +26,10 @@ public class Book extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.MAGIC_EFFECT2.get());
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,30,30,30,false)){
             VPUtil.negativnoEnchant(entity);
         }
-        VPUtil.play(player,SoundRegistry.MAGIC_EFFECT2.get());
         VPUtil.spawnParticles(player, ParticleTypes.ENCHANT,10,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }

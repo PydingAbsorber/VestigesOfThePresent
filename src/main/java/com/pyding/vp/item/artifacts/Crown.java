@@ -24,7 +24,8 @@ public class Crown extends Vestige{
         VPUtil.play(player,SoundRegistry.CROWN.get());
         for(LivingEntity entity : VPUtil.getMonstersAround(player,20,6,20)){
             VPUtil.adaptiveDamageHurt(entity,player,entity.getPersistentData().getBoolean("VPCrownDR"),300);
-            VPUtil.spawnParticles(player, ParticleTypes.GLOW,entity.getX(),entity.getY(),entity.getZ(),16,0,0.5,0);
+            VPUtil.spawnParticles(player, ParticleTypes.GLOW,entity.getX(),entity.getY(),entity.getZ(),8,0,0.5,0);
+            entity.getPersistentData().putInt("VPCrownCycle",5);
         }
         super.doSpecial(seconds, player, level);
     }

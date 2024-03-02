@@ -309,7 +309,7 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 3: {
-                        text = cap.getBiomesFound();
+                        text = VPUtil.getBiomesLeft(cap.getBiomesFound()).toString();
                         break;
                     }
                     case 6: {
@@ -454,7 +454,8 @@ public class Vestige extends Item implements ICurioItem {
 
     public void doSpecial(long seconds, Player player, Level level){}
     public void doUltimate(long seconds, Player player, Level level){
-        player.getPersistentData().putInt("VPGravity",0);
+        if(vestigeNumber != 3)
+            player.getPersistentData().putInt("VPGravity",0);
     }
     public void specialEnds(Player player){
 

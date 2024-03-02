@@ -40,7 +40,10 @@ public class Mark extends Vestige{
     @Override
     public int setUltimateActive(long seconds, Player player) {
         if(player.getHealth() < player.getMaxHealth()*0.3){
-            seconds += 10 * 1000;
+            seconds += 15 * 1000;
+        }
+        else if(player.getHealth() > player.getMaxHealth()*0.5){
+            seconds += (long) Math.min(10,player.getPersistentData().getInt("VPMadness")) * 1000;
         }
         return super.setUltimateActive(seconds, player);
     }
@@ -51,7 +54,8 @@ public class Mark extends Vestige{
         if(player.getHealth() > player.getMaxHealth()*0.2)
             player.setHealth(player.getHealth()-player.getMaxHealth()*0.2f);
         else player.setHealth(1);
-        player.getPersistentData().putInt("VPMadness",player.getPersistentData().getInt("VPMadness")+1);
+        if(player.getPersistentData().getInt("VPMadness") < 10)
+            player.getPersistentData().putInt("VPMadness",player.getPersistentData().getInt("VPMadness")+1);
         VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,1,1,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level);
     }

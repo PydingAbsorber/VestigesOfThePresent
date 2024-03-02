@@ -127,7 +127,7 @@
   "vp.get.2": "Defeat all hostile creatures in the modpack.",
 
 
-  "vp.passive.3": "Dealing fall damage has a 50% chance to grant 1 Gravity. \nEach Gravity provides +2% damage to Ultimates. \nMaximum Gravity numbers are 30.",
+  "vp.passive.3": "Dealing fall damage has a 20% chance to grant 1 Gravity. \nEach Gravity provides +2% damage to Ultimates. \nMaximum Gravity numbers are 30.",
   "vp.special.3": "Deals 50% damage in a small area ahead, forcibly disables flight, and drops to the ground.",
   "vp.ultimate.3": "Upon having Gravities, creates a small black hole pulling in enemies. \nRadius, damage, and duration of the black hole depend on the number of Gravities.",
   "vp.damagetype.3": "falling, void",
@@ -142,7 +142,7 @@
   "vp.passive.5": "Terrifying aura reduces the owner's and all surroundings healing by 1% for every 1% of missing HP, also boosts speed and damage with it. \nEach hit to enemy with Healing Debt will increase it by 1%. \nIf health lower then 50%, Ultimate becomes stronger by 2 times",
   "vp.special.5": "Switchable \nGradually consumes HP down to 1, increasing damage by 4% for every 1% missing HP.",
   "vp.ultimate.5": "Applies a Healing Debt to oneself and all creatures within the 30 blocks afterwards radius for 300% of the owner's Max HP. \n(Healing Debt prevents healing until depleted, each healing will reduce it 1 to 1). \nAdditionally deals 300% damage.",
-  "vp.damagetype.5": "armor-piercing",
+  "vp.damagetype.5": "sonic boom",
   "vp.get.5": "Kill 100 creatures in hell, having no more than 1 HP. Creature must have max health or attack damage higher, then yours",
 
   "vp.passive.6": "Increases all healing by 40%. \nIf current HP is below 50%, the bonus doubles. \nWhen Shields are active gives +0.1% healing bonus and +0.1% duration to next Ultimate(only self) for each Saturation stack",
@@ -150,13 +150,13 @@
   "vp.ultimate.6": "For the next 10 seconds after activation, each Over Healing will increase the Saturation stack by 1 to 1 ratio(400 max). \nStacks reset after cooldown.",
   "vp.get.6": "Consume all food in the modpack.",
 
-  "vp.passive.7": "Stack of Madness turns 10% of damage dealt into bypass magic against opponents with less than 50% HP. \nStack of Madness can be consumed with 50% chance when dealing damage",
-  "vp.special.7": "Sacrifice 20% HP for 1 stack of Madness.",
-  "vp.ultimate.7": "For the next 5 seconds, healing becomes Over Healing, and instead of receiving damage, it accumulates. \nAfter expiration (all accumulated damage - all accumulated Over Heal) is dealt at once. \nIf HP is less than 30% upon activation, time increases to 10 seconds and damage, healing, speed, attack speed increase by 200%.",
+  "vp.passive.7": "Next attack wil duplicate for each stack of Madness. \nIf target has lower then 50% HP stacks doesn't consume with 50% chance.",
+  "vp.special.7": "Sacrifice 20% HP for 1 stack of Madness up to 10.",
+  "vp.ultimate.7": "For the next 5 seconds, healing becomes Over Healing, and instead of receiving damage, it accumulates. \nAfter expiration (all accumulated damage - all accumulated Over Heal) is dealt at once. \nIf HP is less than 30% upon activation, time increases by 15 seconds and damage, healing, speed, attack speed increase by 200%. \nIf HP is higher then 50%, time increases by up to 10 seconds for each stack of Madness",
   "vp.get.7": "Enchant 15 items with curses.",
 
   "vp.passive.8": "Each point of defense gives 1% evasion (cannot exceed 69%).",
-  "vp.special.8": "Increases the speed attribute by 1. \nAfter each 0.05 of speed attribute provides +1% evasion to Passive.",
+  "vp.special.8": "Increases the speed attribute by 1. \nAfter each 0.05 of speed attribute provides +1% evasion to Passive (cannot exceed 69%).",
   "vp.ultimate.8": "For the next 40 seconds, in case of unsuccessful evasion, there will be a chance for a second evasion (1% for every 10 experience levels, up to 90%).",
   "vp.get.8": "Tame all kind of Cats.",
 
@@ -169,7 +169,7 @@
   "vp.special.10": "Special was pressed with Eye of Ender in hands: setting the return point. \nIn other cases: teleport to the creature by eye sight, deal 400% damage and prevent teleportation for 30 sec.",
   "vp.ultimate.10": "Teleport to a random world, where you've been at least once, at random coordinates within world's borders x, z and y 0-250.",
   "vp.get.10": "Kill an Enderman with each modpack tool.",
-  "vp.damagetype.10": "bypass armor, bypass magic",
+  "vp.damagetype.10": "dragon breath",
 
   "vp.passive.11": "Reduces all incoming damage by 40 + Pain Accumulation. \nPain Accumulation doesn't increase after evasion. \nPain Accumulation nullifies when Over Healing",
   "vp.special.11": "Applies a random debuff for 1 minute and increases the Pain Accumulation by 100. \nDeals 100% damage and applies 100% Heal Debt for each debuff you have.",
@@ -181,7 +181,7 @@
   "vp.special.12": "All nearest players become Disenchanted for 15 seconds.",
   "vp.ultimate.12": "For the next 60 seconds, upon death by Disenchanted player, all their equipment re-enchants into curses.",
   "vp.get.12": "Kill another Player or Warden while wearing equipment with a total of 10 curses (enchantments).",
-  "vp.damagetype.12": "bypass enchantments",
+  "vp.damagetype.12": "magic",
 
   "vp.passive.13": "Each slain monster under the effect of Special grants additional second loot table (x2 loot). \nEach Mortage (from Ultimate) provides a 1% chance for x4 loot. \nIf the chance triggers, it divides by 10 for x6 loot and so on.",
   "vp.special.13": "Empowers the monster you're looking at until Special ends. \nThe monster gains vulnerability to one random damage type while becoming immune to the others.",
@@ -204,8 +204,8 @@
   "vp.get.16": "Collect all modpack flowers. \nIf any flower was placed by the player challenge will go on cooldown and reset.",
 
   "vp.passive.17": "A creature that dies within a 10-block radius of the carrier will spread all negative effects to nearby creatures within the same radius, including the carrier.",
-  "vp.special.17": "Extends the duration of all debuffs on all nearby creatures by 15%, and also has a 20% chance to increase their level by 1.",
-  "vp.ultimate.17": "Steals all buffs from all nearby creatures whose level does not exceed 4, each stolen buff from a creature applies a random debuff of level 1-4 to it for 10 seconds.",
+  "vp.special.17": "Extends the duration of all debuffs on all nearby creatures by 15%, and also has a 20% chance to increase their level by 1. \nGives random buff of modpack with 1-5 lvl for 60-200 seconds.",
+  "vp.ultimate.17": "Steals all buffs from all nearby creatures whose level does not exceed 4. \nEach stolen buff from a creature applies a random debuff of level 1-4 to it for 10 seconds and gives +10% duration to all wearer buffs.",
   "vp.get.17": "Apply every collection effect to oneself.",
 
   "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area.",
@@ -227,7 +227,7 @@
 
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
   "vp.stellar.2": "Special: Each slain enemy with Special will grant a shield of 10% of its max HP (stackable).",
-  "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10%.",
+  "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10% and give Gravitation stack.",
   "vp.stellar.4": "Special: Creatures killed by the owner explode with a 50% chance without affecting objects and blocks, dealing 300% damage within a radius of 8 blocks.",
   "vp.stellar.5": "Passive: Each Over Healing on an opponent under the aura effect will break all their equipment by 5%.",
   "vp.stellar.6": "Special: also adds shield with amount of 300% from max health(not stackable).",
@@ -241,7 +241,7 @@
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance.",
   "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get heal and shields, higher then 30 - current hp becomes max hp. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the carrier exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
   "vp.stellar.16": "Ultimate: Creatures under the shield receive physical damage absorption 90% and breaking shield will hurt breaker with amount of max initiate shields.",
-  "vp.stellar.17": "Special: grants immunity to the next 5 debuffs. Ultimate: cancels the level restriction.",
+  "vp.stellar.17": "Special: redirects next 5 debuffs to all entities in 15 blocks radius. \nUltimate: cancels the level restriction.",
   "vp.stellar.18": "Ultimate: every 10% damage bonus adds 1 Paragon damage against wet opponents.",
   "vp.stellar.19": "Ultimate: will also increase maximum HP by 1% for every 2% of missing Over Shield until cd ends. \nOver Shields will regenerate from overhealing until removed.",
   "vp.stellar.20": "Increases the carrier's max HP by 30% of the Stored creature's max HP. \nAll received damage, healing, shields, super shields, and healing debt will be transferred to the Summoned creature within a 30-block radius.",

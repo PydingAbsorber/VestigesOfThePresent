@@ -77,7 +77,7 @@ public class BlackHole extends Projectile {
             if(entity != player) {
                 VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
                 //VPUtil.moveSpiral(entity,blockPosition(),1);
-                if (entity.distanceTo(this) <= Math.max(10,gravity-10))
+                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && player != null)
                 VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),10/entity.distanceTo(this),3);
             }
         }

@@ -51,9 +51,9 @@ public class Chaos extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.CHAOS_CORE.get());
         Random random = new Random();
         player.getPersistentData().putInt("VPChaos",random.nextInt(10));
-        VPUtil.play(player,SoundRegistry.CHAOS_CORE.get());
         VPUtil.spawnParticles(player, ParticleTypes.NAUTILUS,12,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }

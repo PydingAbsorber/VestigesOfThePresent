@@ -87,7 +87,7 @@ public class VestigesOfPresent
         VPUtil.registerCurioType("belt",1,false,null);
         VPUtil.registerCurioType("necklace",1,false,null);*/
         VPUtil.initEntities();
-        VPUtil.initBiomes();
+        //VPUtil.initBiomes();
         VPUtil.initItems();
         VPUtil.initBlocks();
         VPUtil.initFlowers();
@@ -111,7 +111,7 @@ public class VestigesOfPresent
             event.accept(ModItems.EARS);
             event.accept(ModItems.MIDAS);
             event.accept(ModItems.ANOMALY);
-            event.accept(ModItems.ATLAS);
+            event.accept(ModItems.ARMOR);
             event.accept(ModItems.BOOK);
             event.accept(ModItems.PRISM);
             event.accept(ModItems.CHAOS);

@@ -28,10 +28,10 @@ public class Anemoculus extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         if(!isUltimateActive) {
+            VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
             for (LivingEntity entity : VPUtil.getEntities(player, 8)) {
                 VPUtil.liftEntity(entity, VPUtil.commonPower);
             }
-            VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
         }
         else {
             if(Math.random() < 0.5)
@@ -47,10 +47,10 @@ public class Anemoculus extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.WIND3.get());
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
         player.onUpdateAbilities();
-        VPUtil.play(player,SoundRegistry.WIND3.get());
         VPUtil.spawnParticles(player, ParticleTypes.CAMPFIRE_COSY_SMOKE,3,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }

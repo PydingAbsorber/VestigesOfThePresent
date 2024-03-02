@@ -44,6 +44,10 @@ public class Catalyst extends Vestige{
         }
         if(isStellar)
             debuffDefence = 5;
+        Random random = new Random();
+        int duration = random.nextInt(140)+60;
+        int power = random.nextInt(5);
+        player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(true),duration*20,power));
         super.doSpecial(seconds, player, level);
     }
 
@@ -51,12 +55,14 @@ public class Catalyst extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player, SoundRegistry.CATALYST2.get());
         Random random = new Random();
+        int stolen = 0;
         for(LivingEntity entity: VPUtil.getEntities(player,25,false)){
             List<MobEffectInstance> list = new ArrayList<>();
             for(MobEffectInstance instance: VPUtil.getEffectsHas(entity, true)){
                 if(instance.getAmplifier() <= 4 || isStellar) {
                     list.add(instance);
                     entity.removeEffect(instance.getEffect());
+                    stolen++;
                 }
             }
             for(MobEffectInstance effectInstance: list){
@@ -64,6 +70,18 @@ public class Catalyst extends Vestige{
                 entity.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false),10*20,random.nextInt(3)));
             }
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE_COLUMN_UP,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
+        }
+        if(stolen > 0){
+            List<MobEffectInstance> list = new ArrayList<>();
+            for(MobEffectInstance instance: VPUtil.getEffectsHas(player, true)){
+                if(instance.getAmplifier() <= 4 || isStellar) {
+                    list.add(instance);
+                    player.removeEffect(instance.getEffect());
+                }
+            }
+            for(MobEffectInstance effectInstance: list){
+                player.addEffect(new MobEffectInstance(effectInstance.getEffect(),effectInstance.getDuration()*(1+stolen/10),effectInstance.getAmplifier()));
+            }
         }
         super.doUltimate(seconds, player, level);
     }
@@ -74,6 +92,9 @@ public class Catalyst extends Vestige{
         if(debuffDefence > 0) {
             debuffDefence--;
             for (MobEffectInstance instance : VPUtil.getEffectsHas(player, false)){
+                for(LivingEntity livingEntity: VPUtil.getEntitiesAround(player,15,15,15,false)){
+                    livingEntity.addEffect(new MobEffectInstance(instance.getEffect(),instance.getDuration(),instance.getAmplifier()));
+                }
                 player.removeEffect(instance.getEffect());
                 break;
             }

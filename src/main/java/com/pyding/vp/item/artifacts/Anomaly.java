@@ -33,6 +33,7 @@ public class Anomaly extends Vestige{
     public boolean fuckNbt2 = false;
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
+        VPUtil.play(player,SoundRegistry.TELEPORT1.get());
         if(player.getMainHandItem().getItem() instanceof EnderEyeItem){
             fuckNbt1 = true;
             fuckNbt2 = true;
@@ -51,7 +52,6 @@ public class Anomaly extends Vestige{
             }
         }
         VPUtil.spawnParticles(player, ParticleTypes.PORTAL,3,1,0,-0.1,0,1,false);
-        VPUtil.play(player,SoundRegistry.TELEPORT1.get());
         super.doSpecial(seconds, player, level);
     }
 
@@ -69,7 +69,7 @@ public class Anomaly extends Vestige{
                 }
                 else {
                     String key = cap.getRandomDimension();
-                    ServerLevel serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(VPUtil.getWorldKey(key));
+                    ServerLevel serverLevel = serverPlayer.getServer().getLevel(VPUtil.getWorldKey(key));
                     if (serverLevel == null) {
                         serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(Level.OVERWORLD);
                         cap.removeDimension(key);

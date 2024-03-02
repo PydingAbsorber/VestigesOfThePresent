@@ -110,7 +110,7 @@ public class MaskOfDemon extends Vestige{
                     tag.putBoolean("MaskStellar",true);
                 if(isStellar && player.tickCount % 20 == 0 && player.getHealth() <= player.getMaxHealth()*0.5){
                     VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.1f,1,false);
-                    VPUtil.spawnParticles(player, ParticleTypes.HEART,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
+                    VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }
                 entity.getPersistentData().merge(tag);
             }

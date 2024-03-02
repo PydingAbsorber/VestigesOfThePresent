@@ -1,6 +1,5 @@
 package com.pyding.vp.item;
 
-import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.item.artifacts.*;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -8,8 +7,10 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import static com.pyding.vp.VestigesOfPresent.MODID;
+
 public class ModItems {
-    public static DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, VestigesOfPresent.MODID);
+    public static DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
     public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new Item(new Item.Properties().stacksTo(1)));
     //public static final RegistryObject<Item> ARTIFACT = ITEMS.register("artifact", () -> new Vestige(new Item.Properties().stacksTo(1).tab(null)));
@@ -38,4 +39,8 @@ public class ModItems {
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
+
+
+
+
 }

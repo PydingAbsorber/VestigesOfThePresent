@@ -17,6 +17,7 @@ import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Prism extends Vestige{
     public Prism(){
@@ -37,7 +38,7 @@ public class Prism extends Vestige{
                 continue;
             if (entity != null) {
                 entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime);
-                entity.getPersistentData().putString("VPPrismDamage", VPUtil.generateRandomDamageType());
+                entity.getPersistentData().putInt("VPPrismDamage", new Random().nextInt(VPUtil.playerDamageSources(player,player).size()));
                 VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, entity.getX(), entity.getY(), entity.getZ(), 20, 0, 0.5, 0);
                 found = true;
                 break;

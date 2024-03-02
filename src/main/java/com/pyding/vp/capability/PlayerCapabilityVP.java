@@ -269,7 +269,8 @@ public class PlayerCapabilityVP {
     public void addBiome(Player player){
         ResourceLocation key = VPUtil.getCurrentBiome(player);
         if(key != null) {
-            String biomeName = key.toDebugFileName();
+            //String biomeName = key.toDebugFileName();
+            String biomeName = key.getPath();
             if (!this.biomesFound.contains(biomeName)) {
                 this.biomesFound += biomeName + ",";
                 setChallenge(3, player);
@@ -507,12 +508,8 @@ public class PlayerCapabilityVP {
                 return VPUtil.getDamageKinds().size()-reduce;
             case 12:
                 return 10-reduce;
-            case 13: {
-                int max = 0;
-                for(String ignored : VPUtil.damageSubtypes().split(","))
-                    max++;
-                return max-reduce;
-            }
+            case 13:
+                return VPUtil.damageTypes().size();
             case 14:
                 return 6-reduce;
             case 15:
@@ -522,7 +519,7 @@ public class PlayerCapabilityVP {
             case 17:
                 return VPUtil.getEffects().size()-reduce;
             case 18:
-                return 10-reduce;
+                return 20-reduce;
             case 19:
                 return 1000000-reduce;
             case 20:

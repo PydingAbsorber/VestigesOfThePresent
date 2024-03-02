@@ -58,13 +58,13 @@ public class Midas extends Vestige{
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.MAGIC1.get());
         player.getPersistentData().putFloat("VPMidasTouch",10);
-        VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,8,1,0,-0.1,0,1,false);
+        VPUtil.spawnParticles(player, ParticleTypes.GLOW,8,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level);
     }
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
-        VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,8,1,0,-0.1,0,1,false);
+        VPUtil.spawnParticles(player, ParticleTypes.GLOW,8,1,0,-0.1,0,1,false);
         ItemStack stack = VPUtil.getVestigeStack(this,player);
         int kills = stack.getOrCreateTag().getInt("VPKills");
         if(Math.random() < (0.01/100)*kills) {

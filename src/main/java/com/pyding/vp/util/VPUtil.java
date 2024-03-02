@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -51,7 +52,10 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSources;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -60,10 +64,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -180,14 +183,27 @@ public class VPUtil {
     }
 
     public static List<Item> items = new ArrayList<>();
-    public static void initBiomes(){
-        for (Biome biome : ForgeRegistries.BIOMES.getValues()){
-            biomeNames.add(biome);
-        }
+    private static Set<ResourceKey<Biome>> biomeNames = new HashSet<>();
+    public static void initBiomes(Level level){
+        //biomeNames.addAll(ForgeRegistries.BIOMES.getKeys());
+        biomeNames = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
     }
-    private static List<Biome> biomeNames = new ArrayList<>();
-    public static List getBiomes(){
-        return biomeNames;
+    public static List<ResourceLocation> getBiomes(){
+        List<ResourceLocation> list = new ArrayList<>();
+        for(ResourceKey<Biome> key: biomeNames){
+            list.add(key.location());
+        }
+        return list;
+    }
+
+    public static List getBiomesLeft(String list){
+        List<String> biomeList = new ArrayList<>(Arrays.asList(list.split(",")));
+        List<String> allList = new ArrayList<>();
+        for(ResourceLocation location: getBiomes()){
+            allList.add(location.getPath());
+        }
+        allList.removeAll(biomeList);
+        return allList;
     }
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
 
@@ -411,15 +427,16 @@ public class VPUtil {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
+        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
         if(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
             percentBonus /= 20;
-        entity.hurt(source,getAttack(player,hasDurability)*(percent+percentBonus));
+        entity.hurt(damageSource,getAttack(player,hasDurability)*(percent+percentBonus));
     }
 
-    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean pierceHrt){
+    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
         if(isFriendlyFireBetween(entity,player))
             return;
-        if(pierceHrt)
+        if(invulPierce)
             entity.invulnerableTime = 0;
         ItemStack stack = player.getMainHandItem();
         float percentBonus = 1;
@@ -490,8 +507,8 @@ public class VPUtil {
     public static List<String> getDamageDoLeft(String list){
         List<String> damageList = new ArrayList<>(Arrays.asList(list.split(",")));
         List<String> allList = new ArrayList<>();
-        for(String name: damageSubtypes().split(",")){
-            allList.add(name);
+        for(TagKey<DamageType> key: damageTypes()){
+            allList.add(key.location().getPath());
         }
         allList.removeAll(damageList);
         return allList;
@@ -537,6 +554,7 @@ public class VPUtil {
         return result.size() > 0;
     }
 
+
     public static ItemStack getVestigeStack(Vestige vestige,Player player){
         List<SlotResult> result = new ArrayList<>();
         CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
@@ -544,11 +562,30 @@ public class VPUtil {
         });
         return result.get(0).stack();
     }
-
+    public static ItemStack getVestigeStack(Class vestige,Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem().getClass() == vestige));
+        });
+        if(result.size() > 0)
+            return result.get(0).stack();
+        return null;
+    }
+    public static List<ItemStack> getFirstVestige(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            handler.findFirstCurio(itemStack -> itemStack.getItem() instanceof Vestige).ifPresent(result::add);
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
+    }
     public static List<ItemStack> getVestigeList(Player player){
         List<SlotResult> result = new ArrayList<>();
         CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() == vestige));
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Vestige));
         });
         List<ItemStack> stacks = new ArrayList<>();
         for(SlotResult hitResult: result){
@@ -807,9 +844,15 @@ public class VPUtil {
 
     public static void adaptiveDamageHurt(LivingEntity entity, Player player, boolean adopted,float percent){
         int damage = entity.getPersistentData().getInt("VPCrownDamage");
-        DamageSource source = playerDamageSources(player,player).get(damage);
+        int cycle = entity.getPersistentData().getInt("VPCrownCycle");
+        DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
+        while(entity.fireImmune() && source.is(DamageTypeTags.IS_FIRE) || entity.ignoreExplosion() && source.is(DamageTypeTags.IS_EXPLOSION)){
+            damage++;
+            source = playerDamageSources(player,entity).get(damage);
+        }
         dealDamage(entity,player,source,percent,2);
-        if(adopted) {
+        if(adopted  && cycle > 0) {
+            entity.getPersistentData().putInt("VPCrownCycle",cycle-1);
             if(damage == playerDamageSources(player,player).size())
                 damage = 0;
             entity.getPersistentData().putInt("VPCrownDamage", damage+1);
@@ -1024,7 +1067,7 @@ public class VPUtil {
     }
 
     public static ResourceKey<Level> getWorldKey(String name){
-        ResourceKey<Level> key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation(name)), new ResourceLocation(name));
+        ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(name));
         return key;
     }
 
@@ -1154,8 +1197,10 @@ public class VPUtil {
     }
     public static void damageAdoption(LivingEntity entity, LivingDamageEvent event){
         int damage = entity.getPersistentData().getInt("VPPrismDamage");
+        if(damage == 0)
+            return;
         List<DamageSource> sources = playerDamageSources(entity,entity);
-        DamageSource weak = sources.get(damage);
+        DamageSource weak = sources.get(damage-1);
         System.out.println("prism");
         System.out.println(weak);
         System.out.println(event.getSource());
@@ -1220,20 +1265,22 @@ public class VPUtil {
         }
         return attacker.isAlliedTo(target);
     }
-
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
         if(!player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
+        Random random = new Random();
         for(int i = 0; i < count; i++) {
-            if(Math.random() < 0.5)
-                x += Math.random()*2;
-            else x -= Math.random()*2;
-            if(Math.random() < 0.5)
-                z += Math.random()*2;
-            else z -= Math.random()*2;
-            if(Math.random() < 0.5)
-                y += Math.random()*2;
-            else y -= Math.random()*2;
+            double numba = random.nextInt(2);
+            if(Math.random() > 0.5) {
+                x += numba;
+                y += numba;
+                z += numba;
+            }
+            else {
+                x -= numba;
+                y -= numba;
+                z -= numba;
+            }
             player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
         }
     }
@@ -1247,19 +1294,21 @@ public class VPUtil {
         double endX = player.getX() + radius;
         double endY = player.getY() + radius;
         double endZ = player.getZ() + radius;
-
+        Random random = new Random();
         for (double x = startX; x <= endX; x += 1.0) {
             for (double y = startY; y <= endY; y += 1.0) {
                 for (double z = startZ; z <= endZ; z += 1.0) {
-                    if(Math.random() < 0.5)
-                        x += Math.random()*2;
-                    else x -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        z += Math.random()*2;
-                    else z -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        y += Math.random()*2;
-                    else y -= Math.random()*2;
+                    double numba = random.nextInt(2);
+                    if(Math.random() > 0.5) {
+                        x += numba;
+                        y += numba;
+                        z += numba;
+                    }
+                    else {
+                        x -= numba;
+                        y -= numba;
+                        z -= numba;
+                    }
                     player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
                 }
             }
@@ -1269,6 +1318,7 @@ public class VPUtil {
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
         if(!player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
+        Random random = new Random();
         BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);
         double startX = pos.getX() - radius;
         double startY = pos.getY() - radius;
@@ -1280,15 +1330,17 @@ public class VPUtil {
         for (double x = startX; x <= endX; x += 1.0) {
             for (double y = startY; y <= endY; y += 1.0) {
                 for (double z = startZ; z <= endZ; z += 1.0) {
-                    if(Math.random() < 0.5)
-                        x += Math.random()*2;
-                    else x -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        z += Math.random()*2;
-                    else z -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        y += Math.random()*2;
-                    else y -= Math.random()*2;
+                    double numba = random.nextInt(2);
+                    if(Math.random() > 0.5) {
+                        x += numba;
+                        y += numba;
+                        z += numba;
+                    }
+                    else {
+                        x -= numba;
+                        y -= numba;
+                        z -= numba;
+                    }
                     player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
                 }
             }
@@ -1315,7 +1367,9 @@ public class VPUtil {
         if (hitResult.getType() == BlockHitResult.Type.BLOCK) {
             finalBlockPos = hitResult.getBlockPos();
         } else {
-            finalBlockPos = new BlockPos(what);
+            Vec3 end = eyePosition.add(entity.getLookAngle().scale(distance));
+            finalBlockPos = new BlockPos((int) end.x,(int)end.y,(int)end.z);
+            //finalBlockPos = new BlockPos((int) (viewDirection.x * distance), (int) (viewDirection.y * distance), (int) (viewDirection.z * distance));
         }
 
         return finalBlockPos;
@@ -1595,11 +1649,7 @@ public class VPUtil {
 
     public static List<DamageSource> playerDamageSources(LivingEntity player, LivingEntity entity){
         List<DamageSource> damageSources = new ArrayList<>();
-        damageSources.add(player.damageSources().inFire());
         damageSources.add(player.damageSources().lightningBolt());
-        damageSources.add(player.damageSources().onFire());
-        damageSources.add(player.damageSources().lava());
-        damageSources.add(player.damageSources().hotFloor());
         damageSources.add(player.damageSources().inWall());
         damageSources.add(player.damageSources().cramming());
         damageSources.add(player.damageSources().drown());
@@ -1616,16 +1666,20 @@ public class VPUtil {
         damageSources.add(player.damageSources().sweetBerryBush());
         damageSources.add(player.damageSources().freeze());
         damageSources.add(player.damageSources().stalagmite());
-        damageSources.add(player.damageSources().fallingBlock(entity));
-        damageSources.add(player.damageSources().anvil(entity));
-        damageSources.add(player.damageSources().fallingStalactite(entity));
-        damageSources.add(player.damageSources().sting(entity));
-        damageSources.add(player.damageSources().mobAttack(entity));
+        damageSources.add(player.damageSources().fallingBlock(player));
+        damageSources.add(player.damageSources().anvil(player));
+        damageSources.add(player.damageSources().fallingStalactite(player));
+        damageSources.add(player.damageSources().sting(player));
+        damageSources.add(player.damageSources().mobAttack(player));
         damageSources.add(player.damageSources().trident(player,entity));
         damageSources.add(player.damageSources().mobProjectile(player,entity));
-        damageSources.add(player.damageSources().thorns(entity));
+        damageSources.add(player.damageSources().thorns(player));
         damageSources.add(player.damageSources().explosion(player,entity));
-        damageSources.add(player.damageSources().sonicBoom(entity));
+        damageSources.add(player.damageSources().sonicBoom(player));
+        damageSources.add(player.damageSources().inFire());
+        damageSources.add(player.damageSources().onFire());
+        damageSources.add(player.damageSources().lava());
+        damageSources.add(player.damageSources().hotFloor());
         return damageSources;
     }
 }

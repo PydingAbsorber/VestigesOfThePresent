@@ -4,6 +4,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -46,16 +47,17 @@ public class Trigon extends Vestige{
         Random random = new Random();
         for (LivingEntity entity: list){
             float shield = VPUtil.getShield(entity);
-            overshields += shield - shield*0.6f;
+            overshields += shield*0.3f;
             entity.getPersistentData().putFloat("VPShield",shield*0.6f);
             VPUtil.spawnParticles(player, ParticleTypes.WAX_ON,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         int numba = random.nextInt(list.size());
-        if(isStellar && VPUtil.getOverShield(player) > 0 && player.getPersistentData().getFloat("VPOverShieldMax") > 0 && player.tickCount % 5 == 0) {
+        if(isStellar && VPUtil.getOverShield(player) > 0 && player.getPersistentData().getFloat("VPOverShieldMax") > 0) {
             float amount = 1+(1-(VPUtil.getOverShield(player)/player.getPersistentData().getFloat("VPOverShieldMax")))/2;
             player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
         }
         VPUtil.addOverShield(list.get(numba),overshields);
+        player.sendSystemMessage(Component.literal("Прокси Семпай! Лист существ: " + list + " Выбранное существо: " + list.get(numba) + " с номером: " + numba + " щит к добавлению: " + overshields));
         super.doUltimate(seconds, player, level);
     }
     @Override
