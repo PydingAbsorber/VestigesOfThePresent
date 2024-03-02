@@ -12,6 +12,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -175,21 +176,35 @@ public class VPCommands {
                                 )
                         )
                 )
-                .then(Commands.literal("addShields")
+                .then(Commands.literal("addShields").requires(sender -> sender.hasPermission(2))
                         .then(Commands.argument("shields", FloatArgumentType.floatArg())
                                 .then(Commands.argument("overshields", FloatArgumentType.floatArg())
-                                    .executes(context -> {
-                                        ServerPlayer player = context.getSource().getPlayerOrException();
-                                        float shields = FloatArgumentType.getFloat(context, "shields");
-                                        float overshields = FloatArgumentType.getFloat(context, "overshields");
-                                        if(shields > 0)
-                                            VPUtil.addShield(player,shields,true);
-                                        if(overshields > 0)
-                                            VPUtil.addOverShield(player,overshields);
-                                        return Command.SINGLE_SUCCESS;
-                                    })
+                                        .executes(context -> {
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            float shields = FloatArgumentType.getFloat(context, "shields");
+                                            float overshields = FloatArgumentType.getFloat(context, "overshields");
+                                            if(shields > 0)
+                                                VPUtil.addShield(player,shields,true);
+                                            if(overshields > 0)
+                                                VPUtil.addOverShield(player,overshields);
+                                            return Command.SINGLE_SUCCESS;
+                                        })
                                 )
                         )
+                )
+                .then(Commands.literal("enableHardcore").requires(sender -> sender.hasPermission(2))
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            if(ConfigHandler.COMMON.hardcore.get()) {
+                                ConfigHandler.COMMON.hardcore.set(false);
+                                player.sendSystemMessage(Component.literal("Hardcore mode disabled. Please type /reload if the changes have not been applied."));
+                            }
+                            else {
+                                ConfigHandler.COMMON.hardcore.set(true);
+                                player.sendSystemMessage(Component.literal("Hardcore mode enabled, all bosses hp now is x10 and attack is x2. Please type /reload if the changes have not been applied."));
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
         );
     }

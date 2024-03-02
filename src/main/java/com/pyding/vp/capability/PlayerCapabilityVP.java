@@ -536,7 +536,7 @@ public class PlayerCapabilityVP {
             case 17:
                 return VPUtil.getEffects().size()-reduce;
             case 18:
-                return 10-reduce;
+                return 20-reduce;
             case 19:
                 return 1000000-reduce;
             case 20:

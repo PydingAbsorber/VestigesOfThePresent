@@ -672,7 +672,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void struck(EntityStruckByLightningEvent event){
-        if(event.getEntity() instanceof Player player){
+        if(event.getEntity() instanceof Player player && !player.level.isClientSide){
             for(LivingEntity entity: VPUtil.getEntities(player,1,false)){
                 if(entity instanceof Creeper) {
                     player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {

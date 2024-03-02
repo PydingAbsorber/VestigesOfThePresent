@@ -1382,16 +1382,19 @@ public class VPUtil {
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
         if(!player.level.isClientSide)
             player = Minecraft.getInstance().player;
+        Random random = new Random();
         for(int i = 0; i < count; i++) {
-            if(Math.random() < 0.5)
-                x += Math.random()*2;
-            else x -= Math.random()*2;
-            if(Math.random() < 0.5)
-                z += Math.random()*2;
-            else z -= Math.random()*2;
-            if(Math.random() < 0.5)
-                y += Math.random()*2;
-            else y -= Math.random()*2;
+            double numba = random.nextInt(2);
+            if(Math.random() > 0.5) {
+                x += numba;
+                y += numba;
+                z += numba;
+            }
+            else {
+                x -= numba;
+                y -= numba;
+                z -= numba;
+            }
             player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
         }
     }
@@ -1405,19 +1408,21 @@ public class VPUtil {
         double endX = player.getX() + radius;
         double endY = player.getY() + radius;
         double endZ = player.getZ() + radius;
-
+        Random random = new Random();
         for (double x = startX; x <= endX; x += 1.0) {
             for (double y = startY; y <= endY; y += 1.0) {
                 for (double z = startZ; z <= endZ; z += 1.0) {
-                    if(Math.random() < 0.5)
-                        x += Math.random()*2;
-                    else x -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        z += Math.random()*2;
-                    else z -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        y += Math.random()*2;
-                    else y -= Math.random()*2;
+                    double numba = random.nextInt(2);
+                    if(Math.random() > 0.5) {
+                        x += numba;
+                        y += numba;
+                        z += numba;
+                    }
+                    else {
+                        x -= numba;
+                        y -= numba;
+                        z -= numba;
+                    }
                     player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
                 }
             }
@@ -1434,19 +1439,21 @@ public class VPUtil {
         double endX = pos.getX() + radius;
         double endY = pos.getY() + radius;
         double endZ = pos.getZ() + radius;
-
+        Random random = new Random();
         for (double x = startX; x <= endX; x += 1.0) {
             for (double y = startY; y <= endY; y += 1.0) {
                 for (double z = startZ; z <= endZ; z += 1.0) {
-                    if(Math.random() < 0.5)
-                        x += Math.random()*2;
-                    else x -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        z += Math.random()*2;
-                    else z -= Math.random()*2;
-                    if(Math.random() < 0.5)
-                        y += Math.random()*2;
-                    else y -= Math.random()*2;
+                    double numba = random.nextInt(2);
+                    if(Math.random() > 0.5) {
+                        x += numba;
+                        y += numba;
+                        z += numba;
+                    }
+                    else {
+                        x -= numba;
+                        y -= numba;
+                        z -= numba;
+                    }
                     player.level.addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
                 }
             }

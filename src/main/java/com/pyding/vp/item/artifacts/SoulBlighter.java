@@ -157,6 +157,8 @@ public class SoulBlighter extends Vestige{
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
         if(!fuckNbtCheck2) {
+            if(stack.getOrCreateTag().contains("entityData") && isStellar)
+                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("06406f20-b639-471c-aa2f-a251a67fecab"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
             super.onEquip(slotContext, prevStack, stack);
         } else fuckNbtCheck2 = false;
     }
