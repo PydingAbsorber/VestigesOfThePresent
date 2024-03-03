@@ -177,9 +177,7 @@ public class VPUtil {
     }
 
     public static void initEntities(){
-        for(EntityType type: ForgeRegistries.ENTITY_TYPES.getValues()){
-            entities.add(type);
-        }
+        entities.addAll(ForgeRegistries.ENTITY_TYPES.getValues());
     }
 
     public static List<Item> items = new ArrayList<>();

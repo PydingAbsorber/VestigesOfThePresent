@@ -5,6 +5,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.commands.VPCommands;
+import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.*;
 import com.pyding.vp.network.PacketHandler;
@@ -42,6 +43,7 @@ import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -556,6 +558,12 @@ public class EventHandler {
             cap.sync(player);
         });
         if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
+            VPUtil.initEntities();
+            VPUtil.initItems();
+            VPUtil.initBlocks();
+            VPUtil.initFlowers();
+            VPUtil.initWorlds();
+            VPUtil.initEffects();
             VPUtil.initMonstersAndBosses(serverLevel);
             VPUtil.initBiomes(serverLevel);
         }
@@ -828,7 +836,32 @@ public class EventHandler {
         });
         event.getOriginal().invalidateCaps();
     }
-
+    @SubscribeEvent
+    public static void addCreative(BuildCreativeModeTabContentsEvent event){
+        if(event.getTab() == ModCreativeModTab.VP_TAB.get()){
+            event.accept(ModItems.ANEMOCULUS);
+            event.accept(ModItems.CROWN);
+            event.accept(ModItems.ATLAS);
+            event.accept(ModItems.KILLER);
+            event.accept(ModItems.MASK);
+            event.accept(ModItems.DONUT);
+            event.accept(ModItems.MARK);
+            event.accept(ModItems.EARS);
+            event.accept(ModItems.MIDAS);
+            event.accept(ModItems.ANOMALY);
+            event.accept(ModItems.ARMOR);
+            event.accept(ModItems.BOOK);
+            event.accept(ModItems.PRISM);
+            event.accept(ModItems.CHAOS);
+            event.accept(ModItems.DEVOURER);
+            event.accept(ModItems.FLOWER);
+            event.accept(ModItems.CATALYST);
+            event.accept(ModItems.BALL);
+            event.accept(ModItems.TRIGON);
+            event.accept(ModItems.SOULBLIGHTER);
+            event.accept(ModItems.STELLAR);
+        }
+    }
     @SubscribeEvent
     public void onAnvilUse(AnvilRepairEvent event) {
         Player player = event.getEntity();

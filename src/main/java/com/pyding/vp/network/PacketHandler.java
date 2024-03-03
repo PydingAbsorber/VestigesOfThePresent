@@ -2,7 +2,6 @@ package com.pyding.vp.network;
 
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.network.packets.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
