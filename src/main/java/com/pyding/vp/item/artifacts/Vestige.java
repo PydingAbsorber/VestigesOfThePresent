@@ -23,6 +23,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -113,7 +115,6 @@ public class Vestige extends Item implements ICurioItem {
 
     public long time;
     public long timeUlt;
-    public LocalPlayer player;
     public int progress = 0;
 
     public long specialMaxTime = 0;
@@ -215,13 +216,13 @@ public class Vestige extends Item implements ICurioItem {
         isDoubleStellar = isDoubleStellar(stack);
         ICurioItem.super.curioTick(slotContext, stack);
     }
-
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         if (color == null) {
             this.init();
         }
-        player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             if (stack == null)
                 System.out.println("Something went wrong :(((");
@@ -444,9 +445,10 @@ public class Vestige extends Item implements ICurioItem {
         this.cdSpecialActive = this.specialCd*this.specialCharges;
         this.currentChargeUltimate = 0;
         this.currentChargeSpecial = 0;
-        if(!isStellar(stack) && player.isCreative())
-            setStellar(stack);
         Player player = (Player) slotContext.entity();
+        if(!isStellar(stack) && player.isCreative()) {
+            setStellar(stack);
+        }
         player.getPersistentData().putFloat("VPShield",0);
         player.getPersistentData().putFloat("VPOverShield",0);
         ICurioItem.super.onEquip(slotContext, prevStack, stack);

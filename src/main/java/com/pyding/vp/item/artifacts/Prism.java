@@ -70,6 +70,7 @@ public class Prism extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
         if(!fuckNbt1){
             player.getPersistentData().putInt("VPPrism", 0);
             super.onUnequip(slotContext, newStack, stack);

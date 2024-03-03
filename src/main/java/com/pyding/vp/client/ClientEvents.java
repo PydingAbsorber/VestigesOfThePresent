@@ -9,8 +9,6 @@ import com.pyding.vp.network.packets.ButtonPressPacket2;
 import com.pyding.vp.network.packets.ButtonPressPacket3;
 import com.pyding.vp.network.packets.ButtonPressPacket4;
 import com.pyding.vp.util.KeyBinding;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;

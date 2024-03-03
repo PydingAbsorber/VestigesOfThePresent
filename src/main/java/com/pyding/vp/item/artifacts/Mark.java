@@ -100,6 +100,7 @@ public class Mark extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
         super.onUnequip(slotContext, newStack, stack);
     }

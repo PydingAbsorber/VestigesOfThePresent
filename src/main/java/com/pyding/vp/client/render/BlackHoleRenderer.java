@@ -15,6 +15,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfPresent.MODID,"textures/item/models/blackholepallet.png");
@@ -28,7 +30,7 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
     public ResourceLocation getTextureLocation(BlackHole p_114482_) {
         return TEXTURE;
     }
-
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void render(BlackHole entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         poseStack.pushPose();

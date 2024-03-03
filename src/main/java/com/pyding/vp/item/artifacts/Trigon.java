@@ -77,9 +77,9 @@ public class Trigon extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player1 = (Player) slotContext.entity();
-        player1.getPersistentData().putFloat("VPTrigonBonus",0);
-        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:trigon_hp_boost"));
+        Player player = (Player) slotContext.entity();
+        player.getPersistentData().putFloat("VPTrigonBonus",0);
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:trigon_hp_boost"));
         super.onUnequip(slotContext, newStack, stack);
     }
 }

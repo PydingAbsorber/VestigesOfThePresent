@@ -836,32 +836,7 @@ public class EventHandler {
         });
         event.getOriginal().invalidateCaps();
     }
-    @SubscribeEvent
-    public static void addCreative(BuildCreativeModeTabContentsEvent event){
-        if(event.getTab() == ModCreativeModTab.VP_TAB.get()){
-            event.accept(ModItems.ANEMOCULUS);
-            event.accept(ModItems.CROWN);
-            event.accept(ModItems.ATLAS);
-            event.accept(ModItems.KILLER);
-            event.accept(ModItems.MASK);
-            event.accept(ModItems.DONUT);
-            event.accept(ModItems.MARK);
-            event.accept(ModItems.EARS);
-            event.accept(ModItems.MIDAS);
-            event.accept(ModItems.ANOMALY);
-            event.accept(ModItems.ARMOR);
-            event.accept(ModItems.BOOK);
-            event.accept(ModItems.PRISM);
-            event.accept(ModItems.CHAOS);
-            event.accept(ModItems.DEVOURER);
-            event.accept(ModItems.FLOWER);
-            event.accept(ModItems.CATALYST);
-            event.accept(ModItems.BALL);
-            event.accept(ModItems.TRIGON);
-            event.accept(ModItems.SOULBLIGHTER);
-            event.accept(ModItems.STELLAR);
-        }
-    }
+
     @SubscribeEvent
     public void onAnvilUse(AnvilRepairEvent event) {
         Player player = event.getEntity();
@@ -912,7 +887,7 @@ public class EventHandler {
         }
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public static void onPlayerClonedClient(ClientPlayerNetworkEvent.Clone event){
         event.getOldPlayer().reviveCaps();
         event.getOldPlayer().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(oldStore -> {
@@ -921,7 +896,7 @@ public class EventHandler {
             });
         });
         event.getOldPlayer().invalidateCaps();
-    }
+    }*/
     @SubscribeEvent
     public static void enchantEvent(EnchantmentLevelSetEvent event){
     }

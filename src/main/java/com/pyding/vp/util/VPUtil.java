@@ -65,6 +65,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -1263,8 +1265,9 @@ public class VPUtil {
         }
         return attacker.isAlliedTo(target);
     }
+    @OnlyIn(Dist.CLIENT)
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
-        if(!player.getCommandSenderWorld().isClientSide)
+        if(player == null || !player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
         Random random = new Random();
         for(int i = 0; i < count; i++) {
@@ -1282,9 +1285,9 @@ public class VPUtil {
             player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
         }
     }
-
+    @OnlyIn(Dist.CLIENT)
     public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(!player.getCommandSenderWorld().isClientSide)
+        if(player == null || !player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
         double startX = player.getX() - radius;
         double startY = player.getY() - radius;
@@ -1312,9 +1315,9 @@ public class VPUtil {
             }
         }
     }
-
+    @OnlyIn(Dist.CLIENT)
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(!player.getCommandSenderWorld().isClientSide)
+        if(player == null || !player.getCommandSenderWorld().isClientSide)
             player = Minecraft.getInstance().player;
         Random random = new Random();
         BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);

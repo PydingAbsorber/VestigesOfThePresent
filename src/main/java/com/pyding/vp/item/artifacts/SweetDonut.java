@@ -88,6 +88,7 @@ public class SweetDonut extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
         reset(player);
         super.onUnequip(slotContext, newStack, stack);
     }

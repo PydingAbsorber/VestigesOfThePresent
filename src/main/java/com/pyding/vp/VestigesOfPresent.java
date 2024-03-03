@@ -53,6 +53,7 @@ public class VestigesOfPresent
         MinecraftForge.EVENT_BUS.register(PROXY);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC); //bye  bye
         ModCreativeModTab.register(modEventBus);
+        modEventBus.addListener(this::addCreative);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init
@@ -82,5 +83,31 @@ public class VestigesOfPresent
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         PROXY.loadComplete(event);
+    }
+
+    private void addCreative(BuildCreativeModeTabContentsEvent event){
+        if(event.getTab() == ModCreativeModTab.VP_TAB.get()){
+            event.accept(ModItems.ANEMOCULUS);
+            event.accept(ModItems.CROWN);
+            event.accept(ModItems.ATLAS);
+            event.accept(ModItems.KILLER);
+            event.accept(ModItems.MASK);
+            event.accept(ModItems.DONUT);
+            event.accept(ModItems.MARK);
+            event.accept(ModItems.EARS);
+            event.accept(ModItems.MIDAS);
+            event.accept(ModItems.ANOMALY);
+            event.accept(ModItems.ARMOR);
+            event.accept(ModItems.BOOK);
+            event.accept(ModItems.PRISM);
+            event.accept(ModItems.CHAOS);
+            event.accept(ModItems.DEVOURER);
+            event.accept(ModItems.FLOWER);
+            event.accept(ModItems.CATALYST);
+            event.accept(ModItems.BALL);
+            event.accept(ModItems.TRIGON);
+            event.accept(ModItems.SOULBLIGHTER);
+            event.accept(ModItems.STELLAR);
+        }
     }
 }

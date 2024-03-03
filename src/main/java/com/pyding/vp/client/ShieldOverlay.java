@@ -15,6 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import org.joml.Matrix4f;
 
@@ -34,7 +36,7 @@ public class ShieldOverlay {
             "textures/gui/heal2.png");
     private static final ResourceLocation HEAL3 = new ResourceLocation(VestigesOfPresent.MODID,
             "textures/gui/heal3.png");
-
+    @OnlyIn(Dist.CLIENT)
     public static final IGuiOverlay HUD_SHIELD = ((gui, pose, partialTick, width, height) -> {
         int x = width / 2;
         int y = height;

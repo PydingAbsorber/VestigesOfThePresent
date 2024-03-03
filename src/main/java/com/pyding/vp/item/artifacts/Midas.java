@@ -114,6 +114,7 @@ public class Midas extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
         if (!fuckNbtCheck1) {
             player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
             super.onUnequip(slotContext, newStack, stack);

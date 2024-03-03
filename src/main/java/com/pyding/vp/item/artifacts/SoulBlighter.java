@@ -3,7 +3,6 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 
 import javax.annotation.Nullable;
@@ -45,8 +43,7 @@ public class SoulBlighter extends Vestige{
         else {
             for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
                 entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime);
-                if(Minecraft.getInstance().player != null)
-                    VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
+                VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                 break;
             }
         }
@@ -71,8 +68,7 @@ public class SoulBlighter extends Vestige{
             entity.load(entityData);
             entity.getPersistentData().putUUID("VPPlayer",player.getUUID());
             entity.absMoveTo(pos.getX() + 0.5, pos.getY()+1, pos.getZ() + 0.5, 0, 0);
-            if(Minecraft.getInstance().player != null)
-                VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
+            VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
             level.addFreshEntity(entity);
             if(isStellar)
                 player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
@@ -90,8 +86,7 @@ public class SoulBlighter extends Vestige{
                     fuckNbtCheck2 = true;
                     stack.getOrCreateTag().put("entityData",entity.serializeNBT());
                     stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
-                    if(Minecraft.getInstance().player != null)
-                        VPUtil.spawnParticles(Minecraft.getInstance().player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
+                    VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                     entity.remove(Entity.RemovalReason.DISCARDED);
                     if(isStellar)
                         player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
@@ -147,7 +142,7 @@ public class SoulBlighter extends Vestige{
         Player player1 = (Player) slotContext.entity();
         if(!fuckNbtCheck2) {
             if(stack.getOrCreateTag().contains("entityData") && isStellar)
-                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+                player1.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
             super.onEquip(slotContext, prevStack, stack);
         } else fuckNbtCheck2 = false;
     }
