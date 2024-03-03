@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -66,7 +67,7 @@ public class Devourer extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.SOUL2.get());
-        player.getPersistentData().putInt("VPDevourerHits",100);
+        player.getPersistentData().putInt("VPDevourerHits", ConfigHandler.COMMON.devourer.get());
         VPUtil.spawnParticles(player, ParticleTypes.GLOW_SQUID_INK,8,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }

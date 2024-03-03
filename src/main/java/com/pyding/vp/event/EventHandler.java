@@ -484,12 +484,24 @@ public class EventHandler {
                     String key = stackInSlot.getOrCreateTag().getString("VPReturnKey");
                     if(x != 0 && y != 0 && z != 0 && !key.isEmpty()) {
                         ServerLevel serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(VPUtil.getWorldKey(key));
-                        for(Object entity: VPUtil.getEntitiesAroundOfType(Entity.class,player,4,4,4,true)){
-                            if(entity instanceof ServerPlayer victim)
-                                victim.teleportTo(serverLevel, x, y, z, 0, 0);
-                            else if(entity instanceof Entity target){
-                                target.changeDimension(serverLevel);
-                                target.teleportTo(x,y,z);
+                        if(serverLevel == null){
+                            player.sendSystemMessage(Component.literal("World is null somehow..."));
+                            return;
+                        }
+                        if(ConfigHandler.COMMON.anomaly.get()){
+                            for(LivingEntity entity: VPUtil.getEntitiesAround(player,4,4,4,true)){
+                                entity.changeDimension(serverLevel);
+                                entity.teleportTo(x, y, z);
+                            }
+                        }
+                        else {
+                            for (Object entity : VPUtil.getEntitiesAroundOfType(Entity.class, player, 4, 4, 4, true)) {
+                                if (entity instanceof ServerPlayer victim)
+                                    victim.teleportTo(serverLevel, x, y, z, 0, 0);
+                                else if (entity instanceof Entity target) {
+                                    target.changeDimension(serverLevel);
+                                    target.teleportTo(x, y, z);
+                                }
                             }
                         }
                         serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);

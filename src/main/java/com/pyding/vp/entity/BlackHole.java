@@ -3,6 +3,7 @@ package com.pyding.vp.entity;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -77,8 +78,8 @@ public class BlackHole extends Projectile {
             if(entity != player) {
                 VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
                 //VPUtil.moveSpiral(entity,blockPosition(),1);
-                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && player != null)
-                VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),10/entity.distanceTo(this),3);
+                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && player != null && entity.tickCount % ConfigHandler.COMMON.blackhole.get() == 0)
+                    VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),10/entity.distanceTo(this),3);
             }
         }
         if (!getCommandSenderWorld().isClientSide) {

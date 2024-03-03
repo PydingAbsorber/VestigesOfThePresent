@@ -541,7 +541,7 @@ public class VPUtil {
     }
 
     public static int getChaosTime(){
-        return 15*60*1000;
+        return ConfigHandler.COMMON.chaostime.get()*60*1000;
     }
 
     public static boolean hasVestige(Item item,Player player){

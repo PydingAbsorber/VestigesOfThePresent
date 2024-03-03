@@ -19,7 +19,11 @@ public class ConfigHandler {
     public static class Common {
         //public final ForgeConfigSpec.ConfigValue<String> challengeReduction;
         public final ForgeConfigSpec.BooleanValue hardcore;
+        public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
+        public final ForgeConfigSpec.IntValue chaostime;
+        public final ForgeConfigSpec.IntValue devourer;
+        public final ForgeConfigSpec.IntValue blackhole;
         public final ForgeConfigSpec.IntValue stellarChanceIncrease;
         public final ForgeConfigSpec.IntValue challengeReduce1;
         public final ForgeConfigSpec.IntValue challengeReduce2;
@@ -67,6 +71,10 @@ public class ConfigHandler {
             challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, 0, 2100000000);
             challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, 0, 2100000000);
             challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, 0, 2100000000);
+            devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
+            blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
+            anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
+            chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {
