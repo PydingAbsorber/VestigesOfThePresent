@@ -298,7 +298,7 @@ public class Vestige extends Item implements ICurioItem {
                     progress = EventHandler.getCurses(player);
                 components.add(Component.translatable("vp.progress").withStyle(color)
                         .append(Component.literal(" " + progress))
-                        .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber))));
+                        .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber,player))));
                 components.add(Component.literal(cap.getChance()+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
                 components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY).append(Component.literal(ConfigHandler.COMMON.stellarChanceIncrease.get() + "%")));
                 components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown())+" ").withStyle(ChatFormatting.GRAY)));
@@ -310,11 +310,11 @@ public class Vestige extends Item implements ICurioItem {
                 String text = "";
                 switch (vestigeNumber) {
                     case 2: {
-                        text = VPUtil.getMonsterLeft(cap.getMonstersKilled()).toString();
+                        text = VPUtil.getMonsterClient(player).toString();
                         break;
                     }
                     case 3: {
-                        text = VPUtil.getBiomesLeft(cap.getBiomesFound()).toString();
+                        text = VPUtil.getBiomesClient(player).toString();
                         break;
                     }
                     case 6: {
@@ -334,7 +334,7 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 15: {
-                        text = VPUtil.getBossesLeft(cap.getBosses()).toString();
+                        text = VPUtil.getBossClient(player).toString();
                         break;
                     }
                     case 16: {

@@ -60,6 +60,7 @@ public class PlayerCapabilityVP {
     private String stellarChallenges = "";
 
     private String dimensions = "";
+    private String dimensionsDir = "";
     private boolean debug = false;
 
     private String effects = "";
@@ -68,9 +69,13 @@ public class PlayerCapabilityVP {
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
 
-    public void addDimension(Player player,String dim){
+    public void addDimension(Player player,String dim, String nameSpace){
         if(!dimensions.contains(dim)){
             dimensions += dim + ",";
+            sync(player);
+        }
+        if(!dimensionsDir.contains(nameSpace)){
+            dimensionsDir += nameSpace + ",";
             sync(player);
         }
     }
@@ -87,19 +92,30 @@ public class PlayerCapabilityVP {
         return dimList;
     }
 
-    public String getRandomDimension(){
+    public List<String> getDimensionDirList(){
+        List<String> dimList = new ArrayList<>();
+        for(String name: dimensionsDir.split(",")){
+            dimList.add(name);
+        }
+        return dimList;
+    }
+
+    public List<String> getRandomDimension(){
         Random random = new Random();
         int numba = random.nextInt(getDimensionList().size());
-        return getDimensionList().get(numba);
+        List<String> list = new ArrayList<>();
+        list.add(getDimensionDirList().get(numba));
+        list.add(getDimensionList().get(numba));
+        return list;
     }
 
     public void removeDimension(String name){
-        String newDim = "";
+        /*String newDim = "";
         for(String dim: dimensions.split(",")) {
             if(!dim.equals(name))
                 newDim += dim + ",";
         }
-        dimensions = newDim;
+        dimensions = newDim;*/
     }
 
     public void filterBiome(String name,Player player) {
@@ -476,20 +492,21 @@ public class PlayerCapabilityVP {
         commonChallenges = "";
         stellarChallenges = "";
         dimensions = "";
+        dimensionsDir = "";
         effects = "";
         bosses = "";
         sync(player);
     }
 
-    public static int getMaximum(int number){
+    public static int getMaximum(int number, Player player){
         int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number).get();
         switch (number){
             case 1:
                 return 20-reduce;
             case 2:
-                return VPUtil.getEntitiesListOfType(MobCategory.MONSTER).size()-reduce;
+                return VPUtil.getMonsterClientMax(player).size()-reduce;
             case 3:
-                return VPUtil.getBiomes().size()-reduce;
+                return VPUtil.getBiomesClientMax(player).size()-reduce;
             case 4:
                 return 100-reduce;
             case 5:
@@ -513,7 +530,7 @@ public class PlayerCapabilityVP {
             case 14:
                 return 6-reduce;
             case 15:
-                return VPUtil.getBossSize()-reduce;
+                return VPUtil.getBossClientMax(player).size()-reduce;
             case 16:
                 return VPUtil.getFlowers().size()-reduce;
             case 17:
@@ -580,6 +597,7 @@ public class PlayerCapabilityVP {
         commonChallenges = source.commonChallenges;
         stellarChallenges = source.stellarChallenges;
         dimensions = source.dimensions;
+        dimensionsDir = source.dimensionsDir;
         debug = source.debug;
         effects = source.effects;
         bosses = source.bosses;
@@ -608,6 +626,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPCC",commonChallenges);
         nbt.putString("VPSC",stellarChallenges);
         nbt.putString("VPDimensions",dimensions);
+        nbt.putString("VPDimensionsDir",dimensionsDir);
         nbt.putBoolean("VPDebug",debug);
         nbt.putString("VPEffects",effects);
         nbt.putString("VPBosses",bosses);
@@ -636,6 +655,7 @@ public class PlayerCapabilityVP {
         commonChallenges = nbt.getString("VPCC");
         stellarChallenges = nbt.getString("VPSC");
         dimensions = nbt.getString("VPDimensions");
+        dimensionsDir = nbt.getString("VPDimensionsDir");
         debug = nbt.getBoolean("VPDebug");
         effects = nbt.getString("VPEffects");
         bosses = nbt.getString("VPBosses");
@@ -665,6 +685,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPCC",commonChallenges);
         nbt.putString("VPSC",stellarChallenges);
         nbt.putString("VPDimensions",dimensions);
+        nbt.putString("VPDimensionsDir",dimensionsDir);
         nbt.putBoolean("VPDebug",debug);
         nbt.putString("VPEffects",effects);
         nbt.putString("VPBosses",bosses);

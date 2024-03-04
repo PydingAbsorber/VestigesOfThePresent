@@ -73,7 +73,7 @@ public class ShieldOverlay {
                     if(vestige.vestigeNumber == 3){
                         info = String.valueOf(player.getPersistentData().getInt("VPGravity"));
                     }
-                    if(vestige.vestigeNumber == 5 && vestige.isSpecialActive){
+                    if(vestige.vestigeNumber == 5 && VPUtil.getHealBonus(player) < 0){
                         if(vestige.isStellar)
                             info = ((int)VPUtil.missingHealth(player)*8 + "%");
                         else info = ((int)VPUtil.missingHealth(player)*4 + "%");
@@ -126,11 +126,6 @@ public class ShieldOverlay {
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 7){
-                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
-                        if(number > 0)
-                            durationUlt = String.valueOf(number);
-                    }
                     if(!info.isEmpty())
                         pose.drawString(fontRenderer,""+info, x+(132+i*40),y-33, vestige.color.getColor());
                     if(!durationSpecial.isEmpty())
@@ -144,6 +139,11 @@ public class ShieldOverlay {
                             pose.drawString(fontRenderer,""+show, x+(132+i*40),y-43, 0x54717B);
                     }
                     if(vestige.vestigeNumber == 13){
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            info = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 7){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             info = String.valueOf(number);

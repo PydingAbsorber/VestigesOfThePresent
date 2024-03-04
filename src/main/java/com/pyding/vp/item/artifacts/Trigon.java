@@ -57,7 +57,8 @@ public class Trigon extends Vestige{
             player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
         }
         VPUtil.addOverShield(list.get(numba),overshields);
-        player.sendSystemMessage(Component.literal("Прокси Семпай! Лист существ: " + list + " Выбранное существо: " + list.get(numba) + " с номером: " + numba + " щит к добавлению: " + overshields));
+        if(player.isCreative() && player.getScoreboardName().equals("Pyding") || player.getScoreboardName().equals("Dev"))
+        player.sendSystemMessage(Component.literal("Лист существ: " + list + " Выбранное существо: " + list.get(numba) + " с номером: " + numba + " щит к добавлению: " + overshields));
         super.doUltimate(seconds, player, level);
     }
     @Override

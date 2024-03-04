@@ -197,14 +197,30 @@ public class VPUtil {
         return list;
     }
 
-    public static List getBiomesLeft(String list){
+    public static List<String> getBiomesLeft(String list, Player player){
         List<String> biomeList = new ArrayList<>(Arrays.asList(list.split(",")));
         List<String> allList = new ArrayList<>();
         for(ResourceLocation location: getBiomes()){
             allList.add(location.getPath());
         }
+        StringBuilder cringeMax = new StringBuilder();
+        for(String element : allList) {
+            cringeMax.append(element).append(",");
+        }
         allList.removeAll(biomeList);
+        StringBuilder cringe = new StringBuilder();
+        for(String element : allList) {
+            cringe.append(element).append(",");
+        }
+        player.getPersistentData().putString("VPBiomesClient", cringe.toString());
+        player.getPersistentData().putString("VPBiomesClientMax", cringeMax.toString());
         return allList;
+    }
+    public static List<String> getBiomesClient(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPBiomesClient").split(",")));
+    }
+    public static List<String> getBiomesClientMax(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPBiomesClientMax").split(",")));
     }
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
 
@@ -286,12 +302,16 @@ public class VPUtil {
             }
         }
     }
-    public static List getMonsterLeft(String list){
+    public static List getMonsterLeft(String list, Player player){
         List<String> mobsList = new ArrayList<>(Arrays.asList(list.split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: monsterList){
             allList.add(type.toString());
         }
+        StringBuilder cringeMax = new StringBuilder();
+        for(String element : allList) {
+            cringeMax.append(element).append(",");
+        }
         allList.removeAll(mobsList);
         List<String> filteredList = new ArrayList<>();
         for (String name: allList){
@@ -299,15 +319,31 @@ public class VPUtil {
                 name = name.substring("entity.minecraft.".length());
             filteredList.add(name);
         }
+        StringBuilder cringe = new StringBuilder();
+        for(String element : allList) {
+            cringe.append(element).append(",");
+        }
+        player.getPersistentData().putString("VPMonsterClient", cringe.toString());
+        player.getPersistentData().putString("VPMonsterClientMax", cringeMax.toString());
         return filteredList;
     }
+    public static List<String> getMonsterClient(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPMonsterClient").split(",")));
+    }
+    public static List<String> getMonsterClientMax(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPMonsterClientMax").split(",")));
+    }
 
-    public static List getBossesLeft(String list){
+    public static List getBossesLeft(String list, Player player){
         List<String> mobsList = new ArrayList<>(Arrays.asList(list.split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: bossList){
             allList.add(type.toString());
         }
+        StringBuilder cringeMax = new StringBuilder();
+        for(String element : allList) {
+            cringeMax.append(element).append(",");
+        }
         allList.removeAll(mobsList);
         List<String> filteredList = new ArrayList<>();
         for (String name: allList){
@@ -315,7 +351,20 @@ public class VPUtil {
                 name = name.substring("entity.minecraft.".length());
             filteredList.add(name);
         }
+        StringBuilder cringe = new StringBuilder();
+        for(String element : allList) {
+            cringe.append(element).append(",");
+        }
+        player.getPersistentData().putString("VPBossClient", cringe.toString());
+        player.getPersistentData().putString("VPBossClientMax", cringeMax.toString());
         return filteredList;
+    }
+
+    public static List<String> getBossClient(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPBossClient").split(",")));
+    }
+    public static List<String> getBossClientMax(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPBossClientMax").split(",")));
     }
 
     public static List getMobsLeft(String list){
@@ -1067,8 +1116,10 @@ public class VPUtil {
 
     }
 
-    public static ResourceKey<Level> getWorldKey(String name){
-        ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(name));
+    public static ResourceKey<Level> getWorldKey(String path,String directory){
+        System.out.println(path);
+        System.out.println(directory);
+        ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(directory,path));
         return key;
     }
 
@@ -1265,8 +1316,8 @@ public class VPUtil {
         return attacker.isAlliedTo(target);
     }
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
-        if(player == null)
-            return;
+        if(player == null || !player.getCommandSenderWorld().isClientSide)
+            player = Minecraft.getInstance().player;
         Random random = new Random();
         for(int i = 0; i < count; i++) {
             double numba = random.nextInt(2);
@@ -1284,8 +1335,8 @@ public class VPUtil {
         }
     }
     public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player == null)
-            return;
+        if(player == null || !player.getCommandSenderWorld().isClientSide)
+            player = Minecraft.getInstance().player;
         double startX = player.getX() - radius;
         double startY = player.getY() - radius;
         double startZ = player.getZ() - radius;
@@ -1313,8 +1364,8 @@ public class VPUtil {
         }
     }
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player == null)
-            return;
+        if(player == null || !player.getCommandSenderWorld().isClientSide)
+            player = Minecraft.getInstance().player;
         Random random = new Random();
         BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);
         double startX = pos.getX() - radius;

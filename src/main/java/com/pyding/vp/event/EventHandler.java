@@ -474,6 +474,8 @@ public class EventHandler {
     @SubscribeEvent
     public static void useEvent(PlayerInteractEvent.RightClickItem event){
         Player player = event.getEntity();
+        if(player.getCommandSenderWorld().isClientSide)
+            return;
         if(event.getItemStack().getItem() instanceof EnderEyeItem && VPUtil.hasVestige(ModItems.ANOMALY.get(), player)){
             if(player instanceof ServerPlayer serverPlayer){
                 ItemStack stackInSlot = VPUtil.getVestigeStack(Anomaly.class,player);
@@ -484,10 +486,12 @@ public class EventHandler {
                     double y = stackInSlot.getOrCreateTag().getDouble("VPReturnY");
                     double z = stackInSlot.getOrCreateTag().getDouble("VPReturnZ");
                     String key = stackInSlot.getOrCreateTag().getString("VPReturnKey");
+                    String path = stackInSlot.getOrCreateTag().getString("VPReturnDir");
                     if(x != 0 && y != 0 && z != 0 && !key.isEmpty()) {
-                        ServerLevel serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(VPUtil.getWorldKey(key));
+                        ServerLevel serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(VPUtil.getWorldKey(key,path));
                         if(serverLevel == null){
                             player.sendSystemMessage(Component.literal("World is null somehow..."));
+                            event.setCanceled(true);
                             return;
                         }
                         if(ConfigHandler.COMMON.anomaly.get()){
@@ -559,9 +563,9 @@ public class EventHandler {
         });
         Level level = player.getCommandSenderWorld();
         if(level instanceof ServerLevel serverLevel) {
+            VPUtil.initMonstersAndBosses(level);
+            VPUtil.initBiomes(level);
         }
-        VPUtil.initMonstersAndBosses(level);
-        VPUtil.initBiomes(level);
     }
 
     @SubscribeEvent
@@ -774,9 +778,14 @@ public class EventHandler {
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player);
-                cap.addDimension(player,player.getCommandSenderWorld().dimension().location().getPath());
+                if(!player.getCommandSenderWorld().isClientSide) {
+                    VPUtil.getBiomesLeft(cap.getBiomesFound(), player);
+                    VPUtil.getMonsterLeft(cap.getMonstersKilled(),player);
+                    VPUtil.getBossesLeft(cap.getBosses(),player);
+                }
+                cap.addDimension(player,player.getCommandSenderWorld().dimension().location().getPath(),player.getCommandSenderWorld().dimension().location().getNamespace());
                 for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
-                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1) > 0){
+                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1,player) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1,player) > 0){
                         cap.giveVestige(player,i+1);
                     }
                 }

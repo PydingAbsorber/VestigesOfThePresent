@@ -69,7 +69,7 @@ public class VPCommands {
                                         player.sendSystemMessage(Component.literal("Current progress for Vestige ").append(Component.translatable("vp.name."+i)));
                                         player.sendSystemMessage(Component.translatable("vp.progress").withStyle(ChatFormatting.DARK_GREEN)
                                                 .append(Component.literal(" " + progress))
-                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i))));
+                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i,player))));
                                     }
                                     player.sendSystemMessage(Component.literal("Current chance for " + VPUtil.getRainbowString("Stellar:") + " " + cap.getChance()));
                                 });

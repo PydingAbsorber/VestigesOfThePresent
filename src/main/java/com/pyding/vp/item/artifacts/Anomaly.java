@@ -5,6 +5,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -16,6 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Anomaly extends Vestige{
@@ -40,7 +43,14 @@ public class Anomaly extends Vestige{
             stackInSlot.getOrCreateTag().putDouble("VPReturnX", player.getX());
             stackInSlot.getOrCreateTag().putDouble("VPReturnY", player.getY());
             stackInSlot.getOrCreateTag().putDouble("VPReturnZ", player.getZ());
+            stackInSlot.getOrCreateTag().putString("VPReturnDir", player.getCommandSenderWorld().dimension().location().getNamespace());
             stackInSlot.getOrCreateTag().putString("VPReturnKey", player.getCommandSenderWorld().dimension().location().getPath());
+            /*System.out.println(player.getCommandSenderWorld().dimension().registry());
+            System.out.println(player.getCommandSenderWorld().dimension().location());
+            System.out.println(player.getCommandSenderWorld().dimension().registry().getNamespace());
+            System.out.println(player.getCommandSenderWorld().dimension().registry().getPath());
+            System.out.println(player.getCommandSenderWorld().dimension().location().getNamespace());
+            System.out.println(player.getCommandSenderWorld().dimension().location().getPath());*/
         } else {
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
@@ -62,13 +72,20 @@ public class Anomaly extends Vestige{
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){
                             serverPlayer.teleportTo((ServerLevel) victim.getCommandSenderWorld(),victim.getX(),victim.getY(),victim.getZ(),0,0);
-                            break;
+                            return;
                         }
+                        player.sendSystemMessage(Component.literal("There are no other players!"));
                     }
                 }
                 else {
-                    String key = cap.getRandomDimension();
-                    ServerLevel serverLevel = serverPlayer.getServer().getLevel(VPUtil.getWorldKey(key));
+                    List<String> list = new ArrayList<>(cap.getRandomDimension());
+                    if(list.isEmpty()) {
+                        player.sendSystemMessage(Component.literal("Somehow world list is empty?!?!?!?!?!?!"));
+                        return;
+                    }
+                    String key = list.get(0);
+                    String path = list.get(1);
+                    ServerLevel serverLevel = serverPlayer.getServer().getLevel(VPUtil.getWorldKey(key,path));
                     if (serverLevel == null) {
                         serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(Level.OVERWORLD);
                         cap.removeDimension(key);

@@ -89,12 +89,13 @@ public class MaskOfDemon extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
+        if(player.getCommandSenderWorld().isClientSide)
+            return;
         if(isSpecialActive) {
-            if(player.tickCount % 5 == 0)
-                player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             if (player.tickCount % 20 == 0) {
                 if (player.getHealth() > player.getMaxHealth() * 0.1) {
                     player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
+                    player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
                 }
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
