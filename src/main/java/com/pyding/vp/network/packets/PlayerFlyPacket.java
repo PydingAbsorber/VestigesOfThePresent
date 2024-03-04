@@ -41,6 +41,8 @@ public class PlayerFlyPacket {
     @OnlyIn(Dist.CLIENT)
     private void handle2() {
         LocalPlayer player = Minecraft.getInstance().player;
+        if(player == null)
+            return;
         if(number == 1) {
             Vec3 motion = new Vec3(0, VPUtil.commonPower, 0);
             player.lerpMotion(motion.x, motion.y, motion.z);
@@ -63,6 +65,9 @@ public class PlayerFlyPacket {
         else if(number == 4){
             VPUtil.clearEffects(player,false);
             player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20, 4));
+        }
+        if(number == 5){
+            player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false), 60 * 20));
         }
         else {
             Vec3 motion = new Vec3(0, number, 0);

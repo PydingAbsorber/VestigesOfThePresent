@@ -13,6 +13,7 @@ import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.network.packets.SoundPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
@@ -1096,13 +1097,11 @@ public class VPUtil {
         return effects;
     }
     public static void clearEffects(LivingEntity entity, boolean isBeneficial){
-        Iterator<MobEffectInstance> iterator = entity.getActiveEffects().iterator();
-        while (iterator.hasNext()) {
-            MobEffectInstance effectInstance = iterator.next();
-            MobEffect effect = effectInstance.getEffect();
-            if (effect.isBeneficial() == isBeneficial) {
-                iterator.remove();
-            }
+        List<MobEffectInstance> list = new ArrayList<>(entity.getActiveEffects());
+        for(MobEffectInstance instance: list){
+            MobEffect effect = instance.getEffect();
+            if(effect.isBeneficial() == isBeneficial)
+                entity.removeEffect(effect);
         }
     }
     public static List<ItemStack> getAllEquipment(LivingEntity entity){
@@ -1265,10 +1264,9 @@ public class VPUtil {
         }
         return attacker.isAlliedTo(target);
     }
-    @OnlyIn(Dist.CLIENT)
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
-        if(player == null || !player.getCommandSenderWorld().isClientSide)
-            player = Minecraft.getInstance().player;
+        if(player == null)
+            return;
         Random random = new Random();
         for(int i = 0; i < count; i++) {
             double numba = random.nextInt(2);
@@ -1285,10 +1283,9 @@ public class VPUtil {
             player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
         }
     }
-    @OnlyIn(Dist.CLIENT)
     public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player == null || !player.getCommandSenderWorld().isClientSide)
-            player = Minecraft.getInstance().player;
+        if(player == null)
+            return;
         double startX = player.getX() - radius;
         double startY = player.getY() - radius;
         double startZ = player.getZ() - radius;
@@ -1315,10 +1312,9 @@ public class VPUtil {
             }
         }
     }
-    @OnlyIn(Dist.CLIENT)
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player == null || !player.getCommandSenderWorld().isClientSide)
-            player = Minecraft.getInstance().player;
+        if(player == null)
+            return;
         Random random = new Random();
         BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);
         double startX = pos.getX() - radius;

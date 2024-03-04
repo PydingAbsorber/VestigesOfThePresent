@@ -557,16 +557,11 @@ public class EventHandler {
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
-        if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
-            VPUtil.initEntities();
-            VPUtil.initItems();
-            VPUtil.initBlocks();
-            VPUtil.initFlowers();
-            VPUtil.initWorlds();
-            VPUtil.initEffects();
-            VPUtil.initMonstersAndBosses(serverLevel);
-            VPUtil.initBiomes(serverLevel);
+        Level level = player.getCommandSenderWorld();
+        if(level instanceof ServerLevel serverLevel) {
         }
+        VPUtil.initMonstersAndBosses(level);
+        VPUtil.initBiomes(level);
     }
 
     @SubscribeEvent
@@ -725,7 +720,7 @@ public class EventHandler {
             entity.getPersistentData().putLong("VPEnchant", 0);
             VPUtil.negativnoDisenchant(entity);
         }
-        if(entity.tickCount % 5 == 0 && entity instanceof ServerPlayer player){
+        if(entity.tickCount % 2 == 0 && entity instanceof ServerPlayer player){
             CompoundTag sendNudes = new CompoundTag();
             for (String key : player.getPersistentData().getAllKeys()) {
                 if (key.startsWith("VP") && player.getPersistentData().get(key) != null) {
@@ -744,8 +739,11 @@ public class EventHandler {
                 player.getPersistentData().putInt("VPDevourerShow",0);
             }
             if(playerTag.getBoolean("VPButton1") || playerTag.getBoolean("VPButton3")){
-                ItemStack stackInSlot = VPUtil.getFirstVestige(player).get(0);
-                if(stackInSlot.getItem() instanceof Vestige vestige) {
+                List<ItemStack> stackList = VPUtil.getFirstVestige(player);
+                ItemStack stackInSlot = null;
+                if(!stackList.isEmpty())
+                    stackInSlot = stackList.get(0);
+                if(stackInSlot != null && stackInSlot.getItem() instanceof Vestige vestige) {
                     if (player.getPersistentData().getBoolean("VPButton1")) {
                         vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
                     }
@@ -760,8 +758,10 @@ public class EventHandler {
                 ItemStack stack;
                 if(slotResultList.size() > 1)
                     stack = slotResultList.get(1);
-                else stack = slotResultList.get(0);
-                if(stack.getItem() instanceof Vestige vestige) {
+                else if (!slotResultList.isEmpty())
+                    stack = slotResultList.get(0);
+                else stack = null;
+                if(stack != null && stack.getItem() instanceof Vestige vestige) {
                     if (player.getPersistentData().getBoolean("VPButton2")) {
                         vestige.setSpecialActive(vestige.getSpecialMaxTime(), player);
                     }

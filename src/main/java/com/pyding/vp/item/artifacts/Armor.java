@@ -1,6 +1,8 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;

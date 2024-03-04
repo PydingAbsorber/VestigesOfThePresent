@@ -10,6 +10,7 @@ import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.VPUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -79,6 +80,12 @@ public class VestigesOfPresent
 
     private void postInit(InterModEnqueueEvent event) {
         LOGGER.info("Sending messages to Curios API...");
+        VPUtil.initEntities();
+        VPUtil.initItems();
+        VPUtil.initBlocks();
+        VPUtil.initFlowers();
+        VPUtil.initWorlds();
+        VPUtil.initEffects();
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {

@@ -155,7 +155,7 @@ public class Vestige extends Item implements ICurioItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if(slotContext.entity().getCommandSenderWorld().isClientSide) {
+        if(slotContext.entity() instanceof  Player player && player.getCommandSenderWorld().isClientSide) {
             ICurioItem.super.curioTick(slotContext, stack);
             return;
         }
@@ -214,6 +214,10 @@ public class Vestige extends Item implements ICurioItem {
         }
         isStellar = isStellar(stack);
         isDoubleStellar = isDoubleStellar(stack);
+        playerServer.getPersistentData().putInt("VPCharge"+vestigeNumber,currentChargeSpecial);
+        playerServer.getPersistentData().putInt("VPChargeUlt"+vestigeNumber,currentChargeUltimate);
+        playerServer.getPersistentData().putLong("VPTime"+vestigeNumber,time);
+        playerServer.getPersistentData().putLong("VPTimeUlt"+vestigeNumber,timeUlt);
         ICurioItem.super.curioTick(slotContext, stack);
     }
     @OnlyIn(Dist.CLIENT)

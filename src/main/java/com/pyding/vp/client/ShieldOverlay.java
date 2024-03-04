@@ -36,7 +36,6 @@ public class ShieldOverlay {
             "textures/gui/heal2.png");
     private static final ResourceLocation HEAL3 = new ResourceLocation(VestigesOfPresent.MODID,
             "textures/gui/heal3.png");
-    @OnlyIn(Dist.CLIENT)
     public static final IGuiOverlay HUD_SHIELD = ((gui, pose, partialTick, width, height) -> {
         int x = width / 2;
         int y = height;
@@ -62,8 +61,12 @@ public class ShieldOverlay {
                         continue;
                     pose.blit(getTexture(vestige.vestigeNumber),x+(130+i*40),y-22, 0, 0, 16, 16,
                             16, 16);
-                    pose.drawString(fontRenderer,""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
-                    pose.drawString(fontRenderer,""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
+                    int currentChargeSpecial = player.getPersistentData().getInt("VPCharge"+vestige.vestigeNumber);
+                    int currentChargeUltimate = player.getPersistentData().getInt("VPChargeUlt"+vestige.vestigeNumber);
+                    long time = player.getPersistentData().getLong("VPTime"+vestige.vestigeNumber);
+                    long timeUlt = player.getPersistentData().getLong("VPTimeUlt"+vestige.vestigeNumber);
+                    pose.drawString(fontRenderer,""+currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
+                    pose.drawString(fontRenderer,""+currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     String info = "";
@@ -99,32 +102,32 @@ public class ShieldOverlay {
                     String durationUlt = "";
                     String durationSpecial = "";
                     if(vestige.vestigeNumber == 8){
-                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
                     if(vestige.vestigeNumber == 20){
-                        int number = Math.round(vestige.time-System.currentTimeMillis())/1000;
+                        int number = Math.round(time-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
                     if(vestige.vestigeNumber == 2){
-                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
                     if(vestige.vestigeNumber == 1){
-                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
                     if(vestige.vestigeNumber == 13){
-                        int number = Math.round(vestige.time-System.currentTimeMillis())/1000;
+                        int number = Math.round(time-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
                     if(vestige.vestigeNumber == 7){
-                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
@@ -141,7 +144,7 @@ public class ShieldOverlay {
                             pose.drawString(fontRenderer,""+show, x+(132+i*40),y-43, 0x54717B);
                     }
                     if(vestige.vestigeNumber == 13){
-                        int number = Math.round(vestige.timeUlt-System.currentTimeMillis())/1000;
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             info = String.valueOf(number);
                     }
@@ -263,7 +266,7 @@ public class ShieldOverlay {
         locations.add(new ResourceLocation(MODID, "textures/item/atlas.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/killer.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/mask.png"));
-        locations.add(new ResourceLocation(MODID, "textures/item/donut.png"));
+        locations.add(new ResourceLocation(MODID, "textures/item/donut_static.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/mark.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/ears.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/midas.png"));

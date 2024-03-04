@@ -30,8 +30,8 @@ public class SweetDonut extends Vestige{
         VPUtil.play(player,SoundRegistry.HEAL3.get());
         VPUtil.spawnParticles(player, ParticleTypes.HEART,1,1,0,-0.1,0,1,false);
         player.heal(player.getMaxHealth()*0.4f);
-        VPUtil.clearEffects(player,false);
         if(player instanceof ServerPlayer serverPlayer) {
+            VPUtil.clearEffects(serverPlayer,false);
             if (serverPlayer.getHealth() <= serverPlayer.getMaxHealth() * 0.5) {
                 serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20, 4));
                 PacketHandler.sendToClient(new PlayerFlyPacket(4), serverPlayer);
