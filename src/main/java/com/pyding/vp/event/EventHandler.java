@@ -70,8 +70,6 @@ public class EventHandler {
             CompoundTag tag = entity.getPersistentData();
             VPUtil.damageAdoption(entity, event);
             Random random = new Random();
-            if (event.getAmount() <= 5)
-                tag.putBoolean("VPCrownDR", true);
             if (entity.getPersistentData().getBoolean("VPKillerQueen")) {
                 entity.getPersistentData().putBoolean("VPKillerQueen", false);
                 event.setAmount(event.getAmount() * 1.7f);
@@ -87,6 +85,17 @@ public class EventHandler {
                 } else event.setAmount(event.getAmount()*10);
             }
             if (event.getSource().getEntity() instanceof Player player) {
+                if (event.getAmount() <= 5) {
+                    tag.putBoolean("VPCrownDR", true);
+                    if(entity.getPersistentData().getInt("VPCrownCycle") > 0) {
+                        entity.getPersistentData().putInt("VPCrownCycle",entity.getPersistentData().getInt("VPCrownCycle")-1);
+                        VPUtil.adaptiveDamageHurt(entity, player, true, 300);
+                    }
+                }
+                else {
+                    entity.getPersistentData().putInt("VPCrownCycle",0);
+                    entity.getPersistentData().putBoolean("VPCrownDR", false);
+                }
                 if (event.getSource().is(DamageTypes.FALL) && player.getPersistentData().getInt("VPGravity") < 30 && Math.random() < 0.2)
                     player.getPersistentData().putInt("VPGravity", Math.min(30, player.getPersistentData().getInt("VPGravity") + 1));
                 if (VPUtil.hasVestige(ModItems.ANEMOCULUS.get(), player) && !entity.onGround()) {

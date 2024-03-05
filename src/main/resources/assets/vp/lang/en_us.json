@@ -123,7 +123,7 @@
   "vp.passive.2": "Damage is reduced by the difference between the attack attribute of the owner and the attacker.",
   "vp.special.2": "Deals 300% damage to all players and hostile creatures in the radius.",
   "vp.ultimate.2": "Turns off Invincibility/cancelling death of a creature at the point of view for the next 40 seconds.",
-  "vp.damagetype.2": "Adaptive (changes if the opponent isn't damaged)",
+  "vp.damagetype.2": "adaptive (changes up to 5 times until hurts enemy)",
   "vp.get.2": "Defeat all hostile creatures in the modpack.",
 
 

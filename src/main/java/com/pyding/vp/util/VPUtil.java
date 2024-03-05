@@ -7,10 +7,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
-import com.pyding.vp.network.packets.PlayerFlyPacket;
-import com.pyding.vp.network.packets.SendEntityNbtToClient;
-import com.pyding.vp.network.packets.SendPlayerNbtToClient;
-import com.pyding.vp.network.packets.SoundPacket;
+import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -894,20 +891,24 @@ public class VPUtil {
 
     public static void adaptiveDamageHurt(LivingEntity entity, Player player, boolean adopted,float percent){
         int damage = entity.getPersistentData().getInt("VPCrownDamage");
+        if(damage == playerDamageSources(player,player).size())
+            damage = 0;
         int cycle = entity.getPersistentData().getInt("VPCrownCycle");
         DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
-        while(entity.fireImmune() && source.is(DamageTypeTags.IS_FIRE) || entity.ignoreExplosion() && source.is(DamageTypeTags.IS_EXPLOSION)){
+        if((entity.fireImmune() && source.is(DamageTypeTags.IS_FIRE)) || (entity.ignoreExplosion() && source.is(DamageTypeTags.IS_EXPLOSION))){
             damage++;
-            source = playerDamageSources(player,entity).get(damage);
-        }
-        dealDamage(entity,player,source,percent,2);
-        if(adopted  && cycle > 0) {
-            entity.getPersistentData().putInt("VPCrownCycle",cycle-1);
             if(damage == playerDamageSources(player,player).size())
                 damage = 0;
-            entity.getPersistentData().putInt("VPCrownDamage", damage+1);
-            entity.getPersistentData().putBoolean("VPCrownDR",false);
+            source = playerDamageSources(player,entity).get(damage);
         }
+        if(adopted && cycle > 0) {
+            if(damage+1 == playerDamageSources(player,player).size())
+                damage = 0;
+            entity.getPersistentData().putInt("VPCrownDamage", damage+1);
+        } else entity.getPersistentData().putInt("VPCrownCycle",0);
+        dealDamage(entity,player,source,percent,2);
+        System.out.println(damage + " from crown");
+        System.out.println(cycle + " cycle from crown");
     }
 
     public static DamageSource randomizeDamageType(Player player){
@@ -1254,12 +1255,11 @@ public class VPUtil {
         System.out.println("prism");
         System.out.println(weak);
         System.out.println(event.getSource());
-        if(event.getSource() == weak){
+        if(event.getSource().getMsgId().equals(weak.getMsgId())){
             event.setAmount(event.getAmount()*2);
         }
         else {
             event.setAmount(0);
-            event.setCanceled(true);
         }
     }
 
@@ -1316,8 +1316,6 @@ public class VPUtil {
         return attacker.isAlliedTo(target);
     }
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
-        if(player == null || !player.getCommandSenderWorld().isClientSide)
-            player = Minecraft.getInstance().player;
         Random random = new Random();
         for(int i = 0; i < count; i++) {
             double numba = random.nextInt(2);
@@ -1331,12 +1329,15 @@ public class VPUtil {
                 y -= numba;
                 z -= numba;
             }
-            player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+            if(player.getCommandSenderWorld().isClientSide) {
+                player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+            }
+            else {
+                PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ));
+            }
         }
     }
     public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player == null || !player.getCommandSenderWorld().isClientSide)
-            player = Minecraft.getInstance().player;
         double startX = player.getX() - radius;
         double startY = player.getY() - radius;
         double startZ = player.getZ() - radius;
@@ -1358,14 +1359,17 @@ public class VPUtil {
                         y -= numba;
                         z -= numba;
                     }
-                    player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                    if(player.getCommandSenderWorld().isClientSide) {
+                        player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                    }
+                    else {
+                        PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ));
+                    }
                 }
             }
         }
     }
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        if(player == null || !player.getCommandSenderWorld().isClientSide)
-            player = Minecraft.getInstance().player;
         Random random = new Random();
         BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);
         double startX = pos.getX() - radius;
@@ -1389,7 +1393,12 @@ public class VPUtil {
                         y -= numba;
                         z -= numba;
                     }
-                    player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                    if(player.getCommandSenderWorld().isClientSide) {
+                        player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
+                    }
+                    else {
+                        PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ));
+                    }
                 }
             }
         }

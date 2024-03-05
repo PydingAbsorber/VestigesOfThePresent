@@ -10,6 +10,7 @@ import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.VPUtilParticles;
 import com.pyding.vp.util.VPUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -86,6 +87,7 @@ public class VestigesOfPresent
         VPUtil.initFlowers();
         VPUtil.initWorlds();
         VPUtil.initEffects();
+        VPUtilParticles.fillParticleMaps();
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
