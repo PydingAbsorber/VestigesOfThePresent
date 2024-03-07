@@ -4,10 +4,7 @@ import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.client.render.BlackHoleRenderer;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.network.PacketHandler;
-import com.pyding.vp.network.packets.ButtonPressPacket;
-import com.pyding.vp.network.packets.ButtonPressPacket2;
-import com.pyding.vp.network.packets.ButtonPressPacket3;
-import com.pyding.vp.network.packets.ButtonPressPacket4;
+import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.KeyBinding;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -23,16 +20,20 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
             if(KeyBinding.FIRST_KEY.consumeClick()) {
-                PacketHandler.sendToServer(new ButtonPressPacket());
-            }
-            if(KeyBinding.SECOND_KEY.consumeClick()) {
-                PacketHandler.sendToServer(new ButtonPressPacket2());
+                System.out.println("Special1 packet sending...");
+                PacketHandler.sendToServer(new ButtonPressPacket(1));
             }
             if(KeyBinding.FIRST_KEY_ULT.consumeClick()) {
-                PacketHandler.sendToServer(new ButtonPressPacket3());
+                System.out.println("Special3 packet sending...");
+                PacketHandler.sendToServer(new ButtonPressPacket(3));
+            }
+            if(KeyBinding.SECOND_KEY.consumeClick()) {
+                System.out.println("Special2 packet sending...");
+                PacketHandler.sendToServer(new ButtonPressPacket(2));
             }
             if(KeyBinding.SECOND_KEY_ULT.consumeClick()) {
-                PacketHandler.sendToServer(new ButtonPressPacket4());
+                System.out.println("Special4 packet sending...");
+                PacketHandler.sendToServer(new ButtonPressPacket(4));
             }
         }
     }

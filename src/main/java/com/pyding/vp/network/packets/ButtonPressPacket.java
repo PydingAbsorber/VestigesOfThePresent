@@ -7,23 +7,24 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class ButtonPressPacket {
-    public ButtonPressPacket() {
-
+    private int id;
+    public ButtonPressPacket(int id) {
+        this.id = id;
     }
 
-    public ButtonPressPacket(FriendlyByteBuf buf) {
-
+    public static void encode(ButtonPressPacket msg, FriendlyByteBuf buf) {
+        buf.writeInt(msg.id);
     }
 
-    public void toBytes(FriendlyByteBuf buf) {
-
+    public static ButtonPressPacket decode(FriendlyByteBuf buf) {
+        return new ButtonPressPacket(buf.readInt());
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context context = supplier.get();
-        context.enqueueWork(() -> {
-            ServerPlayer player = context.getSender();
-            player.getPersistentData().putBoolean("VPButton1",true);
+    public static boolean handle(ButtonPressPacket msg, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() -> {
+            ServerPlayer player = ctx.get().getSender();
+            player.getPersistentData().putBoolean("VPButton"+msg.id,true);
+            System.out.println(msg.id + " packet received");
         });
         return true;
     }

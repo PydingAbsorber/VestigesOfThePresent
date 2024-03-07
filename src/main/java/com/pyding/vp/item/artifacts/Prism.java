@@ -44,7 +44,7 @@ public class Prism extends Vestige{
                 break;
             }
         }
-        if(isStellar && found){
+        if(isStellar && !found){
             player.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime);
             player.getPersistentData().putString("VPPrismDamage", VPUtil.generateRandomDamageType());
             VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, player.getX(), player.getY(), player.getZ(), 20, 0, 0.5, 0);

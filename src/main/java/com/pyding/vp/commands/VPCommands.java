@@ -22,8 +22,7 @@ import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("vestiges")
-                .then(Commands.literal("clear")
-                        .requires(sender -> sender.hasPermission(2))
+                .then(Commands.literal("clear").requires(sender -> sender.hasPermission(2))
                         .then(Commands.literal("progress")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();

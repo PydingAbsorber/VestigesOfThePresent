@@ -123,7 +123,7 @@
   "vp.passive.2": "Damage is reduced by the difference between the attack attribute of the owner and the attacker.",
   "vp.special.2": "Deals 300% damage to all players and hostile creatures in the radius.",
   "vp.ultimate.2": "Turns off Invincibility/cancelling death of a creature at the point of view for the next 40 seconds.",
-  "vp.damagetype.2": "adaptive (changes up to 5 times until hurts enemy)",
+  "vp.damagetype.2": "adaptive (changes until hurts enemy)",
   "vp.get.2": "Defeat all hostile creatures in the modpack.",
 
 
@@ -135,7 +135,7 @@
 
   "vp.passive.4": "After death, causes an explosion within a 40 blocks radius with 800% damage. \nCannot be activated during Special cooldown. \nDoes not affect blocks and items.",
   "vp.special.4": "Self-detonation in a radius of 20 blocks with 400% damage. \nEach hit enemy will have 70% reduced resistance to the next explosive damage.",
-  "vp.ultimate.4": "If dying within the next 20 seconds, Passive does not activate. \nAfter 20 seconds, Passive will have 8000% damage.",
+  "vp.ultimate.4": "For the next 20 seconds death will be canceled and cause Passive with 8000% damage. \nAfter death or 20 seconds next death will not trigger Passive until cd ends.",
   "vp.damagetype.4": "explosive",
   "vp.get.4": "Explode 100 creatures.",
 
@@ -226,9 +226,9 @@
   "vp.get.20": "Tame or kill all peaceful creatures in the modpack.",
 
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
-  "vp.stellar.2": "Special: Each slain enemy with Special will grant a shield of 10% of its max HP (stackable).",
+  "vp.stellar.2": "Special: Each slain enemy with Special will grant a shield of 10% of its max HP (stackable). \nEach enemy that absorbed Special damage has a 5% chance to restore charge.",
   "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10% and give Gravitation stack.",
-  "vp.stellar.4": "Special: Creatures killed by the owner explode with a 50% chance without affecting objects and blocks, dealing 300% damage within a radius of 8 blocks.",
+  "vp.stellar.4": "Ultimate: Owner hits can cause explosion with 20% chance when Ultimate is active. \nPassive: also disables teleportation and Shield gathering for 3 minutes.",
   "vp.stellar.5": "Passive: Each Over Healing on an opponent under the aura effect will break all their equipment by 5%.",
   "vp.stellar.6": "Special: also adds shield with amount of 300% from max health(not stackable).",
   "vp.stellar.7": "Ultimate also applies a Healing Debt of 1000% of max HP. If the wearer survives after the ultimate, its cooldown resets by % of the difference between received damage and healing (up to 60%).",
@@ -239,7 +239,7 @@
   "vp.stellar.12": "Special: Each damage inflicted on Disappointed creature, which after absorption will be less than 5, accumulates without absorption. \nAfter that, it is added to the next attack that will hurt opponent more then 5 damage, or to the 10th attack.",
   "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance.",
-  "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get heal and shields, higher then 30 - current hp becomes max hp. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the carrier exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
+  "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get Heal and Shields, higher then 30 - current hp becomes max hp. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the carrier exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
   "vp.stellar.16": "Ultimate: Creatures under the shield receive physical damage absorption 90% and breaking shield will hurt breaker with amount of max initiate shields.",
   "vp.stellar.17": "Special: redirects next 5 debuffs to all entities in 15 blocks radius. \nUltimate: cancels the level restriction.",
   "vp.stellar.18": "Ultimate: every 10% damage bonus adds 1 Paragon damage against wet opponents.",

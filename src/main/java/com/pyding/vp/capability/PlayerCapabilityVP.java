@@ -316,15 +316,13 @@ public class PlayerCapabilityVP {
     }
 
     public void addDamageDo(DamageSource source, Player player){
-        String damage = "";
-        for(TagKey<DamageType> key: VPUtil.damageTypes()){
-            if(source.is(key))
-                damage = key.location().getNamespace()+",";
-        }
-        for(String damageName: damage.split(",")) {
-            if (!this.damageDo.contains(damageName)) {
-                this.damageDo += damageName + ",";
-                setChallenge(13, player);
+        for(TagKey<DamageType> key: VPUtil.damageTypes(true)){
+            if(source.is(key)) {
+                String damageName = key.location().getPath();
+                if (!this.damageDo.contains(damageName)) {
+                    this.damageDo += damageName + ",";
+                    setChallenge(13, player);
+                }
             }
         }
     }
@@ -526,7 +524,7 @@ public class PlayerCapabilityVP {
             case 12:
                 return 10-reduce;
             case 13:
-                return VPUtil.damageTypes().size();
+                return VPUtil.damageTypes(true).size();
             case 14:
                 return 6-reduce;
             case 15:

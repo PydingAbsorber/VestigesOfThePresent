@@ -77,6 +77,10 @@ public class Vestige extends Item implements ICurioItem {
     }
     public int vestigeNumber;
     public void dataInit(int vestigeNumber,ChatFormatting color,int specialCharges,int specialCd,int ultimateCharges,int ultimateCd,int specialMaxTime,int ultimateMaxTime,boolean hasDamage){
+        if(isDoubleStellar){
+            specialCharges += 1;
+            ultimateCharges += 1;
+        }
         this.ultimateCharges = ultimateCharges;
         this.ultimateCd = ultimateCd*20;
         this.specialCharges = specialCharges;

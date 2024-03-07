@@ -126,6 +126,11 @@ public class ShieldOverlay {
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
+                    if(vestige.vestigeNumber == 4){
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationUlt = String.valueOf(number);
+                    }
                     if(!info.isEmpty())
                         pose.drawString(fontRenderer,""+info, x+(132+i*40),y-33, vestige.color.getColor());
                     if(!durationSpecial.isEmpty())

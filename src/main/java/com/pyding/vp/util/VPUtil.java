@@ -536,7 +536,7 @@ public class VPUtil {
             if (cap.getDebug() && !player.getCommandSenderWorld().isClientSide) {
                 player.sendSystemMessage(event.getEntity().getType().getDescription());
                 player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
-                for(TagKey<DamageType> type : damageTypes()){
+                for(TagKey<DamageType> type : damageTypes(false)){
                     if(event.getSource().is(type))
                         player.sendSystemMessage(Component.translatable(type.location().toLanguageKey()));
                 }
@@ -546,6 +546,8 @@ public class VPUtil {
                 player.sendSystemMessage(Component.literal("§cHas Shields: " + shield));
                 if(overshield > 0)
                 player.sendSystemMessage(Component.literal("§dHas Over Shields: " + overshield));
+                if(event.getEntity().getPersistentData().getInt("VPPrismDamage") > 0)
+                    player.sendSystemMessage(Component.literal("§5Has Prism with weak point: " + playerDamageSources(player,player).get(event.getEntity().getPersistentData().getInt("VPPrismDamage")-1)));
                 player.sendSystemMessage(Component.literal("\n"));
             }
         });
@@ -554,7 +556,7 @@ public class VPUtil {
     public static List<String> getDamageDoLeft(String list){
         List<String> damageList = new ArrayList<>(Arrays.asList(list.split(",")));
         List<String> allList = new ArrayList<>();
-        for(TagKey<DamageType> key: damageTypes()){
+        for(TagKey<DamageType> key: damageTypes(true)){
             allList.add(key.location().getPath());
         }
         allList.removeAll(damageList);
@@ -889,26 +891,26 @@ public class VPUtil {
         }
     }
 
-    public static void adaptiveDamageHurt(LivingEntity entity, Player player, boolean adopted,float percent){
+    public static void adaptiveDamageHurt(LivingEntity entity, Player player,float percent){
+        boolean adopted = entity.getPersistentData().getBoolean("VPCrownDR");
         int damage = entity.getPersistentData().getInt("VPCrownDamage");
-        if(damage == playerDamageSources(player,player).size())
+        if(damage >= playerDamageSources(player,player).size())
             damage = 0;
-        int cycle = entity.getPersistentData().getInt("VPCrownCycle");
+        if(adopted){
+            damage++;
+            if(damage >= playerDamageSources(player,player).size())
+                damage = 0;
+            entity.getPersistentData().putInt("VPCrownDamage", damage);
+        }
         DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
-        if((entity.fireImmune() && source.is(DamageTypeTags.IS_FIRE)) || (entity.ignoreExplosion() && source.is(DamageTypeTags.IS_EXPLOSION))){
+        /*if((entity.fireImmune() && source.is(DamageTypeTags.IS_FIRE)) || (entity.ignoreExplosion() && source.is(DamageTypeTags.IS_EXPLOSION))){
             damage++;
             if(damage == playerDamageSources(player,player).size())
                 damage = 0;
-            source = playerDamageSources(player,entity).get(damage);
-        }
-        if(adopted && cycle > 0) {
-            if(damage+1 == playerDamageSources(player,player).size())
-                damage = 0;
-            entity.getPersistentData().putInt("VPCrownDamage", damage+1);
-        } else entity.getPersistentData().putInt("VPCrownCycle",0);
+            source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
+        }*/
         dealDamage(entity,player,source,percent,2);
-        System.out.println(damage + " from crown");
-        System.out.println(cycle + " cycle from crown");
+        //this fucking stinky dinky spaggety code wrote by an absolute disgusting imbecile(me lol) didn't work even after 20 tries to fix it
     }
 
     public static DamageSource randomizeDamageType(Player player){
@@ -974,9 +976,11 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity,Player player){
-        if(Math.random() < 0.5)
-            play(entity,SoundRegistry.DEATH1.get());
-        else play(entity,SoundRegistry.DEATH2.get());
+        if(entity instanceof Player) {
+            if (Math.random() < 0.5)
+                play(entity, SoundRegistry.DEATH1.get());
+            else play(entity, SoundRegistry.DEATH2.get());
+        }
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
         entity.setHealth(0);
         entity.die(player.damageSources().playerAttack(player));
@@ -1118,8 +1122,6 @@ public class VPUtil {
     }
 
     public static ResourceKey<Level> getWorldKey(String path,String directory){
-        System.out.println(path);
-        System.out.println(directory);
         ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(directory,path));
         return key;
     }
@@ -1252,9 +1254,6 @@ public class VPUtil {
             return;
         List<DamageSource> sources = playerDamageSources(entity,entity);
         DamageSource weak = sources.get(damage-1);
-        System.out.println("prism");
-        System.out.println(weak);
-        System.out.println(event.getSource());
         if(event.getSource().getMsgId().equals(weak.getMsgId())){
             event.setAmount(event.getAmount()*2);
         }
@@ -1329,11 +1328,10 @@ public class VPUtil {
                 y -= numba;
                 z -= numba;
             }
-            if(player.getCommandSenderWorld().isClientSide) {
-                player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
-            }
-            else {
-                PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ));
+            for (LivingEntity entity: getEntitiesAround(player,20,20,20,true)){
+                if(entity instanceof ServerPlayer serverPlayer){
+                    PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ),serverPlayer);
+                }
             }
         }
     }
@@ -1359,11 +1357,10 @@ public class VPUtil {
                         y -= numba;
                         z -= numba;
                     }
-                    if(player.getCommandSenderWorld().isClientSide) {
-                        player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
-                    }
-                    else {
-                        PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ));
+                    for (LivingEntity entity: getEntitiesAround(player,20,20,20,true)){
+                        if(entity instanceof ServerPlayer serverPlayer){
+                            PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ),serverPlayer);
+                        }
                     }
                 }
             }
@@ -1393,11 +1390,10 @@ public class VPUtil {
                         y -= numba;
                         z -= numba;
                     }
-                    if(player.getCommandSenderWorld().isClientSide) {
-                        player.getCommandSenderWorld().addParticle(particle, x, y, z, deltaX, deltaY, deltaZ);
-                    }
-                    else {
-                        PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ));
+                    for (LivingEntity entity: getEntitiesAround(player,20,20,20,true)){
+                        if(entity instanceof ServerPlayer serverPlayer){
+                            PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ),serverPlayer);
+                        }
                     }
                 }
             }
@@ -1451,12 +1447,10 @@ public class VPUtil {
         entity.setDeltaMovement(smoothedVelocity);
     }
 
-    public static void play(LivingEntity entity, SoundEvent sound){
-        if(entity.getCommandSenderWorld().isClientSide)
-            entity.playSound(sound,1,1);
-        else {
-            if(entity instanceof Player player) {
-                PacketHandler.sendToClients(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new SoundPacket(sound.getLocation(), 1, 1));
+    public static void play(LivingEntity main, SoundEvent sound){
+        for(LivingEntity entity: getEntitiesAround(main,20,20,20,true)) {
+            if (entity instanceof ServerPlayer player) {
+                PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1),player);
             }
         }
     }
@@ -1675,7 +1669,7 @@ public class VPUtil {
         }
     }
 
-    public static List<TagKey<DamageType>> damageTypes(){
+    public static List<TagKey<DamageType>> damageTypes(boolean warden){
         List<TagKey<DamageType>> damageTypes = new ArrayList<>();
         damageTypes.add(DamageTypeTags.DAMAGES_HELMET);
         damageTypes.add(DamageTypeTags.BYPASSES_ARMOR);
@@ -1684,7 +1678,8 @@ public class VPUtil {
         damageTypes.add(DamageTypeTags.BYPASSES_EFFECTS);
         damageTypes.add(DamageTypeTags.BYPASSES_RESISTANCE);
         damageTypes.add(DamageTypeTags.BYPASSES_ENCHANTMENTS);
-        damageTypes.add(DamageTypeTags.IS_FIRE);
+        if(!warden)
+            damageTypes.add(DamageTypeTags.IS_FIRE);
         damageTypes.add(DamageTypeTags.IS_PROJECTILE);
         damageTypes.add(DamageTypeTags.WITCH_RESISTANT_TO);
         damageTypes.add(DamageTypeTags.IS_EXPLOSION);
@@ -1692,12 +1687,15 @@ public class VPUtil {
         damageTypes.add(DamageTypeTags.IS_DROWNING);
         damageTypes.add(DamageTypeTags.IS_FREEZING);
         damageTypes.add(DamageTypeTags.IS_LIGHTNING);
-        damageTypes.add(DamageTypeTags.NO_ANGER);
+        if(!warden)
+            damageTypes.add(DamageTypeTags.NO_ANGER);
         damageTypes.add(DamageTypeTags.NO_IMPACT);
         damageTypes.add(DamageTypeTags.ALWAYS_MOST_SIGNIFICANT_FALL);
         damageTypes.add(DamageTypeTags.WITHER_IMMUNE_TO);
-        damageTypes.add(DamageTypeTags.IGNITES_ARMOR_STANDS);
-        damageTypes.add(DamageTypeTags.BURNS_ARMOR_STANDS);
+        if(!warden)
+            damageTypes.add(DamageTypeTags.IGNITES_ARMOR_STANDS);
+        if(!warden)
+            damageTypes.add(DamageTypeTags.BURNS_ARMOR_STANDS);
         damageTypes.add(DamageTypeTags.AVOIDS_GUARDIAN_THORNS);
         damageTypes.add(DamageTypeTags.ALWAYS_TRIGGERS_SILVERFISH);
         damageTypes.add(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS);

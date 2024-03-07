@@ -30,12 +30,12 @@ public class PacketHandler {
 
         net.registerMessage(id(),SendPlayerNbtToClient.class, SendPlayerNbtToClient::encode, SendPlayerNbtToClient::decode, SendPlayerNbtToClient::handle);
         net.registerMessage(id(),SendPlayerCapaToClient.class, SendPlayerCapaToClient::encode, SendPlayerCapaToClient::decode, SendPlayerCapaToClient::handle);
-        net.messageBuilder(ButtonPressPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+        /*net.messageBuilder(ButtonPressPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ButtonPressPacket::new)
                 .encoder(ButtonPressPacket::toBytes)
                 .consumerMainThread(ButtonPressPacket::handle)
-                .add();
-        net.messageBuilder(ButtonPressPacket2.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .add();*/
+        /*net.messageBuilder(ButtonPressPacket2.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ButtonPressPacket2::new)
                 .encoder(ButtonPressPacket2::toBytes)
                 .consumerMainThread(ButtonPressPacket2::handle)
@@ -49,7 +49,7 @@ public class PacketHandler {
                 .decoder(ButtonPressPacket4::new)
                 .encoder(ButtonPressPacket4::toBytes)
                 .consumerMainThread(ButtonPressPacket4::handle)
-                .add();
+                .add();*/
         net.messageBuilder(ClientToServerPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ClientToServerPacket::new)
                 .encoder(ClientToServerPacket::toBytes)
@@ -59,6 +59,8 @@ public class PacketHandler {
         net.registerMessage(id(),SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
         net.registerMessage(id(),SoundPacket.class, SoundPacket::encode, SoundPacket::decode, SoundPacket::handle);
         net.registerMessage(id(),ParticlePacket.class, ParticlePacket::encode, ParticlePacket::decode, ParticlePacket::handle);
+        //net.registerMessage(id(),ButtonPacket.class, ButtonPacket::encode, ButtonPacket::decode, ButtonPacket::handle);
+        net.registerMessage(id(),ButtonPressPacket.class, ButtonPressPacket::encode, ButtonPressPacket::decode, ButtonPressPacket::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

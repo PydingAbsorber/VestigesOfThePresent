@@ -122,7 +122,7 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public int setSpecialActive(long seconds, Player player) {
-        if(isSpecialActive) {
+        if(isSpecialActive && !player.getCommandSenderWorld().isClientSide) {
             time = 1;
             return 0;
         }

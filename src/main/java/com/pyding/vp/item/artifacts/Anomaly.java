@@ -45,12 +45,6 @@ public class Anomaly extends Vestige{
             stackInSlot.getOrCreateTag().putDouble("VPReturnZ", player.getZ());
             stackInSlot.getOrCreateTag().putString("VPReturnDir", player.getCommandSenderWorld().dimension().location().getNamespace());
             stackInSlot.getOrCreateTag().putString("VPReturnKey", player.getCommandSenderWorld().dimension().location().getPath());
-            /*System.out.println(player.getCommandSenderWorld().dimension().registry());
-            System.out.println(player.getCommandSenderWorld().dimension().location());
-            System.out.println(player.getCommandSenderWorld().dimension().registry().getNamespace());
-            System.out.println(player.getCommandSenderWorld().dimension().registry().getPath());
-            System.out.println(player.getCommandSenderWorld().dimension().location().getNamespace());
-            System.out.println(player.getCommandSenderWorld().dimension().location().getPath());*/
         } else {
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
@@ -69,13 +63,17 @@ public class Anomaly extends Vestige{
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if(isStellar && (Math.random() < 0.05 || (player.getScoreboardName().equals("Pyding") && player.isCreative()))){  //don't blame me it's for test
+                    int counter = 0;
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
+                        counter++;
                         if(victim != serverPlayer){
                             serverPlayer.teleportTo((ServerLevel) victim.getCommandSenderWorld(),victim.getX(),victim.getY(),victim.getZ(),0,0);
-                            return;
+                            break;
                         }
-                        player.sendSystemMessage(Component.literal("There are no other players!"));
                     }
+                    if(counter <= 1)
+                        player.sendSystemMessage(Component.literal("There are no other players!"));
+                    VPUtil.play(player, SoundRegistry.TELEPORT2.get());
                 }
                 else {
                     List<String> list = new ArrayList<>(cap.getRandomDimension());
