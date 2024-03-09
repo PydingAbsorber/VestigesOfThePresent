@@ -20,19 +20,15 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
             if(KeyBinding.FIRST_KEY.consumeClick()) {
-                System.out.println("Special1 packet sending...");
                 PacketHandler.sendToServer(new ButtonPressPacket(1));
             }
             if(KeyBinding.FIRST_KEY_ULT.consumeClick()) {
-                System.out.println("Special3 packet sending...");
                 PacketHandler.sendToServer(new ButtonPressPacket(3));
             }
             if(KeyBinding.SECOND_KEY.consumeClick()) {
-                System.out.println("Special2 packet sending...");
                 PacketHandler.sendToServer(new ButtonPressPacket(2));
             }
             if(KeyBinding.SECOND_KEY_ULT.consumeClick()) {
-                System.out.println("Special4 packet sending...");
                 PacketHandler.sendToServer(new ButtonPressPacket(4));
             }
         }

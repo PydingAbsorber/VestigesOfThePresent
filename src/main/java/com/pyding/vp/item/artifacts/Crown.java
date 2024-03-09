@@ -22,7 +22,8 @@ public class Crown extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.CROWN.get());
-        for(LivingEntity entity : VPUtil.getMonstersAround(player,20,6,20)){
+        for(LivingEntity entity : VPUtil.getMonstersAround(player,15,6,15)){
+            entity.getPersistentData().putBoolean("VPCrownHit",true);
             VPUtil.adaptiveDamageHurt(entity,player,300);
             VPUtil.spawnParticles(player, ParticleTypes.GLOW,entity.getX(),entity.getY(),entity.getZ(),8,0,0.5,0);
         }
@@ -32,7 +33,7 @@ public class Crown extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.CROWN_ULT.get());
         for(LivingEntity entity: VPUtil.ray(player,3,128,false)){
-            entity.getPersistentData().putLong("VPDeath", ultimateMaxTime + System.currentTimeMillis());
+            entity.getPersistentData().putLong("VPDeath", ultimateMaxTime() + System.currentTimeMillis());
         }
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,128,3,3,0,1,0,3,false);
         super.doUltimate(seconds, player, level);

@@ -39,7 +39,7 @@ public class Killer extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.MAGIC3.get());
-        player.getPersistentData().putLong("VPQueenDeath",System.currentTimeMillis()+20000);
+        player.getPersistentData().putLong("VPQueenDeath",System.currentTimeMillis()+seconds);
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,4,1,0,0,0,0,false);
         super.doUltimate(seconds, player, level);
     }

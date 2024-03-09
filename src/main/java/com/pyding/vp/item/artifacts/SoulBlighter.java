@@ -39,10 +39,10 @@ public class SoulBlighter extends Vestige{
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.MAGIC4.get());
         if(player.getHealth() < player.getMaxHealth()*0.5f)
-            player.getPersistentData().putLong("VPAstral",System.currentTimeMillis()+specialMaxTime);
+            player.getPersistentData().putLong("VPAstral",System.currentTimeMillis()+specialMaxTime());
         else {
             for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
-                entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime);
+                entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime());
                 VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                 break;
             }
@@ -57,8 +57,7 @@ public class SoulBlighter extends Vestige{
         if(stack.getOrCreateTag().contains("entityData")){
             CompoundTag entityData = stack.getTag().getCompound("entityData");
             stack.getTag().remove("entityData");
-            fuckNbtCheck1 = true;
-            fuckNbtCheck2 = true;
+            fuckNbt();
             BlockPos pos = VPUtil.rayCords(player,level,6);
             entityData.remove("Pos");
             CompoundTag wrapper = new CompoundTag();
@@ -72,7 +71,7 @@ public class SoulBlighter extends Vestige{
             level.addFreshEntity(entity);
             if(isStellar)
                 player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-            cdUltimateActive = (int) (ultimateCd*0.2);
+            setCdUltimateActive((int) (ultimateCd()*0.2));
         } else {
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
@@ -82,8 +81,7 @@ public class SoulBlighter extends Vestige{
                 if(Math.random() < chance
                         || (entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").equals(player.getUUID()))
                         || player.isCreative()){
-                    fuckNbtCheck1 = true;
-                    fuckNbtCheck2 = true;
+                    fuckNbt();
                     stack.getOrCreateTag().put("entityData",entity.serializeNBT());
                     stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
                     VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
@@ -124,27 +122,25 @@ public class SoulBlighter extends Vestige{
         return tag;
     }
 
-    public boolean fuckNbtCheck1 = false;
-    public boolean fuckNbtCheck2 = false;
-
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
-        if (!fuckNbtCheck1) {
-            super.onUnequip(slotContext, newStack, stack);
-            if(stack.getOrCreateTag().contains("entityData") && isStellar)
+        if(!fuckNbt1) {
+            if(stack.getOrCreateTag().contains("entityData") && isStellar) {
                 player1.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-        } else fuckNbtCheck1 = false;
+            }
+        }
+        super.onUnequip(slotContext, newStack, stack);
     }
 
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
-        if(!fuckNbtCheck2) {
+        if(!fuckNbt2) {
             if(stack.getOrCreateTag().contains("entityData") && isStellar)
                 player1.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-            super.onEquip(slotContext, prevStack, stack);
-        } else fuckNbtCheck2 = false;
+        }
+        super.onEquip(slotContext, prevStack, stack);
     }
 
     @Override

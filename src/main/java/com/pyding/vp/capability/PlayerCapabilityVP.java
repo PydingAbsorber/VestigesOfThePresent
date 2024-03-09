@@ -3,10 +3,13 @@ package com.pyding.vp.capability;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.ItemAnimationPacket;
+import com.pyding.vp.network.packets.LorePacket;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -223,7 +226,8 @@ public class PlayerCapabilityVP {
             setChallenge(vp,0,player);
             addCoolDown(vp,player);
             clearProgress(vp,player);
-            player.addItem(vestige(vp, player));
+            ItemStack stack = vestige(vp, player);
+            player.addItem(stack);
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
         }
     }
@@ -703,54 +707,8 @@ public class PlayerCapabilityVP {
     }
 
     public void sendLore(Player player, int number){
-        if(player.getCommandSenderWorld().isClientSide)
-            return;
-        String name = VPUtil.getRainbowString(VPUtil.generateRandomString("entity".length())) + ": ";
-        String playerName = player.getDisplayName().getString();
-        playerName += ": ";
-
-        if(number == 1)
-            player.sendSystemMessage(Component.translatable("vp.lore.1"));
-        else if(number == 2)
-            player.sendSystemMessage(Component.translatable("vp.lore.2"));
-        else if(number == 3) {
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.3.1")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.3.2")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.3.3")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.3.4")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.3.5")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.translatable("vp.lore.3.6"));
-        }
-        else if(number == 4)
-            player.sendSystemMessage(Component.translatable("vp.lore.4"));
-        else if(number == 5)
-            player.sendSystemMessage(Component.translatable("vp.lore.5"));
-        else if(number == 6)
-            player.sendSystemMessage(Component.translatable("vp.lore.6"));
-        else if(number == 7) {
-            player.sendSystemMessage(Component.translatable("vp.lore.7"));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.7.1")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.7.2")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.7.3")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.7.4")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.7.5")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.translatable("vp.lore.7.6"));
-            player.sendSystemMessage(Component.translatable("vp.lore.7.7"));
-        }
-        else if(number == 8)
-            player.sendSystemMessage(Component.translatable("vp.lore.8"));
-        else if(number == 9) {
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.9.1")).withStyle(ChatFormatting.DARK_PURPLE)); //Component.literal(playerName).append()
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.9.2")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.9.3")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.9.4")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.9.5")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.9.6")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.9.7")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.literal(playerName).append(Component.translatable("vp.lore.9.8")));
-            player.sendSystemMessage(Component.literal(name).append(Component.translatable("vp.lore.9.9")).withStyle(ChatFormatting.DARK_PURPLE));
-            player.sendSystemMessage(Component.translatable("vp.lore.9.10"));
-        }
+        if(player instanceof ServerPlayer serverPlayer)
+            PacketHandler.sendToClient(new LorePacket(number),serverPlayer);
     }
 
     public ItemStack vestige(int vp, Player player){
@@ -842,20 +800,23 @@ public class PlayerCapabilityVP {
             }
         }
         if(Math.random() < (float)getChance()/100){
+            if(stack.getItem() instanceof Vestige vestige){
+                vestige.vestigeStack = stack;
+            }
             if(getChance() >= 200){
                 Vestige.setDoubleStellar(stack);
-                if(stack.getItem() instanceof Vestige vestige){
-                    vestige.specialCharges += 1;
-                    vestige.ultimateCharges += 1;
-                }
             }
             Vestige.setStellar(stack);
             setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
+            if(Math.random() < 0.2)
+                player.addItem(new ItemStack(ModItems.REFRESHER.get()));
         } else {
             setChance();
             addCommonChallenge(player,vp);
         }
+        if(player instanceof ServerPlayer serverPlayer)
+            PacketHandler.sendToClient(new ItemAnimationPacket(stack),serverPlayer);
         return stack;
     }
 }

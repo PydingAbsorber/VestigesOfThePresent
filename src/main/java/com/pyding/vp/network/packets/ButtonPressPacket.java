@@ -24,7 +24,6 @@ public class ButtonPressPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             player.getPersistentData().putBoolean("VPButton"+msg.id,true);
-            System.out.println(msg.id + " packet received");
         });
         return true;
     }

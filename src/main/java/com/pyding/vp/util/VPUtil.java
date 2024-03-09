@@ -651,7 +651,7 @@ public class VPUtil {
             result.addAll(handler.findCurios(item));
         });
         for(SlotResult stack: result){
-            if(stack.stack().getItem() instanceof Vestige vestige && vestige.isStellar)
+            if(stack.stack().getItem() instanceof Vestige vestige && vestige.isStellar(stack.stack()))
                 return true;
         }
         return false;
@@ -757,10 +757,9 @@ public class VPUtil {
 
     public static void liftEntity(LivingEntity entity,double power) {
         Vec3 motion = new Vec3(0, power, 0);
-        entity.lerpMotion(motion.x, motion.y, motion.z);
         if(entity instanceof ServerPlayer player){
             PacketHandler.sendToClient(new PlayerFlyPacket(1),player);
-        }
+        } else entity.lerpMotion(motion.x, motion.y, motion.z);
         entity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 7 * 20));
         if(Math.random() < 0.5)
             play(entity,SoundRegistry.WIND1.get());
@@ -1063,8 +1062,7 @@ public class VPUtil {
 
     public static float getHealBonus(LivingEntity entity){
         CompoundTag tag = entity.getPersistentData();
-        float healBonus = Math.max(-99,tag.getFloat("VPHealResMask")+tag.getFloat("VPHealResFlower")+tag.getFloat("VPHealBonusDonut")+tag.getFloat("VPHealBonusDonutPassive"));
-        return healBonus;
+        return Math.max(-99,tag.getFloat("VPHealResMask")+tag.getFloat("VPHealResFlower")+tag.getFloat("VPHealBonusDonut")+tag.getFloat("VPHealBonusDonutPassive"));
     }
 
     public static double calculatePercentageDifference(double number1, double number2) {
@@ -1204,6 +1202,8 @@ public class VPUtil {
 
     public static void negativnoDisenchant(LivingEntity entity){
         for(ItemStack stack: getAllEquipment(entity)){
+            if(!stack.getOrCreateTag().getBoolean("VPEnchant"))
+                continue;
             List<Integer> lvl = new ArrayList<>();
             List<Enchantment> enchantments = new ArrayList<>();
             if(stack.isEnchanted()){
@@ -1212,6 +1212,8 @@ public class VPUtil {
                         continue;
                     lvl.add(stack.getEnchantmentLevel(enchantment));
                     enchantments.add(enchantment);
+                    if(enchantment.isCurse())
+                        return;
                 }
                 stack.getEnchantmentTags().clear();
                 for(int i = 0;i < lvl.size();i++){
@@ -1225,8 +1227,13 @@ public class VPUtil {
     public static void enchantCurseAll(LivingEntity entity){
         for(ItemStack stack: getAllEquipment(entity)){
             stack.getEnchantmentTags().clear();
-            stack.enchant(Enchantments.BINDING_CURSE,1);
-            stack.enchant(Enchantments.VANISHING_CURSE,1);
+            List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+            for(Enchantment enchantment: list){
+                if(enchantment.isCurse())
+                    stack.enchant(enchantment,1);
+            }
+            /*stack.enchant(Enchantments.BINDING_CURSE,1);
+            stack.enchant(Enchantments.VANISHING_CURSE,1);*/
         }
     }
 
@@ -1660,6 +1667,16 @@ public class VPUtil {
         else if(type == 3)
             percentBonus += player.getPersistentData().getInt("VPGravity")*20;
         float health = damage*(1+percentBonus/100);
+        float overShields = getOverShield(entity);
+        if(overShields > 0) {
+            if (overShields > health) {
+                entity.getPersistentData().putFloat("VPOverShield", overShields - health);
+                return;
+            } else {
+                entity.getPersistentData().putFloat("VPOverShield", 0);
+                health -= overShields;
+            }
+        }
         if(entity.getHealth()-health > 0) {
             if(hurt)
                 entity.hurt(player.damageSources().generic(),0);

@@ -121,6 +121,11 @@ public class ShieldOverlay {
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
+                    if(vestige.vestigeNumber == 12){
+                        int number = Math.round(time-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationSpecial = String.valueOf(number);
+                    }
                     if(vestige.vestigeNumber == 13){
                         int number = Math.round(time-System.currentTimeMillis())/1000;
                         if(number > 0)
@@ -149,6 +154,11 @@ public class ShieldOverlay {
                             info = String.valueOf(number);
                     }
                     if(vestige.vestigeNumber == 7){
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            info = String.valueOf(number);
+                    }
+                    if(vestige.vestigeNumber == 12){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             info = String.valueOf(number);

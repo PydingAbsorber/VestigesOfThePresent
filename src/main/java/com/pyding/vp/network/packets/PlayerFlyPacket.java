@@ -30,21 +30,21 @@ public class PlayerFlyPacket {
         return new PlayerFlyPacket(buf.readInt());
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PlayerFlyPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            handle2();
+            handle2(msg.number);
         });
 
         ctx.get().setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void handle2() {
+    private static void handle2(int number) {
         LocalPlayer player = Minecraft.getInstance().player;
         if(player == null)
             return;
         if(number == 1) {
-            Vec3 motion = new Vec3(0, VPUtil.commonPower, 0);
+            Vec3 motion = new Vec3(0, 3, 0);
             player.lerpMotion(motion.x, motion.y, motion.z);
         }
         else if(number == 2){
@@ -66,8 +66,13 @@ public class PlayerFlyPacket {
             VPUtil.clearEffects(player,false);
             player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 20, 4));
         }
-        if(number == 5){
+        else if(number == 5){
             player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false), 60 * 20));
+        }
+        else if(number == 6){
+            player.getAbilities().mayfly = true;
+            player.getAbilities().flying = true;
+            player.onUpdateAbilities();
         }
         else {
             Vec3 motion = new Vec3(0, number, 0);

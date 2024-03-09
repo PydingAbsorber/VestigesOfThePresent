@@ -9,6 +9,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +29,7 @@ public class Anemoculus extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
-        if(!isUltimateActive) {
+        if(!isUltimateActive()) {
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
             for (LivingEntity entity : VPUtil.getEntities(player, 8)) {
                 VPUtil.liftEntity(entity, VPUtil.commonPower);
@@ -51,6 +53,8 @@ public class Anemoculus extends Vestige{
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
         player.onUpdateAbilities();
+        if(player instanceof ServerPlayer serverPlayer)
+            PacketHandler.sendToClient(new PlayerFlyPacket(6),serverPlayer);
         VPUtil.spawnParticles(player, ParticleTypes.CAMPFIRE_COSY_SMOKE,3,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
@@ -64,19 +68,22 @@ public class Anemoculus extends Vestige{
         player.onUpdateAbilities();
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(2),serverPlayer);
+        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 7 * 20));
         super.ultimateEnds(player);
     }
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
-        if(player.isCreative())
-            return;
-        player.getAbilities().mayfly = false;
-        player.getAbilities().flying = false;
-        player.onUpdateAbilities();
-        if(player instanceof ServerPlayer serverPlayer)
-            PacketHandler.sendToClient(new PlayerFlyPacket(2),serverPlayer);
+        if(!fuckNbt1) {
+            Player player = (Player) slotContext.entity();
+            if (player.isCreative())
+                return;
+            player.getAbilities().mayfly = false;
+            player.getAbilities().flying = false;
+            player.onUpdateAbilities();
+            if (player instanceof ServerPlayer serverPlayer)
+                PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
+        }
         super.onUnequip(slotContext, newStack, stack);
     }
 

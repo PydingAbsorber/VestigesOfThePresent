@@ -35,6 +35,7 @@ public class ModItems {
     public static final RegistryObject<Item> TRIGON = ITEMS.register("trigon", () -> new Trigon());
     public static final RegistryObject<Item> SOULBLIGHTER = ITEMS.register("soulblighter", () -> new SoulBlighter());
     public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64)));
+    public static final RegistryObject<Item> REFRESHER = ITEMS.register("refresher", () -> new Refresher(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

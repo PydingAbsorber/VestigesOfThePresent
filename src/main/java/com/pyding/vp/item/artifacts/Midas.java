@@ -104,27 +104,17 @@ public class Midas extends Vestige{
         if (player.tickCount % 20 == 0) {
             player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(stack));
         }
-        if(!isSpecialActive)
+        if(!isSpecialActive())
             player.getPersistentData().putFloat("VPMidasTouch",0);
         super.curioTick(slotContext, stack);
     }
 
-    public boolean fuckNbtCheck1 = false;
-    public boolean fuckNbtCheck2 = false;
-
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        if (!fuckNbtCheck1) {
+        if(!fuckNbt1) {
             player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
-            super.onUnequip(slotContext, newStack, stack);
-        } else fuckNbtCheck1 = false;
-    }
-
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        if(!fuckNbtCheck2) {
-            super.onEquip(slotContext, prevStack, stack);
-        } else fuckNbtCheck2 = false;
+        }
+        super.onUnequip(slotContext, newStack, stack);
     }
 }

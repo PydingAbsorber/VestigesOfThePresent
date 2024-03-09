@@ -31,14 +31,11 @@ public class Anomaly extends Vestige{
         super.dataInit(10, ChatFormatting.LIGHT_PURPLE, 2, 60, 1, 360, 30, 1, true);
     }
 
-    public boolean fuckNbt1 = false;
-    public boolean fuckNbt2 = false;
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.TELEPORT1.get());
         if(player.getMainHandItem().getItem() instanceof EnderEyeItem){
-            fuckNbt1 = true;
-            fuckNbt2 = true;
+            fuckNbt();
             ItemStack stackInSlot = VPUtil.getVestigeStack(this,player);
             stackInSlot.getOrCreateTag().putDouble("VPReturnX", player.getX());
             stackInSlot.getOrCreateTag().putDouble("VPReturnY", player.getY());
@@ -113,21 +110,5 @@ public class Anomaly extends Vestige{
             });
         }
         super.doUltimate(seconds, player, level);
-    }
-
-    @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if(!fuckNbt1) {
-            super.onUnequip(slotContext, newStack, stack);
-        }
-        else fuckNbt1 = false;
-    }
-
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        if(!fuckNbt2) {
-            super.onEquip(slotContext, prevStack, stack);
-        }
-        else fuckNbt2 = false;
     }
 }

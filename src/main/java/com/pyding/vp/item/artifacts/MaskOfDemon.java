@@ -80,8 +80,10 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public void onUnequip(SlotContext context, ItemStack newStack, ItemStack stack) {
-        if (context.entity() instanceof Player player) {
-            player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
+        if(!fuckNbt1) {
+            if (context.entity() instanceof Player player) {
+                player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
+            }
         }
         super.onUnequip(context,newStack,stack);
     }
@@ -91,10 +93,11 @@ public class MaskOfDemon extends Vestige{
         Player player = (Player) slotContext.entity();
         if(player.getCommandSenderWorld().isClientSide)
             return;
-        if(isSpecialActive) {
+        if(isSpecialActive()) {
             if (player.tickCount % 20 == 0) {
-                if (player.getHealth() > player.getMaxHealth() * 0.1) {
-                    player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
+                if (player.getHealth() > player.getMaxHealth() * 0.1+1) {
+                    //player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
+                    VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * 0.1f,1,false);
                     player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
                 }
             }
@@ -109,7 +112,7 @@ public class MaskOfDemon extends Vestige{
                 tag.putFloat("VPHealResMask",0-missingHealth);
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
-                if(isStellar && player.tickCount % 20 == 0 && player.getHealth() <= player.getMaxHealth()*0.5){
+                if(isStellar && player.tickCount % 20 == 0 && player.getHealth() <= player.getMaxHealth()*0.5 && player.getHealth() > player.getMaxHealth() * 0.1){
                     VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.1f,1,false);
                     VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }
@@ -122,8 +125,8 @@ public class MaskOfDemon extends Vestige{
 
     @Override
     public int setSpecialActive(long seconds, Player player) {
-        if(isSpecialActive && !player.getCommandSenderWorld().isClientSide) {
-            time = 1;
+        if(isSpecialActive() && !player.getCommandSenderWorld().isClientSide) {
+            setTime(1);
             return 0;
         }
         return super.setSpecialActive(seconds, player);

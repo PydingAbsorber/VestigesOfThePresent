@@ -75,7 +75,7 @@ public class Mark extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        if(!isUltimateActive) {
+        if(!isUltimateActive()) {
             player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
             player.getPersistentData().putBoolean("VPMarkUlt",false);
         }
@@ -91,7 +91,7 @@ public class Mark extends Vestige{
         if(damageFinal > 0) {
             player.hurt(player.damageSources().fellOutOfWorld(), damageFinal);
         }
-        else cdUltimateActive -= Math.min(ultimateCd * 0.6, ultimateCd * ((VPUtil.calculatePercentageDifference(damage,heal))/100));
+        else setCdUltimateActive(cdUltimateActive()-(int) Math.min(ultimateCd() * 0.6, ultimateCd() * ((VPUtil.calculatePercentageDifference(damage,heal))/100)));
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
         player.getPersistentData().putFloat("VPDamageReduced",0);
         player.getPersistentData().putFloat("VPHealReduced",0);

@@ -44,7 +44,7 @@ public class Book extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        player.getPersistentData().putBoolean("VPBook", isUltimateActive);
+        player.getPersistentData().putBoolean("VPBook", isUltimateActive());
         super.curioTick(slotContext, stack);
     }
 }

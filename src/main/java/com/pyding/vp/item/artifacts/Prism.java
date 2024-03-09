@@ -37,7 +37,7 @@ public class Prism extends Vestige{
             if (entity instanceof Player && !isStellar)
                 continue;
             if (entity != null) {
-                entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime);
+                entity.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime());
                 entity.getPersistentData().putInt("VPPrismDamage", new Random().nextInt(VPUtil.playerDamageSources(player,player).size()));
                 VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, entity.getX(), entity.getY(), entity.getZ(), 20, 0, 0.5, 0);
                 found = true;
@@ -45,7 +45,7 @@ public class Prism extends Vestige{
             }
         }
         if(isStellar && !found){
-            player.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime);
+            player.getPersistentData().putLong("VPPrismBuff", System.currentTimeMillis() + specialMaxTime());
             player.getPersistentData().putString("VPPrismDamage", VPUtil.generateRandomDamageType());
             VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, player.getX(), player.getY(), player.getZ(), 20, 0, 0.5, 0);
         }
@@ -59,22 +59,14 @@ public class Prism extends Vestige{
         super.doUltimate(seconds, player, level);
     }
 
-    public boolean fuckNbt1 = false;
-    public boolean fuckNbt2 = false;
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        if(!fuckNbt2)
-            super.onEquip(slotContext, prevStack, stack);
-        else fuckNbt2 = false;
-    }
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         Player player = (Player) slotContext.entity();
         if(!fuckNbt1){
             player.getPersistentData().putInt("VPPrism", 0);
-            super.onUnequip(slotContext, newStack, stack);
-        } else fuckNbt1 = false;
+        }
+        super.onUnequip(slotContext, newStack, stack);
     }
 
     @Override

@@ -72,16 +72,13 @@ public class Devourer extends Vestige{
         super.doUltimate(seconds, player, level);
     }
 
-    public boolean fuckNbt1 = false;
-    public boolean fuckNbt2 = false;
-
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        if(!fuckNbt1){
-            super.onEquip(slotContext, prevStack, stack);
+        if(!fuckNbt2){
             player.getPersistentData().putInt("VPDevourerHits", 0);
-        } else fuckNbt1 = false;
+        }
+        super.onEquip(slotContext, prevStack, stack);
     }
 
     @Override
@@ -89,7 +86,7 @@ public class Devourer extends Vestige{
         Player player = (Player) slotContext.entity();
         if(!fuckNbt1){
             super.onUnequip(slotContext, newStack, stack);
-            player.getPersistentData().putInt("VPDevourerHits",0);
-        } else fuckNbt1 = false;
+        }
+        player.getPersistentData().putInt("VPDevourerHits",0);
     }
 }

@@ -31,7 +31,7 @@ public class Flower extends Vestige{
         Player player = (Player) slotContext.entity();
         float healRes = 0;
         for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
-            healRes += VPUtil.missingHealth(entity)/10;
+            healRes -= VPUtil.missingHealth(entity)/10;
             if(isStellar)
                 entity.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
         }
@@ -45,7 +45,7 @@ public class Flower extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.HEAL2.get());
-        player.getPersistentData().putLong("VPDonutSpecial",System.currentTimeMillis()+seconds);
+        player.getPersistentData().putLong("VPFlowerSpecial",System.currentTimeMillis()+seconds);
         super.doSpecial(seconds, player, level);
     }
 
@@ -66,17 +66,21 @@ public class Flower extends Vestige{
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
-        player.getPersistentData().putFloat("VPHealResFlower",0);
-        player.getPersistentData().putFloat("VPShieldBonusFlower",0);
+        if(!fuckNbt1) {
+            Player player = (Player) slotContext.entity();
+            player.getPersistentData().putFloat("VPHealResFlower", 0);
+            player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
+        }
         super.onUnequip(slotContext, newStack, stack);
     }
 
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
-        player.getPersistentData().putFloat("VPHealResFlower",0);
-        player.getPersistentData().putFloat("VPShieldBonusFlower",0);
+        if(!fuckNbt2) {
+            Player player = (Player) slotContext.entity();
+            player.getPersistentData().putFloat("VPHealResFlower", 0);
+            player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
+        }
         super.onEquip(slotContext, prevStack, stack);
     }
 

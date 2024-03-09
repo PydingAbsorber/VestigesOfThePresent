@@ -117,6 +117,7 @@ public class VestigesOfPresent
             event.accept(ModItems.TRIGON);
             event.accept(ModItems.SOULBLIGHTER);
             event.accept(ModItems.STELLAR);
+            event.accept(ModItems.REFRESHER);
         }
     }
 }
