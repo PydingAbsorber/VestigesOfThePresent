@@ -39,7 +39,7 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.20'
+    mappings channel: 'official', version: '1.20.1'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -152,7 +152,7 @@ dependencies {
 
 
     //1.20.1
-    minecraft 'net.minecraftforge:forge:1.20-46.0.12'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.1.44'
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1")
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
