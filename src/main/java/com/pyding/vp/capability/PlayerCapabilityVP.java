@@ -201,6 +201,8 @@ public class PlayerCapabilityVP {
             loreComplete += number + ",";
             sendLore(player, number);
             sync(player);
+            if(number == 9)
+                player.addItem(new ItemStack(ModItems.INFINITE_REFRESHER.get()));
         }
     }
 
