@@ -79,13 +79,9 @@ public class MaskOfDemon extends Vestige{
     }
 
     @Override
-    public void onUnequip(SlotContext context, ItemStack newStack, ItemStack stack) {
-        if(!fuckNbt1) {
-            if (context.entity() instanceof Player player) {
-                player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
-            }
-        }
-        super.onUnequip(context,newStack,stack);
+    public void curioSucks(Player player, ItemStack stack) {
+        player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
+        super.curioSucks(player, stack);
     }
 
     @Override
@@ -94,11 +90,13 @@ public class MaskOfDemon extends Vestige{
         if(player.getCommandSenderWorld().isClientSide)
             return;
         if(isSpecialActive()) {
+            boolean hurt = false;
             if (player.tickCount % 20 == 0) {
                 if (player.getHealth() > player.getMaxHealth() * 0.1+1) {
                     //player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
                     VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * 0.1f,1,false);
                     player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
+                    hurt = true;
                 }
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
@@ -112,7 +110,7 @@ public class MaskOfDemon extends Vestige{
                 tag.putFloat("VPHealResMask",0-missingHealth);
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
-                if(isStellar && player.tickCount % 20 == 0 && player.getHealth() <= player.getMaxHealth()*0.5 && player.getHealth() > player.getMaxHealth() * 0.1){
+                if(hurt && isStellar && player.getHealth() <= player.getMaxHealth()*0.5){
                     VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.1f,1,false);
                     VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }

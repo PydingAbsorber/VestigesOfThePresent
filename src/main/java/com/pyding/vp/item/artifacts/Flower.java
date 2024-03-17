@@ -65,23 +65,10 @@ public class Flower extends Vestige{
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if(!fuckNbt1) {
-            Player player = (Player) slotContext.entity();
-            player.getPersistentData().putFloat("VPHealResFlower", 0);
-            player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
-        }
-        super.onUnequip(slotContext, newStack, stack);
-    }
-
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        if(!fuckNbt2) {
-            Player player = (Player) slotContext.entity();
-            player.getPersistentData().putFloat("VPHealResFlower", 0);
-            player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
-        }
-        super.onEquip(slotContext, prevStack, stack);
+    public void curioSucks(Player player, ItemStack stack) {
+        player.getPersistentData().putFloat("VPHealResFlower", 0);
+        player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
+        super.curioSucks(player, stack);
     }
 
     public static List<LivingEntity> getCreaturesAround(Player player, double x, double y, double z){

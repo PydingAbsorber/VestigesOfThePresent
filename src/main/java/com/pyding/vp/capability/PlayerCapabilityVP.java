@@ -75,9 +75,6 @@ public class PlayerCapabilityVP {
     public void addDimension(Player player,String dim, String nameSpace){
         if(!dimensions.contains(dim)){
             dimensions += dim + ",";
-            sync(player);
-        }
-        if(!dimensionsDir.contains(nameSpace)){
             dimensionsDir += nameSpace + ",";
             sync(player);
         }
@@ -163,10 +160,11 @@ public class PlayerCapabilityVP {
         return chance;
     }
     public void addCommonChallenge(Player player, int number){
-        if (commonChallenges.isEmpty())
-            addLore(player,3);
-        if(getCommonChallenges() >= 1)
+        if(getCommonChallenges() >= 1 && getLore(player,3))
             addLore(player,4);
+        if (commonChallenges.isEmpty()) {
+            addLore(player,3);
+        }
         if(!commonChallenges.contains(number+"")){
             commonChallenges += number + ",";
             sync(player);
@@ -176,8 +174,8 @@ public class PlayerCapabilityVP {
     public void addStellarChallenge(Player player, int number){
         if(stellarChallenges.isEmpty())
             addLore(player,7);
-        if(!commonChallenges.contains(number+"")){
-            commonChallenges += number + ",";
+        if(!stellarChallenges.contains(number+"")){
+            stellarChallenges += number + ",";
             if(getStellarChallenges() == totalVestiges)
                 addLore(player,9);
             sync(player);
@@ -809,7 +807,7 @@ public class PlayerCapabilityVP {
             Vestige.setStellar(stack);
             setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
-            if(Math.random() < 0.2)
+            if(Math.random() < 0.5)
                 player.addItem(new ItemStack(ModItems.REFRESHER.get()));
         } else {
             setChance();

@@ -40,8 +40,8 @@ public class Anomaly extends Vestige{
             stackInSlot.getOrCreateTag().putDouble("VPReturnX", player.getX());
             stackInSlot.getOrCreateTag().putDouble("VPReturnY", player.getY());
             stackInSlot.getOrCreateTag().putDouble("VPReturnZ", player.getZ());
-            stackInSlot.getOrCreateTag().putString("VPReturnDir", player.getCommandSenderWorld().dimension().location().getNamespace());
             stackInSlot.getOrCreateTag().putString("VPReturnKey", player.getCommandSenderWorld().dimension().location().getPath());
+            stackInSlot.getOrCreateTag().putString("VPReturnDir", player.getCommandSenderWorld().dimension().location().getNamespace());
         } else {
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
@@ -59,11 +59,11 @@ public class Anomaly extends Vestige{
     public void doUltimate(long seconds, Player player, Level level) {
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(isStellar && (Math.random() < 0.05 || (player.getScoreboardName().equals("Pyding") && player.isCreative()))){  //don't blame me it's for test
+                if(isStellar && (Math.random() < 0.05)){
                     int counter = 0;
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
-                        counter++;
                         if(victim != serverPlayer){
+                            counter++;
                             serverPlayer.teleportTo((ServerLevel) victim.getCommandSenderWorld(),victim.getX(),victim.getY(),victim.getZ(),0,0);
                             break;
                         }
@@ -80,10 +80,9 @@ public class Anomaly extends Vestige{
                     }
                     String key = list.get(0);
                     String path = list.get(1);
-                    ServerLevel serverLevel = serverPlayer.getServer().getLevel(VPUtil.getWorldKey(key,path));
+                    ServerLevel serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(VPUtil.getWorldKey(path, key));
                     if (serverLevel == null) {
                         serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(Level.OVERWORLD);
-                        cap.removeDimension(key);
                     }
                     Random random = new Random();
                     double x;

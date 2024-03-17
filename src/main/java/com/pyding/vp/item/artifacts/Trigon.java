@@ -72,18 +72,14 @@ public class Trigon extends Vestige{
 
     @Override
     public void ultimateRecharges(Player player) {
-        if(!fuckNbt1)
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:trigon_hp_boost"));
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:trigon_hp_boost"));
         super.ultimateRecharges(player);
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if(!fuckNbt1) {
-            Player player = (Player) slotContext.entity();
-            player.getPersistentData().putFloat("VPTrigonBonus", 0);
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
-        }
-        super.onUnequip(slotContext, newStack, stack);
+    public void curioSucks(Player player, ItemStack stack) {
+        player.getPersistentData().putFloat("VPTrigonBonus", 0);
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
+        super.curioSucks(player, stack);
     }
 }

@@ -23,6 +23,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -417,16 +418,14 @@ public class EventHandler {
                     }
                 }
             }
-            if(event.getSource().getEntity() == null){
-                if(entity instanceof Warden) {
+            if(event.getSource().getEntity() == null && entity instanceof Warden){
                     for(LivingEntity livingEntity: VPUtil.getEntitiesAround(event.getEntity(),20,20,20,false)){
                         if(livingEntity instanceof Player player){
-                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
-                                challange.addDamageDo(event.getSource(), player);
+                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challenge -> {
+                                challenge.addDamageDo(event.getSource(),player);
                             });
                         }
                     }
-                }
             }
         } else {
             LivingEntity entity = event.getEntity();
@@ -452,7 +451,6 @@ public class EventHandler {
             return true;
         return false;
     }
-
     public static int getCurses(Player player){
         int cursedEnchantmentCount = 0;
 
@@ -756,6 +754,7 @@ public class EventHandler {
         if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath")+ 40*1000 < System.currentTimeMillis())
             tag.putLong("VPDeath",0);
         if(event.getEntity() instanceof Player player){
+            List<ItemStack> slotResultList = VPUtil.getVestigeList(player);
             CompoundTag playerTag = player.getPersistentData();
             if(playerTag == null)
                 playerTag = new CompoundTag();
@@ -778,7 +777,6 @@ public class EventHandler {
                 player.getPersistentData().putBoolean("VPButton1",false);
                 player.getPersistentData().putBoolean("VPButton3",false);
             } else if(playerTag.getBoolean("VPButton2") || playerTag.getBoolean("VPButton4")) {
-                List<ItemStack> slotResultList = VPUtil.getVestigeList(player);
                 ItemStack stack;
                 if(slotResultList.size() > 1)
                     stack = slotResultList.get(1);
@@ -795,6 +793,25 @@ public class EventHandler {
                 }
                 player.getPersistentData().putBoolean("VPButton2",false);
                 player.getPersistentData().putBoolean("VPButton4",false);
+            }
+            if(!slotResultList.isEmpty()){
+                if(slotResultList.get(0).getItem() instanceof Vestige vestige) {
+                    if(player.getPersistentData().getInt("VPCurioSucks1") <= 0)
+                        player.getPersistentData().putInt("VPCurioSucks1", vestige.vestigeNumber);
+                    if(vestige.vestigeNumber != player.getPersistentData().getInt("VPCurioSucks1"))
+                        vestige.curioSucks(player, slotResultList.get(0));
+                    player.getPersistentData().putInt("VPCurioSucks1", vestige.vestigeNumber);
+                }
+                if(slotResultList.size() > 1 && slotResultList.get(1).getItem() instanceof Vestige vestige) {
+                    if(player.getPersistentData().getInt("VPCurioSucks2") <= 0)
+                        player.getPersistentData().putInt("VPCurioSucks2", vestige.vestigeNumber);
+                    if(vestige.vestigeNumber != player.getPersistentData().getInt("VPCurioSucks2"))
+                        vestige.curioSucks(player,slotResultList.get(1));
+                    player.getPersistentData().putInt("VPCurioSucks2", vestige.vestigeNumber);
+                }
+            } else {
+                player.getPersistentData().putFloat("VPShield", 0);
+                player.getPersistentData().putFloat("VPOverShield", 0);
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player);
@@ -879,10 +896,11 @@ public class EventHandler {
     }
     @SubscribeEvent
     public static void onMobSpawn(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof LivingEntity entity && !(entity instanceof Player) && entity.getHealth() > 190 && ConfigHandler.COMMON.hardcore.get()) {
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),2, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
+        if (event.getEntity() instanceof LivingEntity entity && VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get()) {
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
             entity.setHealth(entity.getMaxHealth());
+            entity.addEffect(new MobEffectInstance(MobEffects.HEAL,40,255));
         }
     }
     @SubscribeEvent

@@ -123,24 +123,11 @@ public class SoulBlighter extends Vestige{
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player1 = (Player) slotContext.entity();
-        if(!fuckNbt1) {
-            if(stack.getOrCreateTag().contains("entityData") && isStellar) {
-                player1.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-            }
+    public void curioSucks(Player player, ItemStack stack) {
+        if(stack.getOrCreateTag().contains("entityData") && isStellar) {
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
         }
-        super.onUnequip(slotContext, newStack, stack);
-    }
-
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        Player player1 = (Player) slotContext.entity();
-        if(!fuckNbt2) {
-            if(stack.getOrCreateTag().contains("entityData") && isStellar)
-                player1.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-        }
-        super.onEquip(slotContext, prevStack, stack);
+        super.curioSucks(player, stack);
     }
 
     @Override

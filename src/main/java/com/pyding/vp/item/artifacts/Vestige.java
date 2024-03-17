@@ -180,8 +180,6 @@ public class Vestige extends Item implements ICurioItem {
         }
     }
     public boolean isStellar = false;
-    public ServerPlayer serverPlayerFromVestige = null;
-    public ServerLevel serverLevelFromVestige = null;
     public ItemStack vestigeStack = null;
     public int ultimateChargesBase = 0;
     public int specialChargesBase = 0;
@@ -201,41 +199,39 @@ public class Vestige extends Item implements ICurioItem {
         setSpecialCd(specialCd*20);      //time until recharge in seconds*tps
         this.damageType = hasDamage;
         this.vestigeNumber = vestigeNumber;
+        setVestigeNumber(vestigeNumber);
         this.color = color;
         setSpecialMaxTime((long)specialMaxTime*1000);  //max active time in real seconds L
         setUltimateMaxTime((long)ultimateMaxTime*1000);
     }
 
     public int getVestigeNumber(){
-        return this.vestigeNumber;
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getInt("VPVestigeNumber");
+        }
+        return 0;
     }
+
+    public void setVestigeNumber(int number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putInt("VPVestigeNumber",number);
+        }
+    }
+
     public static void setStellar(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        if(tag == null)
-            tag = new CompoundTag();
-        tag.putBoolean("Stellar", true);
-        stack.setTag(tag);
+        stack.getOrCreateTag().putBoolean("Stellar", true);
     }
 
     public static void setDoubleStellar(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        if(tag == null)
-            tag = new CompoundTag();
-        tag.putBoolean("DoubleStellar", true);
-        stack.setTag(tag);
+        stack.getOrCreateTag().putBoolean("DoubleStellar", true);
     }
     public boolean isStellar(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        if(tag == null)
-            tag = new CompoundTag();
-        return tag.getBoolean("Stellar");
+        return stack.getOrCreateTag().getBoolean("Stellar");
     }
 
     public boolean isDoubleStellar(ItemStack stack){
-        CompoundTag tag = stack.getTag();
-        if(tag == null)
-            tag = new CompoundTag();
-        return tag.getBoolean("DoubleStellar");
+        return stack.getOrCreateTag().getBoolean("DoubleStellar");
     }
     public void init(){
         this.dataInit(0,null,0,0,0,0,0,0,false);
@@ -321,7 +317,6 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setSpecialActive(long seconds, Player player){
-        //System.out.println(isSpecialActive+"from Vestige");
         if(currentChargeSpecial() > 0) {
             if(!player.getCommandSenderWorld().isClientSide) {
                 setTime(System.currentTimeMillis() + seconds);  //active time in real seconds
@@ -358,6 +353,8 @@ public class Vestige extends Item implements ICurioItem {
         setUltimateCharges(ultimateChargesBase+ultimateBonus+ultimateBonusModifier());
     }
 
+    public Player vestigePlayer = null;
+
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         if(slotContext.entity() instanceof  Player player && player.getCommandSenderWorld().isClientSide) {
@@ -365,15 +362,18 @@ public class Vestige extends Item implements ICurioItem {
             return;
         }
         vestigeStack = stack;
+        if(this.ultimateCharges() == 0 || this.specialCharges() == 0 || specialCd() == 0 || ultimateCd() == 0)
+            this.init();
         isStellar = isStellar(stack);
-        ServerPlayer playerServer = (ServerPlayer) slotContext.entity();
+        Player playerServer = (ServerPlayer) slotContext.entity();
+        vestigePlayer = playerServer;
+        if(!isStellar(stack) && playerServer.isCreative())
+            setStellar(stack);
         if(playerServer != null) {
             if (isSpecialActive())
                 whileSpecial(playerServer);
             if (isUltimateActive())
                 whileUltimate(playerServer);
-            serverPlayerFromVestige = playerServer;
-            serverLevelFromVestige = (ServerLevel) playerServer.getCommandSenderWorld();
         }
         if(time() > 0 && time() <= System.currentTimeMillis()) {
             setTime(0);
@@ -403,12 +403,12 @@ public class Vestige extends Item implements ICurioItem {
                     ultimateRecharges(playerServer);
             }
         }
+        if((currentChargeUltimate() == 0 && cdUltimateActive() == 0) || (currentChargeSpecial() == 0 && cdSpecialActive() == 0))
+            curioSucks(playerServer,stack);
         /*if(this.currentChargeSpecial() == 0 && this.cdSpecialActive() == 0)
             setCurrentChargeSpecial(specialCharges());
         if(this.currentChargeUltimate() == 0 && this.cdUltimateActive() == 0)
             setCurrentChargeUltimate(ultimateCharges());*/
-        if(this.ultimateCharges() == 0 || this.specialCharges() == 0)
-            this.init();
         /*if(slotContext.entity() != null){
             CompoundTag tag = stack.getTag();
             if(tag == null)
@@ -577,6 +577,7 @@ public class Vestige extends Item implements ICurioItem {
                 if (text != null)
                     components.add(Component.literal(text).withStyle(ChatFormatting.GRAY));
             } else {
+                components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(color).append(Component.translatable("vp.ctrl"))));
                 if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 11 || vestigeNumber == 15 || vestigeNumber == 16 || vestigeNumber == 17 || vestigeNumber == 20)
@@ -653,34 +654,37 @@ public class Vestige extends Item implements ICurioItem {
         return finalName;
     }
 
-    public boolean fuckNbt1 = false;
-    public boolean fuckNbt2 = false;
+    public boolean fuckNbt1(Player player){
+        return player.getPersistentData().getBoolean("VPFuckNbt1");
+    }
+    public boolean fuckNbt2(Player player){
+        return player.getPersistentData().getBoolean("VPFuckNbt2");
+    }
 
     public void fuckNbt(){
-        fuckNbt1 = true;
-        fuckNbt2 = true;
-    }
-    @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if(!fuckNbt1) {
-            setTime(0);
-            setTimeUlt(0);
-            setSpecialActive(false);
-            setUltimateActive(false);
-            setCurrentChargeSpecial(0);
-            setCurrentChargeUltimate(0);
-            setCdSpecialActive(specialCd()*specialCharges());
-            setCdUltimateActive(ultimateCd()*ultimateCharges());
-            Player player = (Player) slotContext.entity();
-            player.getPersistentData().putFloat("VPShield", 0);
-            player.getPersistentData().putFloat("VPOverShield", 0);
-        } else fuckNbt1 = false;
-        ICurioItem.super.onUnequip(slotContext, newStack, stack);
+        /*if(vestigePlayer != null) {
+            vestigePlayer.getPersistentData().putBoolean("VPFuckNbt1", true);
+            vestigePlayer.getPersistentData().putBoolean("VPFuckNbt2", true);
+        }*/
     }
 
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        if(!fuckNbt2) {
+    public void curioSucks(Player player, ItemStack stack){
+        setTime(0);
+        setTimeUlt(0);
+        setSpecialActive(false);
+        setUltimateActive(false);
+        setCurrentChargeSpecial(0);
+        setCurrentChargeUltimate(0);
+        setCdSpecialActive(specialCd()*specialCharges());
+        setCdUltimateActive(ultimateCd()*ultimateCharges());
+        player.getPersistentData().putFloat("VPShield", 0);
+        player.getPersistentData().putFloat("VPOverShield", 0);
+        applyBonus(stack);
+    }
+    /*@Override
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
+        if(!fuckNbt1(player)) {
             setTime(0);
             setTimeUlt(0);
             setSpecialActive(false);
@@ -689,16 +693,35 @@ public class Vestige extends Item implements ICurioItem {
             setCurrentChargeUltimate(0);
             setCdSpecialActive(specialCd()*specialCharges());
             setCdUltimateActive(ultimateCd()*ultimateCharges());
-            Player player = (Player) slotContext.entity();
-            if (!isStellar(stack) && player.isCreative()) {
-                setStellar(stack);
-            }
+            player.getPersistentData().putFloat("VPShield", 0);
+            player.getPersistentData().putFloat("VPOverShield", 0);
+        } else player.getPersistentData().putBoolean("VPFuckNbt1",true);
+        ICurioItem.super.onUnequip(slotContext, newStack, stack);
+    }*/
+
+    /*@Override
+    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
+        if(this.ultimateCharges() == 0 || this.specialCharges() == 0)
+            this.init();
+        if (!isStellar(stack) && player.isCreative()) {
+            setStellar(stack);
+        }
+        if(!fuckNbt2(player)) {
+            setTime(0);
+            setTimeUlt(0);
+            setSpecialActive(false);
+            setUltimateActive(false);
+            setCurrentChargeSpecial(0);
+            setCurrentChargeUltimate(0);
+            setCdSpecialActive(specialCd()*specialCharges());
+            setCdUltimateActive(ultimateCd()*ultimateCharges());
             player.getPersistentData().putFloat("VPShield", 0);
             player.getPersistentData().putFloat("VPOverShield", 0);
             applyBonus(stack);
-        } else fuckNbt2 = false;
+        } else player.getPersistentData().putBoolean("VPFuckNbt2",true);
         ICurioItem.super.onEquip(slotContext, prevStack, stack);
-    }
+    }*/
 
     public void doSpecial(long seconds, Player player, Level level){}
     public void doUltimate(long seconds, Player player, Level level){

@@ -21,6 +21,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue hardcore;
         public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
+        public final ForgeConfigSpec.IntValue bossHP;
+        public final ForgeConfigSpec.IntValue bossAttack;
         public final ForgeConfigSpec.IntValue chaostime;
         public final ForgeConfigSpec.IntValue devourer;
         public final ForgeConfigSpec.IntValue blackhole;
@@ -49,6 +51,8 @@ public class ConfigHandler {
         public Common(ForgeConfigSpec.Builder builder) {
             //challengeReduction = builder.comment("Number for challenge №").define("challengeReduction", "shop_table");
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp and x2 damage").define("hardcore", false);
+            bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 10, 1, 2100000000);
+            bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
             challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, 0, 2100000000);

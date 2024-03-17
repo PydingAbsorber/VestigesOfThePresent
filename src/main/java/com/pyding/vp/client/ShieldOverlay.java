@@ -57,81 +57,82 @@ public class ShieldOverlay {
                 poseStack.pushPose();
                 renderTextureFromCenter(poseStack,x+(130+i*40),y-22,width,height,16,16,16,16,1);*/
                 if(vestiges.get(i).getItem() instanceof Vestige vestige){
-                    if(vestige.vestigeNumber == 0)
+                    int vestigeNumber = vestige.vestigeNumber;
+                    if(vestigeNumber == 0)
                         continue;
-                    pose.blit(getTexture(vestige.vestigeNumber),x+(130+i*40),y-22, 0, 0, 16, 16,
+                    pose.blit(getTexture(vestigeNumber),x+(130+i*40),y-22, 0, 0, 16, 16,
                             16, 16);
-                    int currentChargeSpecial = player.getPersistentData().getInt("VPCharge"+vestige.vestigeNumber);
-                    int currentChargeUltimate = player.getPersistentData().getInt("VPChargeUlt"+vestige.vestigeNumber);
-                    long time = player.getPersistentData().getLong("VPTime"+vestige.vestigeNumber);
-                    long timeUlt = player.getPersistentData().getLong("VPTimeUlt"+vestige.vestigeNumber);
+                    int currentChargeSpecial = player.getPersistentData().getInt("VPCharge"+vestigeNumber);
+                    int currentChargeUltimate = player.getPersistentData().getInt("VPChargeUlt"+vestigeNumber);
+                    long time = player.getPersistentData().getLong("VPTime"+vestigeNumber);
+                    long timeUlt = player.getPersistentData().getLong("VPTimeUlt"+vestigeNumber);
                     pose.drawString(fontRenderer,""+currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     pose.drawString(fontRenderer,""+currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     String info = "";
-                    if(vestige.vestigeNumber == 3){
+                    if(vestigeNumber == 3){
                         info = String.valueOf(player.getPersistentData().getInt("VPGravity"));
                     }
-                    if(vestige.vestigeNumber == 5 && VPUtil.getHealBonus(player) < 0){
-                        if(vestige.isStellar)
+                    if(vestigeNumber == 5 && VPUtil.getHealBonus(player) < 0){
+                        if(vestige.isStellar(vestiges.get(i)))
                             info = ((int)VPUtil.missingHealth(player)*8 + "%");
                         else info = ((int)VPUtil.missingHealth(player)*4 + "%");
                     }
-                    if(vestige.vestigeNumber == 6){
+                    if(vestigeNumber == 6){
                         info = String.valueOf((int)player.getPersistentData().getFloat("VPSaturation"));
                     }
-                    if(vestige.vestigeNumber == 7){
+                    if(vestigeNumber == 7){
                         info = String.valueOf(player.getPersistentData().getInt("VPMadness"));
                     }
-                    if(vestige.vestigeNumber == 11){
+                    if(vestigeNumber == 11){
                         info = String.valueOf((int)player.getPersistentData().getFloat("VPArmor"));
                     }
-                    if(vestige.vestigeNumber == 15){
+                    if(vestigeNumber == 15){
                         info = String.valueOf(player.getPersistentData().getInt("VPDevourerHits"));
                     }
-                    if(vestige.vestigeNumber == 16){
+                    if(vestigeNumber == 16){
                         info = ((int)player.getPersistentData().getFloat("VPHealResFlower") + "%");
                     }
-                    if(vestige.vestigeNumber == 17 && vestige.isStellar && vestige instanceof Catalyst catalyst){
-                        info = (catalyst.debuffDefence + "");
+                    if(vestigeNumber == 17 && vestige.isStellar(vestiges.get(i)) && vestige instanceof Catalyst catalyst){
+                        info = (player.getPersistentData().getInt("VPDebuffDefence") + "");
                     }
-                    if(vestige.vestigeNumber == 19){
+                    if(vestigeNumber == 19){
                         info = ((int)player.getPersistentData().getFloat("VPTrigonBonus") + "%");
                     }
                     String durationUlt = "";
                     String durationSpecial = "";
-                    if(vestige.vestigeNumber == 8){
+                    if(vestigeNumber == 8){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 20){
+                    if(vestigeNumber == 20){
                         int number = Math.round(time-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 2){
+                    if(vestigeNumber == 2){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 1){
+                    if(vestigeNumber == 1){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 12){
+                    if(vestigeNumber == 12){
                         int number = Math.round(time-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 13){
+                    if(vestigeNumber == 13){
                         int number = Math.round(time-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationSpecial = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 4){
+                    if(vestigeNumber == 4){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             durationUlt = String.valueOf(number);
@@ -143,22 +144,22 @@ public class ShieldOverlay {
                     if(!durationUlt.isEmpty())
                         pose.drawString(fontRenderer,""+durationUlt, x+(132+i*40),y-33, 0x9932CC);
                     info = "";
-                    if(vestige.vestigeNumber == 15){
+                    if(vestigeNumber == 15){
                         int show = player.getPersistentData().getInt("VPDevourerShow");
                         if(show > 0)
                             pose.drawString(fontRenderer,""+show, x+(132+i*40),y-43, 0x54717B);
                     }
-                    if(vestige.vestigeNumber == 13){
+                    if(vestigeNumber == 13){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             info = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 7){
+                    if(vestigeNumber == 7){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             info = String.valueOf(number);
                     }
-                    if(vestige.vestigeNumber == 12){
+                    if(vestigeNumber == 12){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
                         if(number > 0)
                             info = String.valueOf(number);

@@ -38,7 +38,7 @@ public class SweetDonut extends Vestige{
             }
         }
         float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));
-        if(isStellar && VPUtil.getShield(player) < player.getMaxHealth()*3*(1+shieldBonus/100))
+        if(VPUtil.getShield(player) < player.getMaxHealth()*3*(1+shieldBonus/100))
             VPUtil.addShield(player,player.getMaxHealth()*3,false);
         super.doSpecial(seconds, player, level);
     }
@@ -54,6 +54,8 @@ public class SweetDonut extends Vestige{
         VPUtil.play(player,SoundRegistry.HEAL1.get());
         player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
         player.getPersistentData().putBoolean("VPSweetUlt",true);
+        if(isStellar)
+            player.getPersistentData().putFloat("HealDebt", 0);
         super.doUltimate(seconds, player, level);
     }
 
@@ -64,6 +66,8 @@ public class SweetDonut extends Vestige{
         if(player.getHealth() <= player.getMaxHealth()*0.5)
             bonus *= 2;
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",bonus);
+        if(isStellar(stack) && VPUtil.getShield(player)>0)
+            VPUtil.clearEffects(player,false);
         super.curioTick(slotContext, stack);
     }
 
@@ -87,10 +91,9 @@ public class SweetDonut extends Vestige{
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
+    public void curioSucks(Player player, ItemStack stack) {
         reset(player);
-        super.onUnequip(slotContext, newStack, stack);
+        super.curioSucks(player, stack);
     }
 
     public void reset(Player player){

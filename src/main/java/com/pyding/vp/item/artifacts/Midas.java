@@ -110,11 +110,8 @@ public class Midas extends Vestige{
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
-        if(!fuckNbt1) {
-            player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
-        }
-        super.onUnequip(slotContext, newStack, stack);
+    public void curioSucks(Player player, ItemStack stack) {
+        player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
+        super.curioSucks(player, stack);
     }
 }

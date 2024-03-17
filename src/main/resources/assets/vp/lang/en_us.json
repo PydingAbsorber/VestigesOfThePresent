@@ -86,7 +86,7 @@
   "vp.sleep": "I wanna sleep so much...",
   "item.vp.refresher": "§2Refresher",
   "vp.refresher": "Refreshes all charges on equipped Vestiges.",
-  "vp.refresher.get": "Can be obtained after completing challenge on Stellar with 20% chance.",
+  "vp.refresher.get": "Can be obtained after completing challenge on Stellar with 50% chance.",
   "vp.lore.1": " Why have I never thought about how I ended up here and what I'm doing here?\n As if it's self-evident to me.\n As if this question isn't posed by me but by a small part of my controlled consciousness. \n I have a strange sense of déjà v, I definitely existed before... and someone is closely watching me...\n",
   "vp.lore.2": " Last night I dreamt of some strange Vestiges; they look quite unusual, unlike any I've seen before.\n What exactly are Vestiges, and why did I name them that?\n The name just came to me. Usually, something left from the past is called that.\n Some of the images evoke associations with something I saw a very long time ago, so long ago that I can't remember, as if it was before my birth in this world.\n Trying to remember the dream, the same strange phrase repeats in my mind, ,,complete the challenge of y******f.,, Who could that be?\n His voice was so unnatural, as if he wasn't human.\n No, this is just another nonsense; anything could have appeared in my dream!\n",
   "vp.lore.3.1": "??? - Who are you? You weren't in the previous universe... Anomaly?",
@@ -119,7 +119,7 @@
   "vp.lore.9.10": " The enigmatic creature disappeared, leaving nothing behind except another Vestige.\n I decided to stop gathering Vestiges; there was no one left to give them to me, simply continuing to live until the disappearance of this universe.\n Recalling the moment when that being disappeared, I could distinctly see its face before that, it was my face.\n Perhaps, in the future, I might become like it and prevent the disappearance of the universe, repeating its fate?\n Maybe, in one of the infinite twists of events, there exists a minuscule probability of a similar sequence of events, just as atoms can assemble in a random sequence at a random moment in time and create a speaking head with its consciousness in the middle of the room, which disappears in a second, or create a universe identical to ours within a forever sealed and hermetic cube.\n All these thoughts about infinity and the meaning of existence drive me crazy, when was the last time I ate my favorite fried meat in soy sauce with mustard?",
 
   "vp.passive.1": "Against creatures in the air: +700% damage, -10% all equipment durability when hit.",
-  "vp.special.1": "Lifts oneself and everyone nearby 30 blocks into the air and grants slow falling for 5 seconds. \nIf Ultimate active: instead of lifting soaks all to yourself including entities and items.",
+  "vp.special.1": "Lifts owner and everyone nearby 30 blocks into the air and grants slow falling for 5 seconds. \nIf Ultimate active: instead of lifting soaks all to yourself including entities and items.",
   "vp.ultimate.1": "Provides controlled flight for the next 20 seconds.",
   "vp.get.1": "Kill 20 different creatures in the air while being airborne.",
 
@@ -144,12 +144,12 @@
 
   "vp.passive.5": "Terrifying aura reduces the owner's and all surroundings healing by 1% for every 1% of missing HP, also boosts speed and damage with it. \nEach hit to enemy with Healing Debt will increase it by 1%. \nIf health lower then 50%, Ultimate becomes stronger by 2 times",
   "vp.special.5": "Switchable \nGradually consumes HP down to 1, increasing damage by 4% for every 1% missing HP.",
-  "vp.ultimate.5": "Applies a Healing Debt to oneself and all creatures within the 30 blocks afterwards radius for 300% of the owner's Max HP. \n(Healing Debt prevents healing until depleted, each healing will reduce it 1 to 1). \nAdditionally deals 300% damage.",
-  "vp.damagetype.5": "sonic boom",
+  "vp.ultimate.5": "Applies a Healing Debt to wearer and all creatures within the 30 blocks afterwards radius for 300% of the owner's Max HP. \n(Healing Debt prevents healing until depleted, each healing will reduce it 1 to 1). \nAdditionally deals 300% damage.",
+  "vp.damagetype.5": "Paragon (can be reduced only by Over Shields), sonic boom",
   "vp.get.5": "Kill 100 creatures in hell, having no more than 1 HP. Creature must have max health or attack damage higher, then yours",
 
   "vp.passive.6": "Increases all healing by 40%. \nIf current HP is below 50%, the bonus doubles. \nWhen Shields are active gives +0.1% healing bonus and +0.1% duration to next Ultimate(only self) for each Saturation stack",
-  "vp.special.6": "Heals the owner for 40% of their max HP and removes negative effects. \nIf HP is below half, also applies regeneration 5 for 20 seconds.",
+  "vp.special.6": "Heals the owner for 40% of their max HP and removes negative effects. \nIf HP is below half, also applies regeneration 5 for 20 seconds. \nAdds Shield with amount of 300% from max health(not stackable)",
   "vp.ultimate.6": "For the next 10 seconds after activation, each Over Healing will increase the Saturation stack by 1 to 1 ratio(400 max). \nStacks reset after cooldown.",
   "vp.get.6": "Consume all food in the modpack.",
 
@@ -189,7 +189,7 @@
   "vp.passive.13": "Each slain monster under the effect of Special grants additional second loot table (x2 loot). \nEach Mortage (from Ultimate) provides a 1% chance for x4 loot. \nIf the chance triggers, it divides by 10 for x6 loot and so on.",
   "vp.special.13": "Empowers the monster you're looking at until Special ends. \nThe monster gains vulnerability to one random damage type while becoming immune to the others.",
   "vp.ultimate.13": "For the next 60 seconds, the player receives 10 times more damage. \nFor each monster killed under the effect of Special, +1 Mortage.",
-  "vp.get.13": "Kill a Warden with all types of damage and never die.",
+  "vp.get.13": "Kill a Warden with all types of damage and never die. \n(If there is no source of kill, like drawing, all nearby players will get progress).",
 
   "vp.passive.14": "With a 10% chance, one of two things can happen: \n1.The received damage may increase or decrease by a random number from 1 to infinity.\n2.The received damage may obtain random type of damage.(magic, bypassArmor, fall, etc.)",
   "vp.special.14": "The next 1-10 received hits can reflect back to the opponent with a chance of 10-100%. (Self-harm does not count.)",
@@ -209,7 +209,7 @@
   "vp.passive.17": "A creature that dies within a 10-block radius of the carrier will spread all negative effects to nearby creatures within the same radius, including the carrier.",
   "vp.special.17": "Extends the duration of all debuffs on all nearby creatures by 15%, and also has a 20% chance to increase their level by 1. \nGives random buff of modpack with 1-5 lvl for 60-200 seconds.",
   "vp.ultimate.17": "Steals all buffs from all nearby creatures whose level does not exceed 4. \nEach stolen buff from a creature applies a random debuff of level 1-4 to it for 10 seconds and gives +10% duration to all wearer buffs.",
-  "vp.get.17": "Apply every collection effect to oneself.",
+  "vp.get.17": "Get every effect of modpack.",
 
   "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area.",
   "vp.special.18": "Teleports the carrier to a random point nearby, leaving behind a powerful lightning bolt. \nThe lightning deals 500% damage to everyone (including the carrier) within a 5-block radius and slows down the speed, attack speed of enemies.",
@@ -221,10 +221,10 @@
   "vp.special.19": "Deals damage to hostile creatures in the line of sight amounting to 10% of their maximum HP.",
   "vp.ultimate.19": "Sacrifices 30% of the shield of the carrier and all creatures in the area and turns them into Super shields. \nSuper shields will return to a random creature in the area or the carrier. \n(The chance of Super shields returning to the player depends on the number of participating creatures)",
   "vp.get.19": "Deal a total of 1 million damage to enemy shields.",
-  "vp.damagetype.19": "Paragon (cannot be reduced, blocked, or canceled).",
+  "vp.damagetype.19": "Paragon (can be reduced only by Over Shields).",
 
   "vp.passive.20": "Super shields regenerate up to 10% of the max HP of the stored creature (from Ultimate) per second. Upon receiving shields, there's a 20% chance to convert 5% into Super shields.",
-  "vp.special.20": "The creature the carrier is looking at enters an Astral form for 15 seconds. \nIn this form, the creature cannot deal or receive damage, except for magical types and through invulnerability, with received damage increased tenfold. \nPressing with hp lower then  50% will apply the effect to oneself.",
+  "vp.special.20": "The creature the carrier is looking at enters an Astral form for 15 seconds. \nIn this form, the creature cannot deal or receive damage, except for magical types and through invulnerability, with received damage increased tenfold. \nPressing with hp lower then  50% will apply the effect to wearer.",
   "vp.ultimate.20": "Applies a healing debt of 2000% of max HP. \nThe soul of the creature upon gaze will be encapsulated in a Vestige with a chance dependent on the HP difference between the wearer and the creature, as well as the creature's current HP.\nThe exact chance can be found using the command /vestiges captureChance <player's max HP> <creature's max HP> <creature's current HP>\nIf the creature is in Astral form, the chance will be doubled.\nUpon successful capture of the soul, the physical form of the creature will disintegrate, and no loot will drop.\nIf there is a Preserved Soul:\nMaterializes the Preserved Soul and summons a creature that will fight on the side of the wearer.\nThis creature can be returned to the Storage by activating the Ultimate near it again.",
   "vp.get.20": "Tame or kill all peaceful creatures in the modpack.",
 
@@ -233,7 +233,7 @@
   "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10% and give Gravitation stack.",
   "vp.stellar.4": "Passive: also disables teleportation and Shield gathering for 3 minutes.",
   "vp.stellar.5": "Passive: Each Over Healing on an opponent under the aura effect will break all their equipment by 5%.",
-  "vp.stellar.6": "Special: also adds shield with amount of 300% from max health(not stackable).",
+  "vp.stellar.6": "Passive: immunity to any debuffs while you have shields. \nUltimate: removes all Healing Debt after activation.",
   "vp.stellar.7": "Ultimate also applies a Healing Debt of 1000% of max HP. If the wearer survives after the ultimate, its cooldown resets by % of the difference between received damage and healing (up to 60%).",
   "vp.stellar.8": "Passive: If the first evasion fails, damage decreases by % of evasion.",
   "vp.stellar.9": "Ultimate: also gives gold like from Passive \nEach luck attribute increases all damage by 10%.",
@@ -250,5 +250,28 @@
   "vp.stellar.20": "Increases the carrier's max HP by 30% of the Stored creature's max HP. \nAll received damage, healing, shields, super shields, and healing debt will be transferred to the Summoned creature within a 30-block radius.",
 
   "vp.info": "If you have any questions about mechanics, type /vestiges info",
-  "vp.info.mechanics": "§5Healing Debt§7 - prohibits healing until the debt is paid off. Each healing reduces the debt by a 1:1 ratio. \nFor example: \nPlayer with 20 max HP has a healing debt of 10% of their max HP (so debt = 2). After healing for 4 HP, the player would only receive 2 HP.\n\n§5Healing Bonus and Healing Reduction§7 - increases and decreases the amount of healing received, respectively. All bonuses are applied simultaneously. \nFor example:  \nIf a player has a 60% healing bonus and a 40% healing reduction, the effective bonus would be 20%, resulting in a healing of 12 HP instead of 10.\n\n§5Over Healing§7 - the amount of healing a player or creature receives when already at full HP. \nNote: vanilla health regeneration potion effect can't Over Heal and can't heal above 20 HP. \n\n§5Shield§7 - protects against damage less than the shield value and activates after absorption or amplification effects from other mods. \nFor example: \nIf a player has 10 shields and receives 8 damage, player will take 0 damage and have 2 shields remaining. \nIf 12 damage is dealt, the player takes 2 damage, depleting the shields.\n\n§5Overshield§7 - provides complete protection against damage, even if the damage exceeds the overshield value. It activates before regular shields. \nFor example: \nPlayer with 80 overshields and 10 shields takes 99999 damage, resulting in 0 damage taken and 0 overshields, but 10 shields remaining. \nOvershields are also 90% more effective against magical and void damage.\n\n§5Adaptive Damage§7 - damage that changes its damage type to the next in the list if it fails to penetrate the target.\n\n§5Paragon Damage§7 - guaranteed damage that ignores evasion, absorption, damage negation, and shields but does not bypass overshields. \n\n§5Damage Type§7 - refers to its characteristic, what it does, and the properties it possesses. \nFor example:\nDamage type damageHelmet deals additional damage to the helm, while bypassInvul penetrates through invulnerability seconds between hits, enchantments, effects, armor, etc. \nSome Vestiges feature mechanics that change the damage type, altering such characteristics of the inflicted damage.\n\n§5Damage Kind§7 - is a set of characteristics with specific name. \nFor example:\nDamage types \"Fall\" and \"Stalagmite\" include bypassArmor and isFall, meaning they will penetrate armor and be further reduced by enchantments against falling on armor. \nThen there's the damage type \"Falling Stalagmite,\" which only includes damageHelmet."
+  "vp.info.mechanics": "§5Healing Debt§7 - prohibits healing until the debt is paid off. Each healing reduces the debt by a 1:1 ratio. \nFor example: \nPlayer with 20 max HP has a healing debt of 10% of their max HP (so debt = 2). After healing for 4 HP, the player would only receive 2 HP.\n\n§5Healing Bonus and Healing Reduction§7 - increases and decreases the amount of healing received, respectively. All bonuses are applied simultaneously. \nFor example:  \nIf a player has a 60% healing bonus and a 40% healing reduction, the effective bonus would be 20%, resulting in a healing of 12 HP instead of 10.\n\n§5Over Healing§7 - the amount of healing a player or creature receives when already at full HP. \nNote: vanilla health regeneration potion effect can't Over Heal and can't heal above 20 HP. \n\n§5Shield§7 - protects against damage less than the shield value and activates after absorption or amplification effects from other mods. \nFor example: \nIf a player has 10 shields and receives 8 damage, player will take 0 damage and have 2 shields remaining. \nIf 12 damage is dealt, the player takes 2 damage, depleting the shields.\n\n§5Overshield§7 - provides complete protection against damage, even if the damage exceeds the overshield value. It activates before regular shields. \nFor example: \nPlayer with 80 overshields and 10 shields takes 99999 damage, resulting in 0 damage taken and 0 overshields, but 10 shields remaining. \nOvershields are also 90% more effective against magical and void damage.\n\n§5Adaptive Damage§7 - damage that changes its damage type to the next in the list if it fails to penetrate the target.\n\n§5Paragon Damage§7 - guaranteed damage that ignores evasion, absorption, damage negation, and shields but does not bypass overshields. \n\n§5Damage Type§7 - refers to its characteristic, what it does, and the properties it possesses. \nFor example:\nDamage type damageHelmet deals additional damage to the helm, while bypassInvul penetrates through invulnerability seconds between hits, enchantments, effects, armor, etc. \nSome Vestiges feature mechanics that change the damage type, altering such characteristics of the inflicted damage.\n\n§5Damage Kind§7 - is a set of characteristics with specific name. \nFor example:\nDamage types \"Fall\" and \"Stalagmite\" include bypassArmor and isFall, meaning they will penetrate armor and be further reduced by enchantments against falling on armor. \nThen there's the damage type \"Falling Stalagmite,\" which only includes damageHelmet.",
+
+  "vp.short.1" : "Raises into the air, grants flight and bonus damage to creatures in air.",
+  "vp.short.2" : "Deals changing damage, negates immortality, provides damage absorption.",
+  "vp.short.3" : "Drops onto the ground, summons the Black Hole.",
+  "vp.short.4" : "Explodes everyone nearby, powerful explosion upon death.",
+  "vp.short.5" : "Gradually reduces HP in exchange for damage.",
+  "vp.short.6" : "Heals, provides Shields and Regeneration bonus.",
+  "vp.short.7" : "Duplicates attacks, grants temporary invincibility.",
+  "vp.short.8" : "Accelerates, grants evasion.",
+  "vp.short.9" : "Yields gold upon kill, accumulates luck.",
+  "vp.short.10" : "Teleports to a set point or to a random dimension.",
+  "vp.short.11" : "Reduces damage, repairs equipment, grants experience.",
+  "vp.short.12" : "Converts enemy enchantments to negative levels.",
+  "vp.short.13" : "Empowers monsters, duplicates loot from them.",
+  "vp.short.14" : "Reflects damage and arrows.",
+  "vp.short.15" : "Binds enemies and allows for guaranteed kills.",
+  "vp.short.16" : "Heals all nearby peaceful entities and provides them with shields.",
+  "vp.short.17" : "Steals buffs and applies debuffs.",
+  "vp.short.18" : "Deals significant damage to shields and armor.",
+  "vp.short.19" : "Inflicts damage that cannot be negated or reduced, provides Super Shields.",
+  "vp.short.20" : "Enslaves any creatures, grants Super Shields and their regeneration."
+
+
 }

@@ -1076,8 +1076,10 @@ public class VPUtil {
     }
 
     public static boolean isBoss(LivingEntity entity){
-        if(entity.getMaxHealth() >= 190 || entity instanceof WitherBoss || entity instanceof EnderDragon || entity instanceof Warden)
-            return true;
+        for(EntityType<?> type: bossList){
+            if(entity.getType() == type)
+                return true;
+        }
         return false;
     }
 

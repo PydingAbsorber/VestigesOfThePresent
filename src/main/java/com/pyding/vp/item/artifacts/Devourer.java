@@ -73,20 +73,8 @@ public class Devourer extends Vestige{
     }
 
     @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
-        if(!fuckNbt2){
-            player.getPersistentData().putInt("VPDevourerHits", 0);
-        }
-        super.onEquip(slotContext, prevStack, stack);
-    }
-
-    @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Player player = (Player) slotContext.entity();
-        if(!fuckNbt1){
-            super.onUnequip(slotContext, newStack, stack);
-        }
+    public void curioSucks(Player player, ItemStack stack) {
         player.getPersistentData().putInt("VPDevourerHits",0);
+        super.curioSucks(player, stack);
     }
 }

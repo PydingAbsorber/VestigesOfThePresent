@@ -73,18 +73,16 @@ public class Anemoculus extends Vestige{
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if(!fuckNbt1) {
-            Player player = (Player) slotContext.entity();
-            if (player.isCreative())
-                return;
-            player.getAbilities().mayfly = false;
-            player.getAbilities().flying = false;
-            player.onUpdateAbilities();
-            if (player instanceof ServerPlayer serverPlayer)
-                PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
+    public void curioSucks(Player player, ItemStack stack) {
+        if (player.isCreative()) {
+            return;
         }
-        super.onUnequip(slotContext, newStack, stack);
+        player.getAbilities().mayfly = false;
+        player.getAbilities().flying = false;
+        player.onUpdateAbilities();
+        if (player instanceof ServerPlayer serverPlayer)
+            PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
+        super.curioSucks(player, stack);
     }
 
     @Override

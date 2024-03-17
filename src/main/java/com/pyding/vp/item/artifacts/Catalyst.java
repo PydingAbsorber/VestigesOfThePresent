@@ -26,7 +26,6 @@ public class Catalyst extends Vestige{
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
         super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 120, 1, 1, hasDamage);
     }
-    public int debuffDefence = 0;
     @Override
     public void doSpecial(long seconds, Player player, Level level) {
         VPUtil.play(player, SoundRegistry.CATALYST1.get());
@@ -43,7 +42,7 @@ public class Catalyst extends Vestige{
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         if(isStellar)
-            debuffDefence = 5;
+            player.getPersistentData().putInt("VPDebuffDefence",5);
         Random random = new Random();
         int duration = random.nextInt(140)+60;
         int power = random.nextInt(5);
@@ -89,6 +88,7 @@ public class Catalyst extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
+        int debuffDefence = player.getPersistentData().getInt("VPDebuffDefence");
         if(debuffDefence > 0) {
             debuffDefence--;
             for (MobEffectInstance instance : VPUtil.getEffectsHas(player, false)){

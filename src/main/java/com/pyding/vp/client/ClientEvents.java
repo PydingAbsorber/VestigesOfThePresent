@@ -24,11 +24,6 @@ public class ClientEvents {
             } else if (KeyBinding.FIRST_KEY.isDown()) {
                 PacketHandler.sendToServer(new ButtonPressPacket(1));
             }
-            if(KeyBinding.SECOND_KEY.consumeClick()) {
-                PacketHandler.sendToServer(new ButtonPressPacket(2));
-            }
-            if(KeyBinding.SECOND_KEY_ULT.consumeClick()) {
-
             if(KeyBinding.SECOND_KEY_ULT.isDown()) {
                 PacketHandler.sendToServer(new ButtonPressPacket(4));
             } else if (KeyBinding.SECOND_KEY.isDown()) {
