@@ -98,9 +98,4 @@ public class Mark extends Vestige{
         super.ultimateEnds(player);
     }
 
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
-        super.curioSucks(player, stack);
-    }
 }

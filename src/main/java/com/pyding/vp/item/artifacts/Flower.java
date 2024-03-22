@@ -64,13 +64,6 @@ public class Flower extends Vestige{
         super.doUltimate(seconds, player, level);
     }
 
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getPersistentData().putFloat("VPHealResFlower", 0);
-        player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
-        super.curioSucks(player, stack);
-    }
-
     public static List<LivingEntity> getCreaturesAround(Player player, double x, double y, double z){
         List<LivingEntity> list = new ArrayList<>();
         for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){

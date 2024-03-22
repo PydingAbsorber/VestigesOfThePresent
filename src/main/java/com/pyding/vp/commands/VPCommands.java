@@ -104,7 +104,7 @@ public class VPCommands {
                             return Command.SINGLE_SUCCESS;
                         })
                 )
-                .then(Commands.literal("damage").requires(sender -> sender.hasPermission(2))
+                .then(Commands.literal("hurt").requires(sender -> sender.hasPermission(2))
                         .then(Commands.argument("amount", FloatArgumentType.floatArg())
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
@@ -191,6 +191,24 @@ public class VPCommands {
                             }
                             return Command.SINGLE_SUCCESS;
                         })
+                )
+                .then(Commands.literal("reduceChallenge").requires(sender -> sender.hasPermission(2))
+                    .then(Commands.argument("challengeReduce", IntegerArgumentType.integer())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                            .executes(context -> {
+                                int challenge = IntegerArgumentType.getInteger(context, "challengeReduce");
+                                int amount = IntegerArgumentType.getInteger(context, "amount");
+                                if (challenge > PlayerCapabilityVP.totalVestiges) {
+                                    context.getSource().sendFailure(Component.literal("There is no such challenge number! >:("));
+                                    return 0;
+                                }
+                                ServerPlayer player = context.getSource().getPlayerOrException();
+                                ConfigHandler.COMMON.getChallengeReduceByNumber(challenge).set(amount);
+                                player.sendSystemMessage(Component.literal("Progress maximum for challenge " + challenge + " has been reduced for " + amount));
+                                return Command.SINGLE_SUCCESS;
+                            })
+                        )
+                    )
                 )
         );
     }

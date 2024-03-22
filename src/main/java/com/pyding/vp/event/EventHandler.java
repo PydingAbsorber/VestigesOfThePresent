@@ -9,6 +9,7 @@ import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.*;
 import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
@@ -316,7 +317,7 @@ public class EventHandler {
                         else if(entity.getAttributes().hasAttribute(Attributes.MAX_HEALTH) && player.getAttribute(Attributes.MAX_HEALTH).getValue() < entity.getAttribute(Attributes.MAX_HEALTH).getValue())
                             challange.setChallenge(5, challange.getChallenge(5) + 1, player);
                     }
-                    if (entity.getType().getCategory() == MobCategory.MONSTER)
+                    if (entity.getType().getCategory() == MobCategory.MONSTER && !VPUtil.isBoss(entity))
                         challange.addMonsterKill(entity.getType().toString(), player);
                     if (entity.getType().getCategory() == MobCategory.CREATURE)
                         challange.addMobTame(entity.getType().toString(), player);
@@ -396,6 +397,11 @@ public class EventHandler {
                         event.setCanceled(true);
                         player.setHealth(player.getMaxHealth()/2);
                         player.getPersistentData().putLong("VPQueenDeath",-1);
+                        ItemStack stack = VPUtil.getVestigeStack(Killer.class,player);
+                        if(player instanceof ServerPlayer serverPlayer)
+                            PacketHandler.sendToClient(new ItemAnimationPacket(stack),serverPlayer);
+                        VPUtil.play(player, SoundEvents.TOTEM_USE);
+                        VPUtil.spawnParticles(player, ParticleTypes.GLOW, player.getX(), player.getY(), player.getZ(), 8, 0, 0, 0);
                     }
                     boolean stellar = VPUtil.hasStellarVestige(ModItems.KILLER.get(), player);
                     for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20,false)){
@@ -796,23 +802,32 @@ public class EventHandler {
             }
             if(!slotResultList.isEmpty()){
                 if(slotResultList.get(0).getItem() instanceof Vestige vestige) {
-                    if(player.getPersistentData().getInt("VPCurioSucks1") <= 0)
-                        player.getPersistentData().putInt("VPCurioSucks1", vestige.vestigeNumber);
                     if(vestige.vestigeNumber != player.getPersistentData().getInt("VPCurioSucks1"))
                         vestige.curioSucks(player, slotResultList.get(0));
                     player.getPersistentData().putInt("VPCurioSucks1", vestige.vestigeNumber);
+                } else {
+                    player.getPersistentData().putInt("VPCurioSucks1", 0);
+                    VPUtil.vestigeNullify(player);
                 }
                 if(slotResultList.size() > 1 && slotResultList.get(1).getItem() instanceof Vestige vestige) {
-                    if(player.getPersistentData().getInt("VPCurioSucks2") <= 0)
-                        player.getPersistentData().putInt("VPCurioSucks2", vestige.vestigeNumber);
-                    if(vestige.vestigeNumber != player.getPersistentData().getInt("VPCurioSucks2"))
-                        vestige.curioSucks(player,slotResultList.get(1));
+                    if (vestige.vestigeNumber != player.getPersistentData().getInt("VPCurioSucks2"))
+                        vestige.curioSucks(player, slotResultList.get(1));
                     player.getPersistentData().putInt("VPCurioSucks2", vestige.vestigeNumber);
+                } else {
+                    player.getPersistentData().putInt("VPCurioSucks2", 0);
+                    VPUtil.vestigeNullify(player);
                 }
-            } else {
-                player.getPersistentData().putFloat("VPShield", 0);
-                player.getPersistentData().putFloat("VPOverShield", 0);
+            } else if (player.getPersistentData().getInt("VPCurioSucks1") != 0 || player.getPersistentData().getInt("VPCurioSucks2") != 0) {
+                player.getPersistentData().putInt("VPCurioSucks1", 0);
+                player.getPersistentData().putInt("VPCurioSucks2", 0);
+                VPUtil.vestigeNullify(player);
             }
+            /*ItemStack stack = player.inventoryMenu.getCarried();
+            System.out.println(stack);
+            if(stack.getItem() instanceof Vestige vestige){
+                System.out.println("yes yes skibidy");
+                vestige.curioSucks(player,stack);
+            }*/
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addBiome(player);
                 if(!player.getCommandSenderWorld().isClientSide) {
@@ -884,6 +899,15 @@ public class EventHandler {
     }
 
     @SubscribeEvent
+    public static void onPlayerCloned(PlayerEvent.ItemPickupEvent event){
+        Player player = event.getEntity();
+        ItemStack stack = event.getStack();
+        if(stack.getItem() instanceof Vestige vestige){
+            vestige.curioSucks(player,stack);
+        }
+    }
+
+    @SubscribeEvent
     public void onAnvilUse(AnvilRepairEvent event) {
         Player player = event.getEntity();
         ItemStack right = event.getRight();
@@ -897,10 +921,10 @@ public class EventHandler {
     @SubscribeEvent
     public static void onMobSpawn(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity entity && VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get()) {
+            float health = entity.getMaxHealth()*ConfigHandler.COMMON.bossHP.get();
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
-            entity.setHealth(entity.getMaxHealth());
-            entity.addEffect(new MobEffectInstance(MobEffects.HEAL,40,255));
+            entity.setHealth(health);
         }
     }
     @SubscribeEvent

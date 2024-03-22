@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.accessories.Accessory;
+import com.pyding.vp.item.artifacts.Mark;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
@@ -635,6 +637,18 @@ public class VPUtil {
         List<SlotResult> result = new ArrayList<>();
         CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
             result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Vestige));
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
+    }
+
+    public static List<ItemStack> getAccessoryList(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Accessory));
         });
         List<ItemStack> stacks = new ArrayList<>();
         for(SlotResult hitResult: result){
@@ -1755,5 +1769,41 @@ public class VPUtil {
         damageSources.add(player.damageSources().lava());
         damageSources.add(player.damageSources().hotFloor());
         return damageSources;
+    }
+
+    public static void vestigeNullify(Player player){
+        player.getPersistentData().putFloat("VPShield", 0);
+        player.getPersistentData().putFloat("VPOverShield", 0);
+        player.getPersistentData().putInt("VPDevourerHits",0);
+        player.getPersistentData().putFloat("VPHealResFlower", 0);
+        player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
+        Multimap<Attribute, AttributeModifier> mark = HashMultimap.create();
+        mark.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("4fc18d7a-9353-45b1-ad77-29117c1d9e6f"), "vp:attack_speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
+        mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("78cf254b-36df-41d6-be91-ad06220d9dd8"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
+        mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("54b7f5ed-0851-4745-b98c-e1f08a1a2f67"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
+        player.getAttributes().removeAttributeModifiers(mark);
+        Multimap<Attribute, AttributeModifier> mask = HashMultimap.create();
+        mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", 0, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", 0, AttributeModifier.Operation.MULTIPLY_BASE));
+        player.getAttributes().removeAttributeModifiers(mask);
+        Multimap<Attribute, AttributeModifier> midas = HashMultimap.create();
+        midas.put(Attributes.LUCK, new AttributeModifier(UUID.fromString("f55f3429-0399-4d9e-9f84-0d7156cc0593"), "vp:luck", 0, AttributeModifier.Operation.ADDITION));
+        player.getPersistentData().putInt("VPPrism", 0);
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),0, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+        player.getPersistentData().putBoolean("VPSweetUlt",false);
+        player.getPersistentData().putFloat("VPSaturation",0);
+        player.getPersistentData().putFloat("VPHealBonusDonut", 0);
+        player.getPersistentData().putFloat("VPShieldBonusDonut", 0);
+        player.getPersistentData().putFloat("VPHealBonusDonutPassive",0);
+        player.getPersistentData().putFloat("VPTrigonBonus", 0);
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
+        if (player.isCreative()) {
+            return;
+        }
+        player.getAbilities().mayfly = false;
+        player.getAbilities().flying = false;
+        player.onUpdateAbilities();
+        if (player instanceof ServerPlayer serverPlayer)
+            PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
     }
 }

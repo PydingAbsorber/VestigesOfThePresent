@@ -108,10 +108,4 @@ public class Midas extends Vestige{
             player.getPersistentData().putFloat("VPMidasTouch",0);
         super.curioTick(slotContext, stack);
     }
-
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap(stack));
-        super.curioSucks(player, stack);
-    }
 }

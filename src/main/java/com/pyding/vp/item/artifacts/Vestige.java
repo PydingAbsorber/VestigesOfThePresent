@@ -342,12 +342,19 @@ public class Vestige extends Item implements ICurioItem {
         return 0;
     }
 
-    public void applyBonus(ItemStack stack){
+    public void applyBonus(ItemStack stack,Player player){
         int specialBonus = 0;
         int ultimateBonus = 0;
         if(isDoubleStellar(stack)){
             specialBonus += 1;
             ultimateBonus += 1;
+        }
+        int spChargeBonus = 0;
+        int ultChargeBonus = 0;
+
+        List<ItemStack> list = VPUtil.getAccessoryList(player);
+        for(ItemStack itemStack: list){
+
         }
         setSpecialCharges(specialChargesBase+specialBonus+specialBonusModifier());
         setUltimateCharges(ultimateChargesBase+ultimateBonus+ultimateBonusModifier());
@@ -677,9 +684,8 @@ public class Vestige extends Item implements ICurioItem {
         setCurrentChargeUltimate(0);
         setCdSpecialActive(specialCd()*specialCharges());
         setCdUltimateActive(ultimateCd()*ultimateCharges());
-        player.getPersistentData().putFloat("VPShield", 0);
-        player.getPersistentData().putFloat("VPOverShield", 0);
-        applyBonus(stack);
+        VPUtil.vestigeNullify(player);
+        applyBonus(stack,player);
     }
     /*@Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {

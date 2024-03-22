@@ -67,7 +67,7 @@ public class MaskOfDemon extends Vestige{
             speedMultiplier *= 1.5;
         }
         float missingHealth = VPUtil.missingHealth(player);
-        if(isStellar)
+        if(isStellar(stack))
             missingHealth*=2;
         float attackScale = (float) ((missingHealth * attackMultiplier) + 1)/100;
         float speedScale = (float) ((missingHealth * speedMultiplier) + 1)/100;
@@ -76,12 +76,6 @@ public class MaskOfDemon extends Vestige{
         attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", speedScale, AttributeModifier.Operation.MULTIPLY_BASE));
 
         return attributesDefault;
-    }
-
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
-        super.curioSucks(player, stack);
     }
 
     @Override
@@ -95,9 +89,9 @@ public class MaskOfDemon extends Vestige{
                 if (player.getHealth() > player.getMaxHealth() * 0.1+1) {
                     //player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
                     VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * 0.1f,1,false);
-                    player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
                     hurt = true;
                 }
+                player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
                 CompoundTag tag = entity.getPersistentData();

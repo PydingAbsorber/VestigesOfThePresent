@@ -86,10 +86,10 @@
   "vp.sleep": "I wanna sleep so much...",
   "item.vp.refresher": "§2Refresher",
   "item.vp.infinite_refresher": "§2Infinite Refresher",
-  "vp.refresher": "Refreshes all charges on equipped Vestiges. \nConsumes after use.",
+  "vp.refresher": "Refreshes all charges on equipped Vestiges. (Consumes after use)",
   "vp.refresher.get": "Can be obtained after completing challenge on Stellar with 50% chance.",
-  "vp.infinite.get": "Prove of iron will and infinite mighty.",
-  "vp.infinite": "Refreshes all charges on equipped Vestiges. \nInstead of consuming goes to cooldown for 300 seconds.",
+  "vp.infinite.get": "Proof of iron will and infinite mighty.",
+  "vp.infinite": "Refreshes all charges on equipped Vestiges. (Instead of consuming goes to cooldown for 300 seconds)",
   "vp.lore.1": " Why have I never thought about how I ended up here and what I'm doing here?\n As if it's self-evident to me.\n As if this question isn't posed by me but by a small part of my controlled consciousness. \n I have a strange sense of déjà v, I definitely existed before... and someone is closely watching me...\n",
   "vp.lore.2": " Last night I dreamt of some strange Vestiges; they look quite unusual, unlike any I've seen before.\n What exactly are Vestiges, and why did I name them that?\n The name just came to me. Usually, something left from the past is called that.\n Some of the images evoke associations with something I saw a very long time ago, so long ago that I can't remember, as if it was before my birth in this world.\n Trying to remember the dream, the same strange phrase repeats in my mind, ,,complete the challenge of y******f.,, Who could that be?\n His voice was so unnatural, as if he wasn't human.\n No, this is just another nonsense; anything could have appeared in my dream!\n",
   "vp.lore.3.1": "??? - Who are you? You weren't in the previous universe... Anomaly?",
@@ -135,7 +135,7 @@
 
   "vp.passive.3": "Dealing fall damage has a 20% chance to grant 1 Gravity. \nEach Gravity provides +2% damage to Ultimates. \nMaximum Gravity numbers are 30.",
   "vp.special.3": "Deals 50% damage in a small area ahead, forcibly disables flight, and drops to the ground.",
-  "vp.ultimate.3": "Upon having Gravities, creates a small black hole pulling in enemies. \nRadius, damage, and duration of the black hole depend on the number of Gravities.",
+  "vp.ultimate.3": "Upon having Gravities, creates a small black hole pulling in enemies. \nRadius, damage, and duration of the black hole depend on the number of Gravities. \nBlack Hole explodes after expiration and deals Paragon damage.",
   "vp.damagetype.3": "falling, void",
   "vp.get.3": "Discover all modpack biomes.",
 

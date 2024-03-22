@@ -36,6 +36,10 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
         poseStack.pushPose();
         float gravity = entity.getPersistentData().getFloat("VPGravity");
         float scale = 1+gravity/5;
+        if(entity.tickCount < 20)
+            scale /= 20-entity.tickCount;
+        else if(entity.tickCount+20 > 20 * (gravity+2))
+            scale /= (entity.tickCount+20)-(20 * (gravity+2));
         poseStack.scale(scale,scale,scale);
         //poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
         float angle = (System.currentTimeMillis() % 36000) / 2.0f;

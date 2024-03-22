@@ -123,14 +123,6 @@ public class SoulBlighter extends Vestige{
     }
 
     @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        if(stack.getOrCreateTag().contains("entityData") && isStellar) {
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-        }
-        super.curioSucks(player, stack);
-    }
-
-    @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
         if(stack.getOrCreateTag().contains("entityData") && player1.tickCount % 20 == 0){

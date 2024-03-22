@@ -61,12 +61,6 @@ public class Prism extends Vestige{
 
 
     @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getPersistentData().putInt("VPPrism", 0);
-        super.curioSucks(player, stack);
-    }
-
-    @Override
     public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
             return super.onLeftClickEntity(stack, player, entity);
     }

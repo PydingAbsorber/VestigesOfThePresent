@@ -71,10 +71,4 @@ public class Devourer extends Vestige{
         VPUtil.spawnParticles(player, ParticleTypes.GLOW_SQUID_INK,8,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level);
     }
-
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getPersistentData().putInt("VPDevourerHits",0);
-        super.curioSucks(player, stack);
-    }
 }

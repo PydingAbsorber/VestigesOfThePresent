@@ -90,11 +90,6 @@ public class SweetDonut extends Vestige{
         super.ultimateRecharges(player);
     }
 
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        reset(player);
-        super.curioSucks(player, stack);
-    }
 
     public void reset(Player player){
         player.getPersistentData().putBoolean("VPSweetUlt",false);
