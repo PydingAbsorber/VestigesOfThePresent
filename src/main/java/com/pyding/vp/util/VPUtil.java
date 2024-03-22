@@ -1288,15 +1288,11 @@ public class VPUtil {
     public static void suckToPos(Entity entity, BlockPos targetPos, double maxPullStrength) {
         Vec3 targetVec = Vec3.atCenterOf(targetPos);
         Vec3 entityVec = entity.position();
-
         Vec3 direction = targetVec.subtract(entityVec);
         double distance = direction.length();
-
         Vec3 normalizedDirection = direction.normalize();
         double pullStrength = Math.min(maxPullStrength, distance / 10.0);
-
         Vec3 pullVelocity = normalizedDirection.scale(pullStrength);
-
         entity.setDeltaMovement(pullVelocity.x, pullVelocity.y, pullVelocity.z);
     }
 

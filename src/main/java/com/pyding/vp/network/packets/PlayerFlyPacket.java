@@ -74,9 +74,9 @@ public class PlayerFlyPacket {
             player.getAbilities().flying = true;
             player.onUpdateAbilities();
         }
-        else {
-            Vec3 motion = new Vec3(0, number, 0);
-            player.lerpMotion(motion.x, motion.y, motion.z);
+        else if(number > 300){
+            BlockPos pos = new BlockPos((int) player.getPersistentData().getDouble("VPDevourerX"),(int)player.getPersistentData().getDouble("VPDevourerY"),(int)player.getPersistentData().getDouble("VPDevourerZ"));
+            VPUtil.suckToPos(player,pos,number-300);
         }
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
 
