@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,7 +24,7 @@ public class CatEars extends Vestige{
 
     private Multimap<Attribute, AttributeModifier> createAttributeMap() {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
-        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("5171148b-064a-4810-a7c0-1dcbf781ffdc"), "vp:speed_modifier_ears", 1, AttributeModifier.Operation.ADDITION));
+        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("5171148b-064a-4810-a7c0-1dcbf781ffdc"), "vp:speed_modifier_ears", ConfigHandler.COMMON.catSpeed.get(), AttributeModifier.Operation.ADDITION));
         return attributesDefault;
     }
 

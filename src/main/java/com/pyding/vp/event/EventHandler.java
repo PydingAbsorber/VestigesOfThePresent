@@ -74,7 +74,7 @@ public class EventHandler {
             Random random = new Random();
             if (entity.getPersistentData().getBoolean("VPKillerQueen")) {
                 entity.getPersistentData().putBoolean("VPKillerQueen", false);
-                event.setAmount(event.getAmount() * 1.7f);
+                event.setAmount((float) (event.getAmount() * (1+ConfigHandler.COMMON.killerRes.get()/10)));
             }
             if (entity.getPersistentData().getBoolean("VPFlowerStellar") && VPUtil.isDamagePhysical(event.getSource())) {
                 entity.getPersistentData().putBoolean("VPFlowerStellar", false);
@@ -96,7 +96,7 @@ public class EventHandler {
                         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
                     }
                 }*/
-                if (event.getSource().is(DamageTypes.FALL) && player.getPersistentData().getInt("VPGravity") < 30 && Math.random() < 0.2)
+                if (event.getSource().is(DamageTypes.FALL) && player.getPersistentData().getInt("VPGravity") < 30 && Math.random() < ConfigHandler.COMMON.atlasChance.get())
                     player.getPersistentData().putInt("VPGravity", Math.min(30, player.getPersistentData().getInt("VPGravity") + 1));
                 if (VPUtil.hasVestige(ModItems.ANEMOCULUS.get(), player) && !entity.onGround()) {
                     event.setAmount(event.getAmount() * 7);
@@ -127,7 +127,7 @@ public class EventHandler {
                         int attributesBetter = 0;
                         if (VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
                             attributesBetter = VPUtil.compareStats(player, entity, true);
-                        if (Math.random() < 0.01 * souls)
+                        if (Math.random() < ConfigHandler.COMMON.devourerChance.get() * souls)
                             entity.getPersistentData().putInt("VPSoulRotting", entity.getPersistentData().getInt("VPSoulRotting") + 1 + attributesBetter);
                         if (VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
                             entity.getPersistentData().putInt("VPSoulRottingStellar", entity.getPersistentData().getInt("VPSoulRotting"));
@@ -176,18 +176,18 @@ public class EventHandler {
                 }
                 if (VPUtil.hasVestige(ModItems.EARS.get(), player)) {
                     float armor = (float) player.getArmorValue();
-                    float chance = (Math.min(69, armor) / 100);
+                    float chance = (Math.min(ConfigHandler.COMMON.catEvadeCap.get(), armor) / 100);
                     if (VPUtil.hasStellarVestige(ModItems.EARS.get(), player)) {
                         event.setAmount(event.getAmount() - (event.getAmount() * chance));
                     }
                 }
                 if (VPUtil.hasVestige(ModItems.CHAOS.get(), player)) {
-                    double passiveChance = 0.1 + player.getAttribute(Attributes.LUCK).getValue() / 100;
+                    double passiveChance = ConfigHandler.COMMON.chaosChance.get() + player.getAttribute(Attributes.LUCK).getValue() / 100;
                     if (Math.random() < passiveChance) {
                         if (Math.random() < 0.5) {
                             if (Math.random() < 0.5) {
-                                event.setAmount(event.getAmount() + random.nextInt(Integer.MAX_VALUE));
-                            } else event.setAmount(event.getAmount() - random.nextInt(Integer.MAX_VALUE));
+                                event.setAmount(event.getAmount() + random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
+                            } else event.setAmount(event.getAmount() - random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
                         } else {
                             player.invulnerableTime = 0;
                             player.hurt(VPUtil.randomizeDamageType(player), event.getAmount());
@@ -199,7 +199,7 @@ public class EventHandler {
                             }
                         }
                     }
-                    double chance = 10 + random.nextInt(90);
+                    double chance = ConfigHandler.COMMON.chaosChance.get()*10 + random.nextInt(90);
                     if (Math.random() < chance / 100 && event.getSource().getEntity() != null && event.getSource().getEntity() instanceof LivingEntity livingEntity && livingEntity != player) {
                         if (player.getPersistentData().getInt("VPChaos") > 0) {
                             player.getPersistentData().putInt("VPChaos", player.getPersistentData().getInt("VPChaos"));
@@ -213,8 +213,8 @@ public class EventHandler {
                         cap.failChallenge(18, player);
                 });
                 if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
-                    event.setAmount(Math.max(0, event.getAmount() - (40 + player.getPersistentData().getFloat("VPArmor"))));
-                    player.getPersistentData().putFloat("VPArmor", player.getPersistentData().getFloat("VPArmor") + event.getAmount());
+                    event.setAmount(Math.max(0, event.getAmount() - (ConfigHandler.COMMON.armorAbsorbBase.get() + player.getPersistentData().getFloat("VPArmor"))));
+                    player.getPersistentData().putFloat("VPArmor", player.getPersistentData().getFloat("VPArmor") + (float)(event.getAmount()*ConfigHandler.COMMON.armorAbsorbPercent.get()));
                 }
                 VPUtil.printDamage(player,event);
             }
@@ -340,7 +340,7 @@ public class EventHandler {
                     }
                 });
                 if(VPUtil.hasStellarVestige(ModItems.CROWN.get(), player) && entity.getPersistentData().getBoolean("VPCrownHit"))
-                    VPUtil.addShield(player,(float)(entity.getMaxHealth()*0.1),true);
+                    VPUtil.addShield(player,(entity.getMaxHealth()/100*ConfigHandler.COMMON.crownShield.get()),true);
                 ItemStack stack = VPUtil.getVestigeStack(Midas.class,player);
                 if(stack != null && stack.getItem() instanceof Midas midas) {
                     int kill = 1;
@@ -356,7 +356,7 @@ public class EventHandler {
                 if(VPUtil.hasVestige(ModItems.PRISM.get(), player) && entity.getPersistentData().getLong("VPPrismBuff") > 0){
                     ItemStack stack2 = VPUtil.getVestigeStack(Prism.class,player);
                     if(stack2 != null && stack2.getItem() instanceof Prism prism) {
-                        double chance = stack2.getOrCreateTag().getInt("VPPrismKill");
+                        double chance = stack2.getOrCreateTag().getInt("VPPrismKill")*ConfigHandler.COMMON.prismChance.get();
                         chance /= 100;
                         VPUtil.dropEntityLoot(entity, player);
                         while (Math.random() < chance) {
@@ -656,14 +656,14 @@ public class EventHandler {
                     if(!VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) && player.getPersistentData().getFloat("VPArmor") > 0)
                         player.getPersistentData().putFloat("VPArmor", 0);
                     if(VPUtil.hasStellarVestige(ModItems.TRIGON.get(), player)) {
-                        VPUtil.regenOverShield(player, overHeal);
+                        VPUtil.regenOverShield(player, (float)(overHeal*ConfigHandler.COMMON.trigonHeal.get()));
                     }
                 }
                 if(entity.getPersistentData().getBoolean("VPSweetUlt")){
                     float saturation = entity.getPersistentData().getFloat("VPSaturation");
-                    if(saturation + overHeal < 400)
+                    if(saturation + overHeal < ConfigHandler.COMMON.donutMaxSaturation.get())
                         entity.getPersistentData().putFloat("VPSaturation",overHeal+saturation);
-                    else entity.getPersistentData().putFloat("VPSaturation",400);
+                    else entity.getPersistentData().putFloat("VPSaturation",ConfigHandler.COMMON.donutMaxSaturation.get());
                 }
                 if(entity.getPersistentData().getBoolean("MaskStellar") && entity.getPersistentData().getLong("VPMaskStellarCD")+1000 <= System.currentTimeMillis()){
                     VPUtil.equipmentDurability(5,entity);
@@ -756,6 +756,11 @@ public class EventHandler {
                 }
             }
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(),sendNudes),player);
+        }
+        if(entity.tickCount % 20 == 0 && entity instanceof ServerPlayer playerServer){
+            playerServer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+               cap.sync(playerServer);
+            });
         }
         if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath")+ 40*1000 < System.currentTimeMillis())
             tag.putLong("VPDeath",0);
@@ -899,7 +904,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerCloned(PlayerEvent.ItemPickupEvent event){
+    public static void onPlayerPickUp(PlayerEvent.ItemPickupEvent event){
         Player player = event.getEntity();
         ItemStack stack = event.getStack();
         if(stack.getItem() instanceof Vestige vestige){

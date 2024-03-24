@@ -979,8 +979,7 @@ public class VPUtil {
     }
 
     public static float getShield(LivingEntity entity){
-        CompoundTag tag = entity.getPersistentData();
-        return tag.getFloat("VPShield");
+        return entity.getPersistentData().getFloat("VPShield");
     }
 
     public static float getOverShield(LivingEntity entity){
@@ -1633,7 +1632,7 @@ public class VPUtil {
         if(playerHealth >= entityMaxHealth)
             probability = base;
         else probability = (base * (float) Math.pow(0.95f, Math.abs(playerHealth - entityMaxHealth) / 10));
-        return probability;
+        return probability*ConfigHandler.COMMON.soulBlighterChance.get();
     }
 
     public static EntityType<?> entityTypeFromNbt(CompoundTag nbtTagCompound) {

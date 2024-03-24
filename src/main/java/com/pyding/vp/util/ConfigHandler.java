@@ -48,6 +48,31 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue challengeReduce19;
         public final ForgeConfigSpec.IntValue challengeReduce20;
 
+        public final ForgeConfigSpec.IntValue armorAbsorbBase;
+        public final ForgeConfigSpec.DoubleValue armorAbsorbPercent;
+        public final ForgeConfigSpec.IntValue anomalyBorder;
+        public final ForgeConfigSpec.DoubleValue atlasChance;
+        public final ForgeConfigSpec.IntValue catalystLvlLimit;
+        public final ForgeConfigSpec.IntValue catalystDeffence;
+        public final ForgeConfigSpec.DoubleValue catSpeed;
+        public final ForgeConfigSpec.IntValue catEvadeCap;
+        public final ForgeConfigSpec.IntValue chaosDamageCap;
+        public final ForgeConfigSpec.DoubleValue chaosChance;
+        public final ForgeConfigSpec.IntValue crownShield;
+        public final ForgeConfigSpec.DoubleValue devourerChance;
+        public final ForgeConfigSpec.DoubleValue flowerShield;
+        public final ForgeConfigSpec.DoubleValue killerRes;
+        public final ForgeConfigSpec.IntValue markMaximum;
+        public final ForgeConfigSpec.IntValue markHealDebt;
+        public final ForgeConfigSpec.IntValue maskRotAmount;
+        public final ForgeConfigSpec.DoubleValue midasChance;
+        public final ForgeConfigSpec.DoubleValue prismChance;
+        public final ForgeConfigSpec.DoubleValue soulBlighterChance;
+        public final ForgeConfigSpec.DoubleValue soulBlighterHeal;
+        public final ForgeConfigSpec.DoubleValue trigonHeal;
+        public final ForgeConfigSpec.IntValue donutMaxSaturation;
+        public final ForgeConfigSpec.IntValue donutHealBonus;
+
         public Common(ForgeConfigSpec.Builder builder) {
             //challengeReduction = builder.comment("Number for challenge №").define("challengeReduction", "shop_table");
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp and x2 damage").define("hardcore", false);
@@ -55,6 +80,36 @@ public class ConfigHandler {
             bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
+            armorAbsorbBase = builder.comment("Base Martyr's Habergeon(armor) value").defineInRange("armorAbsorbBase", 40, 0, Integer.MAX_VALUE);
+            armorAbsorbPercent = builder.comment("Martyr's Habergeon absorption increase %. 1 is 100%, 0.1 is 10%.").defineInRange("armorAbsorbPercent", 1d, 0, 1d);
+            anomalyBorder = builder.comment("Borders for Anomaly's Ultimate teleportation. Leave at 0 for world's max border.").defineInRange("anomalyBorder", 0, 0, Integer.MAX_VALUE);
+            atlasChance = builder.comment("Chance for Atlas to gain Gravity. 1 is 100%, 0.2 is 20%.").defineInRange("atlasChance", 0.2d, 0, 1d);
+            catalystLvlLimit = builder.comment("Level limit for stellar Catalyst").defineInRange("catalystLvlLimit", 255, 0, 255);
+            catalystDeffence = builder.comment("How many debuffs can Catalyst absorb.").defineInRange("catalystDeffence", 5, 0, Integer.MAX_VALUE);
+            catSpeed = builder.comment("How many speed will Cat Ears give.").defineInRange("catSpeed", 1d, 0, 10d);
+            catEvadeCap = builder.comment("Cap for Cat Ears evasion.").defineInRange("catEvadeCap", 69, 0, 100);
+            chaosDamageCap = builder.comment("Damage cap for Chaos Core").defineInRange("chaosDamageCap", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
+            chaosChance = builder.comment("Chance for Chaos Core reflexion or damage change. 1 is 100%, 0.1 is 10%.").defineInRange("chaosChance", 0.1, 0, 1);
+            crownShield = builder.comment("How many % from enemy's health will crown give upon kill").defineInRange("crownShield", 10, 0, Integer.MAX_VALUE);
+            devourerChance = builder.comment("Chance for Devourer's Ultimate per 1 kill. 1 is 100%, 0.001 is 0.1%").defineInRange("devourerChance", 0.001, 0, 100);
+            flowerShield = builder.comment("Multiplier for Shield that will Flower give by Ultimate.").defineInRange("flowerShield", 1d, 0, Integer.MAX_VALUE);
+            killerRes = builder.comment("Killer Queens' Special explosion damage resistance shred").defineInRange("killerRes", 70d, 0, Integer.MAX_VALUE);
+            markMaximum = builder.comment("Maximum value of Cursed Mark Madness stacks").defineInRange("markMaximum", 10, 0, Integer.MAX_VALUE);
+            markHealDebt = builder.comment("Heal debt of stellar Cursed Mark Ultimate in max health %").defineInRange("markHealDebt", 2000, 0, Integer.MAX_VALUE);
+            maskRotAmount = builder.comment("Mask of Demon's Special hp consumption value in max health %").defineInRange("maskRotAmount", 10, 0, Integer.MAX_VALUE);
+            midasChance = builder.comment("Chance for Midas getting luck from Ultimate per 1 gold nugget.").defineInRange("midasChance", 0.0001d, 0, 1);
+            prismChance = builder.comment("Prism loot chance multiplier").defineInRange("prismChance", 1d, 0, Integer.MAX_VALUE);
+            soulBlighterChance = builder.comment("Soul Blighter's Ultimate catch chance multiplier").defineInRange("soulBlighterChance", 1d, 0, Integer.MAX_VALUE);
+            soulBlighterHeal = builder.comment("Soul Blighter Over Shield heal multiplier").defineInRange("soulBlighterHeal", 1d, 0, Integer.MAX_VALUE);
+            trigonHeal = builder.comment("Trigon Over Shield heal multiplier").defineInRange("trigonHeal", 1d, 0, Integer.MAX_VALUE);
+            donutMaxSaturation = builder.comment("Sweet Donut max Saturation stacks.").defineInRange("donutMaxSaturation", 400, 0, Integer.MAX_VALUE);
+            donutHealBonus = builder.comment("Base heal bonus of Sweet Donut.").defineInRange("donutHealBonus", 40, 0, Integer.MAX_VALUE);
+
+            devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
+            blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
+            anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
+            chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
+
             challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, 0, 2100000000);
             challengeReduce2 = builder.comment("This is the number on how many challenge 2 maximum progress will be reduced").defineInRange("challengeReduce2", 0, 0, 2100000000);
             challengeReduce3 = builder.comment("This is the number on how many challenge 3 maximum progress will be reduced").defineInRange("challengeReduce3", 0, 0, 2100000000);
@@ -75,10 +130,6 @@ public class ConfigHandler {
             challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, 0, 2100000000);
             challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, 0, 2100000000);
             challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, 0, 2100000000);
-            devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
-            blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
-            anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
-            chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {

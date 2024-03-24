@@ -1,6 +1,7 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -126,7 +127,7 @@ public class SoulBlighter extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
         if(stack.getOrCreateTag().contains("entityData") && player1.tickCount % 20 == 0){
-            VPUtil.regenOverShield(player1,stack.getOrCreateTag().getFloat("VPMaxHealth")*0.1f);
+            VPUtil.regenOverShield(player1, (float) ((stack.getOrCreateTag().getFloat("VPMaxHealth")*0.1f) * ConfigHandler.COMMON.soulBlighterHeal.get()));
             if(!player1.getAttributes().hasModifier(Attributes.MAX_HEALTH,UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"))){
                 player1.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
             }

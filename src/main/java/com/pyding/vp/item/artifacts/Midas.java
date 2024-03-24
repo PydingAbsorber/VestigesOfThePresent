@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -67,7 +68,7 @@ public class Midas extends Vestige{
         VPUtil.spawnParticles(player, ParticleTypes.GLOW,8,1,0,-0.1,0,1,false);
         ItemStack stack = VPUtil.getVestigeStack(this,player);
         int kills = stack.getOrCreateTag().getInt("VPKills");
-        if(Math.random() < (0.01/100)*kills) {
+        if(Math.random() < (ConfigHandler.COMMON.midasChance.get())*kills) {
             stack.getOrCreateTag().putInt("VPLuck", stack.getOrCreateTag().getInt("VPLuck") + 1);
             VPUtil.play(player,SoundRegistry.SUCCESS.get());
         } else VPUtil.play(player,SoundEvents.IRON_GOLEM_DEATH);

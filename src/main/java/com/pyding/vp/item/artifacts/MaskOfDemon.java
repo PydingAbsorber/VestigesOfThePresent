@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.EntityModel;
@@ -86,7 +87,7 @@ public class MaskOfDemon extends Vestige{
         if(isSpecialActive()) {
             boolean hurt = false;
             if (player.tickCount % 20 == 0) {
-                if (player.getHealth() > player.getMaxHealth() * 0.1+1) {
+                if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 +1) {
                     //player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
                     VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * 0.1f,1,false);
                     hurt = true;
@@ -105,7 +106,7 @@ public class MaskOfDemon extends Vestige{
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
                 if(hurt && isStellar && player.getHealth() <= player.getMaxHealth()*0.5){
-                    VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * 0.1f,1,false);
+                    VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,1,false);
                     VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }
                 entity.getPersistentData().merge(tag);

@@ -1,6 +1,7 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -42,7 +43,7 @@ public class Catalyst extends Vestige{
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         if(isStellar)
-            player.getPersistentData().putInt("VPDebuffDefence",5);
+            player.getPersistentData().putInt("VPDebuffDefence", ConfigHandler.COMMON.catalystDeffence.get());
         Random random = new Random();
         int duration = random.nextInt(140)+60;
         int power = random.nextInt(5);
@@ -58,7 +59,7 @@ public class Catalyst extends Vestige{
         for(LivingEntity entity: VPUtil.getEntities(player,25,false)){
             List<MobEffectInstance> list = new ArrayList<>();
             for(MobEffectInstance instance: VPUtil.getEffectsHas(entity, true)){
-                if(instance.getAmplifier() <= 4 || isStellar) {
+                if(instance.getAmplifier() <= 4 || (isStellar && instance.getAmplifier() <= ConfigHandler.COMMON.catalystLvlLimit.get())) {
                     list.add(instance);
                     entity.removeEffect(instance.getEffect());
                     stolen++;

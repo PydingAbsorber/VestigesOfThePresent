@@ -86,6 +86,7 @@
   "vp.sleep": "I wanna sleep so much...",
   "item.vp.refresher": "§2Refresher",
   "item.vp.infinite_refresher": "§2Infinite Refresher",
+  "config": "You can change a lot of stuff in minecraft/config/vp-common.json. (Config doesn't impact descriptions)",
   "vp.refresher": "Refreshes all charges on equipped Vestiges. (Consumes after use)",
   "vp.refresher.get": "Can be obtained after completing challenge on Stellar with 50% chance.",
   "vp.infinite.get": "Proof of iron will and infinite mighty.",

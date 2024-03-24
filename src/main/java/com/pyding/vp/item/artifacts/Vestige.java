@@ -512,6 +512,7 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.literal("TimeSpecial: " + (time() - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
                     components.add(Component.literal("TimeUltimate: " + (timeUlt() - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
                 }
+                components.add(Component.translatable("config").withStyle(ChatFormatting.GRAY));
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString(VPUtil.generateRandomString(7)) + " :")));
                 if(vestigeNumber == 9)
@@ -533,8 +534,9 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown())+" ").withStyle(ChatFormatting.GRAY)));
                 if (cap.hasCoolDown(vestigeNumber))
                     components.add(Component.translatable("vp.getText2").append(Component.literal((VPUtil.formatMilliseconds(VPUtil.coolDown()-(System.currentTimeMillis() - cap.getTimeCd()))))));
-                if(player.isCreative())
+                if(player.isCreative()) {
                     components.add(Component.translatable("vp.creative").withStyle(ChatFormatting.DARK_PURPLE));
+                }
             } else if (Screen.hasAltDown()) {
                 String text = "";
                 switch (vestigeNumber) {

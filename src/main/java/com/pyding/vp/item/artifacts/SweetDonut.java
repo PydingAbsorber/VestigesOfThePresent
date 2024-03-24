@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -62,7 +63,7 @@ public class SweetDonut extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        float bonus = 40;
+        float bonus = ConfigHandler.COMMON.donutHealBonus.get();
         if(player.getHealth() <= player.getMaxHealth()*0.5)
             bonus *= 2;
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",bonus);

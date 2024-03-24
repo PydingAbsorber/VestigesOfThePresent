@@ -2,6 +2,7 @@ package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -87,19 +88,28 @@ public class Anomaly extends Vestige{
                     Random random = new Random();
                     double x;
                     double z;
-                    if (Math.random() < 0.5) {
-                        x = random.nextInt((int) level.getWorldBorder().getMaxX());
+                    double borderX;
+                    double borderZ;
+                    if(ConfigHandler.COMMON.anomalyBorder.get() == 0){
+                        borderX = level.getWorldBorder().getMaxX();
+                        borderZ = random.nextInt((int) level.getWorldBorder().getMaxZ());
                     } else {
-                        x = random.nextInt((int) level.getWorldBorder().getMinX() * -1);
+                        borderX = ConfigHandler.COMMON.anomalyBorder.get();
+                        borderZ = borderX;
+                    }
+                    if (Math.random() < 0.5) {
+                        x = random.nextInt((int) borderX);
+                    } else {
+                        x = random.nextInt((int) borderX);
                         x *= -1;
                     }
                     if (Math.random() < 0.5) {
-                        z = random.nextInt((int) level.getWorldBorder().getMaxZ());
+                        z = borderZ;
                     } else {
-                        z = random.nextInt((int) level.getWorldBorder().getMinX() * -1);
+                        z = random.nextInt((int) borderZ);
                         z *= -1;
                     }
-                    double y = random.nextInt(260);
+                    double y = random.nextInt(220);
                     serverPlayer.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,5*20));
                     serverPlayer.teleportTo(serverLevel, x, y, z, 0, 0);
                     VPUtil.teleportRandomly(serverPlayer,50);

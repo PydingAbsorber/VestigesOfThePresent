@@ -3,6 +3,7 @@ package com.pyding.vp.item.artifacts;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -54,7 +55,7 @@ public class Mark extends Vestige{
         if(player.getHealth() > player.getMaxHealth()*0.2)
             player.setHealth(player.getHealth()-player.getMaxHealth()*0.2f);
         else player.setHealth(1);
-        if(player.getPersistentData().getInt("VPMadness") < 10)
+        if(player.getPersistentData().getInt("VPMadness") < ConfigHandler.COMMON.markMaximum.get())
             player.getPersistentData().putInt("VPMadness",player.getPersistentData().getInt("VPMadness")+1);
         VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,1,1,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level);
@@ -67,7 +68,7 @@ public class Mark extends Vestige{
             player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
         }
         player.getPersistentData().putBoolean("VPMarkUlt",true);
-        player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*10);
+        player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()/100* ConfigHandler.COMMON.markHealDebt.get());
         VPUtil.spawnParticles(player, ParticleTypes.FLAME,2,1,0,-0.5,0,1,false);
         super.doUltimate(seconds, player, level);
     }
