@@ -336,7 +336,8 @@ public class Vestige extends Item implements ICurioItem {
                 setUltimateActive(true);
                 setCdUltimateActive(cdUltimateActive()+ultimateCd());     //time until cd recharges in seconds*tps
                 setCurrentChargeUltimate(currentChargeUltimate()-1);
-                this.doUltimate(seconds, player, player.getCommandSenderWorld());
+                long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
+                this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld());
             } else this.localSpecial(player);
         }
         return 0;
@@ -733,6 +734,7 @@ public class Vestige extends Item implements ICurioItem {
 
     public void doSpecial(long seconds, Player player, Level level){}
     public void doUltimate(long seconds, Player player, Level level){
+        player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
         if(vestigeNumber != 3)
             player.getPersistentData().putInt("VPGravity",0);
     }

@@ -152,7 +152,7 @@
   "vp.damagetype.5": "Paragon (can be reduced only by Over Shields), sonic boom",
   "vp.get.5": "Kill 100 creatures in hell, having no more than 1 HP. Creature must have max health or attack damage higher, then yours",
 
-  "vp.passive.6": "Increases all healing by 40%. \nIf current HP is below 50%, the bonus doubles. \nWhen Shields are active gives +0.1% healing bonus and +0.1% duration to next Ultimate(only self) for each Saturation stack",
+  "vp.passive.6": "Increases all healing by 40%. \nIf current HP is below 50%, the bonus doubles. \nWhen Shields are active gives +0.1% healing bonus, +1% Shield bonus and +0.1% duration to any next Ultimate for each Saturation stack",
   "vp.special.6": "Heals the owner for 40% of their max HP and removes negative effects. \nIf HP is below half, also applies regeneration 5 for 20 seconds. \nAdds Shield with amount of 300% from max health(not stackable)",
   "vp.ultimate.6": "For the next 10 seconds after activation, each Over Healing will increase the Saturation stack by 1 to 1 ratio(400 max). \nStacks reset after cooldown.",
   "vp.get.6": "Consume all food in the modpack.",

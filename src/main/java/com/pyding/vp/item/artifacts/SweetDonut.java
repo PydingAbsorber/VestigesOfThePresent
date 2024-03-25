@@ -44,16 +44,10 @@ public class SweetDonut extends Vestige{
         super.doSpecial(seconds, player, level);
     }
 
-    @Override
-    public int setUltimateActive(long seconds, Player player) {
-        long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
-        return super.setUltimateActive(seconds*bonus, player);
-    }
 
     @Override
     public void doUltimate(long seconds, Player player, Level level) {
         VPUtil.play(player,SoundRegistry.HEAL1.get());
-        player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
         player.getPersistentData().putBoolean("VPSweetUlt",true);
         if(isStellar)
             player.getPersistentData().putFloat("HealDebt", 0);
