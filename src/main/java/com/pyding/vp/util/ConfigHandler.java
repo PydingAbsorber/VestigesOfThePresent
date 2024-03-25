@@ -73,6 +73,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue donutMaxSaturation;
         public final ForgeConfigSpec.IntValue donutHealBonus;
 
+        public final ForgeConfigSpec.DoubleValue refresherChance;
         public Common(ForgeConfigSpec.Builder builder) {
             //challengeReduction = builder.comment("Number for challenge №").define("challengeReduction", "shop_table");
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp and x2 damage").define("hardcore", false);
@@ -109,6 +110,8 @@ public class ConfigHandler {
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
             anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
             chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
+
+            refresherChance = builder.comment("Chance for Refresher after compleating Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
 
             challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, 0, 2100000000);
             challengeReduce2 = builder.comment("This is the number on how many challenge 2 maximum progress will be reduced").defineInRange("challengeReduce2", 0, 0, 2100000000);

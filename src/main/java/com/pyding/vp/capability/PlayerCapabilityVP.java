@@ -809,7 +809,7 @@ public class PlayerCapabilityVP {
             Vestige.setStellar(stack);
             setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
-            if(Math.random() < 0.5)
+            if(Math.random() < ConfigHandler.COMMON.refresherChance.get())
                 player.addItem(new ItemStack(ModItems.REFRESHER.get()));
         } else {
             setChance();

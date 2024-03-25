@@ -131,11 +131,13 @@ public class EventHandler {
                             entity.getPersistentData().putInt("VPSoulRotting", entity.getPersistentData().getInt("VPSoulRotting") + 1 + attributesBetter);
                         if (VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
                             entity.getPersistentData().putInt("VPSoulRottingStellar", entity.getPersistentData().getInt("VPSoulRotting"));
-                        if (entity.getPersistentData().getInt("VPSoulRotting") >= 100)
-                            VPUtil.deadInside(entity, player);
                         player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
                         player.getPersistentData().putInt("VPDevourerShow",entity.getPersistentData().getInt("VPSoulRotting"));
                     }
+                }
+                if (entity.getPersistentData().getInt("VPSoulRotting") >= 100) {
+                    entity.getPersistentData().putInt("VPSoulRotting",0);
+                    VPUtil.deadInside(entity, player);
                 }
                 if (entity.getPersistentData().getLong("VPEnchant") > 0)
                     event.setAmount(event.getAmount() * 1.5f);
