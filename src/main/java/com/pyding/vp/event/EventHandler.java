@@ -143,14 +143,16 @@ public class EventHandler {
                 }
                 if (entity.getPersistentData().getLong("VPEnchant") > 0)
                     event.setAmount(event.getAmount() * 1.5f);
-                if (VPUtil.hasVestige(ModItems.BALL.get(), player) && event.getAmount() > entity.getHealth()) {
+                if (VPUtil.hasVestige(ModItems.BALL.get(), player) && event.getAmount() > entity.getHealth() && entity.getPersistentData().getLong("VPBallCd") >= System.currentTimeMillis() && player.getPersistentData().getLong("VPBallCd") >= System.currentTimeMillis()) {
                     int counter = 0;
                     for (LivingEntity livingEntity : VPUtil.getEntitiesAround(entity, 15, 15, 15, false)) {
+                        livingEntity.getPersistentData().putLong("VPBallCd",System.currentTimeMillis()+1000);
                         livingEntity.hurt(event.getSource(), event.getAmount());
                         counter++;
                         if (counter >= 3)
                             break;
                     }
+                    player.getPersistentData().putLong("VPBallCd",System.currentTimeMillis()+1000);
                 }
                 if (event.getAmount() <= 3) {
                     tag.putBoolean("VPCrownDR", true);

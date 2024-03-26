@@ -132,7 +132,8 @@ public class Accessory extends Item implements ICurioItem {
             }
         } else {
             components.add(Component.translatable("vp.acs.lvl").append(Component.literal(" "+getLvl(stack)).withStyle(ChatFormatting.LIGHT_PURPLE)).withStyle(ChatFormatting.DARK_PURPLE));
-            components.add(Component.translatable("vp.acs.stats").withStyle(ChatFormatting.DARK_PURPLE).append(Component.literal(" "+getStatAmount(stack)).append(Component.translatable("vp.acs.stats."+getType(stack))).withStyle(ChatFormatting.LIGHT_PURPLE)));
+            if(getType(stack) > 0)
+                components.add(Component.translatable("vp.acs.stats").withStyle(ChatFormatting.DARK_PURPLE).append(Component.literal(" "+getStatAmount(stack)).append(Component.translatable("vp.acs.stats."+getType(stack))).withStyle(ChatFormatting.LIGHT_PURPLE)));
             components.add(Component.translatable("vp.acs.shift"));
             components.add(Component.translatable("vp.acs.ctrl"));
         }

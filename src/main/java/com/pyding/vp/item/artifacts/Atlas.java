@@ -49,12 +49,8 @@ public class Atlas extends Vestige{
         super.doSpecial(seconds, player, level);
     }
     public ItemStack stackLocal = null;
-    int x = 0;
-    int y = 0;
-    int z = 0;
     int distance = 30;
     int gravityBonus = 0;
-    boolean gravityCd = false;
     @Override
     public int setUltimateActive(long seconds, Player player) {
         long gravity = Math.max(30,player.getPersistentData().getInt("VPGravity"));
@@ -74,7 +70,6 @@ public class Atlas extends Vestige{
         long gravity = Math.min(30,player.getPersistentData().getInt("VPGravity"));
         if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
-            System.out.println(pos);
             BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos);
             blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());
             serverLevel.addFreshEntity(blackHole);
@@ -83,16 +78,6 @@ public class Atlas extends Vestige{
         if(isStellar)
             player.getPersistentData().putInt("VPGravity", Math.min(30, gravityBonus));
         super.doUltimate(seconds, player, level);
-    }
-
-    @Override
-    public void whileUltimate(Player player) {
-        super.whileUltimate(player);
-    }
-
-    @Override
-    public void ultimateEnds(Player player) {
-        super.ultimateEnds(player);
     }
 
     @Override

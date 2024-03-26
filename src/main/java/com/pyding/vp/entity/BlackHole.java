@@ -80,11 +80,11 @@ public class BlackHole extends Projectile {
         getPersistentData().putLong("VPAntiTP",System.currentTimeMillis()+10000);
         setGlowingTag(true);
         for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
-            if(entity != player) {
+            if(entity.getUUID() != player.getUUID()) {
                 VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
                 if(entity instanceof ServerPlayer serverPlayer1)
                     PacketHandler.sendToClient(new SuckPacket((float) (r/(entity.distanceTo(this)*2)),blockPosition()),serverPlayer1);
-                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && entity.tickCount % ConfigHandler.COMMON.blackhole.get() == 0)
+                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && tickCount % ConfigHandler.COMMON.blackhole.get() == 0)
                     VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),10/entity.distanceTo(this),3);
             }
         }
@@ -92,13 +92,14 @@ public class BlackHole extends Projectile {
             if (tickCount > 20 * (gravity+2)) {
                 this.discard();
                 for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
-                    if(entity != player) {
+                    if(entity.getUUID() != player.getUUID()) {
                         if (entity.distanceTo(this) <= Math.max(20,gravity-10))
                             VPUtil.dealParagonDamage(entity,player,10/entity.distanceTo(this),3,true);
-                        VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,r,20,0,0,0,0,false);
                     }
                 }
-            } else if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
+                VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,r,20,0,0,0,0,false);
+            }
+            if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
                 this.playSound(SoundRegistry.BLACK_HOLE.get(), gravity, 1);
             }
         }

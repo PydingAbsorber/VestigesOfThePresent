@@ -464,7 +464,6 @@ public class VPUtil {
         if(isFriendlyFireBetween(entity,player))
             return;
         entity.invulnerableTime = 0;
-        percent /= 100;
         ItemStack stack = player.getMainHandItem();
         float percentBonus = 1;
         if(type == 1)
@@ -485,14 +484,12 @@ public class VPUtil {
         }
         boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
         if(hasDurability) {
-            stack.hurtAndBreak(1, entity, consumer -> {
+                    stack.hurtAndBreak(1, player, consumer -> {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
         DamageSource damageSource = new DamageSource(source.typeHolder(),player);
-        if(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
-            percentBonus /= 20;
-        entity.hurt(damageSource,getAttack(player,hasDurability)*(percent+percentBonus));
+        entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+percentBonus)/100));
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
