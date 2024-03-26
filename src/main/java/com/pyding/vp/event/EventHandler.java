@@ -7,6 +7,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.commands.VPCommands;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
@@ -96,6 +97,7 @@ public class EventHandler {
                         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
                     }
                 }*/
+                event.setAmount(event.getAmount()*(1+player.getPersistentData().getFloat("VPAcsDamage")/100));
                 if (event.getSource().is(DamageTypes.FALL) && player.getPersistentData().getInt("VPGravity") < 30 && Math.random() < ConfigHandler.COMMON.atlasChance.get())
                     player.getPersistentData().putInt("VPGravity", Math.min(30, player.getPersistentData().getInt("VPGravity") + 1));
                 if (VPUtil.hasVestige(ModItems.ANEMOCULUS.get(), player) && !entity.onGround()) {
@@ -807,6 +809,44 @@ public class EventHandler {
                 player.getPersistentData().putBoolean("VPButton2",false);
                 player.getPersistentData().putBoolean("VPButton4",false);
             }
+            if(player.tickCount % 20 == 0){
+                for(ItemStack stack: player.getInventory().items){
+                    if(stack.getItem() instanceof Accessory accessory){
+                        if(accessory.getType(stack) == 0)
+                            accessory.init(stack);
+                    }
+                }
+                List<ItemStack> accessories = VPUtil.getAccessoryList(player);
+                if(!accessories.isEmpty()){
+                    float health = 0;
+                    float attack = 0;
+                    float damage = 0;
+                    float heal = 0;
+                    float shields = 0;
+                    for(ItemStack stack: accessories){
+                        if(stack.getItem() instanceof Accessory accessory){
+                            if(accessory.getType(stack) == 1)
+                                health += accessory.getStatAmount(stack);
+                            if(accessory.getType(stack) == 2)
+                                attack += accessory.getStatAmount(stack);
+                            if(accessory.getType(stack) == 3)
+                                damage += accessory.getStatAmount(stack);
+                            if(accessory.getType(stack) == 4)
+                                heal += accessory.getStatAmount(stack);
+                            if(accessory.getType(stack) == 5)
+                                shields += accessory.getStatAmount(stack);
+                        }
+                    }
+                    player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), health, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
+                    player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), attack, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
+                    player.getPersistentData().putFloat("VPAcsDamage",damage);
+                    player.getPersistentData().putFloat("VPAcsHeal",heal);
+                    player.getPersistentData().putFloat("VPAcsShields",shields);
+                } else {
+                    player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
+                    player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
+                }
+            }
             if(!slotResultList.isEmpty()){
                 if(slotResultList.get(0).getItem() instanceof Vestige vestige) {
                     if(vestige.vestigeNumber != player.getPersistentData().getInt("VPCurioSucks1"))
@@ -848,7 +888,7 @@ public class EventHandler {
                         cap.giveVestige(player,i+1);
                     }
                 }
-                if(System.currentTimeMillis() - cap.getTimeCd() >= VPUtil.coolDown()) {
+                if(System.currentTimeMillis() - cap.getTimeCd() >= VPUtil.coolDown(player)) {
                     cap.clearCoolDown(player);
                     cap.addTimeCd(System.currentTimeMillis(),player);
                 }

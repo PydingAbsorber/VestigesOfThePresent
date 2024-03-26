@@ -799,7 +799,10 @@ public class PlayerCapabilityVP {
                 break;
             }
         }
-        if(Math.random() < (float)getChance()/100){
+        float stellarChance = (float) getChance();
+        if(VPUtil.getSet(player) == 9)
+            stellarChance += 5;
+        if(Math.random() < stellarChance/100){
             if(stack.getItem() instanceof Vestige vestige){
                 vestige.vestigeStack = stack;
             }

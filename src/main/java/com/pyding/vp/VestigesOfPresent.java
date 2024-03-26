@@ -118,6 +118,10 @@ public class VestigesOfPresent
             event.accept(ModItems.SOULBLIGHTER);
             event.accept(ModItems.STELLAR);
             event.accept(ModItems.REFRESHER);
+            event.accept(ModItems.RING_OF_FALLEN_STAR);
+            event.accept(ModItems.EARRING_OF_DEAD_HOPES);
+            event.accept(ModItems.BELT_OF_BROKEN_MEMORIES);
+            event.accept(ModItems.NECKLACE_OF_TORTURED_DREAMS);
         }
     }
 }

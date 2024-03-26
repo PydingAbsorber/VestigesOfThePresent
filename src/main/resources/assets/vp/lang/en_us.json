@@ -47,6 +47,7 @@
   "item.vp.stellar": "§bS§6t§ee§al§dl§la§br §6F§br§ea§7g§5m§ae§6n§5t",
   "itemGroup.vptab": "§5Vestiges of the Present",
   "curios.identifier.vestige": "Vestige",
+  "curios.identifier.earring": "Earring",
   "vp.seconds": " seconds",
   "vp.chaos": "Current random entity: ",
   "vp.chaos2": "Time left until reset: ",
@@ -275,7 +276,33 @@
   "vp.short.17" : "Steals buffs and applies debuffs.",
   "vp.short.18" : "Deals significant damage to shields and armor.",
   "vp.short.19" : "Inflicts damage that cannot be negated or reduced, provides Super Shields.",
-  "vp.short.20" : "Enslaves any creatures, grants Super Shields and their regeneration."
+  "vp.short.20" : "Enslaves any creatures, grants Super Shields and their regeneration.",
 
+  "vp.acs.types": "§5Attribute types:§d \n1)+1-4 to Max HP\n2)+2-8 to Attack attribute\n3)+5-20% to Damage dealt\n4)+3-12% to Healing\n5)+4-16% to Shields.",
+  "vp.acs.sets": "Sets:",
+  "vp.acs.set.1": "+1 max charge for Ultimate,+20% duration of Ultimate and Special effects. (2 Max HP, 2 Healing)",
+  "vp.acs.set.2": "x4 Special damage. (2 Attack, 2 Damage)",
+  "vp.acs.set.3": "30% chance to not consume Ultimate and Special charge. (2 Shields, 2 Healing)",
+  "vp.acs.set.4": "x2 Ultimate damage. (4 Damage)",
+  "vp.acs.set.5": "40% chance for x6 Special and Ultimate damage after using Special for 5 seconds. (4 Attack)",
+  "vp.acs.set.6": "-1 max charge for Special, 50% chance not to consume Ultimate and Special charge. (4 Shields)",
+  "vp.acs.set.7": "+1 max charge for Ultimate and Special, -40% duration. (4 Max HP)",
+  "vp.acs.set.8": "+100% duration, +40% cooldown reduction. (4 Healing)",
+  "vp.acs.set.9": "+5% chance to receive Stellar. (all different)",
+  "vp.acs.set.10": "-10% cooldown reduction. (4 of any)",
 
+  "vp.acs.lvl" : "Lvl: ",
+  "vp.acs.stats" : "Stats: ",
+  "vp.acs.stats.1" : " to Max HP.",
+  "vp.acs.stats.2" : " to Attack attribute.",
+  "vp.acs.stats.3" : " to Damage dealt.",
+  "vp.acs.stats.4" : " to Healing.",
+  "vp.acs.stats.5" : " to Shields.",
+  "vp.acs.shift" : "§7Press §5Shift §7for Types information.",
+  "vp.acs.ctrl" : "§7Press §5Ctrl §7for Sets information.",
+
+  "item.vp.ring_of_fallen_star" : "§5Ring of Fallen Star",
+  "item.vp.earring_of_dead_hopes" : "§5Earring of Dead Hopes",
+  "item.vp.necklace_of_tortured_dreams" : "§5Necklace of Tortured Dreams",
+  "item.vp.belt_of_broken_memories" : "§5Belt of Broken Memories"
 }

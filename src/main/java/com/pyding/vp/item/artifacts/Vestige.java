@@ -184,6 +184,9 @@ public class Vestige extends Item implements ICurioItem {
     public int ultimateChargesBase = 0;
     public int specialChargesBase = 0;
 
+    public long ultimateDurationBase = 0;
+    public long specialDurationBase = 0;
+
     public int specialCdBase = 0;
     public int ultimateCdBase = 0;
 
@@ -202,7 +205,9 @@ public class Vestige extends Item implements ICurioItem {
         setVestigeNumber(vestigeNumber);
         this.color = color;
         setSpecialMaxTime((long)specialMaxTime*1000);  //max active time in real seconds L
+        specialDurationBase = (long)specialMaxTime*1000;
         setUltimateMaxTime((long)ultimateMaxTime*1000);
+        ultimateDurationBase = (long)specialMaxTime*1000;
     }
 
     public int getVestigeNumber(){
@@ -322,7 +327,8 @@ public class Vestige extends Item implements ICurioItem {
                 setTime(System.currentTimeMillis() + seconds);  //active time in real seconds
                 setSpecialActive(true);
                 setCdSpecialActive(cdSpecialActive()+specialCd());     //time until cd recharges in seconds*tps
-                setCurrentChargeSpecial(currentChargeSpecial()-1);
+                if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || (VPUtil.getSet(player) == 6 && Math.random() < 0.5))
+                    setCurrentChargeSpecial(currentChargeSpecial()-1);
                 this.doSpecial(seconds, player, player.getCommandSenderWorld());
             } else this.localSpecial(player);
         }
@@ -344,21 +350,42 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void applyBonus(ItemStack stack,Player player){
+        setSpecialMaxTime(specialDurationBase);
+        setUltimateMaxTime(ultimateDurationBase);
+        setSpecialCd(specialCdBase);
+        setUltimateCd(ultimateCdBase);
         int specialBonus = 0;
         int ultimateBonus = 0;
         if(isDoubleStellar(stack)){
             specialBonus += 1;
             ultimateBonus += 1;
         }
-        int spChargeBonus = 0;
-        int ultChargeBonus = 0;
-
-        List<ItemStack> list = VPUtil.getAccessoryList(player);
-        for(ItemStack itemStack: list){
-
+        int spAcsBonus = 0;
+        int ultAcsBonus = 0;
+        int set = VPUtil.getSet(player);
+        if(set == 1){
+            spAcsBonus += 1;
+            setSpecialMaxTime((long) (specialDurationBase*1.2));
+            setUltimateMaxTime((long) (ultimateDurationBase*1.2));
         }
-        setSpecialCharges(specialChargesBase+specialBonus+specialBonusModifier());
-        setUltimateCharges(ultimateChargesBase+ultimateBonus+ultimateBonusModifier());
+        else if(set == 6){
+            spAcsBonus -= 1;
+            ultAcsBonus -= 1;
+        }
+        else if(set == 7){
+            spAcsBonus += 1;
+            ultAcsBonus += 1;
+            setSpecialMaxTime((long) (specialDurationBase*0.6));
+            setUltimateMaxTime((long) (ultimateDurationBase*0.6));
+        }
+        else if(set == 8){
+            spAcsBonus -= 1;
+            ultAcsBonus -= 1;
+            setSpecialCd((int) (specialCdBase*1.4));
+            setUltimateCd((int) (ultimateCdBase*1.4));
+        }
+        setSpecialCharges(specialChargesBase+specialBonus+specialBonusModifier()+spAcsBonus);
+        setUltimateCharges(ultimateChargesBase+ultimateBonus+ultimateBonusModifier()+ultAcsBonus);
     }
 
     public Player vestigePlayer = null;
@@ -530,11 +557,14 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.progress").withStyle(color)
                         .append(Component.literal(" " + progress))
                         .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber,player))));
-                components.add(Component.literal(cap.getChance()+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
+                int stellarChance = cap.getChance();
+                if(VPUtil.getSet(player) == 9)
+                    stellarChance += 5;
+                components.add(Component.literal(stellarChance+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
                 components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY).append(Component.literal(ConfigHandler.COMMON.stellarChanceIncrease.get() + "%")));
-                components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown())+" ").withStyle(ChatFormatting.GRAY)));
+                components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown(player))+" ").withStyle(ChatFormatting.GRAY)));
                 if (cap.hasCoolDown(vestigeNumber))
-                    components.add(Component.translatable("vp.getText2").append(Component.literal((VPUtil.formatMilliseconds(VPUtil.coolDown()-(System.currentTimeMillis() - cap.getTimeCd()))))));
+                    components.add(Component.translatable("vp.getText2").append(Component.literal((VPUtil.formatMilliseconds(VPUtil.coolDown(player)-(System.currentTimeMillis() - cap.getTimeCd()))))));
                 if(player.isCreative()) {
                     components.add(Component.translatable("vp.creative").withStyle(ChatFormatting.DARK_PURPLE));
                 }
@@ -732,7 +762,9 @@ public class Vestige extends Item implements ICurioItem {
         ICurioItem.super.onEquip(slotContext, prevStack, stack);
     }*/
 
-    public void doSpecial(long seconds, Player player, Level level){}
+    public void doSpecial(long seconds, Player player, Level level){
+        player.getPersistentData().putLong("VPAcsSpecial",System.currentTimeMillis()+5000);
+    }
     public void doUltimate(long seconds, Player player, Level level){
         player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
         if(vestigeNumber != 3)

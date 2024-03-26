@@ -81,8 +81,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VPUtil {
-    public static long coolDown(){
-        return ConfigHandler.COMMON.cooldown.get()*60*60*1000;
+    public static long coolDown(Player player){
+        double reduce = 1;
+        if(getSet(player) == 10)
+            reduce = 0.9;
+        return (long) (ConfigHandler.COMMON.cooldown.get()*60*60*1000*reduce);
     }
     public static String getRainbowString(String text) {
         StringBuilder coloredText = new StringBuilder();
@@ -466,10 +469,20 @@ public class VPUtil {
         float percentBonus = 1;
         if(type == 1)
             percentBonus += 0;
-        else if(type == 2)
+        else if(type == 2) {
+            if(VPUtil.getSet(player) == 2)
+                percentBonus += 400;
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
+                percentBonus += 600;
             percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
-        else if(type == 3)
-            percentBonus += player.getPersistentData().getInt("VPGravity")*2;
+        }
+        else if(type == 3) {
+            if(VPUtil.getSet(player) == 4)
+                percentBonus += 200;
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
+                percentBonus += 600;
+            percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
+        }
         boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
         if(hasDurability) {
             stack.hurtAndBreak(1, entity, consumer -> {
@@ -937,7 +950,8 @@ public class VPUtil {
             return;
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
-        +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
+        +entity.getPersistentData().getFloat("VPShieldBonusFlower")
+        +entity.getPersistentData().getFloat("VPAcsShields"));
         float shield;
         if(!add) {
             if(amount*(1 + shieldBonus/100) > tag.getFloat("VPShield"))
@@ -1075,7 +1089,11 @@ public class VPUtil {
 
     public static float getHealBonus(LivingEntity entity){
         CompoundTag tag = entity.getPersistentData();
-        return Math.max(-99,tag.getFloat("VPHealResMask")+tag.getFloat("VPHealResFlower")+tag.getFloat("VPHealBonusDonut")+tag.getFloat("VPHealBonusDonutPassive"));
+        return Math.max(-99,tag.getFloat("VPHealResMask")
+                +tag.getFloat("VPHealResFlower")
+                +tag.getFloat("VPHealBonusDonut")
+                +tag.getFloat("VPHealBonusDonutPassive")
+                +tag.getFloat("VPAcsHeal"));
     }
 
     public static double calculatePercentageDifference(double number1, double number2) {
@@ -1673,10 +1691,20 @@ public class VPUtil {
         float percentBonus = 1;
         if(type == 1)
             percentBonus += 0;
-        else if(type == 2)
+        else if(type == 2) {
+            if(VPUtil.getSet(player) == 2)
+                percentBonus += 400;
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
+                percentBonus += 600;
             percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
-        else if(type == 3)
-            percentBonus += player.getPersistentData().getInt("VPGravity")*20;
+        }
+        else if(type == 3) {
+            if(VPUtil.getSet(player) == 4)
+                percentBonus += 200;
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
+                percentBonus += 600;
+            percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
+        }
         float health = damage*(1+percentBonus/100);
         float overShields = getOverShield(entity);
         if(overShields > 0) {
@@ -1800,5 +1828,53 @@ public class VPUtil {
         player.onUpdateAbilities();
         if (player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
+    }
+
+    public static int getSet(Player player){
+        int set = 0;
+        List<Integer> types = new ArrayList<>();
+        for(ItemStack stack: getAccessoryList(player)){
+            if(stack.getItem() instanceof Accessory accessory){
+                types.add(accessory.getType(stack));
+            }
+        }
+        if(types.isEmpty())
+            return set;
+
+        List<Integer> counts = new ArrayList<>(Collections.nCopies(6, 0));
+
+        for (int type : types) {
+            counts.set(type, counts.get(type) + 1);
+        }
+
+        int uniqueCounts = 0;
+        for (int count : counts) {
+            if (count > 0) {
+                uniqueCounts++;
+            }
+        }
+
+        if (counts.get(1) >= 2 && counts.get(4) >= 2) {
+            set = 1;
+        } else if (counts.get(2) >= 2 && counts.get(3) >= 2) {
+            set = 2;
+        } else if (counts.get(5) >= 2 && counts.get(4) >= 2) {
+            set = 3;
+        } else if (counts.get(3) >= 4) {
+            set = 4;
+        } else if (counts.get(2) >= 4) {
+            set = 5;
+        } else if (counts.get(5) >= 4) {
+            set = 6;
+        } else if (counts.get(1) >= 4) {
+            set = 7;
+        } else if (counts.get(4) >= 4) {
+            set = 8;
+        } else if (uniqueCounts == 4) {
+            set = 9;
+        } else if (types.size() == 4) {
+            set = 10;
+        }
+        return set;
     }
 }

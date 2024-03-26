@@ -1,5 +1,9 @@
 package com.pyding.vp.item;
 
+import com.pyding.vp.item.accessories.BeltOfBrokenMemories;
+import com.pyding.vp.item.accessories.EarringOfDeadHopes;
+import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
+import com.pyding.vp.item.accessories.RingOfFallenStar;
 import com.pyding.vp.item.artifacts.*;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -37,7 +41,10 @@ public class ModItems {
     public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64)));
     public static final RegistryObject<Item> REFRESHER = ITEMS.register("refresher", () -> new Refresher(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> INFINITE_REFRESHER = ITEMS.register("infinite_refresher", () -> new InfiniteRefresher(new Item.Properties().stacksTo(1)));
-
+    public static final RegistryObject<Item> RING_OF_FALLEN_STAR = ITEMS.register("ring_of_fallen_star", () -> new RingOfFallenStar());
+    public static final RegistryObject<Item> EARRING_OF_DEAD_HOPES = ITEMS.register("earring_of_dead_hopes", () -> new EarringOfDeadHopes());
+    public static final RegistryObject<Item> NECKLACE_OF_TORTURED_DREAMS = ITEMS.register("necklace_of_tortured_dreams", () -> new NecklaceOfTorturedDreams());
+    public static final RegistryObject<Item> BELT_OF_BROKEN_MEMORIES = ITEMS.register("belt_of_broken_memories", () -> new BeltOfBrokenMemories());
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
