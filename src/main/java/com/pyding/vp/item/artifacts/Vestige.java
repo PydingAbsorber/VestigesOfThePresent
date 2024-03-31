@@ -4,6 +4,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModCreativeModTab;
+import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -18,6 +19,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,10 +34,7 @@ import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Vestige extends Item implements ICurioItem {
     public Vestige() {
@@ -181,6 +181,89 @@ public class Vestige extends Item implements ICurioItem {
     }
     public boolean isStellar = false;
     public ItemStack vestigeStack = null;
+
+    public int ultimateChargesBase(){
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getInt("VPUltimateChargesBase");
+        }
+        return 0;
+    }
+
+    public void setUltimateChargesBase(int number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putInt("VPUltimateChargesBase",number);
+        }
+    }
+
+    public int specialChargesBase(){
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getInt("VPSpecialChargesBase");
+        }
+        return 0;
+    }
+
+    public void setSpecialChargesBase(int number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putInt("VPSpecialChargesBase",number);
+        }
+    }
+
+    public long ultimateDurationBase(){
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getLong("VPUltimateDurationBase");
+        }
+        return 0;
+    }
+
+    public void setUltimateDurationBase(long number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putLong("VPUltimateDurationBase",number);
+        }
+    }
+
+    public long specialDurationBase(){
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getLong("VPSpecialDurationBase");
+        }
+        return 0;
+    }
+
+    public void setSpecialDurationBase(long number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putLong("VPSpecialDurationBase",number);
+        }
+    }
+    public int specialCdBase(){
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getInt("VPSpecialCdBase");
+        }
+        return 0;
+    }
+
+    public void setSpecialCdBase(int number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putInt("VPSpecialCdBase",number);
+        }
+    }
+    public int ultimateCdBase(){
+        if(vestigeStack != null){
+            return vestigeStack.getOrCreateTag().getInt("VPUltimateCdBase");
+        }
+        return 0;
+    }
+
+    public void setUltimateCdBase(int number){
+        if(vestigeStack != null){
+            fuckNbt();
+            vestigeStack.getOrCreateTag().putInt("VPUltimateCdBase",number);
+        }
+    }
+
     public int ultimateChargesBase = 0;
     public int specialChargesBase = 0;
 
@@ -192,22 +275,28 @@ public class Vestige extends Item implements ICurioItem {
 
     public int vestigeNumber;
     public void dataInit(int vestigeNumber,ChatFormatting color,int specialCharges,int specialCd,int ultimateCharges,int ultimateCd,int specialMaxTime,int ultimateMaxTime,boolean hasDamage){
-        this.ultimateChargesBase = ultimateCharges;
-        this.specialChargesBase = specialCharges;
+        setUltimateChargesBase(ultimateCharges);
+        setSpecialChargesBase(specialCharges);
         setUltimateCharges(ultimateCharges);
-        ultimateCdBase = ultimateCd*20;
+        setUltimateCdBase(ultimateCd* 20);
         setUltimateCd(ultimateCd*20);
         setSpecialCharges(specialCharges);
-        specialCdBase = specialCd*20;
+        setSpecialCdBase(specialCd* 20);
         setSpecialCd(specialCd*20);      //time until recharge in seconds*tps
         this.damageType = hasDamage;
         this.vestigeNumber = vestigeNumber;
         setVestigeNumber(vestigeNumber);
         this.color = color;
         setSpecialMaxTime((long)specialMaxTime*1000);  //max active time in real seconds L
-        specialDurationBase = (long)specialMaxTime*1000;
+        setSpecialDurationBase((long)specialMaxTime*1000);
         setUltimateMaxTime((long)ultimateMaxTime*1000);
-        ultimateDurationBase = (long)specialMaxTime*1000;
+        setUltimateDurationBase((long)ultimateMaxTime*1000);
+        this.ultimateChargesBase = ultimateCharges;
+        this.specialChargesBase = specialCharges;
+        this.ultimateCdBase = ultimateCd*20;
+        this.specialCdBase = specialCd*20;
+        this.specialDurationBase = (long)specialMaxTime*1000;
+        this.ultimateDurationBase = (long)ultimateMaxTime*1000;
     }
 
     public int getVestigeNumber(){
@@ -338,7 +427,12 @@ public class Vestige extends Item implements ICurioItem {
     public int setUltimateActive(long seconds, Player player){
         if(currentChargeUltimate() > 0) {
             if(!player.getCommandSenderWorld().isClientSide) {
+                System.out.println(ultimateMaxTime() + " max time");
+                System.out.println(seconds + " seconds");
+                System.out.println(ultimateDurationBase() + " duration base");
+                System.out.println(timeUlt() + " time before");
                 setTimeUlt(System.currentTimeMillis() + seconds);  //active time in real seconds
+                System.out.println(timeUlt() + " time after");
                 setUltimateActive(true);
                 setCdUltimateActive(cdUltimateActive()+ultimateCd());     //time until cd recharges in seconds*tps
                 setCurrentChargeUltimate(currentChargeUltimate()-1);
@@ -350,10 +444,10 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void applyBonus(ItemStack stack,Player player){
-        setSpecialMaxTime(specialDurationBase);
-        setUltimateMaxTime(ultimateDurationBase);
-        setSpecialCd(specialCdBase);
-        setUltimateCd(ultimateCdBase);
+        setSpecialMaxTime(specialDurationBase());
+        setUltimateMaxTime(ultimateDurationBase());
+        setSpecialCd(specialCdBase());
+        setUltimateCd(ultimateCdBase());
         int specialBonus = 0;
         int ultimateBonus = 0;
         if(isDoubleStellar(stack)){
@@ -365,8 +459,8 @@ public class Vestige extends Item implements ICurioItem {
         int set = VPUtil.getSet(player);
         if(set == 1){
             spAcsBonus += 1;
-            setSpecialMaxTime((long) (specialDurationBase*1.2));
-            setUltimateMaxTime((long) (ultimateDurationBase*1.2));
+            setSpecialMaxTime((long) (specialDurationBase()*1.2));
+            setUltimateMaxTime((long) (ultimateDurationBase()*1.2));
         }
         else if(set == 6){
             spAcsBonus -= 1;
@@ -375,17 +469,17 @@ public class Vestige extends Item implements ICurioItem {
         else if(set == 7){
             spAcsBonus += 1;
             ultAcsBonus += 1;
-            setSpecialMaxTime((long) (specialDurationBase*0.6));
-            setUltimateMaxTime((long) (ultimateDurationBase*0.6));
+            setSpecialMaxTime((long) (specialDurationBase()*0.6));
+            setUltimateMaxTime((long) (ultimateDurationBase()*0.6));
         }
         else if(set == 8){
             spAcsBonus -= 1;
             ultAcsBonus -= 1;
-            setSpecialCd((int) (specialCdBase*1.4));
-            setUltimateCd((int) (ultimateCdBase*1.4));
+            setSpecialCd((int) (specialCdBase()*1.4));
+            setUltimateCd((int) (ultimateCdBase()*1.4));
         }
-        setSpecialCharges(specialChargesBase+specialBonus+specialBonusModifier()+spAcsBonus);
-        setUltimateCharges(ultimateChargesBase+ultimateBonus+ultimateBonusModifier()+ultAcsBonus);
+        setSpecialCharges(specialChargesBase()+specialBonus+specialBonusModifier()+spAcsBonus);
+        setUltimateCharges(ultimateChargesBase()+ultimateBonus+ultimateBonusModifier()+ultAcsBonus);
     }
 
     public Player vestigePlayer = null;

@@ -5,13 +5,20 @@ import com.pyding.vp.client.ClientProxy;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.common.CommonProxy;
 import com.pyding.vp.entity.ModEntities;
+import com.pyding.vp.event.EntityCreation;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.accessories.BeltOfBrokenMemories;
+import com.pyding.vp.item.accessories.EarringOfDeadHopes;
+import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
+import com.pyding.vp.item.accessories.RingOfFallenStar;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtilParticles;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -76,8 +83,21 @@ public class VestigesOfPresent
         public static void onClientSetup(FMLClientSetupEvent event) //init
         {
             PROXY.initEntityRendering();
+            ItemProperties.register(ModItems.BELT_OF_BROKEN_MEMORIES.get(), new ResourceLocation("vp:belt"), (stack, level, entity, type) -> {
+                return BeltOfBrokenMemories.getType(stack);
+            });
+            ItemProperties.register(ModItems.EARRING_OF_DEAD_HOPES.get(), new ResourceLocation("vp:earring"), (stack, level, entity, type) -> {
+                return EarringOfDeadHopes.getType(stack);
+            });
+            ItemProperties.register(ModItems.RING_OF_FALLEN_STAR.get(), new ResourceLocation("vp:ring"), (stack, level, entity, type) -> {
+                return RingOfFallenStar.getType(stack);
+            });
+            ItemProperties.register(ModItems.NECKLACE_OF_TORTURED_DREAMS.get(), new ResourceLocation("vp:necklace"), (stack, level, entity, type) -> {
+                return NecklaceOfTorturedDreams.getType(stack);
+            });
         }
     }
+
 
     private void postInit(InterModEnqueueEvent event) {
         LOGGER.info("Sending messages to Curios API...");

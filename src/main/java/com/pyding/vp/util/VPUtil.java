@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.Mark;
@@ -296,6 +297,8 @@ public class VPUtil {
             return;
         for(EntityType<?> type: getEntitiesListOfType(MobCategory.MONSTER)){
             Entity entity = type.create(level);
+            if(entity instanceof HunterKiller)
+                continue;
             if (entity instanceof LivingEntity livingEntity) {
                 double health = livingEntity.getMaxHealth();
                 if (health > 190) {

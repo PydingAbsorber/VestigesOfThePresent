@@ -2,7 +2,9 @@ package com.pyding.vp.client;
 
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.client.render.BlackHoleRenderer;
+import com.pyding.vp.client.render.VestigeHunterKillerRenderer;
 import com.pyding.vp.entity.ModEntities;
+import com.pyding.vp.entity.models.Hunter;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.KeyBinding;
@@ -32,6 +34,7 @@ public class ClientEvents {
         }
     }
 
+
     @Mod.EventBusSubscriber(modid = VestigesOfPresent.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientModBusEvents {
         @SubscribeEvent
@@ -48,8 +51,15 @@ public class ClientEvents {
         }
 
         @SubscribeEvent
+        public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event){
+            event.registerLayerDefinition(Hunter.LAYER_LOCATION, Hunter::createBodyLayer);
+        }
+
+        @SubscribeEvent
         public static void rendererRegister(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
+            event.registerEntityRenderer(ModEntities.KILLER.get(), VestigeHunterKillerRenderer::new);
         }
+
     }
 }

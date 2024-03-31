@@ -5,7 +5,8 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.commands.VPCommands;
-import com.pyding.vp.item.ModCreativeModTab;
+import com.pyding.vp.entity.ModEntities;
+import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.*;
@@ -25,7 +26,6 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,16 +43,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.*;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -390,11 +385,16 @@ public class EventHandler {
                     challange.failChallenge(18,player);
                 });
                 if(VPUtil.hasVestige(ModItems.BOOK.get(), player)){
-                    if(player.getPersistentData().getBoolean("VPBook")) {
-                        if(event.getSource().getEntity() instanceof LivingEntity dealer) {
-                            VPUtil.enchantCurseAll(dealer);
+                    ItemStack stack = VPUtil.getVestigeStack(Book.class,player);
+                    if(stack.getItem() instanceof Book book) {
+                        if (book.isUltimateActive()) {
+                            if (event.getSource().getEntity() instanceof LivingEntity dealer) {
+                                VPUtil.enchantCurseAll(dealer);
+                            }
+                        } else if (book.ultimateCharges() != book.currentChargeUltimate()) {
+                            VPUtil.enchantCurseAll(player);
                         }
-                    } else VPUtil.enchantCurseAll(player);
+                    }
                 }
                 if(VPUtil.hasVestige(ModItems.KILLER.get(), player) && player.getPersistentData().getLong("VPQueenDeath") >= 0){
                     int percent = 800;
@@ -814,11 +814,11 @@ public class EventHandler {
             if(player.tickCount % 20 == 0){
                 for(ItemStack stack: player.getInventory().items){
                     if(stack.getItem() instanceof Accessory accessory){
-                        if(accessory.getType(stack) == 0)
+                        if(accessory.getType(stack) == 0 && !player.getCommandSenderWorld().isClientSide)
                             accessory.init(stack);
                     }
                 }
-                List<ItemStack> accessories = VPUtil.getAccessoryList(player);
+                /*List<ItemStack> accessories = VPUtil.getAccessoryList(player);
                 if(!accessories.isEmpty()){
                     float health = 0;
                     float attack = 0;
@@ -847,7 +847,7 @@ public class EventHandler {
                 } else {
                     player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
                     player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
-                }
+                }*/
             }
             if(!slotResultList.isEmpty()){
                 if(slotResultList.get(0).getItem() instanceof Vestige vestige) {
@@ -927,7 +927,6 @@ public class EventHandler {
             });
         }
     }
-
     @SubscribeEvent
     public static void capabilityAttach(AttachCapabilitiesEvent<Entity> event){
         if(event.getObject() instanceof Player && !(event.getObject() instanceof FakePlayer)){
