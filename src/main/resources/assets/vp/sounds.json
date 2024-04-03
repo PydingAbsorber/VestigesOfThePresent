@@ -213,5 +213,10 @@
     "sounds": [
       "vp:gravity"
     ]
+  },
+  "open": {
+    "sounds": [
+      "vp:open"
+    ]
   }
 }

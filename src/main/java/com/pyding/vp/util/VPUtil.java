@@ -70,8 +70,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
+import ru.noxus.rghelper.utils.EventHelper;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 
@@ -301,7 +303,12 @@ public class VPUtil {
                 continue;
             if (entity instanceof LivingEntity livingEntity) {
                 double health = livingEntity.getMaxHealth();
-                if (health > 190) {
+                if (health > 190
+                        || type.toString().contains("hullbreaker") //alex the mod guy makes everything through his ass
+                        || type.toString().contains("tremorzilla")
+                        || type.toString().contains("nucleeper")
+                        || type.toString().contains("luxtructosaurus")
+                        || type.toString().contains("atlatitan")) {
                     bossList.add(type);
                 } else monsterList.add(type);
             }
@@ -464,7 +471,7 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
-        if(isFriendlyFireBetween(entity,player))
+        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
             return;
         entity.invulnerableTime = 0;
         ItemStack stack = player.getMainHandItem();
@@ -496,7 +503,7 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
-        if(isFriendlyFireBetween(entity,player))
+        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
             return;
         if(invulPierce)
             entity.invulnerableTime = 0;
@@ -1007,8 +1014,9 @@ public class VPUtil {
                 play(entity, SoundRegistry.DEATH1.get());
             else play(entity, SoundRegistry.DEATH2.get());
         }
-        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
         entity.setHealth(0);
+        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
+        player.getPersistentData().putLong("VPSetHealth",System.currentTimeMillis()+10000);
         entity.die(player.damageSources().playerAttack(player));
     }
     public static void deadInside(LivingEntity entity){
@@ -1350,6 +1358,16 @@ public class VPUtil {
         }
         return attacker.isAlliedTo(target);
     }
+
+    public static boolean isProtectedFromHit(Entity attacker, Entity target) {
+        if (attacker == null || target == null)
+            return false;
+        if(target instanceof Player player)
+            return player.isCreative();
+        if(ModList.get().isLoaded("noxus_rghelper")) {
+            return !EventHelper.canAttack(attacker, target);
+        } return false;
+    }
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
         Random random = new Random();
         for(int i = 0; i < count; i++) {
@@ -1685,7 +1703,7 @@ public class VPUtil {
     }
 
     public static void dealParagonDamage(LivingEntity entity,Player player,float damage, int type, boolean hurt){
-        if(isFriendlyFireBetween(entity,player))
+        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
             return;
         ItemStack stack = player.getMainHandItem();
         float percentBonus = 1;
@@ -1805,14 +1823,17 @@ public class VPUtil {
         mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("78cf254b-36df-41d6-be91-ad06220d9dd8"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
         mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("54b7f5ed-0851-4745-b98c-e1f08a1a2f67"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
         player.getAttributes().removeAttributeModifiers(mark);
+        player.setHealth(player.getMaxHealth());
         Multimap<Attribute, AttributeModifier> mask = HashMultimap.create();
         mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", 0, AttributeModifier.Operation.MULTIPLY_TOTAL));
         mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", 0, AttributeModifier.Operation.MULTIPLY_BASE));
         player.getAttributes().removeAttributeModifiers(mask);
+        player.setHealth(player.getMaxHealth());
         Multimap<Attribute, AttributeModifier> midas = HashMultimap.create();
         midas.put(Attributes.LUCK, new AttributeModifier(UUID.fromString("f55f3429-0399-4d9e-9f84-0d7156cc0593"), "vp:luck", 0, AttributeModifier.Operation.ADDITION));
         player.getPersistentData().putInt("VPPrism", 0);
         player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),0, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+        player.setHealth(player.getMaxHealth());
         player.getPersistentData().putBoolean("VPSweetUlt",false);
         player.getPersistentData().putFloat("VPSaturation",0);
         player.getPersistentData().putFloat("VPHealBonusDonut", 0);
@@ -1820,6 +1841,7 @@ public class VPUtil {
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",0);
         player.getPersistentData().putFloat("VPTrigonBonus", 0);
         player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
+        player.setHealth(player.getMaxHealth());
         if (player.isCreative()) {
             return;
         }

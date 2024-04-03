@@ -1,9 +1,6 @@
 package com.pyding.vp.item;
 
-import com.pyding.vp.item.accessories.BeltOfBrokenMemories;
-import com.pyding.vp.item.accessories.EarringOfDeadHopes;
-import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
-import com.pyding.vp.item.accessories.RingOfFallenStar;
+import com.pyding.vp.item.accessories.*;
 import com.pyding.vp.item.artifacts.*;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -45,6 +42,8 @@ public class ModItems {
     public static final RegistryObject<Item> EARRING_OF_DEAD_HOPES = ITEMS.register("earring_of_dead_hopes", () -> new EarringOfDeadHopes());
     public static final RegistryObject<Item> NECKLACE_OF_TORTURED_DREAMS = ITEMS.register("necklace_of_tortured_dreams", () -> new NecklaceOfTorturedDreams());
     public static final RegistryObject<Item> BELT_OF_BROKEN_MEMORIES = ITEMS.register("belt_of_broken_memories", () -> new BeltOfBrokenMemories());
+    public static final RegistryObject<Item> RING_OF_WIBEST = ITEMS.register("ring_of_wibest", () -> new RingOfWibest());
+    public static final RegistryObject<Item> BOX = ITEMS.register("box", () -> new Box());
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

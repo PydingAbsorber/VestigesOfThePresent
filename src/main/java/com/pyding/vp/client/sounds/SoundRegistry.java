@@ -58,6 +58,7 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> FLESH = registerSoundEvent("flesh");
     public static RegistryObject<SoundEvent> FLESH2 = registerSoundEvent("flesh2");
     public static RegistryObject<SoundEvent> GRAVITY = registerSoundEvent("gravity");
+    public static RegistryObject<SoundEvent> OPEN = registerSoundEvent("open");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {

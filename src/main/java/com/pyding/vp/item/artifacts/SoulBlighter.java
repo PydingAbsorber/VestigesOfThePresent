@@ -70,9 +70,10 @@ public class SoulBlighter extends Vestige{
             entity.absMoveTo(pos.getX() + 0.5, pos.getY()+1, pos.getZ() + 0.5, 0, 0);
             VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
             level.addFreshEntity(entity);
-            if(isStellar)
-                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-            setCdUltimateActive((int) (ultimateCd()*0.2));
+            if(isStellar) {
+                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"), 1 + stack.getOrCreateTag().getFloat("VPMaxHealth") * 0.3f, AttributeModifier.Operation.ADDITION, "vp:soulblighter_hp_boost"));
+                player.setHealth(player.getMaxHealth());
+            } setCdUltimateActive((int) (ultimateCd()*0.2));
         } else {
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){

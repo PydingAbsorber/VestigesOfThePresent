@@ -611,6 +611,11 @@ public class EventHandler {
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
         if (tag != null) {
+            if(tag.getLong("VPDeath") > System.currentTimeMillis()) {
+                event.setAmount(0);
+                event.setCanceled(true);
+                return;
+            }
             float healingBonus = VPUtil.getHealBonus(entity);
             float resedHeal = 0;
             if(healingBonus < 0)

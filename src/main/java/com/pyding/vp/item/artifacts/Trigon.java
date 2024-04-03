@@ -57,8 +57,6 @@ public class Trigon extends Vestige{
             player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
         }
         VPUtil.addOverShield(list.get(numba),overshields);
-        if(player.isCreative() && player.getScoreboardName().equals("Pyding") || player.getScoreboardName().equals("Dev"))
-        player.sendSystemMessage(Component.literal("Лист существ: " + list + " Выбранное существо: " + list.get(numba) + " с номером: " + numba + " щит к добавлению: " + overshields));
         super.doUltimate(seconds, player, level);
     }
     @Override
@@ -73,6 +71,7 @@ public class Trigon extends Vestige{
     @Override
     public void ultimateRecharges(Player player) {
         player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:trigon_hp_boost"));
+        player.setHealth(player.getMaxHealth());
         super.ultimateRecharges(player);
     }
 }

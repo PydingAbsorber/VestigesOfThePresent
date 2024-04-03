@@ -467,7 +467,7 @@ public class Vestige extends Item implements ICurioItem {
             ultAcsBonus -= 1;
         }
         else if(set == 7){
-            spAcsBonus += 1;
+            //spAcsBonus += 1;
             ultAcsBonus += 1;
             setSpecialMaxTime((long) (specialDurationBase()*0.6));
             setUltimateMaxTime((long) (ultimateDurationBase()*0.6));
