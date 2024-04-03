@@ -55,6 +55,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
@@ -527,15 +528,22 @@ public class EventHandler {
                         }
                         if(ConfigHandler.COMMON.anomaly.get()){
                             for(LivingEntity entity: VPUtil.getEntitiesAround(player,4,4,4,true)){
+                                if(VPUtil.isProtectedFromHit(player,entity))
+                                    break;
                                 entity.changeDimension(serverLevel);
                                 entity.teleportTo(x, y, z);
                             }
                         }
                         else {
                             for (Object entity : VPUtil.getEntitiesAroundOfType(Entity.class, player, 4, 4, 4, true)) {
-                                if (entity instanceof ServerPlayer victim)
+                                if (entity instanceof ServerPlayer victim) {
+                                    if(VPUtil.isProtectedFromHit(player,victim))
+                                        break;
                                     victim.teleportTo(serverLevel, x, y, z, 0, 0);
+                                }
                                 else if (entity instanceof Entity target) {
+                                    if(VPUtil.isProtectedFromHit(player,target))
+                                        break;
                                     target.changeDimension(serverLevel);
                                     target.teleportTo(x, y, z);
                                 }
