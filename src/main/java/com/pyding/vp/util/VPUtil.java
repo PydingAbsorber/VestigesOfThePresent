@@ -1362,10 +1362,12 @@ public class VPUtil {
     public static boolean isProtectedFromHit(Entity attacker, Entity target) {
         if (attacker == null || target == null)
             return false;
-        if(target instanceof Player player)
-            return player.isCreative();
+        if(target instanceof Player player && player.isCreative())
+            return true;
         if(ModList.get().isLoaded("noxus_rghelper")) {
-            return !EventHelper.canAttack(attacker, target);
+            if(attacker instanceof Player player)
+                return !EventHelper.canAttack(player, target);
+            else return !EventHelper.canAttack(attacker, target);
         } return false;
     }
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {

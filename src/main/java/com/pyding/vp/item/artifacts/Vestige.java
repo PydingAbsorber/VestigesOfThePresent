@@ -650,7 +650,7 @@ public class Vestige extends Item implements ICurioItem {
                     progress = EventHandler.getCurses(player);
                 components.add(Component.translatable("vp.progress").withStyle(color)
                         .append(Component.literal(" " + progress))
-                        .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(vestigeNumber,player))));
+                        .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber))));  //PlayerCapabilityVP.getMaximum(vestigeNumber,player)
                 int stellarChance = cap.getChance();
                 if(VPUtil.getSet(player) == 9)
                     stellarChance += 5;

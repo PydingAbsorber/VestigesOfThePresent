@@ -547,6 +547,74 @@ public class PlayerCapabilityVP {
         return  0;
     }
 
+    public static void initMaximum(Player player){
+        for(int i = 1; i < totalVestiges+1; i++) {
+            int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(i).get();
+            switch (i) {
+                case 1:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,20 - reduce);
+                    break;
+                case 2:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getMonsterClientMax(player).size() - reduce);
+                    break;
+                case 3:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getBiomesClientMax(player).size() - reduce);
+                    break;
+                case 4:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,100 - reduce);
+                    break;
+                case 5:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,100 - reduce);
+                    break;
+                case 6:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEdibleItems().size() - reduce);
+                    break;
+                case 7:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,15 - reduce);
+                    break;
+                case 8:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,11 - reduce);
+                    break;
+                case 9:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,8 - reduce);
+                    break;
+                case 10:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getTools().size() - reduce);
+                    break;
+                case 11:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getDamageKinds().size() - reduce);
+                    break;
+                case 12:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,10 - reduce);
+                    break;
+                case 13:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.damageTypes(true).size());
+                    break;
+                case 14:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,6 - reduce);
+                    break;
+                case 15:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getBossClientMax(player).size() - reduce);
+                    break;
+                case 16:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getFlowers().size() - reduce);
+                    break;
+                case 17:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEffects().size() - reduce);
+                    break;
+                case 18:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,20 - reduce);
+                    break;
+                case 19:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,1000000 - reduce);
+                    break;
+                case 20:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() - reduce);
+                    break;
+            }
+        }
+    }
+
     public boolean getDebug(){
         return debug;
     }

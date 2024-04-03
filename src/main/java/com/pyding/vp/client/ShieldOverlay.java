@@ -62,10 +62,14 @@ public class ShieldOverlay {
                         continue;
                     pose.blit(getTexture(vestigeNumber),x+(130+i*40),y-22, 0, 0, 16, 16,
                             16, 16);
-                    int currentChargeSpecial = player.getPersistentData().getInt("VPCharge"+vestigeNumber);
+                    /*int currentChargeSpecial = player.getPersistentData().getInt("VPCharge"+vestigeNumber);
                     int currentChargeUltimate = player.getPersistentData().getInt("VPChargeUlt"+vestigeNumber);
                     long time = player.getPersistentData().getLong("VPTime"+vestigeNumber);
-                    long timeUlt = player.getPersistentData().getLong("VPTimeUlt"+vestigeNumber);
+                    long timeUlt = player.getPersistentData().getLong("VPTimeUlt"+vestigeNumber);*/
+                    int currentChargeSpecial = vestige.currentChargeSpecial();
+                    int currentChargeUltimate = vestige.currentChargeUltimate();
+                    long time = vestige.time();
+                    long timeUlt = vestige.timeUlt();
                     pose.drawString(fontRenderer,""+currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     pose.drawString(fontRenderer,""+currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());

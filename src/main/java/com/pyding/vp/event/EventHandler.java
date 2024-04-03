@@ -597,9 +597,15 @@ public class EventHandler {
     @SubscribeEvent
     public static void loginIn(PlayerEvent.PlayerLoggedInEvent event){
         Player player = event.getEntity();
+        PlayerCapabilityVP.initMaximum(player);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
+        List<ItemStack> vestiges = VPUtil.getVestigeList(player);
+        for(ItemStack stack: vestiges){
+            if(stack.getItem() instanceof Vestige vestige)
+                vestige.init();
+        }
         Level level = player.getCommandSenderWorld();
         if(level instanceof ServerLevel serverLevel) {
             VPUtil.initMonstersAndBosses(level);
@@ -734,6 +740,8 @@ public class EventHandler {
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
+        /*if(entity.tickCount < 10 && VPUtil.isBoss(entity))
+            entity.heal(9999);*/
         if (entity.getPersistentData().getInt("VPGravity") > 30)
             entity.getPersistentData().putInt("VPGravity", 30);
         if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 30)
@@ -986,6 +994,8 @@ public class EventHandler {
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
             entity.setHealth(health);
+            System.out.println(entity.getHealth());
+            System.out.println(entity.getMaxHealth());
         }
     }
     @SubscribeEvent
