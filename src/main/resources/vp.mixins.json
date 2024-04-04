@@ -8,7 +8,7 @@
   "mixins": [
     "EnchantmentsMixin",
     "MinEnchLvlMixin",
-    "NegativeProtectionMixin",
+    "NegativeProtectionMixin"
   ],
   "client": [
   ],
