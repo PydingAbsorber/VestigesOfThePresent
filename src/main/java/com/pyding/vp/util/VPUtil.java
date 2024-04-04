@@ -1372,12 +1372,12 @@ public class VPUtil {
             return true;
         }
         if(ModList.get().isLoaded("noxus_rghelper")) {
-            attacker.sendSystemMessage(Component.literal("noxus loaded"));
-            boolean protec = EventHelper.canAttack(attacker, target);
-            attacker.sendSystemMessage(Component.literal(!protec + " protected from hit"));
-            return !protec;
+            boolean canAttack = EventHelper.canAttack(attacker, target);
+            boolean protec = !canAttack;
+            attacker.sendSystemMessage(Component.literal("    §a" + attacker.getName().getString() + "§7 hit §6" + target.getName().getString() + "§7      *canAttack* return: §c" + canAttack + "§7     *protec* return: §c" + protec));
+            return protec;
         }
-        attacker.sendSystemMessage(Component.literal("noxus not loaded"));
+        attacker.sendSystemMessage(Component.literal("    RegionHelper not loaded"));
         return false;
     }
     public static void setHealthNoLimits(float health, LivingEntity entity) {
