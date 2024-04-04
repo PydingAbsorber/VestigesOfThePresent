@@ -48,6 +48,7 @@ public class PacketHandler {
                 .encoder(ItemAnimationPacket::toBytes)
                 .consumerMainThread(ItemAnimationPacket::handle)
                 .add();
+        net.registerMessage(id(),StackNbtSync.class, StackNbtSync::encode, StackNbtSync::decode, StackNbtSync::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

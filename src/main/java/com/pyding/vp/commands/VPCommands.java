@@ -183,11 +183,11 @@ public class VPCommands {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             if(ConfigHandler.COMMON.hardcore.get()) {
                                 ConfigHandler.COMMON.hardcore.set(false);
-                                player.sendSystemMessage(Component.literal("Hardcore mode disabled. Please type /reload if the changes have not been applied."));
+                                player.sendSystemMessage(Component.literal("Hardcore mode disabled."));
                             }
                             else {
                                 ConfigHandler.COMMON.hardcore.set(true);
-                                player.sendSystemMessage(Component.literal("Hardcore mode enabled, all bosses hp now is x10 and attack is x2. Please type /reload if the changes have not been applied."));
+                                player.sendSystemMessage(Component.literal("Hardcore mode enabled, all bosses hp now is x" + ConfigHandler.COMMON.bossHP.get() + " and attack is x" + ConfigHandler.COMMON.bossHP.get() + " armor and armor toughness " + ConfigHandler.COMMON.bossHP.get() + " Shields from max hp percent " + ConfigHandler.COMMON.bossHP.get() + " Over Shields percent " + ConfigHandler.COMMON.bossHP.get() + " Healing per second percent from max hp " + ConfigHandler.COMMON.bossHP.get() + " damage absorption percent " + ConfigHandler.COMMON.absorbHardcore.get()));
                             }
                             return Command.SINGLE_SUCCESS;
                         })

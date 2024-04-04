@@ -19,6 +19,11 @@ public class ConfigHandler {
     public static class Common {
         //public final ForgeConfigSpec.ConfigValue<String> challengeReduction;
         public final ForgeConfigSpec.BooleanValue hardcore;
+        public final ForgeConfigSpec.IntValue armorHardcore;
+        public final ForgeConfigSpec.DoubleValue absorbHardcore;
+        public final ForgeConfigSpec.DoubleValue shieldHardcore;
+        public final ForgeConfigSpec.DoubleValue overShieldHardcore;
+        public final ForgeConfigSpec.DoubleValue healPercent;
         public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
         public final ForgeConfigSpec.IntValue bossHP;
@@ -76,9 +81,14 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue refresherChance;
         public Common(ForgeConfigSpec.Builder builder) {
             //challengeReduction = builder.comment("Number for challenge №").define("challengeReduction", "shop_table");
-            hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp and x2 damage").define("hardcore", false);
+            hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);
             bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 10, 1, 2100000000);
             bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
+            armorHardcore = builder.comment("Hardcore mode armor and armor toughness").defineInRange("armorHardcore", 100, 1, 2100000000);
+            absorbHardcore = builder.comment("Hardcore mode damage absorb percent").defineInRange("absorbHardcore", 0.9, 0, 1);
+            shieldHardcore = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("shieldHardcore", 3d, 1, 2100000000);
+            overShieldHardcore = builder.comment("Hardcore mode Over Shield from hp percent").defineInRange("overShieldHardcore", 0.5, 1, 2100000000);
+            healPercent = builder.comment("Hardcore mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
             armorAbsorbBase = builder.comment("Base Martyr's Habergeon(armor) value").defineInRange("armorAbsorbBase", 40, 0, Integer.MAX_VALUE);

@@ -21,6 +21,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -78,6 +79,8 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -1014,8 +1017,8 @@ public class VPUtil {
                 play(entity, SoundRegistry.DEATH1.get());
             else play(entity, SoundRegistry.DEATH2.get());
         }
-        entity.setHealth(0);
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
+        entity.setHealth(0);
         player.getPersistentData().putLong("VPSetHealth",System.currentTimeMillis()+10000);
         entity.die(player.damageSources().playerAttack(player));
     }
@@ -1359,17 +1362,39 @@ public class VPUtil {
         return attacker.isAlliedTo(target);
     }
 
-    public static boolean isProtectedFromHit(Entity attacker, Entity target) {
-        if (attacker == null || target == null)
+    public static boolean isProtectedFromHit(Player attacker, Entity target) {
+        if (attacker == null || target == null) {
+            attacker.sendSystemMessage(Component.literal("someone null"));
             return false;
-        if(target instanceof Player player && player.isCreative())
+        }
+        if(target instanceof Player player && player.isCreative()) {
+            attacker.sendSystemMessage(Component.literal("target is creative"));
             return true;
+        }
         if(ModList.get().isLoaded("noxus_rghelper")) {
-            if(attacker instanceof Player player)
-                return !EventHelper.canAttack(player, target);
-            else return !EventHelper.canAttack(attacker, target);
-        } return false;
+            attacker.sendSystemMessage(Component.literal("noxus loaded"));
+            boolean protec = EventHelper.canAttack(attacker, target);
+            attacker.sendSystemMessage(Component.literal(!protec + " protected from hit"));
+            return !protec;
+        }
+        attacker.sendSystemMessage(Component.literal("noxus not loaded"));
+        return false;
     }
+    public static void setHealthNoLimits(float health, LivingEntity entity) {
+        try {
+            Field dataHealthIdField = LivingEntity.class.getDeclaredField("DATA_HEALTH_ID");
+            dataHealthIdField.setAccessible(true);
+
+            Object fieldValue = dataHealthIdField.get(null);
+            if (fieldValue instanceof EntityDataAccessor) {
+                EntityDataAccessor<Float> dataAccessor = (EntityDataAccessor<Float>) fieldValue;
+                entity.getEntityData().set(dataAccessor, Math.max(health, 0.0F));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void spawnParticles(Player player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
         Random random = new Random();
         for(int i = 0; i < count; i++) {

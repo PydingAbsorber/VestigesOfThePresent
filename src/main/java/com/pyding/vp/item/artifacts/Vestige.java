@@ -5,6 +5,8 @@ import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.accessories.Accessory;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.StackNbtSync;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -494,7 +496,7 @@ public class Vestige extends Item implements ICurioItem {
         if(this.ultimateCharges() == 0 || this.specialCharges() == 0 || specialCd() == 0 || ultimateCd() == 0)
             this.init();
         isStellar = isStellar(stack);
-        Player playerServer = (ServerPlayer) slotContext.entity();
+        ServerPlayer playerServer = (ServerPlayer) slotContext.entity();
         vestigePlayer = playerServer;
         if(!isStellar(stack) && playerServer.isCreative())
             setStellar(stack);
@@ -548,10 +550,12 @@ public class Vestige extends Item implements ICurioItem {
             tag.putInt("UltimateCd", this.ultimateCd);
             stack.setTag(tag);
         }*/
-        playerServer.getPersistentData().putInt("VPCharge"+vestigeNumber,currentChargeSpecial());
+
+        /*playerServer.getPersistentData().putInt("VPCharge"+vestigeNumber,currentChargeSpecial());
         playerServer.getPersistentData().putInt("VPChargeUlt"+vestigeNumber,currentChargeUltimate());
         playerServer.getPersistentData().putLong("VPTime"+vestigeNumber,time());
-        playerServer.getPersistentData().putLong("VPTimeUlt"+vestigeNumber,timeUlt());
+        playerServer.getPersistentData().putLong("VPTimeUlt"+vestigeNumber,timeUlt());*/
+        PacketHandler.sendToClient(new StackNbtSync(playerServer.getUUID(),stack.getOrCreateTag(),stack),playerServer);
         ICurioItem.super.curioTick(slotContext, stack);
     }
     @OnlyIn(Dist.CLIENT)

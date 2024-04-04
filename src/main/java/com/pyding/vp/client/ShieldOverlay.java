@@ -3,14 +3,17 @@ package com.pyding.vp.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.item.Box;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Catalyst;
 import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -57,6 +60,7 @@ public class ShieldOverlay {
                 poseStack.pushPose();
                 renderTextureFromCenter(poseStack,x+(130+i*40),y-22,width,height,16,16,16,16,1);*/
                 if(vestiges.get(i).getItem() instanceof Vestige vestige){
+                    ItemStack stack = vestiges.get(i);
                     int vestigeNumber = vestige.vestigeNumber;
                     if(vestigeNumber == 0)
                         continue;
@@ -66,10 +70,13 @@ public class ShieldOverlay {
                     int currentChargeUltimate = player.getPersistentData().getInt("VPChargeUlt"+vestigeNumber);
                     long time = player.getPersistentData().getLong("VPTime"+vestigeNumber);
                     long timeUlt = player.getPersistentData().getLong("VPTimeUlt"+vestigeNumber);*/
-                    int currentChargeSpecial = vestige.currentChargeSpecial();
-                    int currentChargeUltimate = vestige.currentChargeUltimate();
-                    long time = vestige.time();
-                    long timeUlt = vestige.timeUlt();
+                   /* if(player.getMainHandItem().getItem() instanceof Box)
+                        player.sendSystemMessage(Component.literal("number " + vestigeNumber + " numbers" +currentChargeSpecial + " " + currentChargeUltimate + " Nbt:" + player.getPersistentData()));
+                   */
+                    int currentChargeSpecial = stack.getOrCreateTag().getInt("VPCurrentChargeSpecial");
+                    int currentChargeUltimate = stack.getOrCreateTag().getInt("VPCurrentChargeUltimate");
+                    long time = stack.getOrCreateTag().getLong("VPTime");
+                    long timeUlt = stack.getOrCreateTag().getLong("VPTimeUlt");
                     pose.drawString(fontRenderer,""+currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     pose.drawString(fontRenderer,""+currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());

@@ -77,6 +77,8 @@ public class SoulBlighter extends Vestige{
         } else {
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
+                if(entity instanceof Player)
+                    continue;
                 double chance = VPUtil.calculateCatchChance(player.getMaxHealth(),entity.getMaxHealth(),entity.getHealth());
                 if(entity.getPersistentData().getLong("VPAstral") > 0)
                     chance *= 2;

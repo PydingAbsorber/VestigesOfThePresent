@@ -157,6 +157,7 @@ dependencies {
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     implementation name: 'noxus_rghelper-1.0.1'
+    //implementation name: 'AttributeFix-Forge-1.20.1-21.0.1'
 
     //1.19.2
     /*minecraft 'net.minecraftforge:forge:1.19.2-43.3.2'
