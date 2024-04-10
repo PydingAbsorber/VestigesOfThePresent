@@ -3,6 +3,7 @@ package com.pyding.vp.network.packets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
@@ -40,7 +41,6 @@ public class SendPlayerNbtToClient {
     private static void handle2(UUID playerID, CompoundTag tag) {
         Minecraft.getInstance().level.players().stream().filter(player -> player.getUUID().equals(playerID))
             .findAny().ifPresent(player -> {
-                //System.out.println("from packet " + tag);
                 player.getPersistentData().merge(tag);
             });
     }

@@ -7,9 +7,7 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -26,8 +24,8 @@ public class Mark extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(7, ChatFormatting.DARK_RED, 3, 5, 1, 120, 1, 5, hasDamage);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(7, ChatFormatting.DARK_RED, 3, 5, 1, 120, 1, 5, hasDamage, stack);
     }
 
     private Multimap<Attribute, AttributeModifier> createAttributeMap() {
@@ -39,18 +37,18 @@ public class Mark extends Vestige{
     }
 
     @Override
-    public int setUltimateActive(long seconds, Player player) {
+    public int setUltimateActive(long seconds, Player player, ItemStack stack) {
         if(player.getHealth() < player.getMaxHealth()*0.3){
             seconds += 15 * 1000;
         }
         else if(player.getHealth() > player.getMaxHealth()*0.5){
             seconds += (long) Math.min(10,player.getPersistentData().getInt("VPMadness")) * 1000;
         }
-        return super.setUltimateActive(seconds, player);
+        return super.setUltimateActive(seconds, player, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundEvents.WARDEN_HEARTBEAT);
         if(player.getHealth() > player.getMaxHealth()*0.2)
             player.setHealth(player.getHealth()-player.getMaxHealth()*0.2f);
@@ -58,11 +56,11 @@ public class Mark extends Vestige{
         if(player.getPersistentData().getInt("VPMadness") < ConfigHandler.COMMON.markMaximum.get())
             player.getPersistentData().putInt("VPMadness",player.getPersistentData().getInt("VPMadness")+1);
         VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,1,1,0,-0.5,0,1,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.RAGE.get());
         if(player.getHealth() < player.getMaxHealth()*0.3){
             player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
@@ -70,13 +68,13 @@ public class Mark extends Vestige{
         player.getPersistentData().putBoolean("VPMarkUlt",true);
         player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()/100* ConfigHandler.COMMON.markHealDebt.get());
         VPUtil.spawnParticles(player, ParticleTypes.FLAME,2,1,0,-0.5,0,1,false);
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        if(!isUltimateActive()) {
+        if(!isUltimateActive(stack)) {
             player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
             player.getPersistentData().putBoolean("VPMarkUlt",false);
         }
@@ -84,7 +82,7 @@ public class Mark extends Vestige{
     }
 
     @Override
-    public void ultimateEnds(Player player) {
+    public void ultimateEnds(Player player, ItemStack stack) {
         player.getPersistentData().putBoolean("VPMarkUlt",false);
         float damage = player.getPersistentData().getFloat("VPDamageReduced");
         float heal = player.getPersistentData().getFloat("VPHealReduced");
@@ -92,11 +90,11 @@ public class Mark extends Vestige{
         if(damageFinal > 0) {
             player.hurt(player.damageSources().fellOutOfWorld(), damageFinal);
         }
-        else setCdUltimateActive(cdUltimateActive()-(int) Math.min(ultimateCd() * 0.6, ultimateCd() * ((VPUtil.calculatePercentageDifference(damage,heal))/100)));
+        else setCdUltimateActive(cdUltimateActive(stack)-(int) Math.min(ultimateCd(stack) * 0.6, ultimateCd(stack) * ((VPUtil.calculatePercentageDifference(damage,heal))/100)),stack);
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
         player.getPersistentData().putFloat("VPDamageReduced",0);
         player.getPersistentData().putFloat("VPHealReduced",0);
-        super.ultimateEnds(player);
+        super.ultimateEnds(player, stack);
     }
 
 }

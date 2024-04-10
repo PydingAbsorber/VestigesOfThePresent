@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +40,7 @@ public class ShieldOverlay {
             "textures/gui/heal2.png");
     private static final ResourceLocation HEAL3 = new ResourceLocation(VestigesOfPresent.MODID,
             "textures/gui/heal3.png");
+    @OnlyIn(Dist.CLIENT)
     public static final IGuiOverlay HUD_SHIELD = ((gui, pose, partialTick, width, height) -> {
         int x = width / 2;
         int y = height;
@@ -181,6 +183,44 @@ public class ShieldOverlay {
                 }
             }
         }
+
+        float targetOverShield = 0;
+        float targetShield = 0;
+        for(LivingEntity entity: VPUtil.ray(player,3,50,true)){
+            targetShield = VPUtil.getShield(entity);
+            targetOverShield = VPUtil.getOverShield(entity);
+            break;
+        }
+        int centerHeight = y - 230;
+        if(targetOverShield > 0){
+            int sizeX = 20;
+            int sizeY = 20;
+            int pictureSizeX = 20;
+            int pictureSizeY = 20;
+            RenderSystem.setShaderTexture(0, OVER_SHIELD);
+            pose.blit(OVER_SHIELD, x - 10, centerHeight, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY);
+            double log10 = Math.log10(targetOverShield);
+            int move = (int) Math.floor(log10) + 1;
+            pose.drawString(fontRenderer, ""+Math.round(targetOverShield * 100.0f) / 100.0f, x - (10 + move), centerHeight - 9, 0x9932CC);
+            if(targetShield > 0)
+                pose.drawString(fontRenderer, ""+Math.round(targetShield * 100.0f) / 100.0f, x - (10 + move), centerHeight + 22, 0x808080);
+        }
+        else if(targetShield > 0) {
+            int sizeX = 16;
+            int sizeY = 16;
+            int pictureSizeX = 16;
+            int pictureSizeY = 16;
+            RenderSystem.setShaderTexture(0, SHIELD);
+            pose.blit(SHIELD, x - 8, centerHeight-3, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY);
+            double log10 = Math.log10(targetShield);
+            int move = (int) Math.floor(log10) + 1;
+            pose.drawString(fontRenderer,""+Math.round(targetShield * 100.0f) / 100.0f, x - (8 + move), centerHeight + 22, 0x808080);
+        }
+
+
+
         if(player.isCreative())
             return;
         float healBonus = VPUtil.getHealBonus(player);

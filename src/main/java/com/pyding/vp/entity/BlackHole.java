@@ -80,7 +80,7 @@ public class BlackHole extends Projectile {
         getPersistentData().putLong("VPAntiTP",System.currentTimeMillis()+10000);
         setGlowingTag(true);
         for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
-            if(entity.getUUID() != player.getUUID()) {
+            if(entity.getUUID() != player.getUUID() && !VPUtil.isProtectedFromHit(player,entity)) {
                 VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
                 if(entity instanceof ServerPlayer serverPlayer1)
                     PacketHandler.sendToClient(new SuckPacket((float) (r/(entity.distanceTo(this)*2)),blockPosition()),serverPlayer1);
@@ -92,7 +92,7 @@ public class BlackHole extends Projectile {
             if (tickCount > 20 * (gravity+2)) {
                 this.discard();
                 for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
-                    if(entity.getUUID() != player.getUUID()) {
+                    if(entity.getUUID() != player.getUUID() && !VPUtil.isProtectedFromHit(player,entity)) {
                         if (entity.distanceTo(this) <= Math.max(20,gravity-10))
                             VPUtil.dealParagonDamage(entity,player,10/entity.distanceTo(this),3,true);
                     }

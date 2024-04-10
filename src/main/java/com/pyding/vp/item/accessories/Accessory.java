@@ -167,7 +167,8 @@ public class Accessory extends Item implements ICurioItem {
             }
             player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
             player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
-            player.setHealth(player.getMaxHealth());
+            if(player.isAlive() && player.getHealth() > player.getMaxHealth())
+                player.setHealth(player.getMaxHealth());
             player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), health, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
             player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), attack, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
             player.getPersistentData().putFloat("VPAcsDamage",damage);

@@ -5,7 +5,6 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +13,6 @@ import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -24,11 +22,11 @@ public class Catalyst extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 120, 1, 1, hasDamage);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 120, 1, 1, hasDamage, stack);
     }
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.CATALYST1.get());
         for(LivingEntity entity: VPUtil.getEntities(player,20,false)){
             List<MobEffectInstance> list = new ArrayList<>(VPUtil.getEffectsHas(entity, false));
@@ -42,24 +40,24 @@ public class Catalyst extends Vestige{
             }
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
-        if(isStellar)
+        if(isStellar(stack))
             player.getPersistentData().putInt("VPDebuffDefence", ConfigHandler.COMMON.catalystDeffence.get());
         Random random = new Random();
         int duration = random.nextInt(140)+60;
         int power = random.nextInt(5);
         player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(true),duration*20,power));
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.CATALYST2.get());
         Random random = new Random();
         int stolen = 0;
         for(LivingEntity entity: VPUtil.getEntities(player,25,false)){
             List<MobEffectInstance> list = new ArrayList<>();
             for(MobEffectInstance instance: VPUtil.getEffectsHas(entity, true)){
-                if(instance.getAmplifier() <= 4 || (isStellar && instance.getAmplifier() <= ConfigHandler.COMMON.catalystLvlLimit.get())) {
+                if(instance.getAmplifier() <= 4 || (isStellar(stack) && instance.getAmplifier() <= ConfigHandler.COMMON.catalystLvlLimit.get())) {
                     list.add(instance);
                     entity.removeEffect(instance.getEffect());
                     stolen++;
@@ -74,7 +72,7 @@ public class Catalyst extends Vestige{
         if(stolen > 0){
             List<MobEffectInstance> list = new ArrayList<>();
             for(MobEffectInstance instance: VPUtil.getEffectsHas(player, true)){
-                if(instance.getAmplifier() <= 4 || isStellar) {
+                if(instance.getAmplifier() <= 4 || isStellar(stack)) {
                     list.add(instance);
                     player.removeEffect(instance.getEffect());
                 }
@@ -83,7 +81,7 @@ public class Catalyst extends Vestige{
                 player.addEffect(new MobEffectInstance(effectInstance.getEffect(),effectInstance.getDuration()*(1+stolen/10),effectInstance.getAmplifier()));
             }
         }
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     @Override

@@ -2,43 +2,21 @@ package com.pyding.vp.item.artifacts;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.client.sounds.SoundRegistry;
-import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
-import top.theillusivec4.curios.api.client.ICurioRenderer;
-import top.theillusivec4.curios.api.type.capability.ICurio;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class MaskOfDemon extends Vestige{
@@ -47,7 +25,7 @@ public class MaskOfDemon extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
         vestigeNumber = 5;
         color = ChatFormatting.BLUE;
         specialCharges = 1;
@@ -56,7 +34,7 @@ public class MaskOfDemon extends Vestige{
         ultimateMaxTime = 1;
         ultimateCharges = 1;
         ultimateCd = 60;
-        super.dataInit(vestigeNumber, color, specialCharges, specialCd, ultimateCharges, ultimateCd, specialMaxTime, ultimateMaxTime, true);
+        super.dataInit(vestigeNumber, color, specialCharges, specialCd, ultimateCharges, ultimateCd, specialMaxTime, ultimateMaxTime, true, stack);
     }
 
     private Multimap<Attribute, AttributeModifier> createAttributeMap(Player player, ItemStack stack) {
@@ -84,12 +62,12 @@ public class MaskOfDemon extends Vestige{
         Player player = (Player) slotContext.entity();
         if(player.getCommandSenderWorld().isClientSide)
             return;
-        if(isSpecialActive()) {
+        if(isSpecialActive(stack)) {
             boolean hurt = false;
             if (player.tickCount % 20 == 0) {
-                if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 +1) {
+                if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1) {
                     //player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
-                    VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * 0.1f,1,false);
+                    VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,0,false);
                     hurt = true;
                 }
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
@@ -100,12 +78,12 @@ public class MaskOfDemon extends Vestige{
                     tag = new CompoundTag();
                 }
                 float missingHealth = VPUtil.missingHealth(player);
-                if(isStellar)
+                if(isStellar(stack))
                     missingHealth*=2;
                 tag.putFloat("VPHealResMask",0-missingHealth);
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
-                if(hurt && isStellar && player.getHealth() <= player.getMaxHealth()*0.5){
+                if(hurt && isStellar(stack) && player.getHealth() <= player.getMaxHealth()*0.5){
                     VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,1,false);
                     VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }
@@ -117,23 +95,23 @@ public class MaskOfDemon extends Vestige{
     }
 
     @Override
-    public int setSpecialActive(long seconds, Player player) {
-        if(isSpecialActive() && !player.getCommandSenderWorld().isClientSide) {
-            setTime(1);
+    public int setSpecialActive(long seconds, Player player, ItemStack stack) {
+        if(isSpecialActive(stack) && !player.getCommandSenderWorld().isClientSide) {
+            setTime(1,stack);
             return 0;
         }
-        return super.setSpecialActive(seconds, player);
+        return super.setSpecialActive(seconds, player, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.STOLAS1.get());
         VPUtil.spawnParticles(player, ParticleTypes.ENCHANTED_HIT,8,1,0,-0.1,0,1,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.IMPACT.get());
         float damage = 300;
         float healDebt = player.getMaxHealth()*3;
@@ -147,6 +125,6 @@ public class MaskOfDemon extends Vestige{
             VPUtil.dealDamage(entity,player,player.damageSources().sonicBoom(player),damage,3);
             VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.5,0);
         }
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 }

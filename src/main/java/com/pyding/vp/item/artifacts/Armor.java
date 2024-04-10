@@ -1,18 +1,11 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
-import com.pyding.vp.network.PacketHandler;
-import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -25,12 +18,12 @@ public class Armor extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(11, ChatFormatting.RED, 4, 10, 1, 60, 60, 1, true);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(11, ChatFormatting.RED, 4, 10, 1, 60, 60, 1, true, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.FLESH.get());
         player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false), 60 * 20));
         int debuffCount = 1;
@@ -46,16 +39,16 @@ public class Armor extends Vestige{
         player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+debuffCount*player.getMaxHealth());
         player.getPersistentData().putFloat("VPArmor",player.getPersistentData().getFloat("VPArmor")+100);
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.FLESH2.get());
         int pain = (int)player.getPersistentData().getFloat("VPArmor");
         VPUtil.repairAll(player,pain);
         player.getPersistentData().putFloat("VPArmor",0);
         VPUtil.spawnParticles(player, ParticleTypes.CRIT,3,1,0,0,0,0,false);
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 }

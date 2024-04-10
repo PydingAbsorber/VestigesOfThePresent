@@ -7,15 +7,11 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
-import com.pyding.vp.item.artifacts.Mark;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
@@ -42,22 +38,15 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSources;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -67,9 +56,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PacketDistributor;
@@ -80,7 +66,6 @@ import top.theillusivec4.curios.api.SlotResult;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -306,16 +291,36 @@ public class VPUtil {
                 continue;
             if (entity instanceof LivingEntity livingEntity) {
                 double health = livingEntity.getMaxHealth();
-                if (health > 190
-                        || type.toString().contains("hullbreaker") //alex the mod guy makes everything through his ass
-                        || type.toString().contains("tremorzilla")
-                        || type.toString().contains("nucleeper")
-                        || type.toString().contains("luxtructosaurus")
-                        || type.toString().contains("atlatitan")) {
+                if (health > 190 || isCustomBoss(type)){
                     bossList.add(type);
                 } else monsterList.add(type);
             }
         }
+    }
+
+    public static boolean isNpc(EntityType<?> type){
+        if(type.toString().contains("easy_npc"))
+            return true;
+        return false;
+    }
+
+    public static boolean isNpc(Entity entity){
+        EntityType<?> type = entity.getType();
+        if(type.toString().contains("easy_npc"))
+            return true;
+        return false;
+    }
+
+    public static boolean isCustomBoss(EntityType<?> type){
+        if(type.toString().contains("hullbreaker") //alex the mod guy makes everything through his ass
+                || type.toString().contains("tremorzilla")
+                || type.toString().contains("nucleeper")
+                || type.toString().contains("luxtructosaurus")
+                || type.toString().contains("atlatitan")
+                || type.toString().contains("forsaken")
+                || type.toString().contains("ignited_revenant"))
+            return true;
+        return false;
     }
     public static List getMonsterLeft(String list, Player player){
         List<String> mobsList = new ArrayList<>(Arrays.asList(list.split(",")));
@@ -1007,8 +1012,7 @@ public class VPUtil {
     }
 
     public static float getOverShield(LivingEntity entity){
-        CompoundTag tag = entity.getPersistentData();
-        return tag.getFloat("VPOverShield");
+        return entity.getPersistentData().getFloat("VPOverShield");
     }
 
     public static void deadInside(LivingEntity entity,Player player){
@@ -1017,15 +1021,12 @@ public class VPUtil {
                 play(entity, SoundRegistry.DEATH1.get());
             else play(entity, SoundRegistry.DEATH2.get());
         }
+        entity.invulnerableTime = 0;
+        entity.hurt(player.damageSources().playerAttack(player),0);
+        entity.setLastHurtByPlayer(player);
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
         entity.setHealth(0);
-        player.getPersistentData().putLong("VPSetHealth",System.currentTimeMillis()+10000);
         entity.die(player.damageSources().playerAttack(player));
-    }
-    public static void deadInside(LivingEntity entity){
-        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+40000);
-        entity.setHealth(0);
-        entity.die(entity.damageSources().generic());
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -1122,7 +1123,7 @@ public class VPUtil {
             if(entity.getType() == type)
                 return true;
         }
-        return false;
+        return isCustomBoss(entity.getType());
     }
 
     public static void dropEntityLoot(LivingEntity entity, Player player) {
@@ -1349,7 +1350,7 @@ public class VPUtil {
     }
 
     public static boolean isDamagePhysical(DamageSource source){
-        return !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
+        return !source.is(DamageTypes.LIGHTNING_BOLT) && !source.is(DamageTypes.FREEZE) && !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
     }
 
     public static boolean isFriendlyFireBetween(Entity attacker, Entity target) {
@@ -1364,20 +1365,30 @@ public class VPUtil {
 
     public static boolean isProtectedFromHit(Player attacker, Entity target) {
         if (attacker == null || target == null) {
-            attacker.sendSystemMessage(Component.literal("someone null"));
             return false;
         }
         if(target instanceof Player player && player.isCreative()) {
-            attacker.sendSystemMessage(Component.literal("target is creative"));
             return true;
         }
+        if(isNpc(target.getType()))
+            return true;
         if(ModList.get().isLoaded("noxus_rghelper")) {
             boolean canAttack = EventHelper.canAttack(attacker, target);
             boolean protec = !canAttack;
-            attacker.sendSystemMessage(Component.literal("    §a" + attacker.getName().getString() + "§7 hit §6" + target.getName().getString() + "§7      *canAttack* return: §c" + canAttack + "§7     *protec* return: §c" + protec));
             return protec;
         }
-        attacker.sendSystemMessage(Component.literal("    RegionHelper not loaded"));
+        return false;
+    }
+
+    public static boolean isProtectedFromBreak(Entity destroyer,BlockPos pos) {
+        if(ModList.get().isLoaded("noxus_rghelper")) {
+            boolean canAttack;
+            if(destroyer instanceof Player player)
+                canAttack = EventHelper.canBreak(player, pos);
+            else canAttack = EventHelper.canBreak(destroyer, pos);
+            boolean protec = !canAttack;
+            return protec;
+        }
         return false;
     }
     public static void setHealthNoLimits(float health, LivingEntity entity) {
@@ -1850,17 +1861,14 @@ public class VPUtil {
         mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("78cf254b-36df-41d6-be91-ad06220d9dd8"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
         mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("54b7f5ed-0851-4745-b98c-e1f08a1a2f67"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
         player.getAttributes().removeAttributeModifiers(mark);
-        player.setHealth(player.getMaxHealth());
         Multimap<Attribute, AttributeModifier> mask = HashMultimap.create();
         mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", 0, AttributeModifier.Operation.MULTIPLY_TOTAL));
         mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", 0, AttributeModifier.Operation.MULTIPLY_BASE));
         player.getAttributes().removeAttributeModifiers(mask);
-        player.setHealth(player.getMaxHealth());
         Multimap<Attribute, AttributeModifier> midas = HashMultimap.create();
         midas.put(Attributes.LUCK, new AttributeModifier(UUID.fromString("f55f3429-0399-4d9e-9f84-0d7156cc0593"), "vp:luck", 0, AttributeModifier.Operation.ADDITION));
         player.getPersistentData().putInt("VPPrism", 0);
         player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),0, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
-        player.setHealth(player.getMaxHealth());
         player.getPersistentData().putBoolean("VPSweetUlt",false);
         player.getPersistentData().putFloat("VPSaturation",0);
         player.getPersistentData().putFloat("VPHealBonusDonut", 0);
@@ -1868,7 +1876,9 @@ public class VPUtil {
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",0);
         player.getPersistentData().putFloat("VPTrigonBonus", 0);
         player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
-        player.setHealth(player.getMaxHealth());
+        if(player.isAlive() && player.getHealth() > player.getMaxHealth())
+            player.setHealth(player.getMaxHealth());
+        sync(player);
         if (player.isCreative()) {
             return;
         }
@@ -1877,6 +1887,18 @@ public class VPUtil {
         player.onUpdateAbilities();
         if (player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
+    }
+
+    public static void sync(Player player){
+        if(player instanceof ServerPlayer serverPlayer) {
+            CompoundTag sendNudes = new CompoundTag();
+            for (String key : player.getPersistentData().getAllKeys()) {
+                if (key.startsWith("VP") && player.getPersistentData().get(key) != null) {
+                    sendNudes.put(key, player.getPersistentData().get(key));
+                }
+            }
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), sendNudes), serverPlayer);
+        }
     }
 
     public static int getSet(Player player){

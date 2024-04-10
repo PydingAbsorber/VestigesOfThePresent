@@ -20,6 +20,8 @@ public class ConfigHandler {
         //public final ForgeConfigSpec.ConfigValue<String> challengeReduction;
         public final ForgeConfigSpec.BooleanValue hardcore;
         public final ForgeConfigSpec.IntValue armorHardcore;
+        public final ForgeConfigSpec.DoubleValue ballShield;
+        public final ForgeConfigSpec.DoubleValue ballOverShield;
         public final ForgeConfigSpec.DoubleValue absorbHardcore;
         public final ForgeConfigSpec.DoubleValue shieldHardcore;
         public final ForgeConfigSpec.DoubleValue overShieldHardcore;
@@ -86,7 +88,7 @@ public class ConfigHandler {
             bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
             armorHardcore = builder.comment("Hardcore mode armor and armor toughness").defineInRange("armorHardcore", 100, 1, 2100000000);
             absorbHardcore = builder.comment("Hardcore mode damage absorb percent").defineInRange("absorbHardcore", 0.9, 0, 1);
-            shieldHardcore = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("shieldHardcore", 3d, 1, 2100000000);
+            shieldHardcore = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("shieldHardcore", 1.5d, 1, 2100000000);
             overShieldHardcore = builder.comment("Hardcore mode Over Shield from hp percent").defineInRange("overShieldHardcore", 0.5, 1, 2100000000);
             healPercent = builder.comment("Hardcore mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
@@ -115,6 +117,8 @@ public class ConfigHandler {
             trigonHeal = builder.comment("Trigon Over Shield heal multiplier").defineInRange("trigonHeal", 1d, 0, Integer.MAX_VALUE);
             donutMaxSaturation = builder.comment("Sweet Donut max Saturation stacks.").defineInRange("donutMaxSaturation", 400, 0, Integer.MAX_VALUE);
             donutHealBonus = builder.comment("Base heal bonus of Sweet Donut.").defineInRange("donutHealBonus", 40, 0, Integer.MAX_VALUE);
+            ballShield = builder.comment("How many Shield % will Ball Lightning reduce").defineInRange("ballShield", 0.1d, 0.01, 1);
+            ballOverShield = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("ballOverShield", 0.2d, 0.01, 1);
 
             devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);

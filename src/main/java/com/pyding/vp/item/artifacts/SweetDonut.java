@@ -8,7 +8,6 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -22,12 +21,12 @@ public class SweetDonut extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(6, ChatFormatting.RED, 2, 50, 1, 60, 1, 10, hasDamage);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(6, ChatFormatting.RED, 2, 50, 1, 60, 1, 10, hasDamage, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.HEAL3.get());
         VPUtil.spawnParticles(player, ParticleTypes.HEART,1,1,0,-0.1,0,1,false);
         player.heal(player.getMaxHealth()*0.4f);
@@ -41,17 +40,17 @@ public class SweetDonut extends Vestige{
         float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));
         if(VPUtil.getShield(player) < player.getMaxHealth()*3*(1+shieldBonus/100))
             VPUtil.addShield(player,player.getMaxHealth()*3,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.HEAL1.get());
         player.getPersistentData().putBoolean("VPSweetUlt",true);
-        if(isStellar)
+        if(isStellar(stack))
             player.getPersistentData().putFloat("HealDebt", 0);
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class SweetDonut extends Vestige{
     }
 
     @Override
-    public void whileUltimate(Player player) {
+    public void whileUltimate(Player player, ItemStack stack) {
         if(VPUtil.getShield(player) > 0) {
             if(player.tickCount % 20 == 0)
                 VPUtil.spawnParticles(player, ParticleTypes.HEART,1,1,0,-0.1,0,1,false);
@@ -76,13 +75,13 @@ public class SweetDonut extends Vestige{
             player.getPersistentData().putFloat("VPShieldBonusDonut", saturation);
             player.getPersistentData().putFloat("VPDurationBonusDonut", saturation / 10);
         }
-        super.whileUltimate(player);
+        super.whileUltimate(player, stack);
     }
 
     @Override
-    public void ultimateRecharges(Player player) {
+    public void ultimateRecharges(Player player, ItemStack stack) {
         reset(player);
-        super.ultimateRecharges(player);
+        super.ultimateRecharges(player, stack);
     }
 
 

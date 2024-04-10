@@ -4,10 +4,8 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
-import com.pyding.vp.util.Vector3;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -23,13 +21,13 @@ public class Anemoculus extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(1, ChatFormatting.DARK_AQUA, 2, 30, 5, 60, 1, 20, hasDamage);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(1, ChatFormatting.DARK_AQUA, 2, 30, 5, 60, 1, 20, hasDamage, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
-        if(!isUltimateActive()) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
+        if(!isUltimateActive(stack)) {
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
             for (LivingEntity entity : VPUtil.getEntities(player, 8)) {
                 VPUtil.liftEntity(entity, VPUtil.commonPower);
@@ -44,11 +42,11 @@ public class Anemoculus extends Vestige{
             }
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
         }
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.WIND3.get());
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
@@ -56,11 +54,11 @@ public class Anemoculus extends Vestige{
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(6),serverPlayer);
         VPUtil.spawnParticles(player, ParticleTypes.CAMPFIRE_COSY_SMOKE,3,1,0,0.1,0,1,false);
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     @Override
-    public void ultimateEnds(Player player) {
+    public void ultimateEnds(Player player, ItemStack stack) {
         if(player.isCreative())
             return;
         player.getAbilities().mayfly = false;
@@ -69,7 +67,7 @@ public class Anemoculus extends Vestige{
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(2),serverPlayer);
         player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 7 * 20));
-        super.ultimateEnds(player);
+        super.ultimateEnds(player, stack);
     }
 
     @Override

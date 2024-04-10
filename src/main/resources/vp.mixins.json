@@ -7,7 +7,9 @@
   "verbose": true,
   "mixins": [
     "EnchantmentsMixin",
+    "DeadInsideMixin",
     "MinEnchLvlMixin",
+    "MovementMixin",
     "NegativeProtectionMixin"
   ],
   "client": [

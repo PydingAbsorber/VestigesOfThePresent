@@ -613,6 +613,7 @@ public class PlayerCapabilityVP {
                     break;
             }
         }
+        VPUtil.sync(player);
     }
 
     public boolean getDebug(){
@@ -871,9 +872,6 @@ public class PlayerCapabilityVP {
         if(VPUtil.getSet(player) == 9)
             stellarChance += 5;
         if(Math.random() < stellarChance/100){
-            if(stack.getItem() instanceof Vestige vestige){
-                vestige.vestigeStack = stack;
-            }
             if(getChance() >= 200){
                 Vestige.setDoubleStellar(stack);
             }

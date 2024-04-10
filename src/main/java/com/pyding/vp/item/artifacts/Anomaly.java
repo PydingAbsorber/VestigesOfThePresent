@@ -16,7 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnderEyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +27,12 @@ public class Anomaly extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(10, ChatFormatting.LIGHT_PURPLE, 2, 60, 1, 360, 30, 1, true);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(10, ChatFormatting.LIGHT_PURPLE, 2, 60, 1, 360, 30, 1, true, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.TELEPORT1.get());
         if(player.getMainHandItem().getItem() instanceof EnderEyeItem){
             fuckNbt();
@@ -53,14 +52,14 @@ public class Anomaly extends Vestige{
             }
         }
         VPUtil.spawnParticles(player, ParticleTypes.PORTAL,3,1,0,-0.1,0,1,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(isStellar && (Math.random() < 0.05)){
+                if(isStellar(stack) && (Math.random() < 0.05)){
                     int counter = 0;
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){
@@ -118,6 +117,6 @@ public class Anomaly extends Vestige{
                 }
             });
         }
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
@@ -38,7 +39,7 @@ public class VPCommands {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     for(ItemStack stack: VPUtil.getVestigeList(player)){
                                         if(stack.getItem() instanceof Vestige vestige) {
-                                            vestige.refresh(player);
+                                            vestige.refresh(player, stack);
                                         }
                                     }
                                     player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
@@ -140,6 +141,7 @@ public class VPCommands {
                                 }
                                 player.sendSystemMessage(Component.literal("Tags: " + stack.getOrCreateTag()));
                                 player.sendSystemMessage(Component.literal("Damage: " + stack.getDamageValue()));
+                                player.sendSystemMessage(Component.literal("Side is client: " + player.getCommandSenderWorld().isClientSide()));
                             }
                             return Command.SINGLE_SUCCESS;
                         })
@@ -209,6 +211,15 @@ public class VPCommands {
                             })
                         )
                     )
+                )
+                .then(Commands.literal("getType")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
+                                player.sendSystemMessage(Component.literal("descriptionId " + entity.getType().getDescriptionId() + " raw type: " + entity.getType().toString()));
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
         );
     }

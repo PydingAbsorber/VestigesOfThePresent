@@ -2,7 +2,6 @@ package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.BlackHole;
-import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
@@ -11,17 +10,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import top.theillusivec4.curios.api.SlotContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Atlas extends Vestige{
     public Atlas(){
@@ -29,12 +22,12 @@ public class Atlas extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(3, ChatFormatting.RED, 2, 10, 1, 30, 1, 3, true);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(3, ChatFormatting.RED, 2, 10, 1, 30, 1, 3, true, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.GRAVITY.get());
         for(LivingEntity entity: VPUtil.ray(player,6,128,false)){
             //player.getPersistentData().putInt("VPGravity",player.getPersistentData().getInt("VPGravity")+1);
@@ -46,27 +39,27 @@ public class Atlas extends Vestige{
             VPUtil.dealDamage(entity,player, player.damageSources().fall(),50,2);
         }
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,1,0,-1,0,5,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
     public ItemStack stackLocal = null;
     int distance = 30;
     int gravityBonus = 0;
     @Override
-    public int setUltimateActive(long seconds, Player player) {
+    public int setUltimateActive(long seconds, Player player, ItemStack stack) {
         long gravity = Math.max(30,player.getPersistentData().getInt("VPGravity"));
         long stellarBonus = 0;
-        if(isStellar){
+        if(isStellar(stack)){
             for (LivingEntity entity : VPUtil.ray(player, 8 + gravity, distance, true)) {
                 stellarBonus++;
             }
         }
         gravityBonus = (int) stellarBonus;
         stellarBonus = 1 + stellarBonus/10;
-        return super.setUltimateActive(seconds*stellarBonus+gravity*1000, player);
+        return super.setUltimateActive(seconds*stellarBonus+gravity*1000, player, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         long gravity = Math.min(30,player.getPersistentData().getInt("VPGravity"));
         if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
@@ -75,9 +68,9 @@ public class Atlas extends Vestige{
             serverLevel.addFreshEntity(blackHole);
         }
         player.getPersistentData().putInt("VPGravity", 0);
-        if(isStellar)
+        if(isStellar(stack))
             player.getPersistentData().putInt("VPGravity", Math.min(30, gravityBonus));
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     @Override

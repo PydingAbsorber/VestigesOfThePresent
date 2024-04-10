@@ -5,7 +5,6 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -23,8 +22,8 @@ public class Flower extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(16, ChatFormatting.DARK_GREEN, 2, 10, 1, 30, 5, 30, hasDamage);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(16, ChatFormatting.DARK_GREEN, 2, 10, 1, 30, 5, 30, hasDamage, stack);
     }
 
     @Override
@@ -33,37 +32,37 @@ public class Flower extends Vestige{
         float healRes = 0;
         for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
             healRes -= VPUtil.missingHealth(entity)/10;
-            if(isStellar)
+            if(isStellar(stack))
                 entity.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
         }
         player.getPersistentData().putFloat("VPHealResFlower",healRes);
         player.getPersistentData().putFloat("VPShieldBonusFlower",healRes*10);
-        if(isStellar)
+        if(isStellar(stack))
             player.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
         super.curioTick(slotContext, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.HEAL2.get());
         player.getPersistentData().putLong("VPFlowerSpecial",System.currentTimeMillis()+seconds);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC2.get());
         float damage = 0;
-        for(ItemStack stack: VPUtil.getAllEquipment(player)){
-            if(stack.isDamaged())
-                damage += stack.getDamageValue();
+        for(ItemStack stack2: VPUtil.getAllEquipment(player)){
+            if(stack2.isDamaged())
+                damage += stack2.getDamageValue();
         }
         damage *= ConfigHandler.COMMON.flowerShield.get();
         for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
             VPUtil.addShield(entity,damage,false);
             VPUtil.spawnParticles(player, ParticleTypes.FALLING_HONEY,entity.getX(),entity.getY()+2,entity.getZ(),8,0,0.5,0);
         }
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     public static List<LivingEntity> getCreaturesAround(Player player, double x, double y, double z){

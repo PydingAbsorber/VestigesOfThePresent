@@ -32,29 +32,28 @@ public class SoulBlighter extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 300, 15, 300, hasDamage);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 300, 15, 300, hasDamage, stack);
     }
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC4.get());
         if(player.getHealth() < player.getMaxHealth()*0.5f)
-            player.getPersistentData().putLong("VPAstral",System.currentTimeMillis()+specialMaxTime());
+            player.getPersistentData().putLong("VPAstral",System.currentTimeMillis()+specialMaxTime(stack));
         else {
             for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
-                entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime());
+                entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime(stack));
                 VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                 break;
             }
         }
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC3.get());
-        ItemStack stack = VPUtil.getVestigeStack(this,player);
         if(stack.getOrCreateTag().contains("entityData")){
             CompoundTag entityData = stack.getTag().getCompound("entityData");
             stack.getTag().remove("entityData");
@@ -70,14 +69,14 @@ public class SoulBlighter extends Vestige{
             entity.absMoveTo(pos.getX() + 0.5, pos.getY()+1, pos.getZ() + 0.5, 0, 0);
             VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
             level.addFreshEntity(entity);
-            if(isStellar) {
+            if(isStellar(stack)) {
                 player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"), 1 + stack.getOrCreateTag().getFloat("VPMaxHealth") * 0.3f, AttributeModifier.Operation.ADDITION, "vp:soulblighter_hp_boost"));
                 player.setHealth(player.getMaxHealth());
-            } setCdUltimateActive((int) (ultimateCd()*0.2));
+            } setCdUltimateActive((int) (ultimateCd(stack)*0.2),stack);
         } else {
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
-                if(entity instanceof Player)
+                if(entity instanceof Player || VPUtil.isProtectedFromHit(player,entity))
                     continue;
                 double chance = VPUtil.calculateCatchChance(player.getMaxHealth(),entity.getMaxHealth(),entity.getHealth());
                 if(entity.getPersistentData().getLong("VPAstral") > 0)
@@ -90,13 +89,13 @@ public class SoulBlighter extends Vestige{
                     stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
                     VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                     entity.remove(Entity.RemovalReason.DISCARDED);
-                    if(isStellar)
+                    if(isStellar(stack))
                         player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
                 }
                 break;
             }
         }
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip,

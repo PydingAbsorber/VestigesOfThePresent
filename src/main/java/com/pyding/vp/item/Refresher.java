@@ -35,7 +35,7 @@ public class Refresher extends Item {
             return super.use(level, player, p_41434_);
         for(ItemStack itemStack: stackList){
             if(itemStack.getItem() instanceof Vestige vestige)
-                vestige.refresh(player);
+                vestige.refresh(player,itemStack);
         }
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new ItemAnimationPacket(stack),serverPlayer);

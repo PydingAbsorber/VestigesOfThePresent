@@ -4,12 +4,9 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class Killer extends Vestige{
@@ -18,13 +15,13 @@ public class Killer extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage) {
-        super.dataInit(4, ChatFormatting.YELLOW, 2, 10, 1, 60, 1, 20, true);
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(4, ChatFormatting.YELLOW, 2, 10, 1, 60, 1, 20, true, stack);
     }
 
 
     @Override
-    public void doSpecial(long seconds, Player player, Level level) {
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         if(Math.random() < 0.5)
             VPUtil.play(player,SoundRegistry.EXPLODE1.get());
         else VPUtil.play(player,SoundRegistry.EXPLODE2.get());
@@ -33,20 +30,20 @@ public class Killer extends Vestige{
             entity.getPersistentData().putBoolean("VPKillerQueen",true);
         }
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
-        super.doSpecial(seconds, player, level);
+        super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
-    public void doUltimate(long seconds, Player player, Level level) {
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC3.get());
         player.getPersistentData().putLong("VPQueenDeath",System.currentTimeMillis()+seconds);
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,4,1,0,0,0,0,false);
-        super.doUltimate(seconds, player, level);
+        super.doUltimate(seconds, player, level, stack);
     }
 
     @Override
-    public void ultimateRecharges(Player player) {
+    public void ultimateRecharges(Player player, ItemStack stack) {
         player.getPersistentData().putLong("VPQueenDeath",0);
-        super.ultimateRecharges(player);
+        super.ultimateRecharges(player, stack);
     }
 }

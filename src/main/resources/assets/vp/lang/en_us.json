@@ -219,10 +219,10 @@
   "vp.ultimate.17": "Steals all buffs from all nearby creatures whose level does not exceed 4. \nEach stolen buff from a creature applies a random debuff of level 1-4 to it for 10 seconds and gives +10% duration to all wearer buffs.",
   "vp.get.17": "Get every effect of modpack.",
 
-  "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area.",
+  "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area. \nDealing lightning damage will reduce Shields by 10% and OverShields by 20%.",
   "vp.special.18": "Teleports the carrier to a random point nearby, leaving behind a powerful lightning bolt. \nThe lightning deals 500% damage to everyone (including the carrier) within a 5-block radius and slows down the speed, attack speed of enemies.",
   "vp.ultimate.18": "Calls down a hail of lightning on all creatures (including the carrier) within a 30-block radius that have a shield or whose current HP is lower than the owner's, dealing 1000% damage. \nAffected creatures (except the carrier) take 50% more damage for each piece of armor worn, 10% for each point of armor, and 0.1% for each existing shield.",
-  "vp.get.18": "Be struck by lightning along with a creeper nearby 10 times, receiving explosive damage or death will fail the challenge.",
+  "vp.get.18": "Be struck by lightning along with a creeper nearby 20 times, receiving explosive damage or death will fail the challenge.",
   "vp.damagetype.18": "lightning",
 
   "vp.passive.19": "When shields are present, gives a damage bonus for Specials of 1% for every 1% of missing Over Shield. \n(missing Over Shield is calculated from the maximum amount of shield ever applied before it was removed)",
@@ -250,7 +250,7 @@
   "vp.stellar.12": "Special: Each damage inflicted on Disappointed creature, which after absorption will be less than 5, accumulates without absorption. \nAfter that, it is added to the next attack that will hurt opponent more then 5 damage, or to the 10th attack.",
   "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance.",
-  "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get Heal and Shields, higher then 30 - current hp becomes max hp. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the carrier exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
+  "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get Heal and Shields, higher then 50 - clears all buffs. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the carrier exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
   "vp.stellar.16": "Ultimate: Creatures under the shield receive physical damage absorption 90% and breaking shield will hurt breaker with amount of max initiate shields.",
   "vp.stellar.17": "Special: redirects next 5 debuffs to all entities in 15 blocks radius. \nUltimate: cancels the level restriction.",
   "vp.stellar.18": "Ultimate: every 10% damage bonus adds 1 Paragon damage against wet opponents.",
