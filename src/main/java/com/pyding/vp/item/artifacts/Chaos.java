@@ -1,6 +1,7 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -52,7 +53,7 @@ public class Chaos extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.CHAOS_CORE.get());
         Random random = new Random();
-        player.getPersistentData().putInt("VPChaos",random.nextInt(10));
+        player.getPersistentData().putInt("VPChaos",random.nextInt(ConfigHandler.COMMON.chaosCharges.get()));
         VPUtil.spawnParticles(player, ParticleTypes.NAUTILUS,12,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level, stack);
     }

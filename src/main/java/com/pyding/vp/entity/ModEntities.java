@@ -21,6 +21,12 @@ public class ModEntities {
                     .sized(11, 11)
                     .clientTrackingRange(64)
                     .build(new ResourceLocation(VestigesOfPresent.MODID, "black_hole").toString()));
+
+    public static final RegistryObject<EntityType<VortexEntity>> VORTEX =
+            ENTITIES.register("vortex", () -> EntityType.Builder.<VortexEntity>of(VortexEntity::new, MobCategory.MISC)
+                    .sized(11, 11)
+                    .clientTrackingRange(64)
+                    .build(new ResourceLocation(VestigesOfPresent.MODID, "vortex").toString()));
     public static final RegistryObject<EntityType<HunterKiller>> KILLER =
             ENTITIES.register("killer", () -> EntityType.Builder.of(HunterKiller::new, MobCategory.MONSTER)
                     .sized(2, 2)

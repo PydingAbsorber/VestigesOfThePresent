@@ -24,6 +24,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
@@ -504,7 +505,7 @@ public class PlayerCapabilityVP {
         int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number).get();
         switch (number){
             case 1:
-                return 20-reduce;
+                return VPUtil.getEntitiesList().size()/3-reduce;
             case 2:
                 return VPUtil.getMonsterClientMax(player).size()-reduce;
             case 3:
@@ -548,11 +549,15 @@ public class PlayerCapabilityVP {
     }
 
     public static void initMaximum(Player player){
+        Level level = player.getCommandSenderWorld();
+        VPUtil.initMonstersAndBosses(level);
+        VPUtil.initBiomes(level);
+        player.getPersistentData().putString("VPVortex",VPUtil.vortexItems().toString());
         for(int i = 1; i < totalVestiges+1; i++) {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(i).get();
             switch (i) {
                 case 1:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,20 - reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesList().size()/3 - reduce);
                     break;
                 case 2:
                     player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getMonsterClientMax(player).size() - reduce);

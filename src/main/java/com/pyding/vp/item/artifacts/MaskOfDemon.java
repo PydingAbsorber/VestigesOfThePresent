@@ -70,6 +70,10 @@ public class MaskOfDemon extends Vestige{
                     VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,0,false);
                     hurt = true;
                 }
+                else if(player.getPersistentData().getFloat("HealDebt") > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1){
+                    player.getPersistentData().putFloat("HealDebt",Math.max(0,player.getPersistentData().getFloat("HealDebt")-player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1));
+                    hurt = true;
+                }
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){

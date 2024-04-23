@@ -3,6 +3,7 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.item.ModItems;
@@ -312,14 +313,9 @@ public class VPUtil {
     }
 
     public static boolean isCustomBoss(EntityType<?> type){
-        if(type.toString().contains("hullbreaker") //alex the mod guy makes everything through his ass
-                || type.toString().contains("tremorzilla")
-                || type.toString().contains("nucleeper")
-                || type.toString().contains("luxtructosaurus")
-                || type.toString().contains("atlatitan")
-                || type.toString().contains("forsaken")
-                || type.toString().contains("ignited_revenant"))
-            return true;
+         for(String types: ConfigHandler.COMMON.bosses.get().toString().split(","))
+             if(type.toString().contains(types))
+                 return true;
         return false;
     }
     public static List getMonsterLeft(String list, Player player){
@@ -538,6 +534,17 @@ public class VPUtil {
             lightningBolt.moveTo(x, y, z);
             world.addFreshEntity(lightningBolt);
         }
+    }
+
+    public static void syncEntity(Entity entity){
+        CompoundTag sendNudes = new CompoundTag();
+        for (String key : entity.getPersistentData().getAllKeys()) {
+            if (key.startsWith("VP") && entity.getPersistentData().get(key) != null) {
+                sendNudes.put(key, entity.getPersistentData().get(key));
+            }
+        }
+        if(!entity.getCommandSenderWorld().isClientSide)
+            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(sendNudes,entity.getId()));
     }
 
     public static final List<String> vanillaFlowers = Arrays.asList(
@@ -1050,6 +1057,27 @@ public class VPUtil {
         return entities;
     }
 
+    public static List<LivingEntity> rayClass(Class clas,Player player, float range, int maxDist, boolean stopWhenFound) {
+        Vector3 target = Vector3.fromEntityCenter(player);
+        List entities = new ArrayList<>();
+
+        for (int distance = 1; distance < maxDist; ++distance) {
+            target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
+            List list = player.getCommandSenderWorld().getEntitiesOfClass(clas, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));
+            list.removeIf(entity -> entity == player || !player.hasLineOfSight((Entity) entity));
+            for(Object entity: list){
+                if(!entities.contains(entity))
+                    entities.add(entity);
+            }
+
+            if (stopWhenFound && entities.size() > 0) {
+                break;
+            }
+        }
+
+        return entities;
+    }
+
     public static BlockPos rayPose(Player player, int maxDist) {
         Vector3 target = Vector3.fromEntityCenter(player);
         for (int distance = 1; distance < maxDist; ++distance) {
@@ -1095,7 +1123,7 @@ public class VPUtil {
         Vec3 motion = new Vec3(0, power, 0);
         entity.lerpMotion(motion.x, motion.y, motion.z);
         if(entity instanceof ServerPlayer player){
-            PacketHandler.sendToClient(new PlayerFlyPacket(1),player);
+            PacketHandler.sendToClient(new PlayerFlyPacket(-1),player);
         }
     }
 
@@ -1947,5 +1975,18 @@ public class VPUtil {
             set = 10;
         }
         return set;
+    }
+
+    public static List<String> vortexItems(){
+        List<String> list = new ArrayList<>();
+        String stringList = ConfigHandler.COMMON.repairObjects.get().toString();
+        for(Item item: items) {
+            for (String element : stringList.split(",")) {
+                if (item.getDescriptionId().contains(element) && !list.contains(item.getDescriptionId())) {
+                    list.add(item.getDescriptionId());
+                }
+            }
+        }
+        return list;
     }
 }

@@ -1,6 +1,7 @@
 package com.pyding.vp.entity;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
@@ -18,6 +19,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -102,6 +104,10 @@ public class BlackHole extends Projectile {
             if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
                 this.playSound(SoundRegistry.BLACK_HOLE.get(), gravity, 1);
             }
+        }
+        VPUtil.syncEntity(this);
+        if(tickCount < 5*60*20) {
+            discard();
         }
     }
 

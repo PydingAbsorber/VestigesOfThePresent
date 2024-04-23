@@ -3,6 +3,7 @@ package com.pyding.vp.client;
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.client.render.BlackHoleRenderer;
 import com.pyding.vp.client.render.VestigeHunterKillerRenderer;
+import com.pyding.vp.client.render.VortexRenderer;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.models.Hunter;
 import com.pyding.vp.network.PacketHandler;
@@ -58,6 +59,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void rendererRegister(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
+            event.registerEntityRenderer(ModEntities.VORTEX.get(), VortexRenderer::new);
             event.registerEntityRenderer(ModEntities.KILLER.get(), VestigeHunterKillerRenderer::new);
         }
 

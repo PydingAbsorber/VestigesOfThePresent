@@ -6,8 +6,9 @@
   "refmap": "vp.refmap.json",
   "verbose": true,
   "mixins": [
-    "EnchantmentsMixin",
     "DeadInsideMixin",
+    "EnchantmentsMixin",
+    "MaxDurabilityMixin",
     "MinEnchLvlMixin",
     "MovementMixin",
     "NegativeProtectionMixin"

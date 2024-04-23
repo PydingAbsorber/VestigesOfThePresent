@@ -80,9 +80,13 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue donutMaxSaturation;
         public final ForgeConfigSpec.IntValue donutHealBonus;
 
+        public final ForgeConfigSpec.IntValue chaosCharges;
+        public final ForgeConfigSpec.LongValue devourerCdTime;
+
         public final ForgeConfigSpec.DoubleValue refresherChance;
+        public final ForgeConfigSpec.ConfigValue bosses;
+        public final ForgeConfigSpec.ConfigValue repairObjects;
         public Common(ForgeConfigSpec.Builder builder) {
-            //challengeReduction = builder.comment("Number for challenge №").define("challengeReduction", "shop_table");
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);
             bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 10, 1, 2100000000);
             bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
@@ -119,6 +123,8 @@ public class ConfigHandler {
             donutHealBonus = builder.comment("Base heal bonus of Sweet Donut.").defineInRange("donutHealBonus", 40, 0, Integer.MAX_VALUE);
             ballShield = builder.comment("How many Shield % will Ball Lightning reduce").defineInRange("ballShield", 0.1d, 0.01, 1);
             ballOverShield = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("ballOverShield", 0.2d, 0.01, 1);
+            chaosCharges = builder.comment("Amount of Chaos Core reflection hits from Special").defineInRange("chaosCharges", 20, 1, Integer.MAX_VALUE);
+            devourerCdTime = builder.comment("Devourer cooldown time between rotting hits. 1000 is 1 sec").defineInRange("devourerCdTime", 200, 1, Long.MAX_VALUE);
 
             devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
@@ -127,26 +133,28 @@ public class ConfigHandler {
 
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
 
-            challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, 0, 2100000000);
-            challengeReduce2 = builder.comment("This is the number on how many challenge 2 maximum progress will be reduced").defineInRange("challengeReduce2", 0, 0, 2100000000);
-            challengeReduce3 = builder.comment("This is the number on how many challenge 3 maximum progress will be reduced").defineInRange("challengeReduce3", 0, 0, 2100000000);
-            challengeReduce4 = builder.comment("This is the number on how many challenge 4 maximum progress will be reduced").defineInRange("challengeReduce4", 0, 0, 2100000000);
-            challengeReduce5 = builder.comment("This is the number on how many challenge 5 maximum progress will be reduced").defineInRange("challengeReduce5", 0, 0, 2100000000);
-            challengeReduce6 = builder.comment("This is the number on how many challenge 6 maximum progress will be reduced").defineInRange("challengeReduce6", 0, 0, 2100000000);
-            challengeReduce7 = builder.comment("This is the number on how many challenge 7 maximum progress will be reduced").defineInRange("challengeReduce7", 0, 0, 2100000000);
-            challengeReduce8 = builder.comment("This is the number on how many challenge 8 maximum progress will be reduced").defineInRange("challengeReduce8", 0, 0, 2100000000);
-            challengeReduce9 = builder.comment("This is the number on how many challenge 9 maximum progress will be reduced").defineInRange("challengeReduce9", 0, 0, 2100000000);
-            challengeReduce10 = builder.comment("This is the number on how many challenge 10 maximum progress will be reduced").defineInRange("challengeReduce10", 0, 0, 2100000000);
-            challengeReduce11 = builder.comment("This is the number on how many challenge 11 maximum progress will be reduced").defineInRange("challengeReduce11", 0, 0, 2100000000);
-            challengeReduce12 = builder.comment("This is the number on how many challenge 12 maximum progress will be reduced").defineInRange("challengeReduce12", 0, 0, 2100000000);
-            challengeReduce13 = builder.comment("This is the number on how many challenge 13 maximum progress will be reduced").defineInRange("challengeReduce13", 0, 0, 2100000000);
-            challengeReduce14 = builder.comment("This is the number on how many challenge 14 maximum progress will be reduced").defineInRange("challengeReduce14", 0, 0, 2100000000);
-            challengeReduce15 = builder.comment("This is the number on how many challenge 15 maximum progress will be reduced").defineInRange("challengeReduce15", 0, 0, 2100000000);
-            challengeReduce16 = builder.comment("This is the number on how many challenge 16 maximum progress will be reduced").defineInRange("challengeReduce16", 0, 0, 2100000000);
-            challengeReduce17 = builder.comment("This is the number on how many challenge 17 maximum progress will be reduced").defineInRange("challengeReduce17", 0, 0, 2100000000);
-            challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, 0, 2100000000);
-            challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, 0, 2100000000);
-            challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, 0, 2100000000);
+            challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, -2100000000, 2100000000);
+            challengeReduce2 = builder.comment("This is the number on how many challenge 2 maximum progress will be reduced").defineInRange("challengeReduce2", 0, -2100000000, 2100000000);
+            challengeReduce3 = builder.comment("This is the number on how many challenge 3 maximum progress will be reduced").defineInRange("challengeReduce3", 0, -2100000000, 2100000000);
+            challengeReduce4 = builder.comment("This is the number on how many challenge 4 maximum progress will be reduced").defineInRange("challengeReduce4", 0, -2100000000, 2100000000);
+            challengeReduce5 = builder.comment("This is the number on how many challenge 5 maximum progress will be reduced").defineInRange("challengeReduce5", 0, -2100000000, 2100000000);
+            challengeReduce6 = builder.comment("This is the number on how many challenge 6 maximum progress will be reduced").defineInRange("challengeReduce6", 0, -2100000000, 2100000000);
+            challengeReduce7 = builder.comment("This is the number on how many challenge 7 maximum progress will be reduced").defineInRange("challengeReduce7", 0, -2100000000, 2100000000);
+            challengeReduce8 = builder.comment("This is the number on how many challenge 8 maximum progress will be reduced").defineInRange("challengeReduce8", 0, -2100000000, 2100000000);
+            challengeReduce9 = builder.comment("This is the number on how many challenge 9 maximum progress will be reduced").defineInRange("challengeReduce9", 0, -2100000000, 2100000000);
+            challengeReduce10 = builder.comment("This is the number on how many challenge 10 maximum progress will be reduced").defineInRange("challengeReduce10", 0, -2100000000, 2100000000);
+            challengeReduce11 = builder.comment("This is the number on how many challenge 11 maximum progress will be reduced").defineInRange("challengeReduce11", 0, -2100000000, 2100000000);
+            challengeReduce12 = builder.comment("This is the number on how many challenge 12 maximum progress will be reduced").defineInRange("challengeReduce12", 0, -2100000000, 2100000000);
+            challengeReduce13 = builder.comment("This is the number on how many challenge 13 maximum progress will be reduced").defineInRange("challengeReduce13", 0, -2100000000, 2100000000);
+            challengeReduce14 = builder.comment("This is the number on how many challenge 14 maximum progress will be reduced").defineInRange("challengeReduce14", 0, -2100000000, 2100000000);
+            challengeReduce15 = builder.comment("This is the number on how many challenge 15 maximum progress will be reduced").defineInRange("challengeReduce15", 0, -2100000000, 2100000000);
+            challengeReduce16 = builder.comment("This is the number on how many challenge 16 maximum progress will be reduced").defineInRange("challengeReduce16", 0, -2100000000, 2100000000);
+            challengeReduce17 = builder.comment("This is the number on how many challenge 17 maximum progress will be reduced").defineInRange("challengeReduce17", 0, -2100000000, 2100000000);
+            challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, -2100000000, 2100000000);
+            challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, -2100000000, 2100000000);
+            challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, -2100000000, 2100000000);
+            bosses = builder.comment("bosses: ").define("bosses","hullbreaker, tremorzilla, nucleeper, luxtructosaurus, atlatitan, forsaken, ignited_revenant, void_worm");
+            repairObjects = builder.comment("repairObjects: ").define("repairObjects","mending, repair, unbreak, restore, heal, ingot");
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {

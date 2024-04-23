@@ -147,6 +147,7 @@ public class VestigesOfPresent
             event.accept(ModItems.BELT_OF_BROKEN_MEMORIES);
             event.accept(ModItems.NECKLACE_OF_TORTURED_DREAMS);
             event.accept(ModItems.BOX);
+            event.accept(ModItems.VORTEX);
         }
     }
 }

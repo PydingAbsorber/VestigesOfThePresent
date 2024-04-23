@@ -3,6 +3,7 @@ package com.pyding.vp.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.entity.VortexEntity;
 import com.pyding.vp.item.Box;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Catalyst;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -192,6 +194,25 @@ public class ShieldOverlay {
             break;
         }
         int centerHeight = y - 230;
+        for(Object o : VPUtil.rayClass(Entity.class,player,3,20,true)){
+            if(o instanceof VortexEntity vortexEntity){
+                String current = vortexEntity.getPersistentData().getString("VPVortexList");
+                String max = player.getPersistentData().getString("VPVortex");
+                int currentNumber = 0;
+                int maxNumber = 0;
+                String show = "";
+                for(String name: current.split(","))
+                    currentNumber++;
+                for(String name: max.split(",")) {
+                    maxNumber++;
+                    if(!show.contains(name))
+                        show += name + ", ";
+                }
+                pose.drawString(fontRenderer, currentNumber + " / " + maxNumber, x - 10, centerHeight - 9, 0x9932CC);
+                pose.drawString(fontRenderer, show, x - 10, centerHeight - 25, 0x9932CC);
+                break;
+            }
+        }
         if(targetOverShield > 0){
             int sizeX = 20;
             int sizeY = 20;

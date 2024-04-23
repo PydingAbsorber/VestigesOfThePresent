@@ -44,6 +44,7 @@ public class ModItems {
     public static final RegistryObject<Item> BELT_OF_BROKEN_MEMORIES = ITEMS.register("belt_of_broken_memories", () -> new BeltOfBrokenMemories());
     public static final RegistryObject<Item> RING_OF_WIBEST = ITEMS.register("ring_of_wibest", () -> new RingOfWibest());
     public static final RegistryObject<Item> BOX = ITEMS.register("box", () -> new Box());
+    public static final RegistryObject<Item> VORTEX = ITEMS.register("vortex", () -> new Vortex());
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
