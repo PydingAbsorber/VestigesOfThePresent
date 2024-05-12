@@ -2,6 +2,7 @@ package com.pyding.vp.client;
 
 import com.pyding.vp.VestigesOfPresent;
 import com.pyding.vp.client.render.BlackHoleRenderer;
+import com.pyding.vp.client.render.EasterEggRenderer;
 import com.pyding.vp.client.render.VestigeHunterKillerRenderer;
 import com.pyding.vp.client.render.VortexRenderer;
 import com.pyding.vp.entity.ModEntities;
@@ -61,6 +62,7 @@ public class ClientEvents {
             event.registerEntityRenderer(ModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
             event.registerEntityRenderer(ModEntities.VORTEX.get(), VortexRenderer::new);
             event.registerEntityRenderer(ModEntities.KILLER.get(), VestigeHunterKillerRenderer::new);
+            event.registerEntityRenderer(ModEntities.EASTER_EGG_ENTITY.get(), EasterEggRenderer::new);
         }
 
     }

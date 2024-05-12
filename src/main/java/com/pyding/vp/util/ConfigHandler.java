@@ -19,6 +19,7 @@ public class ConfigHandler {
     public static class Common {
         //public final ForgeConfigSpec.ConfigValue<String> challengeReduction;
         public final ForgeConfigSpec.BooleanValue hardcore;
+        public final ForgeConfigSpec.BooleanValue easter;
         public final ForgeConfigSpec.IntValue armorHardcore;
         public final ForgeConfigSpec.DoubleValue ballShield;
         public final ForgeConfigSpec.DoubleValue ballOverShield;
@@ -79,13 +80,17 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue trigonHeal;
         public final ForgeConfigSpec.IntValue donutMaxSaturation;
         public final ForgeConfigSpec.IntValue donutHealBonus;
+        public final ForgeConfigSpec.IntValue markBonus;
 
         public final ForgeConfigSpec.IntValue chaosCharges;
         public final ForgeConfigSpec.LongValue devourerCdTime;
 
         public final ForgeConfigSpec.DoubleValue refresherChance;
+        public final ForgeConfigSpec.IntValue vortexReduction;
+        public final ForgeConfigSpec.IntValue easterChance;
         public final ForgeConfigSpec.ConfigValue bosses;
         public final ForgeConfigSpec.ConfigValue repairObjects;
+        public final ForgeConfigSpec.ConfigValue repairBlackList;
         public Common(ForgeConfigSpec.Builder builder) {
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);
             bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 10, 1, 2100000000);
@@ -125,6 +130,8 @@ public class ConfigHandler {
             ballOverShield = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("ballOverShield", 0.2d, 0.01, 1);
             chaosCharges = builder.comment("Amount of Chaos Core reflection hits from Special").defineInRange("chaosCharges", 20, 1, Integer.MAX_VALUE);
             devourerCdTime = builder.comment("Devourer cooldown time between rotting hits. 1000 is 1 sec").defineInRange("devourerCdTime", 200, 1, Long.MAX_VALUE);
+            markBonus = builder.comment("Amount of stats per Curse for Mark's Overdrive").defineInRange("markBonus", 10, 1, Integer.MAX_VALUE);
+
 
             devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
@@ -153,8 +160,12 @@ public class ConfigHandler {
             challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, -2100000000, 2100000000);
             challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, -2100000000, 2100000000);
             challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, -2100000000, 2100000000);
-            bosses = builder.comment("bosses: ").define("bosses","hullbreaker, tremorzilla, nucleeper, luxtructosaurus, atlatitan, forsaken, ignited_revenant, void_worm");
-            repairObjects = builder.comment("repairObjects: ").define("repairObjects","mending, repair, unbreak, restore, heal, ingot");
+            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,ignited_revenant,void_worm");
+            repairObjects = builder.comment("repairObjectsId: ").define("repairObjects","mending,repair,unbreak,restore,heal,ingot");
+            repairBlackList = builder.comment("repairBlackListId: ").define("repairBlackList","");
+            vortexReduction = builder.comment("Reduction of maximum amount needed for Vortex").defineInRange("vortexReduction", 0, 0, Integer.MAX_VALUE);
+            easter = builder.comment("Enables Easter event").define("easter", false);
+            easterChance = builder.comment("Additional chance for Easter Egg 10 is 10%").defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {

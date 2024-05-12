@@ -40,7 +40,7 @@ public class Ball extends Vestige{
         double originalX = player.getX();
         double originalY = player.getY();
         double originalZ = player.getZ();
-        VPUtil.teleportRandomly(player,10);
+        VPUtil.teleportRandomly(player,30);
         double dx = originalX - player.getX();
         double dy = originalY - (player.getY() + player.getEyeHeight());
         double dz = originalZ - player.getZ();

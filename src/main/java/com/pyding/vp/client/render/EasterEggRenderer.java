@@ -3,10 +3,8 @@ package com.pyding.vp.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.pyding.vp.VestigesOfPresent;
-import com.pyding.vp.entity.BlackHole;
-import com.pyding.vp.entity.VortexEntity;
-import com.pyding.vp.entity.models.BlackHoleModel;
-import com.pyding.vp.entity.models.VortexModel;
+import com.pyding.vp.entity.EasterEggEntity;
+import com.pyding.vp.entity.models.EasterEggModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,35 +18,27 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class VortexRenderer extends EntityRenderer<VortexEntity> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfPresent.MODID,"textures/item/models/vortex.png");
-    public VortexRenderer(EntityRendererProvider.Context context) {
+public class EasterEggRenderer extends EntityRenderer<EasterEggEntity> {
+    public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfPresent.MODID,"textures/item/models/easter_egg_entity.png");
+    public EasterEggRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(VortexEntity p_114482_) {
+    public ResourceLocation getTextureLocation(EasterEggEntity p_114482_) {
         return TEXTURE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(VortexEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    public void render(EasterEggEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         poseStack.pushPose();
-        float gravity = 10;
-        float scale = 1+gravity/5;
-        for(String element: entity.getPersistentData().getString("VPVortexList").split(","))
-            scale++;
-        if(entity.tickCount < 20)
-            scale /= 20-entity.tickCount;
+        float scale = 2;
         poseStack.scale(scale,scale,scale);
-        //poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
-        float angle = (System.currentTimeMillis() % 36000) / 16.0f;
-        poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
         poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.translate(0.0, -2.0, 0.0);
+        poseStack.translate(0.0, -1.5, 0.0);
         Player player = Minecraft.getInstance().player;
-        VortexModel<LivingEntity> model = new VortexModel<>(VortexModel.createBodyLayer().bakeRoot());
+        EasterEggModel<LivingEntity> model = new EasterEggModel<>(EasterEggModel.createBodyLayer().bakeRoot());
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);
         model.prepareMobModel(player, 50, 50, partialTicks);
         model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURE)),

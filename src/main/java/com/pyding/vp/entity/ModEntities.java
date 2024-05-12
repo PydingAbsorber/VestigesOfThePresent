@@ -32,4 +32,9 @@ public class ModEntities {
                     .sized(2, 2)
                     .clientTrackingRange(64)
                     .build("killer"));
+    public static final RegistryObject<EntityType<EasterEggEntity>> EASTER_EGG_ENTITY =
+            ENTITIES.register("easter_egg_entity", () -> EntityType.Builder.<EasterEggEntity>of(EasterEggEntity::new, MobCategory.MISC)
+                    .sized(4, 4)
+                    .clientTrackingRange(64)
+                    .build(new ResourceLocation(VestigesOfPresent.MODID, "easter_egg_entity").toString()));
 }

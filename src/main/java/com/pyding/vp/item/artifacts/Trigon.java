@@ -53,7 +53,7 @@ public class Trigon extends Vestige{
             float amount = 1+(1-(VPUtil.getOverShield(player)/player.getPersistentData().getFloat("VPOverShieldMax")))/2;
             player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
         }
-        VPUtil.addOverShield(list.get(numba),overshields);
+        VPUtil.addOverShield(list.get(numba),overshields,false);
         super.doUltimate(seconds, player, level, stack);
     }
     @Override

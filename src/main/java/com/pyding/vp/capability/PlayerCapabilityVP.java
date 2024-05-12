@@ -22,6 +22,7 @@ import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -228,7 +229,7 @@ public class PlayerCapabilityVP {
             addCoolDown(vp,player);
             clearProgress(vp,player);
             ItemStack stack = vestige(vp, player);
-            player.addItem(stack);
+            VPUtil.giveStack(stack,player);
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
         }
     }
@@ -507,9 +508,9 @@ public class PlayerCapabilityVP {
             case 1:
                 return VPUtil.getEntitiesList().size()/3-reduce;
             case 2:
-                return VPUtil.getMonsterClientMax(player).size()-reduce;
+                return VPUtil.monsterList.size()-reduce;
             case 3:
-                return VPUtil.getBiomesClientMax(player).size()-reduce;
+                return VPUtil.getBiomes().size()-reduce;
             case 4:
                 return 100-reduce;
             case 5:
@@ -533,7 +534,7 @@ public class PlayerCapabilityVP {
             case 14:
                 return 6-reduce;
             case 15:
-                return VPUtil.getBossClientMax(player).size()-reduce;
+                return VPUtil.bossList.size()-reduce;
             case 16:
                 return VPUtil.getFlowers().size()-reduce;
             case 17:
@@ -560,10 +561,10 @@ public class PlayerCapabilityVP {
                     player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesList().size()/3 - reduce);
                     break;
                 case 2:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getMonsterClientMax(player).size() - reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.monsterList.size() - reduce);
                     break;
                 case 3:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getBiomesClientMax(player).size() - reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getBiomes().size() - reduce);
                     break;
                 case 4:
                     player.getPersistentData().putInt("VPMaxChallenge"+i,100 - reduce);
@@ -599,7 +600,7 @@ public class PlayerCapabilityVP {
                     player.getPersistentData().putInt("VPMaxChallenge"+i,6 - reduce);
                     break;
                 case 15:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getBossClientMax(player).size() - reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.bossList.size() - reduce);
                     break;
                 case 16:
                     player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getFlowers().size() - reduce);
@@ -664,7 +665,7 @@ public class PlayerCapabilityVP {
         loreComplete = source.loreComplete;
         coolDown = source.coolDown;
         tools = source.tools;
-        mobsTamed = source.tools;
+        mobsTamed = source.mobsTamed;
         chance = source.chance;
         cats = source.cats;
         goldenItems = source.goldenItems;
@@ -677,6 +678,8 @@ public class PlayerCapabilityVP {
         debug = source.debug;
         effects = source.effects;
         bosses = source.bosses;
+        flowers = source.flowers;
+        creaturesKilledAir = source.creaturesKilledAir;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -706,6 +709,7 @@ public class PlayerCapabilityVP {
         nbt.putBoolean("VPDebug",debug);
         nbt.putString("VPEffects",effects);
         nbt.putString("VPBosses",bosses);
+        nbt.putString("VPAir",creaturesKilledAir);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -735,6 +739,7 @@ public class PlayerCapabilityVP {
         debug = nbt.getBoolean("VPDebug");
         effects = nbt.getString("VPEffects");
         bosses = nbt.getString("VPBosses");
+        creaturesKilledAir = nbt.getString("VPAir");
     }
 
     public CompoundTag getNbt(){
@@ -765,12 +770,14 @@ public class PlayerCapabilityVP {
         nbt.putBoolean("VPDebug",debug);
         nbt.putString("VPEffects",effects);
         nbt.putString("VPBosses",bosses);
+        nbt.putString("VPAir",creaturesKilledAir);
         return nbt;
     }
 
     public void sync(Player player){
         if(player.getCommandSenderWorld().isClientSide)
             return;
+        VPUtil.resync(this,player);
         ServerPlayer serverPlayer = (ServerPlayer) player;
         PacketHandler.sendToClient(new SendPlayerCapaToClient(this.getNbt()),serverPlayer);
         /*

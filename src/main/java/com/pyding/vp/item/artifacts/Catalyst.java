@@ -5,10 +5,16 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
@@ -99,5 +105,19 @@ public class Catalyst extends Vestige{
             }
         }
         super.curioTick(slotContext, stack);
+    }
+    List<MobEffectInstance> effectList = new ArrayList<>();
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
+        if(effectList.isEmpty()) {
+            List<MobEffectInstance> list = new ArrayList<>(player.getActiveEffects());
+            effectList = list;
+        } else {
+            for(MobEffectInstance instance: effectList){
+                player.addEffect(instance);
+            }
+            effectList.clear();
+        }
+        return super.use(level,player, p_41434_);
     }
 }

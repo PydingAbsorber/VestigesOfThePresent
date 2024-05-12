@@ -476,7 +476,7 @@ public class Vestige extends Item implements ICurioItem {
                 int progress = 0;
                 progress = cap.getChallenge(vestigeNumber);
                 if(vestigeNumber == 12)
-                    progress = EventHandler.getCurses(player);
+                    progress = VPUtil.getCurseAmount(player);
                 components.add(Component.translatable("vp.progress").withStyle(color)
                         .append(Component.literal(" " + progress))
                         .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber))));  //PlayerCapabilityVP.getMaximum(vestigeNumber,player)

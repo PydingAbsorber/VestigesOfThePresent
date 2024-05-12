@@ -2,6 +2,7 @@ package com.pyding.vp.entity;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.util.ConfigHandler;
@@ -31,6 +32,7 @@ public class VortexEntity extends Projectile {
 
     public ServerPlayer serverPlayer;
     public List<String> items = new ArrayList<>();
+    public int frags = 0;
 
     public VortexEntity(Level pLevel, LivingEntity owner) {
         this(ModEntities.VORTEX.get(), pLevel);
@@ -57,9 +59,11 @@ public class VortexEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
+        if(this.getCommandSenderWorld().isClientSide)
+            return;
         float r = 5;
         Player player = (Player) getOwner();
-        int maxSize = VPUtil.vortexItems().size();
+        int maxSize = VPUtil.vortexItems().size()-ConfigHandler.COMMON.vortexReduction.get();
         if(player == null)
             return;
         if(tickCount <= 2 && !getCommandSenderWorld().isClientSide)
@@ -68,11 +72,29 @@ public class VortexEntity extends Projectile {
         setGlowingTag(true);
         for(ItemEntity itemEntity: getCommandSenderWorld().getEntitiesOfClass(ItemEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
             if(items.size() < maxSize) {
-                for (String element : ConfigHandler.COMMON.repairObjects.get().toString().split(","))
-                    if (itemEntity.getItem().getDescriptionId().contains(element) && !items.contains(itemEntity.getItem().getDescriptionId())) {
-                        items.add(itemEntity.getItem().getDescriptionId());
-                        itemEntity.discard();
+                boolean add = false;
+                for (String element : ConfigHandler.COMMON.repairObjects.get().toString().split(",")) {
+                    if (itemEntity.getItem().getDescriptionId().contains(element)) {
+                        add = true;
+                        for(String item: items){
+                            if(item.equals(itemEntity.getItem().getDescriptionId()))
+                                add = false;
+                        }
                     }
+                }
+                if(add) {
+                    items.add(itemEntity.getItem().getDescriptionId());
+                    itemEntity.discard();
+                }
+                if(itemEntity.getItem().getItem() instanceof Vestige vestige){
+                    items.add(itemEntity.getItem().getDescriptionId());
+                    itemEntity.discard();
+                    if(vestige.isDoubleStellar(itemEntity.getItem()))
+                        frags += 100;
+                    else if(vestige.isStellar(itemEntity.getItem()))
+                        frags += 10;
+                    else frags += 2;
+                }
             }
             else {
                 if(tickCount % 20 == 0)
@@ -80,21 +102,19 @@ public class VortexEntity extends Projectile {
                 if(itemEntity.getItem().isDamageableItem()){
                     ItemStack stack = itemEntity.getItem();
                     stack.setDamageValue(0);
-                    player.getPersistentData().putBoolean("VPVortexMake",true);
-                    stack.mineBlock(level(),getBlockStateOn(),blockPosition(),player);
                     stack.getOrCreateTag().putBoolean("VPUnbreak",true);
-                    player.addItem(stack);
+                    VPUtil.giveStack(stack,player);
                     itemEntity.discard();
                     discard();
                     kill();
+                    if(frags > 0)
+                        VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),frags),player);
                 }
             }
         }
         this.getPersistentData().putString("VPVortexList",items.toString());
-        if (!getCommandSenderWorld().isClientSide) {
-            if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
-                this.playSound(SoundRegistry.BLACK_HOLE.get(), items.size()+5, 1);
-            }
+        if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
+            this.playSound(SoundRegistry.BLACK_HOLE.get(), items.size()+5, 1);
         }
         VPUtil.syncEntity(this);
         if(tickCount > 5*60*20) {

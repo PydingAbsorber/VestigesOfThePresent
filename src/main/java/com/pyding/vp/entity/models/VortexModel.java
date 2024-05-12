@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 
 public class VortexModel<T extends Entity> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "vortexmodel"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "vortex"), "main");
 	private final ModelPart vortex;
 
 	public VortexModel(ModelPart root) {
@@ -24,21 +24,21 @@ public class VortexModel<T extends Entity> extends EntityModel<T> {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition vortex = partdefinition.addOrReplaceChild("vortex", CubeListBuilder.create().texOffs(2, 0).addBox(-7.0F, -9.0F, -5.0F, 14.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
-		.texOffs(22, 24).mirror().addBox(-7.0F, -10.0F, -5.0F, 1.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)).mirror(false)
-		.texOffs(22, 40).addBox(6.0F, -10.0F, -5.0F, 1.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
-		.texOffs(23, 55).addBox(-6.0F, -9.0F, -6.0F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(23, 55).addBox(-6.0F, -9.0F, 5.0F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(39, 8).mirror().addBox(-5.0F, -10.0F, 6.0F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)).mirror(false)
-		.texOffs(39, 26).addBox(-5.0F, -10.0F, -7.0F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(11, 41).addBox(-6.0F, -10.0F, -6.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(17, 41).addBox(-6.0F, -10.0F, 5.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(23, 41).addBox(5.0F, -10.0F, 5.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(29, 41).addBox(5.0F, -10.0F, -6.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
-		.texOffs(24, 24).addBox(-5.0F, -8.0F, -5.0F, 10.0F, 2.0F, 10.0F, new CubeDeformation(0.0F))
-		.texOffs(12, 10).addBox(-6.0F, -8.0F, -4.0F, 12.0F, 2.0F, 8.0F, new CubeDeformation(0.0F))
-		.texOffs(40, 26).addBox(-4.0F, -6.0F, -4.0F, 8.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
-		.texOffs(26, 6).addBox(-2.0F, -5.0F, -2.0F, 4.0F, 1.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		PartDefinition vortex = partdefinition.addOrReplaceChild("vortex", CubeListBuilder.create().texOffs(0, 0).addBox(-7.0F, -9.0F, -5.0F, 14.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 33).addBox(-7.0F, -10.0F, -5.0F, 1.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
+		.texOffs(30, 23).addBox(6.0F, -10.0F, -5.0F, 1.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
+		.texOffs(12, 36).addBox(-6.0F, -9.0F, -6.0F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(12, 34).addBox(-6.0F, -9.0F, 5.0F, 12.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(37, 37).addBox(-5.0F, -10.0F, 6.0F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(37, 35).addBox(-5.0F, -10.0F, -7.0F, 10.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(3, 3).addBox(-6.0F, -10.0F, -6.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(3, 1).addBox(-6.0F, -10.0F, 5.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 2).addBox(5.0F, -10.0F, 5.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(5.0F, -10.0F, -6.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 11).addBox(-5.0F, -8.0F, -5.0F, 10.0F, 2.0F, 10.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 23).addBox(-6.0F, -8.0F, -4.0F, 12.0F, 2.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(30, 11).addBox(-4.0F, -6.0F, -4.0F, 8.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(38, 0).addBox(-2.0F, -5.0F, -2.0F, 4.0F, 1.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 64, 64);
 	}

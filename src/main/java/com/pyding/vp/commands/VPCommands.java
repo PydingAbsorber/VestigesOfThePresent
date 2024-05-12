@@ -174,7 +174,7 @@ public class VPCommands {
                                         if(shields > 0)
                                             VPUtil.addShield(player,shields,true);
                                         if(overshields > 0)
-                                            VPUtil.addOverShield(player,overshields);
+                                            VPUtil.addOverShield(player,overshields,false);
                                         return Command.SINGLE_SUCCESS;
                                     })
                                 )

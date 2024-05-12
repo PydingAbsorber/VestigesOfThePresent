@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "SVS",
+        "VCV",
+        "SVS"
+      ],
+      "key": {
+        "S": {
+          "item": "vp:stellar"
+        },
+        "C": {
+          "item": "minecraft:ender_chest"
+        }
+        "V": {
+          "item": "minecraft:hopper"
+        }
+      },
+      "result": {
+        "item": "vp:vortex"
+      }
+}

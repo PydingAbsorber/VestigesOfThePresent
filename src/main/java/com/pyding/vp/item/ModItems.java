@@ -45,6 +45,10 @@ public class ModItems {
     public static final RegistryObject<Item> RING_OF_WIBEST = ITEMS.register("ring_of_wibest", () -> new RingOfWibest());
     public static final RegistryObject<Item> BOX = ITEMS.register("box", () -> new Box());
     public static final RegistryObject<Item> VORTEX = ITEMS.register("vortex", () -> new Vortex());
+    public static final RegistryObject<Item> EASTER_EGG = ITEMS.register("easter_egg", () -> new EaterEgg());
+
+    public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
+    public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

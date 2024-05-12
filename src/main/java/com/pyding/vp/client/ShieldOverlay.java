@@ -196,20 +196,35 @@ public class ShieldOverlay {
         int centerHeight = y - 230;
         for(Object o : VPUtil.rayClass(Entity.class,player,3,20,true)){
             if(o instanceof VortexEntity vortexEntity){
-                String current = vortexEntity.getPersistentData().getString("VPVortexList");
-                String max = player.getPersistentData().getString("VPVortex");
+                StringBuilder currentB = new StringBuilder(vortexEntity.getPersistentData().getString("VPVortexList"));
+                StringBuilder maxB = new StringBuilder(player.getPersistentData().getString("VPVortex"));
+                if(currentB.length() > 0)
+                    currentB.deleteCharAt(0);
+                if(currentB.length() > 0)
+                    currentB.deleteCharAt(currentB.length()-1);
+                if(maxB.length() > 0)
+                    maxB.deleteCharAt(0);
+                if(maxB.length() > 0)
+                    maxB.deleteCharAt(maxB.length()-1);
+                String current = currentB.toString();
+                String max = maxB.toString();
                 int currentNumber = 0;
                 int maxNumber = 0;
-                String show = "";
-                for(String name: current.split(","))
-                    currentNumber++;
+                List<String> listMax = new ArrayList<>();
+                List<String> listCurrent = new ArrayList<>();
+                if(!current.isEmpty()) {
+                    for (String name : current.split(",")) {
+                        currentNumber++;
+                        listCurrent.add(name);
+                    }
+                }
                 for(String name: max.split(",")) {
                     maxNumber++;
-                    if(!show.contains(name))
-                        show += name + ", ";
+                    listMax.add(name);
                 }
-                pose.drawString(fontRenderer, currentNumber + " / " + maxNumber, x - 10, centerHeight - 9, 0x9932CC);
-                pose.drawString(fontRenderer, show, x - 10, centerHeight - 25, 0x9932CC);
+                listMax.removeAll(listCurrent);
+                pose.drawString(fontRenderer, currentNumber + " / " + maxNumber, x - 10, centerHeight +10, 0x9932CC);
+                pose.drawString(fontRenderer, listMax.toString(), x - 10, centerHeight +30, 0x9932CC);
                 break;
             }
         }
