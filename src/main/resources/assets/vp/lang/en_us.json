@@ -26,6 +26,10 @@
   "item.vp.trigon": "§6Paragon Trigon",
   "item.vp.soulblighter": "§dSoulrender",
   "item.vp.box_saplings": "§2Box of Nature",
+  "item.vp.rune": "§5Hephaestus Rune",
+  "item.vp.lyra": "§2Bard's Lyre",
+  "item.vp.pearl": "§1Abyssal Pearl",
+  "item.vp.whirlpool": "§9Whirlpool",
   "box.sapling.info.1": "§2Gives random Sapling or Seed",
   "item.vp.box_eggs": "§5Box of Eggs",
   "box.egg.info.1": "§5Gives random egg",
@@ -49,6 +53,10 @@
   "vp.name.18": "§bBall Lightning",
   "vp.name.19": "§6Paragon Trigon",
   "vp.name.20": "§dSoulrender",
+  "vp.name.21": "§5Hephaestus Rune",
+  "vp.name.22": "§2Bard's Lyre",
+  "vp.name.23": "§1Abyssal Pearl",
+  "vp.name.24": "§9Whirlpool",
   "item.vp.stellar": "§bS§6t§ee§al§dl§la§br §6F§br§ea§7g§5m§ae§6n§5t",
   "item.vp.box": "§5Box of Wonders",
   "box.info.1": "Use to get random Accessory.",
@@ -215,7 +223,7 @@
 
   "vp.passive.15": "Every slain boss yields a Soul.",
   "vp.special.15": "Binds the soul of the nearest creature or a creature you're looking at for 5 seconds. \n(Each Soul from Passive adds +0.1 second, up to a maximum of 15 seconds). \nThe bound creature cannot move between worlds, teleport and cannot leave a 3x3x3 area.",
-  "vp.ultimate.15": "For the next 30 hits (by default), with a certain chance, it will increase Soul Corruption of the affected creature. \n(Chance depends on accumulated Souls from Passive, +0.1% chance for each soul). \nCreatures with Soul Corruption of 100 and above die guaranteed. (Soul Consumption resets only upon death or re-logging).",
+  "vp.ultimate.15": "For the next 30 hits (by default), with a certain chance, it will increase Soul Corruption of the affected creature. \n(Chance depends on accumulated Souls from Passive, +1% chance for each soul by default). \nCreatures with Soul Corruption of 100 and above die guaranteed, for Bosses or Players amount increases by their max hp/10.",
   "vp.get.15": "Kill all bosses of modpack",
 
   "vp.passive.16": "Each peaceful creature around reduces the healing received by the wearer by 0.1% for every 1% of HP they are missing.(99% cap)",
@@ -230,7 +238,7 @@
 
   "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area. \nDealing lightning damage will reduce Shields by 10% and OverShields by 20%.",
   "vp.special.18": "Teleports the carrier to a random point nearby, leaving behind a powerful lightning bolt. \nThe lightning deals 500% damage to everyone (including the carrier) within a 5-block radius and slows down the speed, attack speed of enemies.",
-  "vp.ultimate.18": "Calls down a hail of lightning on all creatures (including the carrier) within a 30-block radius that have a shield or whose current HP is lower than the owner's, dealing 1000% damage. \nAffected creatures (except the carrier) take 50% more damage for each piece of armor worn, 10% for each point of armor, and 0.1% for each existing shield.",
+  "vp.ultimate.18": "Calls down a hail of lightning on all creatures (including the carrier) within a 30-block radius that have a shield or whose current HP is lower than the owner's, or whose have armor, or whose are wet, dealing 1000% damage. \nAffected creatures (except the carrier) take 50% more damage for each piece of armor worn, 10% for each point of armor, and 0.1% for each existing shield.",
   "vp.get.18": "Be struck by lightning along with a creeper nearby 20 times, receiving explosive damage or death will fail the challenge.",
   "vp.damagetype.18": "lightning",
 
@@ -244,6 +252,27 @@
   "vp.special.20": "The creature the carrier is looking at enters an Astral form for 15 seconds. \nIn this form, the creature cannot deal or receive damage, except for magical types and through invulnerability, with received damage increased tenfold. \nPressing with hp lower then  50% will apply the effect to wearer.",
   "vp.ultimate.20": "Applies a healing debt of 2000% of max HP. \nThe soul of the creature upon gaze will be encapsulated in a Vestige with a chance dependent on the HP difference between the wearer and the creature, as well as the creature's current HP.\nThe exact chance can be found using the command /vestiges captureChance <player's max HP> <creature's max HP> <creature's current HP>\nIf the creature is in Astral form, the chance will be doubled.\nUpon successful capture of the soul, the physical form of the creature will disintegrate, and no loot will drop.\nIf there is a Preserved Soul:\nMaterializes the Preserved Soul and summons a creature that will fight on the side of the wearer.\nThis creature can be returned to the Storage by activating the Ultimate near it again.",
   "vp.get.20": "Tame or kill all peaceful creatures in the modpack.",
+
+  "vp.passive.21": "After receiving Paragon damage or Boss damage, grants Shields and Over Shields equal to 50% of the damage taken if the wearer has no Shields or Over Shields.",
+  "vp.special.21": "Consumes 20% of equipment durability, each durability consumed + knockback resistance will give a Shield Bonus at a ratio of 10 to 1 for 10 seconds.",
+  "vp.ultimate.21": "Gives everyone around the Hardening effect:\nIncreases armor and armor toughness by 20, boosted by Shield Bonus for 40 seconds.\nProtects equipment from durability costs for the next 40 seconds.\n(When protecting, Special will still give a bonus, but at half the amount)",
+  "vp.get.21": "Combine all types of smithing templates with any armor.",
+
+  "vp.passive.22": "While music is playing nearby, +40% duration to Specials and Ultimates, -40% cooldown.",
+  "vp.special.22": "Grants a random effect to itself and all nearby creatures (Max HP +60%/HP regeneration +10 per second/+90% healing bonus/Special and Ultimate damage bonus +50%/+100 armor/Shield Bonus +70%/-20% cooldown/damage absorption 95%) for 30 seconds.\nCannot grant an already applied effect. \nSpecial effects cannot be dispelled.",
+  "vp.ultimate.22": "The following 10 seconds all players and peaceful creatures around will be protected from death, unless the wearer has no Healing Debt. \nWhen protected from death, a Healing Debt equal to 300% of the protected entity's max HP is applied.",
+  "vp.get.22": "Listen to all discs in the modpack.",
+
+  "vp.passive.23": "Taking damage from drowning will restore 10% of your air supply with a 20% chance. \nEach missing unit of air supply will give a 0.1% chance for double loot from fishing.",
+  "vp.special.23": "Next thrown fishing rod will attract a fish instantly, consuming 30% of your air supply.",
+  "vp.ultimate.23": "Next 10 caught fish will yield additional loot until cd ends, depending on the current biome.\nMore details can be found with /vestiges fish",
+  "vp.get.23": "Catch all possible fishing loot.",
+
+  "vp.passive.24": "Regenerate 5% HP per second while wet.\nEnemies who die from drowning will grant 20 Shields and Over Shields.",
+  "vp.special.24": "Grants a water shield, fully protecting from the next 3 hits.\nThe number of hits increases based on underwater breathing time, up to 10.",
+  "vp.ultimate.24": "Envelops nearby enemies in a bubble where they cannot breathe.\nThe bubble bursts upon taking damage (except drowning) and deals 1000% damage, also making the target 'wet'.",
+  "vp.get.24": "Collect all types of coral, fish, and axolotl.",
+  "vp.damagetype.24": "drowning"
 
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
   "vp.stellar.2": "For enemies under the effect of the Ultimate, consumes 10% of Shields to enhance the Special, dealing an additional 1 Paragon damage for every 1000 Shields spent (up to a maximum of 1000).",
@@ -265,6 +294,11 @@
   "vp.stellar.18": "Ultimate: every 10% damage bonus adds 1 Paragon damage against wet opponents.",
   "vp.stellar.19": "Ultimate: will also increase maximum HP by 1% for every 2% of missing Over Shield until cd ends. \nOver Shields will regenerate from overhealing until removed.",
   "vp.stellar.20": "Increases the carrier's max HP by 30% of the Stored creature's max HP. \nAll received damage, healing, shields, super shields, and healing debt will be transferred to the Summoned creature within a 30-block radius.",
+  "vp.stellar.21": "While the Ultimate is not active, Shields and Over Shields will be consumed instead of equipment durability.\nWhile the Ultimate is active, prevented durability damage will restore Over Shields.",
+  "vp.stellar.22": "The Ultimate will also restore 1 Special charge to itself and all surrounding players.",
+  "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
+  "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nIce - increases maximum and current Vestige cooldown by 80%, slows down.\nFire - 20% chance to waste a Vestige charge, reduces armor by 90%.\nMagic - increases incoming damage by 400%.\nWither - disables regeneration.\nVoid - reduces Max HP by 80%.\nPerfect - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%."
+
 
   "vp.info": "If you have any questions about mechanics, type /vestiges info",
   "vp.info.mechanics": "§5Healing Debt§7 - prohibits healing until the debt is paid off. Each healing reduces the debt by a 1:1 ratio. \nFor example: \nPlayer with 20 max HP has a healing debt of 10% of their max HP (so debt = 2). After healing for 4 HP, the player would only receive 2 HP.\n\n§5Healing Bonus and Healing Reduction§7 - increases and decreases the amount of healing received, respectively. All bonuses are applied simultaneously. \nFor example:  \nIf a player has a 60% healing bonus and a 40% healing reduction, the effective bonus would be 20%, resulting in a healing of 12 HP instead of 10.\n\n§5Over Healing§7 - the amount of healing a player or creature receives when already at full HP. \nNote: vanilla health regeneration potion effect can't Over Heal and can't heal above 20 HP. \n\n§5Shield§7 - protects against damage less than the shield value and activates after absorption or amplification effects from other mods. \nFor example: \nIf a player has 10 shields and receives 8 damage, player will take 0 damage and have 2 shields remaining. \nIf 12 damage is dealt, the player takes 2 damage, depleting the shields.\n\n§5Overshield§7 - provides complete protection against damage, even if the damage exceeds the overshield value. It activates before regular shields. \nFor example: \nPlayer with 80 overshields and 10 shields takes 99999 damage, resulting in 0 damage taken and 0 overshields, but 10 shields remaining. \nOvershields are also 90% more effective against magical and void damage.\n\n§5Adaptive Damage§7 - damage that changes its damage type to the next in the list if it fails to penetrate the target.\n\n§5Paragon Damage§7 - guaranteed damage that ignores evasion, absorption, damage negation, and shields but does not bypass overshields. \n\n§5Damage Type§7 - refers to its characteristic, what it does, and the properties it possesses. \nFor example:\nDamage type damageHelmet deals additional damage to the helm, while bypassInvul penetrates through invulnerability seconds between hits, enchantments, effects, armor, etc. \nSome Vestiges feature mechanics that change the damage type, altering such characteristics of the inflicted damage.\n\n§5Damage Kind§7 - is a set of characteristics with specific name. \nFor example:\nDamage types \"Fall\" and \"Stalagmite\" include bypassArmor and isFall, meaning they will penetrate armor and be further reduced by enchantments against falling on armor. \nThen there's the damage type \"Falling Stalagmite,\" which only includes damageHelmet.",
@@ -289,19 +323,24 @@
   "vp.short.18" : "Deals significant damage to shields and armor.",
   "vp.short.19" : "Inflicts damage that cannot be negated or reduced, provides Super Shields.",
   "vp.short.20" : "Enslaves any creatures, grants Super Shields and their regeneration.",
+  "vp.short.21": "Protects items from breaking and gives armor to everyone around.",
+  "vp.short.22": "Grants numerous unique buffs to everyone around.",
+  "vp.short.23": "Speeds up fishing and provides additional unique loot from it.",
+  "vp.short.24": "Heals the owner when wet, provides protection from hits, and applies debuffs."
+
 
   "vp.acs.types": "§5Attribute types:§d \n1)+1-4 to Max HP\n2)+2-8 to Attack attribute\n3)+5-20% to Damage dealt\n4)+3-12% to Healing\n5)+4-16% to Shields.",
   "vp.acs.sets": "Sets:",
-  "vp.acs.set.1": "+1 max charge for Ultimate,+20% duration of Ultimate and Special effects. (2 Max HP, 2 Healing)",
-  "vp.acs.set.2": "+400% Special damage. (2 Attack, 2 Damage)",
-  "vp.acs.set.3": "30% chance to not consume Ultimate and Special charge. (2 Shields, 2 Healing)",
-  "vp.acs.set.4": "+200% Ultimate damage. (4 Damage)",
-  "vp.acs.set.5": "40% chance for x6 Special and Ultimate damage after using Special for 5 seconds. (4 Attack)",
-  "vp.acs.set.6": "-1 max charge for Special, 50% chance not to consume Ultimate and Special charge. (4 Shields)",
-  "vp.acs.set.7": "+1 max charge for Ultimate, -40% duration. (4 Max HP)",
-  "vp.acs.set.8": "+100% duration, +40% cooldown reduction. (4 Healing)",
-  "vp.acs.set.9": "+5% chance to receive Stellar. (all different)",
-  "vp.acs.set.10": "-10% cooldown reduction. (4 of any)",
+  "vp.acs.set.1": "1) +1 max charge for Ultimate,+20% duration of Ultimate and Special effects. (2 Max HP, 2 Healing)",
+  "vp.acs.set.2": "2) +400% Special damage. (2 Attack, 2 Damage)",
+  "vp.acs.set.3": "3) 30% chance to not consume Ultimate and Special charge. (2 Shields, 2 Healing)",
+  "vp.acs.set.4": "4) +200% Ultimate damage. (4 Damage)",
+  "vp.acs.set.5": "5) 40% chance for x6 Special and Ultimate damage after using Special for 5 seconds. (4 Attack)",
+  "vp.acs.set.6": "6) -1 max charge for Special, 50% chance not to consume Ultimate and Special charge. (4 Shields)",
+  "vp.acs.set.7": "7) +1 max charge for Ultimate, -40% duration. (4 Max HP)",
+  "vp.acs.set.8": "8) +100% duration, +40% cooldown reduction. (4 Healing)",
+  "vp.acs.set.9": "9) +5% chance to receive Stellar. (all different)",
+  "vp.acs.set.10": "10) -10% cooldown reduction. (4 of any)",
 
   "vp.acs.lvl" : "Lvl: ",
   "vp.acs.stats" : "Stats: ",

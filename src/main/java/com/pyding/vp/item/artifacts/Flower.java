@@ -30,7 +30,7 @@ public class Flower extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
         float healRes = 0;
-        for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
+        for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,30,30,30)){
             healRes -= VPUtil.missingHealth(entity)/10;
             if(isStellar(stack))
                 entity.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
@@ -58,19 +58,10 @@ public class Flower extends Vestige{
                 damage += stack2.getDamageValue();
         }
         damage *= ConfigHandler.COMMON.flowerShield.get();
-        for(LivingEntity entity: getCreaturesAround(player,30,30,30)){
+        for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,30,30,30)){
             VPUtil.addShield(entity,damage,false);
             VPUtil.spawnParticles(player, ParticleTypes.FALLING_HONEY,entity.getX(),entity.getY()+2,entity.getZ(),8,0,0.5,0);
         }
         super.doUltimate(seconds, player, level, stack);
-    }
-
-    public static List<LivingEntity> getCreaturesAround(Player player, double x, double y, double z){
-        List<LivingEntity> list = new ArrayList<>();
-        for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
-            if(entity instanceof Animal || entity instanceof Player)
-                list.add(entity);
-        }
-        return list;
     }
 }

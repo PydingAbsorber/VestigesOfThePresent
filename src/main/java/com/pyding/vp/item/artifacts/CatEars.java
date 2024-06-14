@@ -62,4 +62,11 @@ public class CatEars extends Vestige{
         super.ultimateEnds(player, stack);
     }
 
+    @Override
+    public void curioSucks(Player player, ItemStack stack) {
+        player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
+        player.getPersistentData().putBoolean("VPEarsSpecial",false);
+        player.getPersistentData().putBoolean("VPEarsUlt",false);
+        super.curioSucks(player, stack);
+    }
 }

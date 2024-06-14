@@ -11,9 +11,11 @@
     "MaxDurabilityMixin",
     "MinEnchLvlMixin",
     "MovementMixin",
-    "NegativeProtectionMixin"
+    "VPEntityMixin",
+    "VPLivingEntityMixin"
   ],
   "client": [
+    "JukeboxMixin"
   ],
   "injectors": {
     "defaultRequire": 1

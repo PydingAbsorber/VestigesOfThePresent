@@ -2,6 +2,7 @@ package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.event.EventHandler;
+import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -281,8 +282,8 @@ public class Vestige extends Item implements ICurioItem {
                 setTime(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
                 setSpecialActive(true,stack);
                 setCdSpecialActive(cdSpecialActive(stack)+specialCd(stack),stack);     //time until cd recharges in seconds*tps
-                if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || (VPUtil.getSet(player) == 6 && Math.random() < 0.5))
-                    setCurrentChargeSpecial(currentChargeSpecial(stack)-1,stack);
+                if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || !(VPUtil.getSet(player) == 6 && Math.random() < 0.5) || Math.random() < player.getPersistentData().getFloat("VPDepth")/10)
+                    setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
                 this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
             } else this.localSpecial(player);
         }
@@ -295,7 +296,8 @@ public class Vestige extends Item implements ICurioItem {
                 setTimeUlt(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
                 setUltimateActive(true,stack);
                 setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
-                setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
+                if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || !(VPUtil.getSet(player) == 6 && Math.random() < 0.5) || Math.random() < player.getPersistentData().getFloat("VPDepth")/10)
+                    setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
                 long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
                 this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld(), stack);
             } else this.localSpecial(player);
@@ -304,10 +306,6 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void applyBonus(ItemStack stack,Player player){
-        setSpecialMaxTime(specialDurationBase(stack),stack);
-        setUltimateMaxTime(ultimateDurationBase(stack),stack);
-        setSpecialCd(specialCdBase(stack),stack);
-        setUltimateCd(ultimateCdBase(stack),stack);
         int specialBonus = 0;
         int ultimateBonus = 0;
         if(isDoubleStellar(stack)){
@@ -316,28 +314,45 @@ public class Vestige extends Item implements ICurioItem {
         }
         int spAcsBonus = 0;
         int ultAcsBonus = 0;
+        float specialCdBonus = 1;
+        float ultimateCdBonus = 1;
+        float specialTimeBonus = 1;
+        float ultimateTimeBonus = 1;
         int set = VPUtil.getSet(player);
         if(set == 1){
             spAcsBonus += 1;
-            setSpecialMaxTime((long) (specialDurationBase(stack)*1.2),stack);
-            setUltimateMaxTime((long) (ultimateDurationBase(stack)*1.2),stack);
+            specialTimeBonus += 0.2f;
+            ultimateTimeBonus += 0.2f;
         }
         else if(set == 6){
             spAcsBonus -= 1;
-            ultAcsBonus -= 1;
         }
         else if(set == 7){
             //spAcsBonus += 1;
             ultAcsBonus += 1;
-            setSpecialMaxTime((long) (specialDurationBase(stack)*0.6),stack);
-            setUltimateMaxTime((long) (ultimateDurationBase(stack)*0.6),stack);
+            specialTimeBonus -= 0.4f;
+            ultimateTimeBonus -= 0.4f;
         }
         else if(set == 8){
-            spAcsBonus -= 1;
-            ultAcsBonus -= 1;
-            setSpecialCd((int) (specialCdBase(stack)*1.4),stack);
-            setUltimateCd((int) (ultimateCdBase(stack)*1.4),stack);
+            specialTimeBonus += 1f;
+            ultimateTimeBonus += 1f;
+            specialCdBonus += 0.4f;
+            ultimateCdBonus += 0.4f;
         }
+        if(player.getPersistentData().getLong("VPJuke") >= System.currentTimeMillis() && VPUtil.hasVestige(ModItems.LYRA.get(), player)){
+            specialTimeBonus += 0.4f;
+            ultimateTimeBonus += 0.4f;
+            specialCdBonus -= 0.4f;
+            ultimateCdBonus -= 0.4f;
+        }
+        if(VPUtil.hasLyra(player,7)){
+            specialCdBonus -= 0.2f;
+            ultimateCdBonus -= 0.2f;
+        }
+        setSpecialCd((int) (specialCdBase(stack)*specialCdBonus),stack);
+        setUltimateCd((int) (ultimateCdBase(stack)*ultimateCdBonus),stack);
+        setSpecialMaxTime((int) (specialDurationBase(stack)*specialTimeBonus),stack);
+        setUltimateMaxTime((int) (ultimateDurationBase(stack)*ultimateTimeBonus),stack);
         setSpecialCharges(specialChargesBase(stack)+specialBonus+specialBonusModifier(stack)+spAcsBonus,stack);
         setUltimateCharges(ultimateChargesBase(stack)+ultimateBonus+ultimateBonusModifier(stack)+ultAcsBonus,stack);
     }

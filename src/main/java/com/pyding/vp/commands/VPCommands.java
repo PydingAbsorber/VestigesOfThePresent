@@ -221,6 +221,15 @@ public class VPCommands {
                             return Command.SINGLE_SUCCESS;
                         })
                 )
+                .then(Commands.literal("fish")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            player.sendSystemMessage(Component.literal(""));
+                            player.sendSystemMessage(Component.literal("Fish drops in current biome:").withStyle(ChatFormatting.BLUE));
+                            VPUtil.printFishDrop(player);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
         );
     }
 }

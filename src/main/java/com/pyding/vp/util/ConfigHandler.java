@@ -91,6 +91,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue bosses;
         public final ForgeConfigSpec.ConfigValue repairObjects;
         public final ForgeConfigSpec.ConfigValue repairBlackList;
+
+        public final ForgeConfigSpec.ConfigValue fishObjects;
         public Common(ForgeConfigSpec.Builder builder) {
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);
             bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 10, 1, 2100000000);
@@ -113,7 +115,7 @@ public class ConfigHandler {
             chaosDamageCap = builder.comment("Damage cap for Chaos Core").defineInRange("chaosDamageCap", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
             chaosChance = builder.comment("Chance for Chaos Core reflexion or damage change. 1 is 100%, 0.1 is 10%.").defineInRange("chaosChance", 0.1, 0, 1);
             crownShield = builder.comment("How many % from enemy's health will crown give upon kill").defineInRange("crownShield", 10, 0, Integer.MAX_VALUE);
-            devourerChance = builder.comment("Chance for Devourer's Ultimate per 1 kill. 1 is 100%, 0.001 is 0.1%").defineInRange("devourerChance", 0.001, 0, 100);
+            devourerChance = builder.comment("Chance for Devourer's Ultimate per 1 kill. 1 is 100%, 0.001 is 0.1%").defineInRange("devourerChance", 0.01, 0, 100);
             flowerShield = builder.comment("Multiplier for Shield that will Flower give by Ultimate.").defineInRange("flowerShield", 1d, 0, Integer.MAX_VALUE);
             killerRes = builder.comment("Killer Queens' Special explosion damage resistance shred").defineInRange("killerRes", 70d, 0, Integer.MAX_VALUE);
             markMaximum = builder.comment("Maximum value of Cursed Mark Madness stacks").defineInRange("markMaximum", 10, 0, Integer.MAX_VALUE);
@@ -166,6 +168,7 @@ public class ConfigHandler {
             vortexReduction = builder.comment("Reduction of maximum amount needed for Vortex").defineInRange("vortexReduction", 0, 0, Integer.MAX_VALUE);
             easter = builder.comment("Enables Easter event").define("easter", false);
             easterChance = builder.comment("Additional chance for Easter Egg 10 is 10%").defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
+            fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship");
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {

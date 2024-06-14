@@ -10,6 +10,7 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
+import com.pyding.vp.item.artifacts.Rune;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
@@ -53,6 +54,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -199,8 +201,10 @@ public class VPUtil {
 
     public static List<String> getBiomesLeft(String list, Player player){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> biomeList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(ResourceLocation location: getBiomes()){
@@ -240,8 +244,10 @@ public class VPUtil {
 
     public static List getFoodLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> foodList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(Item type: foodItems){
@@ -263,8 +269,10 @@ public class VPUtil {
 
     public static List getToolLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> itemList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(Item type: toolItems){
@@ -323,8 +331,10 @@ public class VPUtil {
     }
     public static List getMonsterLeft(String list, Player player){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> mobsList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: monsterList){
@@ -340,8 +350,10 @@ public class VPUtil {
 
     public static List getBossesLeft(String list, Player player){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> mobsList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: bossList){
@@ -362,8 +374,10 @@ public class VPUtil {
 
     public static List getMobsLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> mobsList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: getEntitiesListOfType(MobCategory.CREATURE)){
@@ -403,8 +417,10 @@ public class VPUtil {
 
     public static List<String> getFlowersLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> flowerList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(String name: getFlowers()){
@@ -445,11 +461,7 @@ public class VPUtil {
         return formattedTime.toString().trim();
     }
 
-    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
-        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
-            return;
-        entity.invulnerableTime = 0;
-        ItemStack stack = player.getMainHandItem();
+    public static float damagePercentBonus(Player player,int type){
         float percentBonus = 1;
         if(type == 1)
             percentBonus += 0;
@@ -467,6 +479,16 @@ public class VPUtil {
                 percentBonus += 600;
             percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
         }
+        if(hasLyra(player,4))
+            percentBonus += 50;
+        return percentBonus;
+    }
+
+    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
+        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
+            return;
+        entity.invulnerableTime = 0;
+        ItemStack stack = player.getMainHandItem();
         boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
         if(hasDurability) {
                     stack.hurtAndBreak(1, player, consumer -> {
@@ -474,7 +496,7 @@ public class VPUtil {
             });
         }
         DamageSource damageSource = new DamageSource(source.typeHolder(),player);
-        entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+percentBonus)/100));
+        entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
@@ -483,20 +505,13 @@ public class VPUtil {
         if(invulPierce)
             entity.invulnerableTime = 0;
         ItemStack stack = player.getMainHandItem();
-        float percentBonus = 1;
-        if(type == 1)
-            type += 0;
-        else if(type == 2)
-            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
-        else if(type == 3)
-            percentBonus += player.getPersistentData().getInt("VPGravity")*20;
         boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
         if(hasDurability) {
             stack.hurtAndBreak(1, entity, consumer -> {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
-        entity.hurt(source,damage*(percentBonus));
+        entity.hurt(source,damage*(damagePercentBonus(player,type))/100);
     }
 
     public static void spawnLightning(ServerLevel world, double x, double y, double z) {
@@ -563,8 +578,10 @@ public class VPUtil {
 
     public static List<String> getDamageDoLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> damageList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(TagKey<DamageType> key: damageTypes(true)){
@@ -717,7 +734,7 @@ public class VPUtil {
         }
     }
 
-    public static void equipmentDurability(float percentage,LivingEntity entity,Player dealer,boolean stellar){
+    public static float equipmentDurability(float percentage,LivingEntity entity,Player dealer,boolean stellar){
         percentage = percentage / 100;
         int totalDamage = 0;
         for (ItemStack stack2 : entity.getArmorSlots()) {
@@ -786,6 +803,7 @@ public class VPUtil {
             if(totalDamage > 0)
                 dealer.heal(totalDamage);
         }
+        return totalDamage;
     }
 
     public static double commonPower = 3;
@@ -952,14 +970,22 @@ public class VPUtil {
         int numba = new Random().nextInt(sources.size());
         return sources.get(numba);
     }
+    
+    public static float getShieldBonus(LivingEntity entity){
+        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
+                +entity.getPersistentData().getFloat("VPShieldBonusFlower")
+                +entity.getPersistentData().getFloat("VPAcsShields")
+                +entity.getPersistentData().getFloat("VPRuneBonus"));
+        if(hasLyra(entity,6))
+            shieldBonus += 70;
+        return shieldBonus;
+    }
 
     public static void addShield(LivingEntity entity,float amount,boolean add){
         if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
             return;
         CompoundTag tag = entity.getPersistentData();
-        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
-        +entity.getPersistentData().getFloat("VPShieldBonusFlower")
-        +entity.getPersistentData().getFloat("VPAcsShields"));
+        float shieldBonus = getShieldBonus(entity);
         float shield;
         if(!add) {
             if(amount*(1 + shieldBonus/100) > tag.getFloat("VPShield"))
@@ -971,7 +997,7 @@ public class VPUtil {
         if(!tag.getBoolean("VPAntiShield")) {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
                 if(Math.random() < 0.2)
-                    addOverShield(player,shield*0.05f,true);
+                    addOverShield(player,shield*0.05f,false);
                 if(hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)) {
                     boolean found = false;
                     for (LivingEntity entityTarget : VPUtil.getEntities(player, 30, false)) {
@@ -1128,11 +1154,14 @@ public class VPUtil {
 
     public static float getHealBonus(LivingEntity entity){
         CompoundTag tag = entity.getPersistentData();
-        return Math.max(-99,tag.getFloat("VPHealResMask")
+        float healBonus = Math.max(-300,tag.getFloat("VPHealResMask")
                 +tag.getFloat("VPHealResFlower")
                 +tag.getFloat("VPHealBonusDonut")
                 +tag.getFloat("VPHealBonusDonutPassive")
                 +tag.getFloat("VPAcsHeal"));
+        if(entity.getPersistentData().getLong("VPLyra3") > System.currentTimeMillis())
+            healBonus += 90;
+        return healBonus;
     }
 
     public static double calculatePercentageDifference(double number1, double number2) {
@@ -1485,6 +1514,15 @@ public class VPUtil {
             }
         }
     }
+
+    public static List<LivingEntity> getCreaturesAndPlayersAround(Player player, double x, double y, double z){
+        List<LivingEntity> list = new ArrayList<>();
+        for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+            if(entity instanceof Animal || entity instanceof Player)
+                list.add(entity);
+        }
+        return list;
+    }
     public static void rayParticles(Player player, ParticleOptions particle,double distance,double radius, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
         Random random = new Random();
         BlockPos pos = rayCords(player,player.getCommandSenderWorld(),distance);
@@ -1580,8 +1618,7 @@ public class VPUtil {
         CompoundTag tag = entity.getPersistentData();
         if(tag.getFloat("VPOverShield") <= 0)
             play(entity,SoundRegistry.OVERSHIELD.get());
-        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
-                +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
+        float shieldBonus = getShieldBonus(entity);
         if(!applyBonus)
             shieldBonus = 0;
         float shield = (tag.getFloat("VPOverShield") + amount)*(1 + shieldBonus/100);
@@ -1673,8 +1710,10 @@ public class VPUtil {
 
     public static List getEffectsLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> effectList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>();
         for(MobEffect effect: effects){
@@ -1727,8 +1766,10 @@ public class VPUtil {
 
     public static List getDamageKindsLeft(String list){
         StringBuilder stringBuilder = new StringBuilder(list);
-        stringBuilder.deleteCharAt(0);
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(0);
+        if(stringBuilder.length() > 0)
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
         List<String> damageList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
         List<String> allList = new ArrayList<>(getDamageKinds());
         allList.removeAll(damageList);
@@ -1779,24 +1820,7 @@ public class VPUtil {
         if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
             return;
         ItemStack stack = player.getMainHandItem();
-        float percentBonus = 1;
-        if(type == 1)
-            percentBonus += 0;
-        else if(type == 2) {
-            if(VPUtil.getSet(player) == 2)
-                percentBonus += 400;
-            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
-                percentBonus += 600;
-            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
-        }
-        else if(type == 3) {
-            if(VPUtil.getSet(player) == 4)
-                percentBonus += 200;
-            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
-                percentBonus += 600;
-            percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
-        }
-        float health = damage*(1+percentBonus/100);
+        float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
         if(overShields > 0) {
             if (overShields > health) {
@@ -1811,6 +1835,12 @@ public class VPUtil {
             if(hurt)
                 entity.hurt(player.damageSources().generic(),0);
             entity.setHealth(entity.getHealth() - health);
+            if(entity instanceof Player deb && hasVestige(ModItems.RUNE.get(), deb) && (VPUtil.getShield(deb) <= 0 || VPUtil.getOverShield(deb) <= 0)){
+                if(VPUtil.getShield(deb) <= 0)
+                    VPUtil.addShield(deb,health*0.5f,false);
+                if(VPUtil.getOverShield(deb) <= 0)
+                    VPUtil.addOverShield(deb,health*0.5f,true);
+            }
         } else {
             deadInside(entity,player);
         }
@@ -2097,5 +2127,128 @@ public class VPUtil {
             VPUtil.getMonsterLeft(cap.getMonstersKilled(),player);
             VPUtil.getBossesLeft(cap.getBosses(),player);
         }
+    }
+
+    public static boolean notContains(String list, String word){
+        boolean notContains = true;
+        if(list.isEmpty())
+            return true;
+        for (String element : list.split(",")) {
+            if (element.equals(word)) {
+                notContains = false;
+                break;
+            }
+        }
+        return notContains;
+    }
+
+    public static float dreadAbsorbtion(float number) {
+        float cap = 100;
+        float damage;
+        if (number <= cap) {
+            damage = number * 0.05f;
+        } else {
+            damage = 5f + 10f * (float) Math.log10(number);
+        }
+        return damage * (cap/100);
+    }
+
+    public static boolean hasLyra(LivingEntity entity, int number){
+        return entity.getPersistentData().getLong("VPLyra"+number) >= System.currentTimeMillis();
+    }
+
+    public static List<Item> fishList = new ArrayList<>();
+    private static final Map<ResourceLocation, List<Item>> biomeFishMap = new HashMap<>();
+
+    public static void initFishItems(){
+        for(Item item: items){
+            for(String name: ConfigHandler.COMMON.fishObjects.get().toString().split(",")) {
+                if (item.getDescriptionId().contains(name)){
+                    fishList.add(item);
+                }
+            }
+        }
+    }
+
+    public static void initFishDrops(List<ResourceLocation> biomes) {
+        Random random = new Random();
+        int totalItems = fishList.size();
+        int totalBiomes = biomes.size();
+        int itemsPerBiome = totalItems / totalBiomes;
+
+        for (ResourceLocation biome : biomes) {
+            biomeFishMap.put(biome, new ArrayList<>());
+        }
+
+        int index = 0;
+        for (Item item : fishList) {
+            ResourceLocation biome = biomes.get(index % totalBiomes);
+            biomeFishMap.get(biome).add(item);
+            index++;
+        }
+
+        for (ResourceLocation biome : biomes) {
+            List<Item> items = biomeFishMap.get(biome);
+            while (items.size() < 8) {
+                items.add(fishList.get(random.nextInt(fishList.size())));
+            }
+        }
+    }
+
+    public static ItemStack getFishDrop(Player player, int amount){
+        ItemStack stack = ItemStack.EMPTY;
+        Random random = new Random();
+        if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel){
+            if(fishList.isEmpty())
+                initFishItems();
+            if(biomeFishMap.isEmpty())
+                initFishDrops(getBiomes());
+            List<Item> items = biomeFishMap.getOrDefault(getCurrentBiome(player), new ArrayList<>());
+            if (!items.isEmpty()) {
+                Item randomItem = items.get(random.nextInt(items.size()-1));
+                stack = new ItemStack(randomItem);
+            }
+        }
+        return stack;
+    }
+
+    public static void printFishDrop(Player player){
+        if(fishList.isEmpty())
+            initFishItems();
+        if(biomeFishMap.isEmpty())
+            initFishDrops(getBiomes());
+        List<Item> items = biomeFishMap.getOrDefault(getCurrentBiome(player), new ArrayList<>());
+        Item item;
+        Random random = new Random();
+        ChatFormatting style;
+        for(int i = 0; i < items.size();i++) {
+            int numba = random.nextInt(3);
+            if(numba == 1)
+                style = ChatFormatting.BLUE;
+            else if(numba == 2)
+                style = ChatFormatting.AQUA;
+            else
+                style = ChatFormatting.DARK_AQUA;
+            item = items.get(i);
+            player.sendSystemMessage(Component.literal((i+1)+") ").append(Component.translatable(item.getDescriptionId())).withStyle(style));
+        }
+    }
+
+    public static int getWaterDepth(Player player) {
+        Level level = player.getCommandSenderWorld();
+        BlockPos playerPos = player.blockPosition();
+
+        if(!player.isInWaterRainOrBubble())
+            return 0;
+
+        int depth = 0;
+        BlockPos checkPos = playerPos;
+
+        while (level.getBlockState(checkPos).getBlock() == Blocks.WATER) {
+            depth++;
+            checkPos = checkPos.above();
+        }
+
+        return depth;
     }
 }

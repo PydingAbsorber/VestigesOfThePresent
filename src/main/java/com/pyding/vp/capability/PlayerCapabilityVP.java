@@ -75,7 +75,7 @@ public class PlayerCapabilityVP {
     private Set<String> biomeNames = new HashSet<>();
 
     public void addDimension(Player player,String dim, String nameSpace){
-        if(!dimensions.contains(dim)){
+        if(VPUtil.notContains(dimensions,dim)){
             dimensions += dim + ",";
             dimensionsDir += nameSpace + ",";
             sync(player);
@@ -120,37 +120,12 @@ public class PlayerCapabilityVP {
         dimensions = newDim;*/
     }
 
-    public void filterBiome(String name,Player player) {
-        Matcher matcher = PATTERN.matcher(name);
-        while (matcher.find()) {
-            String biomeName = matcher.group(1);
-            if (!biomeNames.contains(biomeName) && !biomeName.contains("worldgen")) {
-                biomeNames.add(biomeName);
-                setChallenge(3, getBiomeSize(), player);
-            }
-        }
-    }
     public long getChaosTime(){
         return chaosTime;
     }
     public void setChaosTime(long number,Player player){
         chaosTime = number;
         sync(player);
-    }
-    public void filterBiome(String name) {
-        Matcher matcher = PATTERN.matcher(name);
-        while (matcher.find()) {
-            String biomeName = matcher.group(1);
-            if (!biomeNames.contains(biomeName) && !biomeName.contains("worldgen")) {
-                biomeNames.add(biomeName);
-            }
-        }
-    }
-
-    public int getBiomeSize(){
-        filterBiome(biomesFound);
-        int result = Arrays.asList(biomeNames.toArray()).size();
-        return result;
     }
     public void setChance(int number){
         this.chance = number;
@@ -270,20 +245,20 @@ public class PlayerCapabilityVP {
         return false;
     }
     public void addGold(String gold, Player player){
-        if(!this.goldenItems.contains(gold)) {
+        if(VPUtil.notContains(goldenItems,gold)) {
             this.goldenItems += gold + ",";
             sync(player);
         }
     }
     public void addCat(String cat, Player player){
-        if(!this.cats.contains(cat)) {
+        if(VPUtil.notContains(cats,cat)) {
             this.cats += cat + ",";
             setChallenge(8,player);
         }
     }
 
     public void addEffect(String effect, Player player){
-        if(!this.effects.contains(effect)) {
+        if(VPUtil.notContains(effects,effect)) {
             this.effects += effect + ",";
             setChallenge(17,player);
         }
@@ -293,7 +268,7 @@ public class PlayerCapabilityVP {
         if(key != null) {
             //String biomeName = key.toDebugFileName();
             String biomeName = key.getPath();
-            if (!this.biomesFound.contains(biomeName)) {
+            if (VPUtil.notContains(biomesFound,biomeName)) {
                 this.biomesFound += biomeName + ",";
                 setChallenge(3, player);
             }
@@ -301,21 +276,21 @@ public class PlayerCapabilityVP {
     }
 
     public void addFlower(String flower, Player player){
-        if(!this.flowers.contains(flower)) {
+        if(VPUtil.notContains(flowers,flower)) {
             this.flowers += flower + ",";
             setChallenge(16, player);
         }
     }
 
     public void addCreatureKilledAir(String name, Player player){
-        if(!this.creaturesKilledAir.contains(name)) {
+        if(VPUtil.notContains(creaturesKilledAir,name)) {
             this.creaturesKilledAir += name + ",";
             setChallenge(1,player);
         }
     }
 
     public void addDamageDie(String damage, Player player){
-        if(!this.damageDie.contains(damage)) {
+        if(VPUtil.notContains(damageDie,damage)) {
             this.damageDie += damage + ",";
             setChallenge(11,player);
         }
@@ -325,7 +300,7 @@ public class PlayerCapabilityVP {
         for(TagKey<DamageType> key: VPUtil.damageTypes(true)){
             if(source.is(key)) {
                 String damageName = key.location().getPath();
-                if (!this.damageDo.contains(damageName)) {
+                if (VPUtil.notContains(damageDo,damageName)) {
                     this.damageDo += damageName + ",";
                     setChallenge(13, player);
                 }
@@ -334,7 +309,7 @@ public class PlayerCapabilityVP {
     }
 
     public void addMonsterKill(String monster, Player player){
-        if(!this.monstersKilled.contains(monster)) {
+        if(VPUtil.notContains(monstersKilled,monster)) {
             this.monstersKilled += monster + ",";
             setChallenge(2,player);
         }
@@ -345,7 +320,7 @@ public class PlayerCapabilityVP {
     }
 
     public void addBossKill(String monster, Player player){
-        if(!this.bosses.contains(monster)) {
+        if(VPUtil.notContains(bosses,monster)) {
             this.bosses += monster + ",";
             setChallenge(15,player);
         }
@@ -377,21 +352,21 @@ public class PlayerCapabilityVP {
         return effects;
     }
     public void addMobTame(String mob, Player player){
-        if(!this.mobsTamed.contains(mob)) {
+        if(VPUtil.notContains(mobsTamed,mob)) {
             this.mobsTamed += mob + ",";
             setChallenge(20,player);
         }
     }
 
     public void addFood(String food, Player player){
-        if(!this.foodEaten.contains(food)) {
+        if(VPUtil.notContains(foodEaten,food)) {
             this.foodEaten += food + ",";
             setChallenge(6,player);
         }
     }
 
     public void addTool(String tool, Player player){
-        if(!this.tools.contains(tool)) {
+        if(VPUtil.notContains(tools,tool)) {
             this.tools += tool + ",";
             setChallenge(10,player);
         }
@@ -891,7 +866,7 @@ public class PlayerCapabilityVP {
             setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
             if(Math.random() < ConfigHandler.COMMON.refresherChance.get())
-                player.addItem(new ItemStack(ModItems.REFRESHER.get()));
+                VPUtil.giveStack(new ItemStack(ModItems.REFRESHER.get()),player);
         } else {
             setChance();
             addCommonChallenge(player,vp);

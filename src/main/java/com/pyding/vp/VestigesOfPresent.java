@@ -140,6 +140,10 @@ public class VestigesOfPresent
             event.accept(ModItems.BALL);
             event.accept(ModItems.TRIGON);
             event.accept(ModItems.SOULBLIGHTER);
+            event.accept(ModItems.RUNE);
+            event.accept(ModItems.PEARL);
+            event.accept(ModItems.LYRA);
+            event.accept(ModItems.WHIRLPOOL);
             event.accept(ModItems.STELLAR);
             event.accept(ModItems.REFRESHER);
             event.accept(ModItems.RING_OF_FALLEN_STAR);

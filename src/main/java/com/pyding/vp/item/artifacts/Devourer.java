@@ -58,9 +58,9 @@ public class Devourer extends Vestige{
     public void whileSpecial(Player player, ItemStack stack) {
         if(victim != null){
             BlockPos pos = new BlockPos((int) victim.getPersistentData().getDouble("VPDevourerX"),(int)victim.getPersistentData().getDouble("VPDevourerY"),(int)victim.getPersistentData().getDouble("VPDevourerZ"));
-            VPUtil.suckToPos(victim,pos,3);
+            VPUtil.suckToPos(victim,pos,1);
             if(victim instanceof ServerPlayer serverPlayer)
-                PacketHandler.sendToClient(new PlayerFlyPacket(69),serverPlayer);
+                PacketHandler.sendToClient(new PlayerFlyPacket(301),serverPlayer);
         }
         super.whileSpecial(player, stack);
     }

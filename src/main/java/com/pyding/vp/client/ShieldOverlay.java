@@ -115,6 +115,12 @@ public class ShieldOverlay {
                     if(vestigeNumber == 19){
                         info = ((int)player.getPersistentData().getFloat("VPTrigonBonus") + "%");
                     }
+                    if(vestigeNumber == 23){
+                        info = (player.getPersistentData().getInt("VPLures") + "");
+                    }
+                    if(vestigeNumber == 24){
+                        info = (player.getPersistentData().getInt("VPWhirlpool") + "");
+                    }
                     String durationUlt = "";
                     String durationSpecial = "";
                     if(vestigeNumber == 8){
@@ -384,6 +390,10 @@ public class ShieldOverlay {
         locations.add(new ResourceLocation(MODID, "textures/item/ball.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/trigon.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/soulblighter.png"));
+        locations.add(new ResourceLocation(MODID, "textures/item/rune_static.png"));
+        locations.add(new ResourceLocation(MODID, "textures/item/lyra.png"));
+        locations.add(new ResourceLocation(MODID, "textures/item/pearl_static.png"));
+        locations.add(new ResourceLocation(MODID, "textures/item/whirlpool_static.png"));
 
         return locations.get(vp-1);
     }
