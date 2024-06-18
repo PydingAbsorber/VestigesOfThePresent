@@ -6,16 +6,19 @@
   "refmap": "vp.refmap.json",
   "verbose": true,
   "mixins": [
+    "AttributesUnlock",
     "DeadInsideMixin",
     "EnchantmentsMixin",
     "MaxDurabilityMixin",
     "MinEnchLvlMixin",
     "MovementMixin",
     "VPEntityMixin",
-    "VPLivingEntityMixin"
+    "VPLivingEntityMixin",
+    "VzlomJopiMixin"
   ],
   "client": [
-    "JukeboxMixin"
+    "JukeboxMixin",
+    "LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

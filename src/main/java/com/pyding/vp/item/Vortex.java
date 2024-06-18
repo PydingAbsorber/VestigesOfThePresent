@@ -29,6 +29,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Vortex extends Item {
@@ -61,17 +62,7 @@ public class Vortex extends Item {
                 Player player = Minecraft.getInstance().player;
                 if(player == null)
                     return;
-                StringBuilder builder = new StringBuilder(player.getPersistentData().getString("VPVortex"));
-                builder.deleteCharAt(0);
-                builder.deleteCharAt(builder.length() - 1);
-                String text = builder.toString();
-                /*List<String> list = new ArrayList<>();
-                for (String name : text.split(",")) {
-                    ResourceLocation location = new ResourceLocation(name);
-                    ResourceKey key = ResourceKey.createRegistryKey(location);
-                    list.add(location.toLanguageKey());
-                }*/
-                components.add(Component.literal(text));
+                components.add(VPUtil.filterAndTranslate(player.getPersistentData().getString("VPVortex"),ChatFormatting.GRAY));
             }
         }
         super.appendHoverText(stack, level, components, flag);

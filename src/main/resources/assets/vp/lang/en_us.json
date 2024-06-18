@@ -22,6 +22,8 @@
   "item.vp.flower": "§2Seven-coloured Flower",
   "item.vp.catalyst": "§aInfested Catalyst",
   "item.vp.easter_egg": "§cEaster Egg",
+  "item.vp.shard": "§dCrystallized §5Despair",
+  "vp.shard": "When used on a Boss in Hardcore mode, it has a 20% chance to turn it into a Nightmare Boss.",
   "item.vp.ball": "§bBall Lightning",
   "item.vp.trigon": "§6Paragon Trigon",
   "item.vp.soulblighter": "§dSoulrender",
@@ -272,7 +274,7 @@
   "vp.special.24": "Grants a water shield, fully protecting from the next 3 hits.\nThe number of hits increases based on underwater breathing time, up to 10.",
   "vp.ultimate.24": "Envelops nearby enemies in a bubble where they cannot breathe.\nThe bubble bursts upon taking damage (except drowning) and deals 1000% damage, also making the target 'wet'.",
   "vp.get.24": "Collect all types of coral, fish, and axolotl.",
-  "vp.damagetype.24": "drowning"
+  "vp.damagetype.24": "drowning",
 
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
   "vp.stellar.2": "For enemies under the effect of the Ultimate, consumes 10% of Shields to enhance the Special, dealing an additional 1 Paragon damage for every 1000 Shields spent (up to a maximum of 1000).",
@@ -297,7 +299,7 @@
   "vp.stellar.21": "While the Ultimate is not active, Shields and Over Shields will be consumed instead of equipment durability.\nWhile the Ultimate is active, prevented durability damage will restore Over Shields.",
   "vp.stellar.22": "The Ultimate will also restore 1 Special charge to itself and all surrounding players.",
   "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
-  "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nIce - increases maximum and current Vestige cooldown by 80%, slows down.\nFire - 20% chance to waste a Vestige charge, reduces armor by 90%.\nMagic - increases incoming damage by 400%.\nWither - disables regeneration.\nVoid - reduces Max HP by 80%.\nPerfect - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%."
+  "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nMagic - forbids resurrection, Shields and OverShields obtaining, teleportation. \nWither - lowers regeneration by 50.\nVoid - reduces Max HP by 80%.\nPerfect - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%.",
 
 
   "vp.info": "If you have any questions about mechanics, type /vestiges info",
@@ -326,7 +328,7 @@
   "vp.short.21": "Protects items from breaking and gives armor to everyone around.",
   "vp.short.22": "Grants numerous unique buffs to everyone around.",
   "vp.short.23": "Speeds up fishing and provides additional unique loot from it.",
-  "vp.short.24": "Heals the owner when wet, provides protection from hits, and applies debuffs."
+  "vp.short.24": "Heals the owner when wet, provides protection from hits, and applies debuffs.",
 
 
   "vp.acs.types": "§5Attribute types:§d \n1)+1-4 to Max HP\n2)+2-8 to Attack attribute\n3)+5-20% to Damage dealt\n4)+3-12% to Healing\n5)+4-16% to Shields.",

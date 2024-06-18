@@ -304,7 +304,8 @@ public class Vestige extends Item implements ICurioItem {
         }
         return 0;
     }
-
+    public float specialTimeBonus = 1;
+    public float ultimateTimeBonus = 1;
     public void applyBonus(ItemStack stack,Player player){
         int specialBonus = 0;
         int ultimateBonus = 0;
@@ -316,8 +317,6 @@ public class Vestige extends Item implements ICurioItem {
         int ultAcsBonus = 0;
         float specialCdBonus = 1;
         float ultimateCdBonus = 1;
-        float specialTimeBonus = 1;
-        float ultimateTimeBonus = 1;
         int set = VPUtil.getSet(player);
         if(set == 1){
             spAcsBonus += 1;
@@ -518,11 +517,11 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 6: {
-                        text = VPUtil.getFoodLeft(cap.getFoodEaten()).toString();
+                        text = VPUtil.filterAndTranslate(VPUtil.getFoodLeft(cap.getFoodEaten()).toString(),ChatFormatting.GRAY).getString();
                         break;
                     }
                     case 10: {
-                        text = VPUtil.getToolLeft(cap.getTools()).toString();
+                        text = VPUtil.filterAndTranslate(VPUtil.getToolLeft(cap.getTools()).toString(),ChatFormatting.GRAY).getString();
                         break;
                     }
                     case 11:{
@@ -538,15 +537,15 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 16: {
-                        text = VPUtil.getFlowersLeft(cap.getFlowers()).toString();
+                        text = VPUtil.filterAndTranslate(VPUtil.getFlowersLeft(cap.getFlowers()).toString(),ChatFormatting.GRAY).getString();
                         break;
                     }
                     case 17: {
-                        text = VPUtil.getEffectsLeft(cap.getEffects()).toString();
+                        text = VPUtil.filterAndTranslate(VPUtil.getEffectsLeft(cap.getEffects()).toString(),ChatFormatting.GRAY).getString();
                         break;
                     }
                     case 20:{
-                        text = VPUtil.getMobsLeft(cap.getMobsTamed()).toString();
+                        text = VPUtil.getMobsClient(player).toString();
                         break;
                     }
                     default:

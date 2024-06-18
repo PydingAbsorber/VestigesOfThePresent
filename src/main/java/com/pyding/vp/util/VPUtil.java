@@ -10,14 +10,16 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
-import com.pyding.vp.item.artifacts.Rune;
 import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.item.artifacts.Whirlpool;
+import com.pyding.vp.mixin.VzlomJopiMixin;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -38,10 +40,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -200,18 +199,13 @@ public class VPUtil {
     }
 
     public static List<String> getBiomesLeft(String list, Player player){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> biomeList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+        List<String> biomeList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(ResourceLocation location: getBiomes()){
             allList.add(location.getPath());
         }
         allList.removeAll(biomeList);
-        player.getPersistentData().putString("VPBiomesClient", allList.toString());
+        player.getPersistentData().putString("VPBiomesClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
         return allList;
     }
     public static List<String> getBiomesClient(Player player){
@@ -230,55 +224,39 @@ public class VPUtil {
         return items;
     }
 
-    public static List<Item> foodItems = new ArrayList();
-    public static List<Item> toolItems = new ArrayList();
-    public static List<Item> getEdibleItems(){
-        if(foodItems.size() < 1) {
+    public static List<String> foodItems = new ArrayList();
+    public static List<String> toolItems = new ArrayList();
+    public static List<String> getEdibleItems(){
+        if(foodItems.isEmpty()) {
             for (Item item : items) {
                 if (item.isEdible())
-                    foodItems.add(item);
+                    foodItems.add(item.getDescriptionId());
             }
         }
         return foodItems;
     }
 
-    public static List getFoodLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> foodList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
-        List<String> allList = new ArrayList<>();
-        for(Item type: foodItems){
-            allList.add(type.toString());
-        }
+    public static List<String> getFoodLeft(String list){
+        List<String> foodList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
+        List<String> allList = new ArrayList<>(Arrays.asList(filterString(getEdibleItems().toString()).split(",")));
         allList.removeAll(foodList);
         return allList;
     }
 
-    public static List<Item> getTools(){
-        if(toolItems.size() < 1) {
+    public static List<String> getTools(){
+        if(toolItems.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof TieredItem)
-                    toolItems.add(item);
+                    toolItems.add(item.getDescriptionId());
             }
         }
         return toolItems;
     }
 
-    public static List getToolLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> itemList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
-        List<String> allList = new ArrayList<>();
-        for(Item type: toolItems){
-            allList.add(type.toString());
-        }
-        allList.removeAll(itemList);
+    public static List<String> getToolLeft(String list){
+        List<String> toolList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
+        List<String> allList = new ArrayList<>(Arrays.asList(filterString(getTools().toString()).split(",")));
+        allList.removeAll(toolList);
         return allList;
     }
     public static String getRandomMob(){
@@ -329,42 +307,28 @@ public class VPUtil {
                  return true;
         return false;
     }
-    public static List getMonsterLeft(String list, Player player){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> mobsList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+    public static List<String> getMonsterLeft(String list, Player player){
+        List<String> mobsList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: monsterList){
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
-        player.getPersistentData().putString("VPMonsterClient", allList.toString());
+        player.getPersistentData().putString("VPMonsterClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
         return allList;
     }
     public static List<String> getMonsterClient(Player player){
         return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPMonsterClient").split(",")));
     }
 
-    public static List getBossesLeft(String list, Player player){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> mobsList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+    public static List<String> getBossesLeft(String list, Player player){
+        List<String> mobsList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: bossList){
             allList.add(type.toString());
         }
-        StringBuilder cringeMax = new StringBuilder();
-        for(String element : allList) {
-            cringeMax.append(element).append(",");
-        }
         allList.removeAll(mobsList);
-        player.getPersistentData().putString("VPBossClient", allList.toString());
+        player.getPersistentData().putString("VPBossClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
         return allList;
     }
 
@@ -372,19 +336,19 @@ public class VPUtil {
         return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPBossClient").split(",")));
     }
 
-    public static List getMobsLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> mobsList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+    public static List<String> getMobsLeft(String list, Player player){
+        List<String> mobsList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(EntityType<?> type: getEntitiesListOfType(MobCategory.CREATURE)){
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
+        player.getPersistentData().putString("VPMobsClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
         return allList;
+    }
+
+    public static List<String> getMobsClient(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPMobsClient").split(",")));
     }
 
     public static List<Block> blocks = new ArrayList<>();
@@ -416,12 +380,7 @@ public class VPUtil {
     }
 
     public static List<String> getFlowersLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> flowerList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+        List<String> flowerList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(String name: getFlowers()){
             allList.add(name);
@@ -566,9 +525,9 @@ public class VPUtil {
                 float shield = getShield(event.getEntity());
                 float overshield = getOverShield(event.getEntity());
                 if(shield > 0)
-                player.sendSystemMessage(Component.literal("§cHas Shields: " + shield));
+                    player.sendSystemMessage(Component.literal("§cHas Shields: " + shield));
                 if(overshield > 0)
-                player.sendSystemMessage(Component.literal("§dHas Over Shields: " + overshield));
+                    player.sendSystemMessage(Component.literal("§dHas Over Shields: " + overshield));
                 if(event.getEntity().getPersistentData().getInt("VPPrismDamage") > 0)
                     player.sendSystemMessage(Component.literal("§5Has Prism with weak point: " + playerDamageSources(player,player).get(event.getEntity().getPersistentData().getInt("VPPrismDamage")-1)));
                 player.sendSystemMessage(Component.literal("\n"));
@@ -577,12 +536,7 @@ public class VPUtil {
     }
 
     public static List<String> getDamageDoLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> damageList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+        List<String> damageList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(TagKey<DamageType> key: damageTypes(true)){
             allList.add(key.location().getPath());
@@ -994,7 +948,7 @@ public class VPUtil {
         }
         else shield = tag.getFloat("VPShield") + amount;
         shield = shield*(1 + shieldBonus/100);
-        if(!tag.getBoolean("VPAntiShield")) {
+        if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
                 if(Math.random() < 0.2)
                     addOverShield(player,shield*0.05f,false);
@@ -1182,7 +1136,17 @@ public class VPUtil {
         return isCustomBoss(entity.getType());
     }
 
-    public static void dropEntityLoot(LivingEntity entity, Player player) {
+    public static boolean isNightmareBoss(LivingEntity entity){
+        return isBoss(entity) && entity.getPersistentData().getBoolean("VPNightmareBoss");
+    }
+
+    public static boolean isNightmareBoss(Entity entity){
+        if(entity instanceof LivingEntity livingEntity)
+            return isBoss(livingEntity) && entity.getPersistentData().getBoolean("VPNightmareBoss");
+        else return false;
+    }
+
+    public static void dropEntityLoot(LivingEntity entity, Player player, boolean drop) {
         if (entity instanceof Player) {
             return;
         }
@@ -1194,11 +1158,12 @@ public class VPUtil {
             lootparams.put(LootContextParams.THIS_ENTITY, entity);
             lootparams.put(LootContextParams.DAMAGE_SOURCE, player.damageSources().playerAttack(player));
             LootParams params = new LootParams(serverLevel,lootparams,null,1);
-            //LootContext.Builder builder = new LootContext.Builder();
             List<ItemStack> list = lootTable.getRandomItems(params);
             for(ItemStack stack: list){
                 ItemEntity itemEntity = new ItemEntity(serverLevel,entity.getX(),entity.getY(),entity.getZ(),stack);
-                serverLevel.addFreshEntity(itemEntity);
+                if(drop)
+                    serverLevel.addFreshEntity(itemEntity);
+                else giveStack(stack,player);
             }
         }
     }
@@ -1622,7 +1587,7 @@ public class VPUtil {
         if(!applyBonus)
             shieldBonus = 0;
         float shield = (tag.getFloat("VPOverShield") + amount)*(1 + shieldBonus/100);
-        if(!tag.getBoolean("VPAntiShield")) {
+        if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
                 boolean found = false;
                 for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
@@ -1657,7 +1622,7 @@ public class VPUtil {
         if(tag.getFloat("VPOverShield") <= 0)
             return;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
-        if(!tag.getBoolean("VPAntiShield")) {
+        if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(tag.getFloat("VPOverShieldMax") >= shield)
                 tag.putFloat("VPOverShield", shield);
             else tag.putFloat("VPOverShield", tag.getFloat("VPOverShieldMax"));
@@ -1709,12 +1674,7 @@ public class VPUtil {
     }
 
     public static List getEffectsLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> effectList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+        List<String> effectList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(MobEffect effect: effects){
             allList.add(effect.getDescriptionId());
@@ -1765,12 +1725,7 @@ public class VPUtil {
     }
 
     public static List getDamageKindsLeft(String list){
-        StringBuilder stringBuilder = new StringBuilder(list);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(0);
-        if(stringBuilder.length() > 0)
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
-        List<String> damageList = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+        List<String> damageList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>(getDamageKinds());
         allList.removeAll(damageList);
         return allList;
@@ -1822,7 +1777,21 @@ public class VPUtil {
         ItemStack stack = player.getMainHandItem();
         float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
+        if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
+            entity.getPersistentData().putLong("VPBubble", 0);
+            VPUtil.dealDamage(entity, player, player.damageSources().drown(), 1000, 3);
+            entity.getPersistentData().putLong("VPWet", System.currentTimeMillis() + 20000);
+            entity.getPersistentData().putFloat("VPOverShield",overShields*0.5f);
+            long time = 10000;
+            if(hasStellarVestige(ModItems.WHIRLPOOL.get(),player)){
+                if(getVestigeStack(Whirlpool.class,player).getItem() instanceof Vestige vestige && vestige.ultimateTimeBonus > 0)
+                    time *= (long) vestige.ultimateTimeBonus;
+            }
+            entity.getPersistentData().putLong("VPWhirlParagon",System.currentTimeMillis()+time);
+        }
         if(overShields > 0) {
+            if(isNightmareBoss(entity))
+                health *= 0.1f;
             if (overShields > health) {
                 entity.getPersistentData().putFloat("VPOverShield", overShields - health);
                 return;
@@ -1843,6 +1812,34 @@ public class VPUtil {
             }
         } else {
             deadInside(entity,player);
+        }
+    }
+
+    public static void dealParagonDamage(LivingEntity entity,LivingEntity player,float damage, int type, boolean hurt){
+        ItemStack stack = player.getMainHandItem();
+        float health = damage;
+        float overShields = getOverShield(entity);
+        if(overShields > 0) {
+            if (overShields > health) {
+                entity.getPersistentData().putFloat("VPOverShield", overShields - health);
+                return;
+            } else {
+                entity.getPersistentData().putFloat("VPOverShield", 0);
+                health -= overShields;
+            }
+        }
+        if(entity.getHealth()-health > 0) {
+            if(hurt)
+                entity.hurt(player.damageSources().generic(),0);
+            entity.setHealth(entity.getHealth() - health);
+            if(entity instanceof Player deb && hasVestige(ModItems.RUNE.get(), deb) && (VPUtil.getShield(deb) <= 0 || VPUtil.getOverShield(deb) <= 0)){
+                if(VPUtil.getShield(deb) <= 0)
+                    VPUtil.addShield(deb,health*0.5f,false);
+                if(VPUtil.getOverShield(deb) <= 0)
+                    VPUtil.addOverShield(deb,health*0.5f,true);
+            }
+        } else {
+            deadInside(entity);
         }
     }
 
@@ -2126,6 +2123,7 @@ public class VPUtil {
             VPUtil.getBiomesLeft(cap.getBiomesFound(), player);
             VPUtil.getMonsterLeft(cap.getMonstersKilled(),player);
             VPUtil.getBossesLeft(cap.getBosses(),player);
+            VPUtil.getMobsLeft(cap.getMobsTamed(),player);
         }
     }
 
@@ -2142,8 +2140,8 @@ public class VPUtil {
         return notContains;
     }
 
-    public static float dreadAbsorbtion(float number) {
-        float cap = 100;
+    public static float dreadAbsorbtion(float number,float capAbsorb) {
+        float cap = Math.max(1,100-capAbsorb);
         float damage;
         if (number <= cap) {
             damage = number * 0.05f;
@@ -2250,5 +2248,40 @@ public class VPUtil {
         }
 
         return depth;
+    }
+
+    public static String filterString(String string){
+        if(string.isEmpty())
+            return string;
+        StringBuilder builder = new StringBuilder(string);
+        builder.deleteCharAt(0);
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
+    }
+
+    public static Component translateString(String string, ChatFormatting color){
+        List<String> list = new ArrayList<>(List.of(string.split(",")));
+        StringBuilder translatedText = new StringBuilder();
+        for (String name : list) {
+            Component translatedComponent = Component.translatable(name.trim());
+            translatedText.append(translatedComponent.getString()).append(", ");
+        }
+        if (translatedText.length() > 2) {
+            translatedText.setLength(translatedText.length() - 2);
+        }
+        return Component.literal(translatedText.toString()).withStyle(color);
+    }
+
+    public static Component filterAndTranslate(String string, ChatFormatting color){
+        return translateString(filterString(string),color);
+    }
+
+    public static void vzlomatJopu(float value){
+        final Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(new ResourceLocation("generic.max_health"));
+        if (attribute instanceof RangedAttribute ranged) {
+            final VzlomJopiMixin vzlom = (VzlomJopiMixin) (Object) attribute;
+            if (ranged.getMaxValue() != value)
+                vzlom.vzlomatJopu(value);
+        }
     }
 }

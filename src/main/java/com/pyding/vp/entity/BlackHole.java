@@ -106,7 +106,7 @@ public class BlackHole extends Projectile {
             }
         }
         VPUtil.syncEntity(this);
-        if(tickCount < 5*60*20) {
+        if(tickCount > 5*60*20) {
             discard();
         }
     }

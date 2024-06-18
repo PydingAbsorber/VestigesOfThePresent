@@ -13,6 +13,7 @@ import com.pyding.vp.item.accessories.BeltOfBrokenMemories;
 import com.pyding.vp.item.accessories.EarringOfDeadHopes;
 import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
 import com.pyding.vp.item.accessories.RingOfFallenStar;
+import com.pyding.vp.mixin.VzlomJopiMixin;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtilParticles;
@@ -67,6 +68,7 @@ public class VestigesOfPresent
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC); //bye  bye
         ModCreativeModTab.register(modEventBus);
         modEventBus.addListener(this::addCreative);
+        VPUtil.vzlomatJopu(Float.MAX_VALUE);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init
@@ -156,6 +158,7 @@ public class VestigesOfPresent
                 event.accept(ModItems.EASTER_EGG);
             event.accept(ModItems.BOX_SAPLINGS);
             event.accept(ModItems.BOX_EGGS);
+            event.accept(ModItems.SHARD);
         }
     }
 }

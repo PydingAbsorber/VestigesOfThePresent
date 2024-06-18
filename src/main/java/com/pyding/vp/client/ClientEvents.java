@@ -10,11 +10,11 @@ import com.pyding.vp.entity.models.Hunter;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.KeyBinding;
+import com.pyding.vp.util.VPUtil;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,6 +33,13 @@ public class ClientEvents {
             } else if (KeyBinding.SECOND_KEY.isDown()) {
                 PacketHandler.sendToServer(new ButtonPressPacket(2));
             }
+        }
+
+        @SubscribeEvent
+        public static void renderEvent(RenderLivingEvent.Pre<LivingEntity, ?> event) {
+            LivingEntity entity = event.getEntity();
+            if(VPUtil.isNightmareBoss(entity))
+                event.getPoseStack().scale(3.0F, 3.0F, 3.0F);
         }
     }
 
@@ -64,6 +71,5 @@ public class ClientEvents {
             event.registerEntityRenderer(ModEntities.KILLER.get(), VestigeHunterKillerRenderer::new);
             event.registerEntityRenderer(ModEntities.EASTER_EGG_ENTITY.get(), EasterEggRenderer::new);
         }
-
     }
 }
