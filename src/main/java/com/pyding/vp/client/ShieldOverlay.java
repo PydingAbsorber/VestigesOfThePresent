@@ -10,6 +10,7 @@ import com.pyding.vp.item.artifacts.Catalyst;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
@@ -202,18 +203,8 @@ public class ShieldOverlay {
         int centerHeight = y - 230;
         for(Object o : VPUtil.rayClass(Entity.class,player,3,20,true)){
             if(o instanceof VortexEntity vortexEntity){
-                StringBuilder currentB = new StringBuilder(vortexEntity.getPersistentData().getString("VPVortexList"));
-                StringBuilder maxB = new StringBuilder(player.getPersistentData().getString("VPVortex"));
-                if(currentB.length() > 0)
-                    currentB.deleteCharAt(0);
-                if(currentB.length() > 0)
-                    currentB.deleteCharAt(currentB.length()-1);
-                if(maxB.length() > 0)
-                    maxB.deleteCharAt(0);
-                if(maxB.length() > 0)
-                    maxB.deleteCharAt(maxB.length()-1);
-                String current = currentB.toString();
-                String max = maxB.toString();
+                String current = (vortexEntity.getPersistentData().getString("VPVortexList"));
+                String max = (player.getPersistentData().getString("VPVortex"));
                 int currentNumber = 0;
                 int maxNumber = 0;
                 List<String> listMax = new ArrayList<>();
@@ -221,16 +212,16 @@ public class ShieldOverlay {
                 if(!current.isEmpty()) {
                     for (String name : current.split(",")) {
                         currentNumber++;
-                        listCurrent.add(name);
+                        listCurrent.add(name.trim());
                     }
                 }
                 for(String name: max.split(",")) {
                     maxNumber++;
-                    listMax.add(name);
+                    listMax.add(name.trim());
                 }
                 listMax.removeAll(listCurrent);
                 pose.drawString(fontRenderer, currentNumber + " / " + maxNumber, x - 10, centerHeight +10, 0x9932CC);
-                pose.drawString(fontRenderer, listMax.toString(), x - 10, centerHeight +30, 0x9932CC);
+                pose.drawString(fontRenderer, VPUtil.filterAndTranslate(listMax.toString(), ChatFormatting.LIGHT_PURPLE), x - 10, centerHeight +30, 0x9932CC);
                 break;
             }
         }

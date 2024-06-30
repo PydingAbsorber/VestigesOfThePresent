@@ -40,7 +40,7 @@ public class Crown extends Vestige{
         for(LivingEntity entity: VPUtil.ray(player,3,128,false)){
             entity.getPersistentData().putLong("VPDeath", ultimateMaxTime(stack) + System.currentTimeMillis());
         }
-        VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,128,3,3,0,1,0,3,false);
+        VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,128,3,30,0,1,0,3,false);
         super.doUltimate(seconds, player, level, stack);
     }
 }

@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 
 @AutoRegisterCapability
 public class PlayerCapabilityVP {
-    public static int totalVestiges = 20;
+    public static int totalVestiges = 24;
     private int[] challenges = new int[this.totalVestiges];
     private String coolDowned = "";
     private String biomesFound = "";
@@ -70,6 +70,11 @@ public class PlayerCapabilityVP {
 
     private String effects = "";
     private String bosses = "";
+    private String music = "";
+    private String templates = "";
+    private String fish = "";
+    private String sea = "";
+    private String friends = "";
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
@@ -79,6 +84,34 @@ public class PlayerCapabilityVP {
             dimensions += dim + ",";
             dimensionsDir += nameSpace + ",";
             sync(player);
+        }
+    }
+
+    public void addMusic(String musicDisk, Player player){
+        if(VPUtil.notContains(music,musicDisk)) {
+            this.music += musicDisk + ",";
+            setChallenge(22,player);
+        }
+    }
+
+    public void addTemplate(String template, Player player){
+        if(VPUtil.notContains(templates,template)) {
+            this.templates += template + ",";
+            setChallenge(21,player);
+        }
+    }
+
+    public void addFish(String fishka, Player player){
+        if(VPUtil.notContains(fish,fishka)) {
+            this.fish += fishka + ",";
+            setChallenge(23,player);
+        }
+    }
+
+    public void addSea(String seaElement, Player player){
+        if(VPUtil.notContains(sea,seaElement)) {
+            this.sea += seaElement + ",";
+            setChallenge(24,player);
         }
     }
 
@@ -250,6 +283,24 @@ public class PlayerCapabilityVP {
             sync(player);
         }
     }
+    public void addFriend(String friend, Player player){
+        if(VPUtil.notContains(friends,friend)) {
+            this.friends += friend + ",";
+            sync(player);
+        }
+    }
+    public void removeFriend(String friend, Player player){
+        List<String> list = new ArrayList<>(List.of(friends.split(",")));
+        list.remove(friend);
+        friends = "";
+        for(String element: list){
+            friends += element+",";
+        }
+        sync(player);
+    }
+    public String getFriends(){
+        return friends;
+    }
     public void addCat(String cat, Player player){
         if(VPUtil.notContains(cats,cat)) {
             this.cats += cat + ",";
@@ -317,6 +368,19 @@ public class PlayerCapabilityVP {
 
     public String getBosses(){
         return bosses;
+    }
+
+    public String getMusic(){
+        return music;
+    }
+    public String getTemplates(){
+        return templates;
+    }
+    public String getFish(){
+        return fish;
+    }
+    public String getSea(){
+        return sea;
     }
 
     public void addBossKill(String monster, Player player){
@@ -435,6 +499,22 @@ public class PlayerCapabilityVP {
                 mobsTamed = "";
                 break;
             }
+            case 21:{
+                templates = "";
+                break;
+            }
+            case 22:{
+                music = "";
+                break;
+            }
+            case 23:{
+                fish = "";
+                break;
+            }
+            case 24:{
+                sea = "";
+                break;
+            }
             default: break;
         }
         setChallenge(vp,0,player);
@@ -474,6 +554,11 @@ public class PlayerCapabilityVP {
         dimensionsDir = "";
         effects = "";
         bosses = "";
+        music = "";
+        templates = "";
+        fish = "";
+        sea = "";
+        friends = "";
         sync(player);
     }
 
@@ -520,6 +605,14 @@ public class PlayerCapabilityVP {
                 return 1000000-reduce;
             case 20:
                 return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size()-reduce;
+            case 21:
+                return VPUtil.getTemplates().size()-reduce;
+            case 22:
+                return VPUtil.getMusicDisks().size()-reduce;
+            case 23:
+                return VPUtil.getFishDrops().size()-reduce;
+            case 24:
+                return VPUtil.getSeaList().size()-reduce;
         }
         return  0;
     }
@@ -528,7 +621,8 @@ public class PlayerCapabilityVP {
         Level level = player.getCommandSenderWorld();
         VPUtil.initMonstersAndBosses(level);
         VPUtil.initBiomes(level);
-        player.getPersistentData().putString("VPVortex",VPUtil.vortexItems().toString());
+        VPUtil.initFish(player);
+        player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(i).get();
             switch (i) {
@@ -591,6 +685,18 @@ public class PlayerCapabilityVP {
                     break;
                 case 20:
                     player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() - reduce);
+                    break;
+                case 21:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getTemplates().size()-reduce);
+                    break;
+                case 22:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getMusicDisks().size()-reduce);
+                    break;
+                case 23:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getFishDrops().size()-reduce);
+                    break;
+                case 24:
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getSeaList().size()-reduce);
                     break;
             }
         }
@@ -655,6 +761,10 @@ public class PlayerCapabilityVP {
         bosses = source.bosses;
         flowers = source.flowers;
         creaturesKilledAir = source.creaturesKilledAir;
+        music = source.music;
+        templates = source.templates;
+        fish = source.fish;
+        sea = source.sea;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -685,6 +795,11 @@ public class PlayerCapabilityVP {
         nbt.putString("VPEffects",effects);
         nbt.putString("VPBosses",bosses);
         nbt.putString("VPAir",creaturesKilledAir);
+        nbt.putString("VPMusic",music);
+        nbt.putString("VPTemplate",templates);
+        nbt.putString("VPFish",fish);
+        nbt.putString("VPSea",sea);
+        nbt.putString("VPFriends",friends);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -715,6 +830,11 @@ public class PlayerCapabilityVP {
         effects = nbt.getString("VPEffects");
         bosses = nbt.getString("VPBosses");
         creaturesKilledAir = nbt.getString("VPAir");
+        music = nbt.getString("VPMusic");
+        templates = nbt.getString("VPTemplate");
+        fish = nbt.getString("VPFish");
+        sea = nbt.getString("VPSea");
+        friends = nbt.getString("VPFriends");
     }
 
     public CompoundTag getNbt(){
@@ -746,6 +866,11 @@ public class PlayerCapabilityVP {
         nbt.putString("VPEffects",effects);
         nbt.putString("VPBosses",bosses);
         nbt.putString("VPAir",creaturesKilledAir);
+        nbt.putString("VPMusic",music);
+        nbt.putString("VPTemplate",templates);
+        nbt.putString("VPFish",fish);
+        nbt.putString("VPSea",sea);
+        nbt.putString("VPFriends",friends);
         return nbt;
     }
 
@@ -848,6 +973,22 @@ public class PlayerCapabilityVP {
             }
             case 20:{
                 stack = new ItemStack(ModItems.SOULBLIGHTER.get());
+                break;
+            }
+            case 21:{
+                stack = new ItemStack(ModItems.RUNE.get());
+                break;
+            }
+            case 22:{
+                stack = new ItemStack(ModItems.LYRA.get());
+                break;
+            }
+            case 23:{
+                stack = new ItemStack(ModItems.PEARL.get());
+                break;
+            }
+            case 24:{
+                stack = new ItemStack(ModItems.WHIRLPOOL.get());
                 break;
             }
             default: {

@@ -3,6 +3,8 @@ package com.pyding.vp.item.artifacts;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -36,14 +39,14 @@ public class Vestige extends Item implements ICurioItem {
     }
     List<String> specialText;
     public Boolean damageType;
-    public int ultimateChargesBase = 0;
-    public int specialChargesBase = 0;
+    public int ultimateChargesBase;
+    public int specialChargesBase;
 
-    public long ultimateDurationBase = 0;
-    public long specialDurationBase = 0;
+    public long ultimateDurationBase;
+    public long specialDurationBase;
 
-    public int specialCdBase = 0;
-    public int ultimateCdBase = 0;
+    public int specialCdBase;
+    public int ultimateCdBase;
 
     public int vestigeNumber;
 
@@ -277,6 +280,11 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setSpecialActive(long seconds, Player player, ItemStack stack){
+        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis()){
+            if(player instanceof ServerPlayer serverPlayer)
+                PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
+            return 0;
+        }
         if(currentChargeSpecial(stack) > 0) {
             if(!player.getCommandSenderWorld().isClientSide) {
                 setTime(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
@@ -284,6 +292,8 @@ public class Vestige extends Item implements ICurioItem {
                 setCdSpecialActive(cdSpecialActive(stack)+specialCd(stack),stack);     //time until cd recharges in seconds*tps
                 if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || !(VPUtil.getSet(player) == 6 && Math.random() < 0.5) || Math.random() < player.getPersistentData().getFloat("VPDepth")/10)
                     setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
+                if(damageType)
+                    player.getPersistentData().putBoolean("VPAttacked",true);
                 this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
             } else this.localSpecial(player);
         }
@@ -291,6 +301,11 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setUltimateActive(long seconds, Player player, ItemStack stack){
+        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis()){
+            if(player instanceof ServerPlayer serverPlayer)
+                PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
+            return 0;
+        }
         if(currentChargeUltimate(stack) > 0) {
             if(!player.getCommandSenderWorld().isClientSide) {
                 setTimeUlt(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
@@ -299,6 +314,8 @@ public class Vestige extends Item implements ICurioItem {
                 if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || !(VPUtil.getSet(player) == 6 && Math.random() < 0.5) || Math.random() < player.getPersistentData().getFloat("VPDepth")/10)
                     setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
                 long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
+                if(damageType)
+                    player.getPersistentData().putBoolean("VPAttacked",true);
                 this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld(), stack);
             } else this.localSpecial(player);
         }
@@ -348,10 +365,14 @@ public class Vestige extends Item implements ICurioItem {
             specialCdBonus -= 0.2f;
             ultimateCdBonus -= 0.2f;
         }
-        setSpecialCd((int) (specialCdBase(stack)*specialCdBonus),stack);
-        setUltimateCd((int) (ultimateCdBase(stack)*ultimateCdBonus),stack);
-        setSpecialMaxTime((int) (specialDurationBase(stack)*specialTimeBonus),stack);
-        setUltimateMaxTime((int) (ultimateDurationBase(stack)*ultimateTimeBonus),stack);
+        if(VPUtil.isPoisonedByNightmare(player)) {
+            specialTimeBonus -= 0.5f;
+            ultimateTimeBonus -= 0.5f;
+        }
+        setSpecialCd((int) (specialCdBase(stack)*Math.max(0.1,specialCdBonus)),stack); //cauton!!!
+        setUltimateCd((int) (ultimateCdBase(stack)*Math.max(0.1,ultimateCdBonus)),stack);
+        setSpecialMaxTime((int) (specialDurationBase(stack)*Math.max(0.1,specialTimeBonus)),stack);
+        setUltimateMaxTime((int) (ultimateDurationBase(stack)*Math.max(0.1,ultimateTimeBonus)),stack);
         setSpecialCharges(specialChargesBase(stack)+specialBonus+specialBonusModifier(stack)+spAcsBonus,stack);
         setUltimateCharges(ultimateChargesBase(stack)+ultimateBonus+ultimateBonusModifier(stack)+ultAcsBonus,stack);
     }
@@ -548,6 +569,22 @@ public class Vestige extends Item implements ICurioItem {
                         text = VPUtil.getMobsClient(player).toString();
                         break;
                     }
+                    case 21:{
+                        text = VPUtil.filterAndTranslate(VPUtil.getTemplatesLeft(cap.getTemplates()).toString()).getString();
+                        break;
+                    }
+                    case 22:{
+                        text =  VPUtil.filterAndTranslate(VPUtil.getMusicDisksLeft(cap.getMusic()).toString()).getString();
+                        break;
+                    }
+                    case 23:{
+                        text =  VPUtil.filterAndTranslate(VPUtil.getFishLeft(cap.getFish()).toString()).getString();
+                        break;
+                    }
+                    case 24:{
+                        text =  VPUtil.filterAndTranslate(VPUtil.getSeaLeft(cap.getSea()).toString()).getString();
+                        break;
+                    }
                     default:
                         text = null;
                 }
@@ -703,11 +740,13 @@ public class Vestige extends Item implements ICurioItem {
 
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack){
         player.getPersistentData().putLong("VPAcsSpecial",System.currentTimeMillis()+5000);
+        applyBonus(stack,player); //cauton!!!
     }
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack){
         player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
         if(vestigeNumber != 3)
             player.getPersistentData().putInt("VPGravity",0);
+        applyBonus(stack,player); //cauton!!!
     }
     public void specialEnds(Player player, ItemStack stack){
 

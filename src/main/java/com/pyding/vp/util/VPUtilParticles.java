@@ -1,5 +1,6 @@
 package com.pyding.vp.util;
 
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 
@@ -14,7 +15,7 @@ public class VPUtilParticles {
     public static void fillParticleMaps() {
         particleOptionsMap.put(ParticleTypes.AMBIENT_ENTITY_EFFECT, 0);
         particleOptionsMap.put(ParticleTypes.ANGRY_VILLAGER, 1);
-        //particleOptionsMap.put(ParticleTypes.BLOCK, 2);
+        //particleOptionsMap.put(new BlockParticleOption(ParticleTypes.BLOCK, null), 2);
         //particleOptionsMap.put(ParticleTypes.BLOCK_MARKER, 3);
         particleOptionsMap.put(ParticleTypes.BUBBLE, 4);
         particleOptionsMap.put(ParticleTypes.CLOUD, 5);

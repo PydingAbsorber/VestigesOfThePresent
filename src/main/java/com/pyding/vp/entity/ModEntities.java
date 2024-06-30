@@ -37,4 +37,9 @@ public class ModEntities {
                     .sized(4, 4)
                     .clientTrackingRange(64)
                     .build(new ResourceLocation(VestigesOfPresent.MODID, "easter_egg_entity").toString()));
+    public static final RegistryObject<EntityType<CloudEntity>> CLOUD_ENTITY =
+            ENTITIES.register("cloud_entity", () -> EntityType.Builder.<CloudEntity>of(CloudEntity::new, MobCategory.MISC)
+                    .sized(11, 11)
+                    .clientTrackingRange(64)
+                    .build(new ResourceLocation(VestigesOfPresent.MODID, "cloud_entity").toString()));
 }

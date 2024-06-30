@@ -14,20 +14,6 @@ public abstract class VPEntityMixin {
 
     @Shadow public abstract CompoundTag getPersistentData();
 
-    @Inject(method = "isInWaterRainOrBubble",at = @At("RETURN"),cancellable = true, require = 1)
-    protected void isInWaterRainOrBubble(CallbackInfoReturnable<Boolean> cir){
-        if(this.getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
-            cir.setReturnValue(true);
-        }
-    }
-
-    @Inject(method = "isInWaterOrRain",at = @At("RETURN"),cancellable = true, require = 1)
-    protected void isInWaterOrRain(CallbackInfoReturnable<Boolean> cir){
-        if(this.getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
-            cir.setReturnValue(true);
-        }
-    }
-
     @Inject(method = "isInBubbleColumn",at = @At("RETURN"),cancellable = true, require = 1)
     protected void isInBubbleColumn(CallbackInfoReturnable<Boolean> cir){
         if(this.getPersistentData().getLong("VPWet") > System.currentTimeMillis()){

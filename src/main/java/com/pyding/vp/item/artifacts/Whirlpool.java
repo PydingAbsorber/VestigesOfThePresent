@@ -14,7 +14,7 @@ public class Whirlpool extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(24, ChatFormatting.BLUE, 3, 40, 1, 60, 30, 1, true, stack);
+        super.dataInit(24, ChatFormatting.BLUE, 3, 40, 1, 60, 30, 20, true, stack);
     }
 
     @Override
@@ -27,6 +27,7 @@ public class Whirlpool extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         for(LivingEntity entity: VPUtil.getEntities(player,20,false)){
             entity.getPersistentData().putLong("VPBubble",System.currentTimeMillis()+seconds);
+            entity.setLastHurtByPlayer(player);
         }
         super.doUltimate(seconds, player, level, stack);
     }

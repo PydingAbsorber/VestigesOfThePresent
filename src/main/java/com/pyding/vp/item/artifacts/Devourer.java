@@ -44,13 +44,15 @@ public class Devourer extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.DEVOURER_BIND.get());
         for (LivingEntity entity : VPUtil.ray(player, 6, 30, true)) {
-            entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + seconds);
-            victim = entity;
-            entity.getPersistentData().putDouble("VPDevourerX",entity.getX());
-            entity.getPersistentData().putDouble("VPDevourerY",entity.getY());
-            entity.getPersistentData().putDouble("VPDevourerZ",entity.getZ());
+            if(!VPUtil.isProtectedFromHit(player,entity)) {
+                entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + seconds);
+                victim = entity;
+                entity.getPersistentData().putDouble("VPDevourerX", entity.getX());
+                entity.getPersistentData().putDouble("VPDevourerY", entity.getY());
+                entity.getPersistentData().putDouble("VPDevourerZ", entity.getZ());
+            }
         }
-        VPUtil.rayParticles(player, ParticleTypes.DRAGON_BREATH,30,6,1,0,-1,0,5,false);
+        VPUtil.rayParticles(player, ParticleTypes.DRAGON_BREATH,30,6,30,0,-1,0,5,false);
         super.doSpecial(seconds, player, level, stack);
     }
 

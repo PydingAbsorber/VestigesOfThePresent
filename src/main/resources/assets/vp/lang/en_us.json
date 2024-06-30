@@ -23,7 +23,9 @@
   "item.vp.catalyst": "§aInfested Catalyst",
   "item.vp.easter_egg": "§cEaster Egg",
   "item.vp.shard": "§dCrystallized §5Despair",
+  "vp.shard.get": "Drops from bosses in Hardcore mode.",
   "vp.shard": "When used on a Boss in Hardcore mode, it has a 20% chance to turn it into a Nightmare Boss.",
+  "vp.shard.1": "Hardcore mode can be enabled and disabled by command /vestiges enableHardcore.",
   "item.vp.ball": "§bBall Lightning",
   "item.vp.trigon": "§6Paragon Trigon",
   "item.vp.soulblighter": "§dSoulrender",
@@ -273,7 +275,7 @@
   "vp.passive.24": "Regenerate 5% HP per second while wet.\nEnemies who die from drowning will grant 20 Shields and Over Shields.",
   "vp.special.24": "Grants a water shield, fully protecting from the next 3 hits.\nThe number of hits increases based on underwater breathing time, up to 10.",
   "vp.ultimate.24": "Envelops nearby enemies in a bubble where they cannot breathe.\nThe bubble bursts upon taking damage (except drowning) and deals 1000% damage, also making the target 'wet'.",
-  "vp.get.24": "Collect all types of coral, fish, and axolotl.",
+  "vp.get.24": "Collect all types of coral, fish, and axolotl (with bucket).",
   "vp.damagetype.24": "drowning",
 
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
@@ -299,7 +301,7 @@
   "vp.stellar.21": "While the Ultimate is not active, Shields and Over Shields will be consumed instead of equipment durability.\nWhile the Ultimate is active, prevented durability damage will restore Over Shields.",
   "vp.stellar.22": "The Ultimate will also restore 1 Special charge to itself and all surrounding players.",
   "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
-  "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nMagic - forbids resurrection, Shields and OverShields obtaining, teleportation. \nWither - lowers regeneration by 50.\nVoid - reduces Max HP by 80%.\nPerfect - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%.",
+  "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nMagic - forbids resurrection, Shields and OverShields obtaining, teleportation. \nWither - lowers regeneration by 50.\nVoid - reduces Max HP by 80%.\nParagon - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%.",
 
 
   "vp.info": "If you have any questions about mechanics, type /vestiges info",
@@ -357,5 +359,30 @@
   "item.vp.ring_of_fallen_star" : "§5Ring of Fallen Star",
   "item.vp.earring_of_dead_hopes" : "§5Earring of Dead Hopes",
   "item.vp.necklace_of_tortured_dreams" : "§5Necklace of Tortured Dreams",
-  "item.vp.belt_of_broken_memories" : "§5Belt of Broken Memories"
+  "item.vp.belt_of_broken_memories" : "§5Belt of Broken Memories",
+
+
+  "vp.meme.1": "",
+  "vp.meme.2": "",
+  "vp.meme.3": "",
+  "vp.meme.4": "",
+  "vp.meme.5": "",
+  "vp.meme.6": "",
+  "vp.meme.7": "",
+  "vp.meme.8": "",
+  "vp.meme.9": "",
+  "vp.meme.11": "",
+  "vp.meme.12": "",
+  "vp.meme.13": "",
+  "vp.meme.14": "",
+  "vp.meme.15": "Best Vestige? Say that to his older brother.",
+  "vp.meme.16": "",
+  "vp.meme.17": "",
+  "vp.meme.18": "",
+  "vp.meme.19": "",
+  "vp.meme.20": "",
+  "vp.meme.21": "",
+  "vp.meme.22": "",
+  "vp.meme.23": "",
+  "vp.meme.24": ""
 }

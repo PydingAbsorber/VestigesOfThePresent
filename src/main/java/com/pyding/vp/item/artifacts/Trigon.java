@@ -32,7 +32,7 @@ public class Trigon extends Vestige{
         for(LivingEntity entity: VPUtil.ray(player,6,30,true)){
             VPUtil.dealParagonDamage(entity,player,player.getMaxHealth()/10,2,true);
         }
-        VPUtil.rayParticles(player,ParticleTypes.WAX_ON,30,3,1,0,-0.5,0,1,false);
+        VPUtil.rayParticles(player,ParticleTypes.WAX_ON,30,3,30,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level, stack);
     }
 

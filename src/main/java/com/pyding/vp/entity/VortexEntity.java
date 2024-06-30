@@ -112,7 +112,7 @@ public class VortexEntity extends Projectile {
                 }
             }
         }
-        this.getPersistentData().putString("VPVortexList",items.toString());
+        this.getPersistentData().putString("VPVortexList",VPUtil.filterString(items.toString()));
         if ((tickCount - 1) % loopSoundDurationInTicks == 0) {
             this.playSound(SoundRegistry.BLACK_HOLE.get(), items.size()+5, 1);
         }

@@ -28,9 +28,10 @@ public class Anemoculus extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         if(!isUltimateActive(stack)) {
-            VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
+            VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,25,0,0.5,0,3,false);
             for (LivingEntity entity : VPUtil.getEntities(player, 8)) {
-                VPUtil.liftEntity(entity, VPUtil.commonPower);
+                if(!VPUtil.isProtectedFromHit(player,entity))
+                    VPUtil.liftEntity(entity, VPUtil.commonPower);
             }
         }
         else {

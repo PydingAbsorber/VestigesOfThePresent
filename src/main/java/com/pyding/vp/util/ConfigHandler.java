@@ -55,6 +55,10 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue challengeReduce18;
         public final ForgeConfigSpec.IntValue challengeReduce19;
         public final ForgeConfigSpec.IntValue challengeReduce20;
+        public final ForgeConfigSpec.IntValue challengeReduce21;
+        public final ForgeConfigSpec.IntValue challengeReduce22;
+        public final ForgeConfigSpec.IntValue challengeReduce23;
+        public final ForgeConfigSpec.IntValue challengeReduce24;
 
         public final ForgeConfigSpec.IntValue armorAbsorbBase;
         public final ForgeConfigSpec.DoubleValue armorAbsorbPercent;
@@ -91,6 +95,14 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue bosses;
         public final ForgeConfigSpec.ConfigValue repairObjects;
         public final ForgeConfigSpec.ConfigValue repairBlackList;
+        public final ForgeConfigSpec.DoubleValue nightmareBoxChance;
+        public final ForgeConfigSpec.DoubleValue nightmareRefresherChance;
+        public final ForgeConfigSpec.IntValue nightmareFrags;
+        public final ForgeConfigSpec.IntValue nightmareLoot;
+        public final ForgeConfigSpec.IntValue nightmareLootMin;
+        public final ForgeConfigSpec.IntValue nightmareFragsMin;
+        public final ForgeConfigSpec.IntValue nightmareBoxes;
+        public final ForgeConfigSpec.IntValue nightmareBoxesMin;
 
         public final ForgeConfigSpec.ConfigValue fishObjects;
         public Common(ForgeConfigSpec.Builder builder) {
@@ -102,6 +114,17 @@ public class ConfigHandler {
             shieldHardcore = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("shieldHardcore", 1.5d, 0.1, 2100000000);
             overShieldHardcore = builder.comment("Hardcore mode Over Shield from hp percent").defineInRange("overShieldHardcore", 0.5, 0.1, 2100000000);
             healPercent = builder.comment("Hardcore mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
+
+            nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareBoxChance", 0.5, 0, 1);
+            nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
+            nightmareFrags = builder.comment("Nightmare Bosses max fragments").defineInRange("nightmareFrags", 13, 1, 2100000000);
+            nightmareFragsMin = builder.comment("Nightmare Bosses min fragments").defineInRange("nightmareFragsMin", 26, 1, 2100000000);
+            nightmareLoot = builder.comment("Nightmare Bosses max loot multiplier").defineInRange("nightmareLoot", 20, 1, 2100000000);
+            nightmareLootMin = builder.comment("Nightmare Bosses min loot multiplier").defineInRange("nightmareLootMin", 10, 1, 2100000000);
+            nightmareBoxes = builder.comment("Nightmare Bosses max boxes").defineInRange("nightmareBoxes", 8, 1, 2100000000);
+            nightmareBoxesMin = builder.comment("Nightmare Bosses min boxes").defineInRange("nightmareBoxesMin", 4, 1, 2100000000);
+
+
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
             armorAbsorbBase = builder.comment("Base Martyr's Habergeon(armor) value").defineInRange("armorAbsorbBase", 40, 0, Integer.MAX_VALUE);
@@ -162,7 +185,13 @@ public class ConfigHandler {
             challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, -2100000000, 2100000000);
             challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, -2100000000, 2100000000);
             challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, -2100000000, 2100000000);
-            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,ignited_revenant,void_worm");
+            challengeReduce21 = builder.comment("This is the number on how many challenge 21 maximum progress will be reduced").defineInRange("challengeReduce21", 0, -2100000000, 2100000000);
+            challengeReduce22 = builder.comment("This is the number on how many challenge 22 maximum progress will be reduced").defineInRange("challengeReduce22", 0, -2100000000, 2100000000);
+            challengeReduce23 = builder.comment("This is the number on how many challenge 23 maximum progress will be reduced").defineInRange("challengeReduce23", 0, -2100000000, 2100000000);
+            challengeReduce24 = builder.comment("This is the number on how many challenge 24 maximum progress will be reduced").defineInRange("challengeReduce24", 0, -2100000000, 2100000000);
+
+
+            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,void_worm");
             repairObjects = builder.comment("repairObjectsId: ").define("repairObjects","mending,repair,unbreak,restore,heal,ingot");
             repairBlackList = builder.comment("repairBlackListId: ").define("repairBlackList","");
             vortexReduction = builder.comment("Reduction of maximum amount needed for Vortex").defineInRange("vortexReduction", 0, 0, Integer.MAX_VALUE);
@@ -213,6 +242,14 @@ public class ConfigHandler {
                     return challengeReduce19;
                 case 20:
                     return challengeReduce20;
+                case 21:
+                    return challengeReduce21;
+                case 22:
+                    return challengeReduce22;
+                case 23:
+                    return challengeReduce23;
+                case 24:
+                    return challengeReduce24;
                 default:
                     return null;
             }

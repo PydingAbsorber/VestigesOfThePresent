@@ -3,10 +3,7 @@ package com.pyding.vp.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.OutlineBufferSource;
-import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.FastColor;
@@ -23,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Random;
+
 @Mixin(value = LevelRenderer.class)
 public abstract class LevelRendererMixin {
 
@@ -38,41 +37,48 @@ public abstract class LevelRendererMixin {
             int g = 0;
             int b = 0;
             int type = entity.getPersistentData().getInt("VPBossType");
+            if(entity.getPersistentData().getLong("VPGhost") > System.currentTimeMillis())
+                type = new Random().nextInt(7)+1;
             switch (type) {
-                case 1: // Красный
+                case 1: // Огненный
                     r = 255;
-                    g = 0;
+                    g = 40;
                     b = 0;
                     break;
-                case 2: // Зеленый
-                    r = 0;
-                    g = 255;
-                    b = 0;
+                case 2: // Ядовитый
+                    r = 13;
+                    g = 235;
+                    b = 40;
                     break;
-                case 3: // Коричневый
+                case 3: // Земляной
                     r = 139;
                     g = 69;
                     b = 19;
                     break;
-                case 4: // Голубой
-                    r = 0;
-                    g = 191;
-                    b = 255;
+                case 4: // Ледяной
+                    r = 76;
+                    g = 228;
+                    b = 250;
                     break;
-                case 5: // Циан
-                    r = 0;
-                    g = 255;
-                    b = 255;
+                case 5: // Воздушный
+                    r = 76;
+                    g = 250;
+                    b = 222;
                     break;
-                case 6: // Бардовый
+                case 6: // Молниеносный
+                    r = 76;
+                    g = 147;
+                    b = 250;
+                    break;
+                case 7: // Пустотный
                     r = 128;
-                    g = 0;
+                    g = 21;
                     b = 128;
                     break;
                 default:
                     r = 255;
                     g = 255;
-                    b = 255; // Белый
+                    b = 255;
                     break;
             }
             outlinebuffersource.setColor(r,g,b, 255);

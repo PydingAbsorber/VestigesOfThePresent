@@ -12,6 +12,9 @@
     "MaxDurabilityMixin",
     "MinEnchLvlMixin",
     "MovementMixin",
+    "SmithingMenuMixin",
+    "SmithingVzlomMixing",
+    "SmitingMixing",
     "VPEntityMixin",
     "VPLivingEntityMixin",
     "VzlomJopiMixin"

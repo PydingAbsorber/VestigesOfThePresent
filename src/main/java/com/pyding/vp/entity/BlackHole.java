@@ -83,7 +83,8 @@ public class BlackHole extends Projectile {
         setGlowingTag(true);
         for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
             if(entity.getUUID() != player.getUUID() && !VPUtil.isProtectedFromHit(player,entity)) {
-                VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
+                if(!VPUtil.isProtectedFromHit(player,entity))
+                    VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
                 if(entity instanceof ServerPlayer serverPlayer1)
                     PacketHandler.sendToClient(new SuckPacket((float) (r/(entity.distanceTo(this)*2)),blockPosition()),serverPlayer1);
                 if (entity.distanceTo(this) <= Math.max(10,gravity-10) && tickCount % ConfigHandler.COMMON.blackhole.get() == 0)

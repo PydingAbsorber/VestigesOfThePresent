@@ -37,7 +37,7 @@ public class Atlas extends Vestige{
             }
             VPUtil.dealDamage(entity,player, player.damageSources().fall(),50,2);
         }
-        VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,1,0,-1,0,5,false);
+        VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,30,0,-1,0,5,false);
         super.doSpecial(seconds, player, level, stack);
     }
     public ItemStack stackLocal = null;

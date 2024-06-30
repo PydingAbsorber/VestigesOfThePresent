@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
@@ -46,6 +47,54 @@ public class VPCommands {
                                         cap.clearCoolDown(player);
                                     });
                                     player.sendSystemMessage(Component.literal("Cooldowns of Vestiges and Challenges refreshed successfully! \nNote! That command will trigger ''cd ends'' that affect some Vestiges like Trigon or SweetDonut"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("friend")
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("creature Id or Display Name", StringArgumentType.string())
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "creature Id or Display Name");
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                                cap.addFriend(name,player);
+                                            });
+                                            player.sendSystemMessage(Component.literal("You have added " + name + " as a friend!").withStyle(ChatFormatting.GREEN));
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                                )
+                        )
+                        .then(Commands.literal("remove")
+                                .then(Commands.argument("creature Id or Display Name", StringArgumentType.string())
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "creature Id or Display Name");
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                                cap.removeFriend(name,player);
+                                            });
+                                            player.sendSystemMessage(Component.literal(name + " is no friend anymore :((("));
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                                )
+                        )
+                        .then(Commands.literal("seeFriends")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                        player.sendSystemMessage(Component.literal("This is your friends list:"));
+                                        player.sendSystemMessage(Component.literal(cap.getFriends()));
+                                    });
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("information")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal("Friends can't take any damage or bad effects from you and your Vestiges").withStyle(ChatFormatting.GREEN));
+                                    player.sendSystemMessage(Component.literal("To know creature's Id type command /vestiges getType"));
+                                    player.sendSystemMessage(Component.literal("If you type ,,cow,, it will count all mobs that has cow in it's id"));
+                                    player.sendSystemMessage(Component.literal("If you type entity.minecraft.cow from /vestiges getType it will count only vanilla cow"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -130,6 +179,7 @@ public class VPCommands {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             ItemStack stack = player.getMainHandItem();
                             if(stack != null){
+                                player.sendSystemMessage(Component.literal("Id: " + stack.getItem().getDescriptionId()));
                                 player.sendSystemMessage(Component.literal("Enchantments list: " + stack.getEnchantmentTags()));
                                 for(Enchantment enchantment: stack.getAllEnchantments().keySet()) {
                                     player.sendSystemMessage(Component.literal("Ench name: " + enchantment.getDescriptionId()));
@@ -215,9 +265,13 @@ public class VPCommands {
                 .then(Commands.literal("getType")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
+                            boolean found = false;
                             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                                 player.sendSystemMessage(Component.literal("descriptionId " + entity.getType().getDescriptionId() + " raw type: " + entity.getType().toString()));
+                                found = true;
                             }
+                            if(!found)
+                                player.sendSystemMessage(Component.literal("No creatures found. You should look at creature."));
                             return Command.SINGLE_SUCCESS;
                         })
                 )

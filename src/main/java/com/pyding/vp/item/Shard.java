@@ -10,11 +10,13 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -52,13 +54,10 @@ public class Shard extends Item {
                 entity.setHealth(entity.getMaxHealth());
                 VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
                 entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
-                entity.refreshDimensions();
-                AABB boundingBox = entity.getBoundingBox();
-                AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
-                entity.setBoundingBox(scaledBoundingBox);
                 entity.setGlowingTag(true);
                 Random random = new Random();
                 entity.getPersistentData().putInt("VPBossType",random.nextInt(7)+1);
+                entity.refreshDimensions();
             }
         }
         return super.use(p_41432_, player, p_41434_);
@@ -67,6 +66,8 @@ public class Shard extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
+        components.add(Component.translatable("vp.shard.get").withStyle(ChatFormatting.GRAY));
         components.add(Component.translatable("vp.shard").withStyle(ChatFormatting.GRAY));
+        components.add(Component.translatable("vp.shard.1").withStyle(ChatFormatting.GRAY));
     }
 }

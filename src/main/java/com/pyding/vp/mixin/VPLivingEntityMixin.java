@@ -6,10 +6,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -32,6 +29,10 @@ public abstract class VPLivingEntityMixin {
 
     @Shadow public abstract void remove(Entity.RemovalReason p_276115_);
 
+    @Shadow public abstract float getMaxHealth();
+
+    @Shadow @Nullable protected Player lastHurtByPlayer;
+
     @Inject(method = "getDamageAfterMagicAbsorb",at = @At("RETURN"),cancellable = true, require = 1)
     protected void fuckEnchantmentsFinallyIHope(DamageSource p_21193_, float p_21194_,CallbackInfoReturnable<Float> info){
         if(!p_21193_.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)) {
@@ -43,6 +44,25 @@ public abstract class VPLivingEntityMixin {
                     }
                 }
             }
+        }
+    }
+
+    @Inject(method = "setHealth",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void setHealthMix(float amount, CallbackInfo ci){
+        if(this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))
+        && amount < this.getMaxHealth()){
+            if(this.lastHurtByPlayer != null && this.lastHurtByPlayer.getPersistentData().getBoolean("VPAttacked")) {
+                this.lastHurtByPlayer.getPersistentData().putBoolean("VPAttacked",false);
+                return;
+            }
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "getScale",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void getScaleMix(CallbackInfoReturnable<Float> cir){
+        if(this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
+            cir.setReturnValue(3f);
         }
     }
 }
