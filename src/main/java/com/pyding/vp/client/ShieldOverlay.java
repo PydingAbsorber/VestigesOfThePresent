@@ -43,6 +43,39 @@ public class ShieldOverlay {
             "textures/gui/heal2.png");
     private static final ResourceLocation HEAL3 = new ResourceLocation(VestigesOfPresent.MODID,
             "textures/gui/heal3.png");
+    private static final ResourceLocation ORCHESTRA = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/orchestra.png");
+    private static final ResourceLocation NOTE1 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note1.png");
+    private static final ResourceLocation NOTE2 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note2.png");
+    private static final ResourceLocation NOTE3 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note3.png");
+    private static final ResourceLocation NOTE4 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note4.png");
+    private static final ResourceLocation NOTE5 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note5.png");
+    private static final ResourceLocation NOTE6 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note6.png");
+    private static final ResourceLocation NOTE7 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note7.png");
+    private static final ResourceLocation NOTE8 = new ResourceLocation(VestigesOfPresent.MODID,
+            "textures/gui/note8.png");
+
+    public static ResourceLocation getNote(int number) {
+        return switch (number) {
+            case 1 -> NOTE1;
+            case 2 -> NOTE2;
+            case 3 -> NOTE3;
+            case 4 -> NOTE4;
+            case 5 -> NOTE5;
+            case 6 -> NOTE6;
+            case 7 -> NOTE7;
+            case 8 -> NOTE8;
+            default -> ORCHESTRA;
+        };
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static final IGuiOverlay HUD_SHIELD = ((gui, pose, partialTick, width, height) -> {
         int x = width / 2;
@@ -54,6 +87,7 @@ public class ShieldOverlay {
         Player player = Minecraft.getInstance().player;
         Font fontRenderer = Minecraft.getInstance().font;
         List<ItemStack> vestiges = VPUtil.getVestigeList(player);
+        int centerHeight = y - 230;
         if(vestiges.size() > 0){
             for(int i = 0; i < vestiges.size(); i++){
                     /*minecraft.getItemRenderer().render(stack, ItemDisplayContext.GROUND, true, poseStack, MultiBufferSource.immediate(new BufferBuilder(1)), 0, 1,
@@ -159,6 +193,11 @@ public class ShieldOverlay {
                         if(number > 0)
                             durationUlt = String.valueOf(number);
                     }
+                    if(vestigeNumber == 22){
+                        int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
+                        if(number > 0)
+                            durationUlt = String.valueOf(number);
+                    }
                     if(!info.isEmpty())
                         pose.drawString(fontRenderer,""+info, x+(132+i*40),y-33, vestige.color.getColor());
                     if(!durationSpecial.isEmpty())
@@ -189,6 +228,39 @@ public class ShieldOverlay {
                     if(!info.isEmpty())
                         pose.drawString(fontRenderer,""+info, x+(132+i*40),y-43, 0x9932CC);
                     //fontRenderer.draw(poseStack, ""+info, x+(132+i*40),y-30, vestige.color.getColor());
+                    if(vestigeNumber == 22){
+                        int sizeX = 20;
+                        int sizeY = 20;
+                        int pictureSizeX = 20;
+                        int pictureSizeY = 20;
+                        if(player.getPersistentData().getLong("VPOrchestra") > System.currentTimeMillis()){
+                            long song = player.getPersistentData().getLong("VPOrchestra");
+                            long duration = Math.round(song - System.currentTimeMillis()) / 1000;
+                            RenderSystem.setShaderTexture(0, ORCHESTRA);
+                            pose.blit(ORCHESTRA, x + (132 + i * 40), y - (70), 0, 0, sizeX, sizeY,
+                                    pictureSizeX, pictureSizeY);
+                            pose.drawString(fontRenderer, "" + duration, x + (132 + i * 33), y - (43), 0x9932CC);
+
+                        } else {
+                            for (int s = 1; s < 9; s++) {
+                                long song = player.getPersistentData().getLong("VPLyra" + s);
+                                long duration = Math.round(song - System.currentTimeMillis()) / 1000;
+                                int moveY = 0;
+                                int moveX = s * 20;
+                                if (s > 4) {
+                                    moveY = 30;
+                                    moveX = (s-4) * 20;
+                                }
+                                int xPos = x - moveX + (183 + i * 40);
+                                if (duration > 0) {
+                                    RenderSystem.setShaderTexture(0, getNote(s));
+                                    pose.blit(getNote(s), xPos, y - (70 + moveY), 0, 0, sizeX, sizeY,
+                                            pictureSizeX, pictureSizeY);
+                                    pose.drawString(fontRenderer, "" + duration, xPos, y - (43 + moveY), 0x9932CC);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -200,7 +272,6 @@ public class ShieldOverlay {
             targetOverShield = VPUtil.getOverShield(entity);
             break;
         }
-        int centerHeight = y - 230;
         for(Object o : VPUtil.rayClass(Entity.class,player,3,20,true)){
             if(o instanceof VortexEntity vortexEntity){
                 String current = (vortexEntity.getPersistentData().getString("VPVortexList"));

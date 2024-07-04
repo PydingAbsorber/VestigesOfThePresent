@@ -159,6 +159,7 @@ public class VestigesOfPresent
             event.accept(ModItems.BOX_SAPLINGS);
             event.accept(ModItems.BOX_EGGS);
             event.accept(ModItems.SHARD);
+            event.accept(ModItems.NIGHTMARESHARD);
         }
     }
 }

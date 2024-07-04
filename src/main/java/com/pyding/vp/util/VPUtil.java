@@ -3,6 +3,7 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.mojang.logging.LogUtils;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -11,8 +12,7 @@ import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.item.artifacts.Whirlpool;
-import com.pyding.vp.mixin.SmitingMixing;
-import com.pyding.vp.mixin.VzlomJopiMixin;
+import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
@@ -25,7 +25,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -43,6 +42,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.TropicalFish;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -52,16 +53,17 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -84,7 +86,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VPUtil {
-    static Random random = new Random();
     public static long coolDown(Player player){
         double reduce = 1;
         if(getSet(player) == 10)
@@ -303,20 +304,27 @@ public class VPUtil {
         return allList;
     }
 
-    public static List<String> fishDrops = new ArrayList<>();
+    /*public static List<String> fishDrops = new ArrayList<>();
 
-    public static List<ItemStack> fishPools = new ArrayList<>();
+    public static List<Item> fishFromPools = new ArrayList<>();
 
     public static void initFish(Player player){
         LootTable loottable = player.level().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING);
-        LootParams lootparams = new LootParams.Builder((ServerLevel)player.level()).create(LootContextParamSet.builder().build());
-        fishPools.addAll(loottable.getRandomItems(lootparams));
+        List<LootPool> lootPools = ((FishingMixin)loottable).getPools();
+        for(LootPool pool: lootPools){
+            List<LootPoolEntryContainer> poolEntryContainers = Arrays.stream(((LootPoolMixin)pool).getEntries()).toList();
+            for(LootPoolEntryContainer entryContainer: poolEntryContainers){
+                if(entryContainer instanceof LootPoolSingletonContainer singletonContainer){
+                    System.out.println();
+                }
+            }
+        }
     }
 
     public static List<String> getFishDrops(){
-        if(fishDrops.isEmpty()) {
-            for (ItemStack itemStack : fishPools) {
-                fishDrops.add(itemStack.getItem().getDescriptionId());
+        if(fishDrops.isEmpty() && !fishFromPools.isEmpty()) {
+            for (Item item : fishFromPools) {
+                fishDrops.add(item.getDescriptionId());
             }
         }
         return fishDrops;
@@ -327,18 +335,73 @@ public class VPUtil {
         List<String> allList = new ArrayList<>(getFishDrops());
         allList.removeAll(have);
         return allList;
-    }
+    }*/
 
-    public static List<String> seaList = new ArrayList<>();
+    public static HashSet<String> seaList = new HashSet<>();
 
-    public static List<String> getSeaList(){
-        if(seaList.isEmpty()) {
+    public static HashMap<MobBucketItem,List<String>> bucketMap = new HashMap<>();
+
+    public static HashSet<MobBucketItem> buckets = new HashSet<>();
+
+    public static HashSet<MobBucketItem> getBuckets(){
+        if(buckets.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof MobBucketItem bucketItem)
-                    seaList.add(item.getDescriptionId());
+                    buckets.add(bucketItem);
+            }
+        }
+        return buckets;
+    }
+
+    public static void initBuckets(){
+        for(MobBucketItem bucketItem: getBuckets()){
+            if(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.tropical_fish")) {
+                List<String> tropicalFish = new ArrayList<>();
+                for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
+                    tropicalFish.add(variant.pattern().getSerializedName());
+                bucketMap.put(bucketItem, tropicalFish);
+            }
+            else if(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.axolotl")) {
+                List<String> axolotl = new ArrayList<>();
+                for (Axolotl.Variant variant: Axolotl.Variant.values())
+                    axolotl.add(variant.getName());
+                bucketMap.put(bucketItem, axolotl);
+            } else {
+                /*List<String> fish = new ArrayList<>();
+                fish.add(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId());
+                bucketMap.put(bucketItem,fish);*/
+                seaList.add(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId());
+            }
+        }
+    }
+
+    public static List<String> fishTypesFromBucket(MobBucketItem bucketItem){
+        if(bucketMap.isEmpty())
+            initBuckets();
+        if(bucketMap.containsKey(bucketItem))
+            return bucketMap.get(bucketItem);
+        else return new ArrayList<>();
+    }
+
+    public static HashSet<String> getSeaList(){
+        if(seaList.isEmpty()) {
+            for (Block block : blocks) {
+                if (block instanceof CoralBlock)
+                    seaList.add(block.getDescriptionId());
             }
         }
         return seaList;
+    }
+
+    public static int getSeaSize(){
+        int size = 0;
+        size += getSeaList().size();
+        for(MobBucketItem bucketItem: getBuckets()){
+            for(String fish: fishTypesFromBucket(bucketItem)){
+                size++;
+            }
+        }
+        return size;
     }
 
     public static List<String> getSeaLeft(String list){
@@ -583,15 +646,45 @@ public class VPUtil {
         }
     }
 
+    public static void setHealth(LivingEntity entity,float amount){
+        ((EntityVzlom)entity).getEntityData().set(((LivingEntityVzlom)entity).getDataHealth(),amount);
+    }
+
+    public static void setDead(LivingEntity corpse, DamageSource source){
+        if (!corpse.isRemoved() && !((LivingEntityVzlom)corpse).isDead()) {
+            Entity entity = source.getEntity();
+            if (corpse.isSleeping()) {
+                corpse.stopSleeping();
+            }
+            if (!corpse.level().isClientSide && corpse.hasCustomName()) {
+                LogUtils.getLogger().info("Worthless fool in name of {} died from Paragon Damage, The Greatest damage in all mods", corpse);
+            }
+            ((LivingEntityVzlom)corpse).setDead(true);
+            corpse.getCombatTracker().recheckStatus();
+            Level level = corpse.level();
+            if (level instanceof ServerLevel) {
+                ServerLevel serverlevel = (ServerLevel)level;
+                if (entity == null || entity.killedEntity(serverlevel, corpse)) {
+                    corpse.gameEvent(GameEvent.ENTITY_DIE);
+                    ((LivingEntityVzlom)corpse).invokeDropAllDeathLoot(source);
+                }
+
+                corpse.level().broadcastEntityEvent(corpse, (byte)3);
+            }
+
+            corpse.setPose(Pose.DYING);
+        }
+    }
+
     public static void syncEntity(Entity entity){
-        CompoundTag sendNudes = new CompoundTag();
+        /*CompoundTag sendNudes = new CompoundTag();
         for (String key : entity.getPersistentData().getAllKeys()) {
             if (key.startsWith("VP") && entity.getPersistentData().get(key) != null) {
                 sendNudes.put(key, entity.getPersistentData().get(key));
             }
-        }
+        }*/
         if(!entity.getCommandSenderWorld().isClientSide)
-            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(sendNudes,entity.getId()));
+            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
     }
 
     public static final List<String> vanillaFlowers = Arrays.asList(
@@ -1116,9 +1209,9 @@ public class VPUtil {
         entity.invulnerableTime = 0;
         entity.hurt(player.damageSources().playerAttack(player),0);
         entity.setLastHurtByPlayer(player);
-        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
-        entity.setHealth(0);
-        entity.die(player.damageSources().playerAttack(player));
+        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+1000);
+        setHealth(entity,0);
+        entity.die(player.damageSources().genericKill());
     }
 
     public static void deadInside(LivingEntity entity){
@@ -1525,7 +1618,8 @@ public class VPUtil {
                 if(!name.isEmpty() && (target.getDisplayName().equals(name)
                         || target.getType().getDescriptionId().equals(name)
                         || target.getType().getDescriptionId().contains(name)
-                        || (target.hasCustomName() && target.getCustomName().getString().contains(name))))
+                        || (target.hasCustomName() && target.getCustomName().getString().contains(name)))
+                        || (target instanceof Player targetPlayer && targetPlayer.getName().getString().equals(name)))
                     friend[0] = true;
             }
         });
@@ -1542,20 +1636,6 @@ public class VPUtil {
             return protec;
         }
         return false;
-    }
-    public static void setHealthNoLimits(float health, LivingEntity entity) {
-        try {
-            Field dataHealthIdField = LivingEntity.class.getDeclaredField("DATA_HEALTH_ID");
-            dataHealthIdField.setAccessible(true);
-
-            Object fieldValue = dataHealthIdField.get(null);
-            if (fieldValue instanceof EntityDataAccessor) {
-                EntityDataAccessor<Float> dataAccessor = (EntityDataAccessor<Float>) fieldValue;
-                entity.getEntityData().set(dataAccessor, Math.max(health, 0.0F));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static void spawnParticles(Entity player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
@@ -1587,6 +1667,7 @@ public class VPUtil {
         double endX = player.getX() + radius;
         double endY = player.getY() + radius;
         double endZ = player.getZ() + radius;
+        Random random = new Random();
         if(count == 1)
             count = random.nextInt(10)+20;
         for (int i = 0; i < count; i++) {
@@ -1717,7 +1798,7 @@ public class VPUtil {
             if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
         }
-        if(tag.getFloat("VPOverShieldMax") < shield) {
+        if(tag.getFloat("VPOverShieldMax") < shield || tag.getFloat("VPOverShieldMax") <= 0) {
             tag.putFloat("VPOverShieldMax", shield);
         }
     }
@@ -1732,9 +1813,11 @@ public class VPUtil {
             return;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
-            if(tag.getFloat("VPOverShieldMax") >= shield)
+            if (tag.getFloat("VPOverShieldMax") <= 0){
                 tag.putFloat("VPOverShield", shield);
-            else tag.putFloat("VPOverShield", tag.getFloat("VPOverShieldMax"));
+                tag.putFloat("VPOverShieldMax", shield);
+            }
+            else tag.putFloat("VPOverShield", Math.min(tag.getFloat("VPOverShieldMax"), shield));
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1748,17 +1831,17 @@ public class VPUtil {
         if(stealer.getPersistentData().getInt("VPSoulRotting") >= 10)
             return;
         CompoundTag tag = entity.getPersistentData();
-        if(stealer.getPersistentData().getFloat("VPOverShield") <= 0)
-            play(entity,SoundRegistry.OVERSHIELD.get());
-        if(stealer.getPersistentData().getFloat("VPShield") <= 0)
-            play(entity,SoundRegistry.SHIELD.get());
         float shieldBonus = getShieldBonus(stealer);
         if(!applyBonus)
             shieldBonus = 0;
         float stolenShield = (tag.getFloat("VPShield")*(percent/100))*(1 + shieldBonus/100);
         float shield = (stealer.getPersistentData().getFloat("VPShield") + stolenShield);
         float stolenOverShield = (tag.getFloat("VPOverShield")*(percent/100))*(1 + shieldBonus/100);
-        float overShield = (stealer.getPersistentData().getFloat("VPOverShield") + stolenShield);
+        float overShield = (stealer.getPersistentData().getFloat("VPOverShield") + stolenOverShield);
+        if(stealer.getPersistentData().getFloat("VPOverShield") <= 0 && overShield > 0)
+            play(entity,SoundRegistry.OVERSHIELD.get());
+        if(stealer.getPersistentData().getFloat("VPShield") <= 0 && shield > 0)
+            play(entity,SoundRegistry.SHIELD.get());
         if(stealer.getPersistentData().getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(stealer instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
                 boolean found = false;
@@ -1960,6 +2043,7 @@ public class VPUtil {
         float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
+            VPUtil.play(player, SoundRegistry.BUBBLE1.get());
             entity.getPersistentData().putLong("VPBubble", 0);
             VPUtil.dealDamage(entity, player, player.damageSources().drown(), 1000, 3);
             entity.getPersistentData().putLong("VPWet", System.currentTimeMillis() + 20000);
@@ -2347,7 +2431,7 @@ public class VPUtil {
     }
 
     public static boolean hasLyra(LivingEntity entity, int number){
-        return entity.getPersistentData().getLong("VPLyra"+number) >= System.currentTimeMillis();
+        return entity.getPersistentData().getLong("VPLyra"+number) > System.currentTimeMillis();
     }
 
     public static List<Item> fishList = new ArrayList<>();
@@ -2485,6 +2569,27 @@ public class VPUtil {
         return filtered;
     }
 
+    public static void spawnBoss(LivingEntity entity){
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
+        VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
+        VPUtil.setHealth(entity,entity.getMaxHealth()*ConfigHandler.COMMON.bossHP.get());
+        entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
+        if(VPUtil.isNightmareBoss(entity)){
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
+            entity.setHealth(entity.getMaxHealth());
+            VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
+            entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
+            entity.refreshDimensions();
+            AABB boundingBox = entity.getBoundingBox();
+            AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
+            entity.setBoundingBox(scaledBoundingBox);
+        }
+    }
+
     public static void vzlomatJopu(float value){
         final Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(new ResourceLocation("generic.max_health"));
         if (attribute instanceof RangedAttribute ranged) {
@@ -2508,13 +2613,14 @@ public class VPUtil {
         List<ItemStack> list = VPUtil.getVestigeList(player);
         for(ItemStack itemStack: list){
             if(itemStack.getItem() instanceof Vestige vestige){
-                vestige.applyBonus(itemStack,player);
                 vestige.init(itemStack);
+                vestige.applyBonus(itemStack,player);
             }
         }
     }
 
     public static void nightmareDamageEvent(LivingEntity boss, Player player, LivingDamageEvent event){
+        Random random = new Random();
         float attack = (float) boss.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = boss.getPersistentData().getInt("VPBossType");
         if(boss.getHealth() <= boss.getMaxHealth()*0.5f){
@@ -2522,13 +2628,16 @@ public class VPUtil {
         }
         if(type == 1){
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt") + player.getMaxHealth() * 2);
-            if (player.getHealth() < player.getMaxHealth() * 0.3 && Math.random() < 0.2)
+            if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < 0.2)
                 deadInside(player);
             float stack = player.getPersistentData().getFloat("VPIgnis");
-            player.getPersistentData().putFloat("VPIgnis",stack+5);
-            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(player,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),1-stack/100, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:ignis_hp"));
-            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(player,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),1-stack/100, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:ignis_hp"));
+            player.getPersistentData().putFloat("VPIgnis",Math.min(99,stack+5));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),1, AttributeModifier.Operation.ADDITION,"vp:ignis_hp"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),1, AttributeModifier.Operation.ADDITION,"vp:ignis_armor"));
+            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(player,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),-player.getMaxHealth()*(stack/100f), AttributeModifier.Operation.ADDITION,"vp:ignis_hp"));
+            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(player,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),-player.getArmorValue()*(stack/100f), AttributeModifier.Operation.ADDITION,"vp:ignis_armor"));
             player.getPersistentData().putLong("VPIgnisTime",System.currentTimeMillis()+60000);
+            player.setHealth(player.getMaxHealth());
         }
         if(type == 2){
             player.addEffect(new MobEffectInstance(MobEffects.POISON,255,255));
@@ -2557,12 +2666,12 @@ public class VPUtil {
             }
         }
         if(type == 5){
-            if(!player.onGround() && !player.isInWater())
+            if((!player.onGround() && !player.isInWater()) || (!boss.onGround() && !boss.isInWater()))
                 dealParagonDamage(player,boss,attack*0.05f,0,true);
         }
         if(type == 6 && (getShield(player) > 0 || getOverShield(player) > 0))
             event.setAmount(event.getAmount()*8);
-        float brightness = boss.getBlockStateOn().getShadeBrightness(player.getCommandSenderWorld(), boss.blockPosition());
+        double brightness = (player.getCommandSenderWorld().getBrightness(LightLayer.BLOCK,boss.blockPosition())+player.getCommandSenderWorld().getBrightness(LightLayer.SKY,boss.blockPosition()))/2D;
         if(type == 7){
             boolean somebodyHelp = false;
             for(LivingEntity livingEntity: getEntities(player,20,false)){
@@ -2584,21 +2693,44 @@ public class VPUtil {
     }
 
     public static void nightmareTickEvent(LivingEntity entity){
-        int slow = 4;
-        if(entity.tickCount > 10*60*20*slow)
-            entity.discard();
-        LivingEntity target = null;
-        if(entity.tickCount % 20*slow == 0 && entity instanceof Monster monster){
+        if(entity.tickCount % 20 == 0)
+            syncEntity(entity);
+        Random random = new Random();
+        float slow = 1;
+        boolean rage = entity.getHealth() < entity.getMaxHealth() * 0.5;
+        if(rage)
+            slow = 1;
+        if(entity.getHealth() < entity.getMaxHealth() * 0.15)
+            slow = 0.2f;
+        if(rage && entity.getPersistentData().getLong("VPTick") < System.currentTimeMillis()){
+            entity.getPersistentData().putLong("VPTick",System.currentTimeMillis()+1000);
+            entity.tick();
+        }
+/*        if(entity.tickCount > (10*60*20*slow))
+            entity.discard();*/
+        if(entity instanceof Monster monster){
+            if(monster.getTarget() == null)
+                monster.setTarget(monster.getCommandSenderWorld().getNearestPlayer(monster,30));
             if(monster.getTarget() != null) {
-                target = monster.getTarget();
-                if(!monster.isWithinMeleeAttackRange(target))
-                    entity.getPersistentData().putInt("VPReach",entity.getPersistentData().getInt("VPReach")+1);
-                else  {
-                    entity.getPersistentData().putInt("VPReach",0);
-                    if(entity.getPersistentData().getLong("VPGhost") > 0) {
-                        monster.doHurtTarget(target);
-                        entity.noCulling = true;
-                        entity.getPersistentData().putLong("VPGhost", 0);
+                LivingEntity target = monster.getTarget();
+                if(entity.getPersistentData().getLong("VPGhost") > System.currentTimeMillis()){
+                    entity.noPhysics = true;
+                    suckToPos(entity, new BlockPos((int) target.getX(), (int) target.getY(), (int) target.getZ()), 10);
+                } else {
+                    entity.noPhysics = false;
+                }
+                if(entity.tickCount % (20*slow) == 0) {
+                    target = monster.getTarget();
+                    if (!monster.isWithinMeleeAttackRange(target))
+                        entity.getPersistentData().putInt("VPReach", entity.getPersistentData().getInt("VPReach") + 1);
+                    else {
+                        entity.getPersistentData().putInt("VPReach", 0);
+                        if (entity.getPersistentData().getLong("VPGhost") > 0) {
+                            monster.doHurtTarget(target);
+                            entity.noPhysics = false;
+                            //((Monster) entity).setNoAi(false);
+                            entity.getPersistentData().putLong("VPGhost", 0);
+                        }
                     }
                 }
             }
@@ -2607,40 +2739,29 @@ public class VPUtil {
             entity.getPersistentData().putInt("VPReach",0);
             entity.getPersistentData().putLong("VPGhost",System.currentTimeMillis()+13000);
         }
-        if(entity.getPersistentData().getLong("VPGhost") > System.currentTimeMillis()){
-            entity.noCulling = false;
-            if(target != null) {
-                suckToPos(entity, target.blockPosition(), 5);
-            }
-        } else {
-            entity.noCulling = true;
+        if(entity.tickCount % (2*20*slow) == 0) {
+            entity.getPersistentData().putFloat("VPDreadAbsorb", Math.min(100,entity.getPersistentData().getFloat("VPDreadAbsorb")+1));
         }
-        if(entity.tickCount % 80*slow == 0) {
-            entity.getPersistentData().putFloat("VPDreadAbsorb", 0);
-            if (entity.getHealth() < entity.getMaxHealth() * 0.5) {
-                entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 255, 255));
-                entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 255, 255));
-            }
+        if (entity.getHealth() < entity.getMaxHealth() * 0.5) {
+            entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 255, 255));
+            entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 255, 255));
         }
-        if(entity.tickCount % 15*20*slow == 0)
+        if(entity.tickCount % (15*20*slow) == 0)
             clearEffects(entity,false);
-        if(entity.getHealth() < entity.getMaxHealth() * 0.5 && entity.getPersistentData().getLong("VPTick") < System.currentTimeMillis()){
-            entity.getPersistentData().putLong("VPTick",System.currentTimeMillis()+1000);
-            entity.tick();
-        }
         if(!entity.isCurrentlyGlowing())
             entity.setGlowingTag(true);
         float attack = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = entity.getPersistentData().getInt("VPBossType");
-        if(entity.tickCount % 2 == 0)
-            nightmareAura(type,entity);
-        if(type == 1 && entity.tickCount % 4*20*slow == 0){
+        if(entity.tickCount % 2 == 0) {
+            nightmareAura(type, entity);
+        }
+        if(type == 1 && entity.tickCount % (20*slow) == 0){
             spawnCircleParticles(entity,60,ParticleTypes.FLAME,5,0.5);
             spawnCircleParticles(entity,30,ParticleTypes.FLAME,3,1);
             spawnCircleParticles(entity,10,ParticleTypes.FLAME,2,1.5);
         }
         if(type == 2){
-            if(entity.tickCount % 40*slow == 0) {
+            if(entity.tickCount % (40*slow) == 0) {
                 int count = 0;
                 for (LivingEntity livingEntity : getEntitiesAround(entity, 20, 20, 20, false)) {
                     if (livingEntity instanceof Player)
@@ -2648,7 +2769,7 @@ public class VPUtil {
                 }
                 entity.getPersistentData().putFloat("VPAcsHeal", count * 30);
             }
-            if(entity.tickCount % 25*20*slow == 0 && Math.random() < 0.3) {
+            if(entity.tickCount % (5*20*slow) == 0) {
                 CloudEntity cloudEntity = new CloudEntity(entity.getCommandSenderWorld(), entity);
                 cloudEntity.teleportTo(entity.getX(),entity.getY(),entity.getZ());
                 teleportRandomly(cloudEntity,20);
@@ -2656,7 +2777,7 @@ public class VPUtil {
             }
         }
         if(type == 3){
-            if(entity.tickCount % 200*slow == 0) {
+            if(entity.tickCount % (200*slow) == 0) {
                 regenOverShield(entity, getOverShield(entity) * 0.1f);
                 if(Math.random() < 0.2){
                     spawnCircleParticles(entity,30,ParticleTypes.POOF,30,0.5);
@@ -2680,22 +2801,14 @@ public class VPUtil {
                     entity.getPersistentData().putLong("VPDef",System.currentTimeMillis()+10000);
                 }
             }
-            if((entity.tickCount % 100*slow == 0 && entity.getPersistentData().getLong("VPDef") == 0))
+            if((entity.tickCount % (100*slow) == 0 && entity.getPersistentData().getLong("VPDef") == 0))
                 entity.getPersistentData().putLong("VPDef",System.currentTimeMillis());
         }
         if(type == 4){
             if(entity.getPersistentData().getInt("VPFreezeShield") > 0)
                 spawnSphere(entity,ParticleTypes.SNOWFLAKE,20,3,0);
-            if(entity.tickCount % 50*slow == 0 && Math.random() < 0.3){
+            if(entity.tickCount % (50*slow) == 0 && Math.random() < 0.3){
                 entity.getPersistentData().putLong("VPBlizzard",System.currentTimeMillis()+10000);
-            }
-            if(entity.getPersistentData().getLong("VPBlizzard") > System.currentTimeMillis() && entity.tickCount % 20 == 0){
-                spawnCircleParticles(entity,10,ParticleTypes.SNOWFLAKE,30,1);
-                spawnCircleParticles(entity,10,ParticleTypes.SNOWFLAKE,30,2);
-                spawnCircleParticles(entity,10,ParticleTypes.SNOWFLAKE,30,3);
-                spawnCircleParticles(entity,10,ParticleTypes.SNOWFLAKE,30,4);
-                spawnParticles(entity,ParticleTypes.SNOWFLAKE,entity.getX(),entity.getY(),entity.getZ(),50,random.nextDouble()/10,-5,random.nextDouble()/10);
-                play(entity,SoundEvents.POWDER_SNOW_HIT);
             }
         }
         if(type == 5){
@@ -2710,7 +2823,7 @@ public class VPUtil {
             }
         }
         if(type == 6){
-            if(entity.tickCount % 3*20*slow == 0)
+            if(entity.tickCount % (3*20*slow) == 0)
                 regenOverShield(entity,getOverShield(entity)*0.05f);
             for(LivingEntity livingEntity: getEntitiesAround(entity,5,5,5,false)) {
                 if (livingEntity instanceof Player player && !player.isCreative()) {
@@ -2721,9 +2834,16 @@ public class VPUtil {
             }
         }
         if(type == 7){
-            if(entity.tickCount % 30*20*slow == 0) {
+            if(entity instanceof Monster boss && boss.getTarget() != null && boss.getTarget().getPersistentData().getBoolean("VPSummoned")) {
+                boss.setTarget(null);
+                Player player = boss.getCommandSenderWorld().getNearestPlayer(boss,40);
+                if(player != null){
+                    boss.setTarget(player);
+                }
+            }
+            if(entity.tickCount % (30*20*slow) == 0) {
                 Level level = entity.getCommandSenderWorld();
-                for (int i = 0; i < random.nextInt(20); i++) {
+                for (int i = 0; i < random.nextInt(15)+5; i++) {
                     Entity monster = getRandomMonster().create(level);
                     if (monster instanceof LivingEntity livingEntity) {
                         while(isBoss(livingEntity) || livingEntity instanceof HunterKiller){
@@ -2733,23 +2853,26 @@ public class VPUtil {
                         }
                         livingEntity.teleportTo(entity.getX(), entity.getY(), entity.getZ());
                         teleportRandomly(livingEntity, 10);
-                        livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 255, 255));
+                        livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100000, 255));
                         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MAX_HEALTH, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:1"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:2"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), 10, AttributeModifier.Operation.ADDITION, "vp:boss7:5"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), 10, AttributeModifier.Operation.ADDITION, "vp:boss7:6"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:3"));
+                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), 20, AttributeModifier.Operation.ADDITION, "vp:boss7:5"));
+                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), 20, AttributeModifier.Operation.ADDITION, "vp:boss7:6"));
                         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ATTACK_DAMAGE, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:4"));
+                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:7"));
                         livingEntity.getPersistentData().putBoolean("VPSummoned", true);
+                        livingEntity.setHealth(livingEntity.getMaxHealth());
                         level.addFreshEntity(livingEntity);
                     }
                 }
             }
-            if(entity.tickCount % 10*20*slow == 0) {
+            if(entity.tickCount % (10*20*slow) == 0) {
                 for(LivingEntity livingEntity: getEntitiesAround(entity,20,20,20,false)){
                     if(livingEntity.getPersistentData().getBoolean("VPSummoned")){
-                        addShield(livingEntity,1000,true);
+                        livingEntity.heal(livingEntity.getMaxHealth()*0.1f);
+                        addShield(livingEntity,1000,false);
                         addOverShield(livingEntity,500,true);
+                        if(livingEntity instanceof Monster monster && entity instanceof Monster boss && boss.getTarget() != null)
+                            monster.setTarget(boss.getTarget());
                     }
                 }
             }
@@ -2764,11 +2887,11 @@ public class VPUtil {
                 double x = player.getX();
                 double y = player.getY();
                 double z = player.getZ();
-                if(type == 1 && entity.tickCount % 4*20*slow == 0){
+                if(type == 1 && entity.tickCount % (4*20*slow) == 0){
                     player.setSecondsOnFire(entity.getRemainingFireTicks()+10000);
                     player.hurt(entity.damageSources().lava(),attack*0.6f);
                 }
-                if(type == 2 && (entity.tickCount & 10*20*slow) == 0){
+                if(type == 2 && (entity.tickCount % (10*20*slow)) == 0){
                     spawnParticle(player,ParticleTypes.CLOUD,x,y,z,0,0,0);
                 }
                 if(type == 4){
@@ -2776,7 +2899,7 @@ public class VPUtil {
                     player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,255,255));
                     player.setIsInPowderSnow(true);
                     player.setTicksFrozen(player.getTicksRequiredToFreeze());
-                    if(entity.tickCount % 40*slow == 0 && random.nextInt(3) == 2)
+                    if(entity.tickCount % (40*slow) == 0 && random.nextInt(3) == 2)
                         play(player,SoundEvents.SNOW_GOLEM_HURT);
                     if(entity.getPersistentData().getLong("VPBlizzard") > System.currentTimeMillis() && entity.tickCount % 20 == 0){
                         player.invulnerableTime = 0;
@@ -2784,7 +2907,7 @@ public class VPUtil {
                         player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+1000);
                     }
                 }
-                if(entity.tickCount % 5*20*slow == 0 && type == 5){
+                if(entity.tickCount % (2*20*slow) == 0 && type == 5){
                     if(random.nextDouble() < 0.5) {
                         if(!player.isCreative() && player.getAbilities().flying) {
                             clearEffects(player,true);
@@ -2806,28 +2929,37 @@ public class VPUtil {
                             suckToPos(player, pos, 10);
                         }
                     }
-                    if(random.nextDouble() < 0.2){
+                    if(random.nextDouble() < 0.3){
                         if(Math.random() < 0.5)
                             play(player,SoundRegistry.WIND1.get());
                         else play(player,SoundRegistry.WIND2.get());
-                        liftEntity(player,3);
+                        liftEntity(player,8);
                         lift = true;
                     }
                 }
-                if(entity.tickCount % 10*20*slow == 0 && type == 6){
+                if(entity.tickCount % (1*20*slow) == 0 && type == 6){
                     if(position != null && livingEntity.distanceToSqr(position.getCenter()) <= 5){
                         lightList.add(livingEntity);
                     }
                     entity.getPersistentData().putLong("VPBossL",System.currentTimeMillis()+random.nextInt(10)*1000);
                     if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel1) {
                         serverLevel = serverLevel1;
+                        if(random.nextDouble() < 0.2){
+                            lightList.add(livingEntity);
+                            spawnLightning(serverLevel, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
+                        }
                     }
                 }
-                if(entity.tickCount % 60*20*slow == 0 && random.nextDouble() < 0.1 && type == 6){
+                if(entity.tickCount % (10*20*slow) == 0 && random.nextDouble() < 0.5 && type == 6){
                     entity.teleportTo(player.getX(),player.getY(),player.getZ());
                 }
+                if(entity.getPersistentData().getLong("VPBlizzard") > System.currentTimeMillis() && entity.tickCount % 20 == 0){
+                    spawnSphere(player,ParticleTypes.SNOWFLAKE,20,4,2);
+                    spawnSphere(player,ParticleTypes.SNOWFLAKE,20,2,1);
+                    play(entity,SoundEvents.POWDER_SNOW_HIT);
+                }
             }
-            if(entity.tickCount % 2*slow == 0 && entity.getPersistentData().getLong("VPBossL") > System.currentTimeMillis() && serverLevel != null){
+            if(entity.tickCount % (2*slow) == 0 && entity.getPersistentData().getLong("VPBossL") > System.currentTimeMillis() && serverLevel != null){
                 if(position != null)
                     spawnLightning(serverLevel, position.getX(), position.getY(), position.getZ());
                 if(!lightList.isEmpty()){
@@ -2842,7 +2974,7 @@ public class VPUtil {
                 }
             }
             if(lift)
-                liftEntity(entity,3);
+                liftEntity(entity,8);
         }
     }
 
@@ -2869,17 +3001,22 @@ public class VPUtil {
     public static void spawnAura(Entity entity, int particleCount, SimpleParticleType type, double radius) {
         Vec3 entityPosition = entity.position();
         Random random = new Random();
+        double speed = 1;
+        if (type == ParticleTypes.ELECTRIC_SPARK || type == ParticleTypes.MYCELIUM) {
+            speed = 4;
+            particleCount *= 2;
+        }
+        radius += entity.getBbWidth();
         for (int i = 0; i < particleCount; i++) {
             double angle = 2 * Math.PI * random.nextDouble();
             double xOffset = Math.cos(angle) * radius;
             double zOffset = Math.sin(angle) * radius;
-
             double x = entityPosition.x + xOffset;
             double y = entityPosition.y + 0.5;
+            double z = entityPosition.z + zOffset;
             if (type == ParticleTypes.DRIPPING_OBSIDIAN_TEAR)
                 y += 6;
-            double z = entityPosition.z + zOffset;
-            double numba = random.nextDouble();
+            double numba = random.nextDouble()*speed;
             double velocityX = xOffset * 0.01;
             double velocityY = numba * 0.1;
             double velocityZ = zOffset * 0.01;
@@ -2913,6 +3050,8 @@ public class VPUtil {
 
     public static void nightmareAura(int type, LivingEntity entity){
         SimpleParticleType particleType = null;
+        Random random = new Random();
+        double radius = 2;
         switch (type){
             case 1: {
                 particleType = ParticleTypes.FLAME;
@@ -2923,7 +3062,7 @@ public class VPUtil {
                 break;
             }
             case 3:{
-                particleType = ParticleTypes.MYCELIUM;
+                particleType = ParticleTypes.ENCHANT;
                 break;
             }
             case 4:{
@@ -2945,6 +3084,6 @@ public class VPUtil {
                 break;
             }
         }
-        spawnAura(entity,30,particleType,2);
+        spawnAura(entity,30,particleType,radius);
     }
 }

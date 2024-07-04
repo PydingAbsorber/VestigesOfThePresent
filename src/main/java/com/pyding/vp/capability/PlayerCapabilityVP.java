@@ -72,7 +72,6 @@ public class PlayerCapabilityVP {
     private String bosses = "";
     private String music = "";
     private String templates = "";
-    private String fish = "";
     private String sea = "";
     private String friends = "";
 
@@ -101,12 +100,6 @@ public class PlayerCapabilityVP {
         }
     }
 
-    public void addFish(String fishka, Player player){
-        if(VPUtil.notContains(fish,fishka)) {
-            this.fish += fishka + ",";
-            setChallenge(23,player);
-        }
-    }
 
     public void addSea(String seaElement, Player player){
         if(VPUtil.notContains(sea,seaElement)) {
@@ -376,9 +369,6 @@ public class PlayerCapabilityVP {
     public String getTemplates(){
         return templates;
     }
-    public String getFish(){
-        return fish;
-    }
     public String getSea(){
         return sea;
     }
@@ -507,10 +497,6 @@ public class PlayerCapabilityVP {
                 music = "";
                 break;
             }
-            case 23:{
-                fish = "";
-                break;
-            }
             case 24:{
                 sea = "";
                 break;
@@ -556,7 +542,6 @@ public class PlayerCapabilityVP {
         bosses = "";
         music = "";
         templates = "";
-        fish = "";
         sea = "";
         friends = "";
         sync(player);
@@ -610,9 +595,9 @@ public class PlayerCapabilityVP {
             case 22:
                 return VPUtil.getMusicDisks().size()-reduce;
             case 23:
-                return VPUtil.getFishDrops().size()-reduce;
+                return 8-reduce;
             case 24:
-                return VPUtil.getSeaList().size()-reduce;
+                return VPUtil.getSeaSize()-reduce;
         }
         return  0;
     }
@@ -621,7 +606,7 @@ public class PlayerCapabilityVP {
         Level level = player.getCommandSenderWorld();
         VPUtil.initMonstersAndBosses(level);
         VPUtil.initBiomes(level);
-        VPUtil.initFish(player);
+        VPUtil.initBuckets();
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(i).get();
@@ -693,10 +678,10 @@ public class PlayerCapabilityVP {
                     player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getMusicDisks().size()-reduce);
                     break;
                 case 23:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getFishDrops().size()-reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,8-reduce);
                     break;
                 case 24:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getSeaList().size()-reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getSeaSize()-reduce);
                     break;
             }
         }
@@ -763,7 +748,6 @@ public class PlayerCapabilityVP {
         creaturesKilledAir = source.creaturesKilledAir;
         music = source.music;
         templates = source.templates;
-        fish = source.fish;
         sea = source.sea;
     }
 
@@ -797,7 +781,6 @@ public class PlayerCapabilityVP {
         nbt.putString("VPAir",creaturesKilledAir);
         nbt.putString("VPMusic",music);
         nbt.putString("VPTemplate",templates);
-        nbt.putString("VPFish",fish);
         nbt.putString("VPSea",sea);
         nbt.putString("VPFriends",friends);
     }
@@ -832,7 +815,6 @@ public class PlayerCapabilityVP {
         creaturesKilledAir = nbt.getString("VPAir");
         music = nbt.getString("VPMusic");
         templates = nbt.getString("VPTemplate");
-        fish = nbt.getString("VPFish");
         sea = nbt.getString("VPSea");
         friends = nbt.getString("VPFriends");
     }
@@ -868,7 +850,6 @@ public class PlayerCapabilityVP {
         nbt.putString("VPAir",creaturesKilledAir);
         nbt.putString("VPMusic",music);
         nbt.putString("VPTemplate",templates);
-        nbt.putString("VPFish",fish);
         nbt.putString("VPSea",sea);
         nbt.putString("VPFriends",friends);
         return nbt;

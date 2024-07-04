@@ -51,6 +51,7 @@ public class ModItems {
     public static final RegistryObject<Item> VORTEX = ITEMS.register("vortex", () -> new Vortex());
     public static final RegistryObject<Item> EASTER_EGG = ITEMS.register("easter_egg", () -> new EaterEgg());
     public static final RegistryObject<Item> SHARD = ITEMS.register("shard", () -> new Shard());
+    public static final RegistryObject<Item> NIGHTMARESHARD = ITEMS.register("nightmareshard", () -> new NightmareShard());
 
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());

@@ -51,13 +51,15 @@ public class Shard extends Item {
                 entity.getPersistentData().putBoolean("VPNightmareBoss",true);
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
-                entity.setHealth(entity.getMaxHealth());
                 VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
                 entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
                 entity.setGlowingTag(true);
                 Random random = new Random();
                 entity.getPersistentData().putInt("VPBossType",random.nextInt(7)+1);
                 entity.refreshDimensions();
+                VPUtil.setHealth(entity,entity.getMaxHealth());
+                if(player.getName().getString().equals("Pyding"))
+                    player.sendSystemMessage(Component.literal(entity.getMaxHealth() + " curent" + entity.getHealth()));
             }
         }
         return super.use(p_41432_, player, p_41434_);

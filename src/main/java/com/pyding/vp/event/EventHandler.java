@@ -41,7 +41,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.TropicalFish;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
@@ -63,10 +66,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.*;
 import net.minecraftforge.event.entity.living.*;
-import net.minecraftforge.event.entity.player.AnvilRepairEvent;
-import net.minecraftforge.event.entity.player.ItemFishedEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -250,7 +250,7 @@ public class EventHandler {
             if(VPUtil.isNightmareBoss(entity)){
                 float absorb = entity.getPersistentData().getFloat("VPDreadAbsorb");
                 event.setAmount(VPUtil.dreadAbsorbtion(event.getAmount(),absorb));
-                entity.getPersistentData().putFloat("VPDreadAbsorb",absorb-1);
+                entity.getPersistentData().putFloat("VPDreadAbsorb",Math.max(1,absorb-1+random.nextInt(10)));
                 int type = entity.getPersistentData().getInt("VPBossType");
                 if(type == 3 && attacker != null) {
                     attacker.hurt(event.getSource(), event.getAmount() * 0.1f);
@@ -277,8 +277,11 @@ public class EventHandler {
                 }
                 double damagePlayer = player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
                 double entityDamage = 0;
-                if(VPUtil.isPoisonedByNightmare(player) && event.getSource().is(DamageTypes.MAGIC))
-                    event.setAmount(event.getAmount()*20);
+                if(VPUtil.isPoisonedByNightmare(player) && event.getSource().is(DamageTypes.MAGIC)) {
+                    if(player.getHealth() > event.getAmount() * 20)
+                        event.setAmount(event.getAmount() * 20);
+                    else VPUtil.deadInside(player);
+                }
                 if(attacker != null && attacker.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
                     entityDamage = attacker.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
                 if(VPUtil.hasVestige(ModItems.PEARL.get(),player) && event.getSource().is(DamageTypeTags.IS_DROWNING) && Math.random() < 0.2)
@@ -541,26 +544,27 @@ public class EventHandler {
                         if(livingEntity instanceof Player killer){
                             int min = ConfigHandler.COMMON.nightmareLootMin.get();
                             int max = ConfigHandler.COMMON.nightmareLoot.get();
-                            int amount = random.nextInt(max-min)+min;
+                            int amount = random.nextInt(Math.max(1,max-min))+min;
                             for(int i = 0;i < amount;i++) {
                                 VPUtil.dropEntityLoot(entity, killer,false);
                             }
                             min = ConfigHandler.COMMON.nightmareFragsMin.get();
                             max = ConfigHandler.COMMON.nightmareFrags.get();
-                            amount = random.nextInt(max-min)+min;
+                            amount = random.nextInt(Math.max(1,max-min))+min;
                             VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),amount),killer);
                             if(Math.random() < ConfigHandler.COMMON.nightmareRefresherChance.get())
                                 VPUtil.giveStack(new ItemStack(ModItems.REFRESHER.get()),killer);
                             if(Math.random() < ConfigHandler.COMMON.nightmareBoxChance.get()) {
                                 min = ConfigHandler.COMMON.nightmareBoxesMin.get();
                                 max = ConfigHandler.COMMON.nightmareBoxes.get();
-                                amount = random.nextInt(max-min)+min;
+                                amount = random.nextInt(Math.max(1,max-min))+min;
                                 if(Math.random() < 0.5){
                                     if(Math.random() < 0.5)
                                         VPUtil.giveStack(new ItemStack(ModItems.BOX_EGGS.get(),amount),killer);
                                     else VPUtil.giveStack(new ItemStack(ModItems.BOX.get(),amount),killer);
                                 } else VPUtil.giveStack(new ItemStack(ModItems.BOX_SAPLINGS.get(),amount),killer);
                             }
+                            VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
                         }
                     }
                 }
@@ -738,6 +742,21 @@ public class EventHandler {
         if(stack.getItem() instanceof RecordItem recordItem && player.level().getBlockState(event.getHitVec().getBlockPos()).getBlock() == Blocks.JUKEBOX){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                 challange.addMusic(recordItem.getDescriptionId()+".desc",player);
+            });
+        }
+    }
+    @SubscribeEvent
+    public static void interactEvent(PlayerInteractEvent.EntityInteract event){
+        Player player = event.getEntity();
+        Entity entity = event.getTarget();
+        if(entity instanceof Bucketable && event.getItemStack().getItem() instanceof BucketItem){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+                String fish = entity.getType().getDescriptionId();
+                if(entity instanceof Axolotl axolotl)
+                    fish = axolotl.getVariant().getName();
+                else if(entity instanceof TropicalFish tropicalFish)
+                    fish = tropicalFish.getVariant().getSerializedName();
+                challange.addSea(fish,player);
             });
         }
     }
@@ -983,6 +1002,14 @@ public class EventHandler {
         CompoundTag tag = entity.getPersistentData();
         if(!entity.isAlive())
             return;
+        if(entity.getPersistentData().getLong("VPDeath") > 0 && entity.getPersistentData().getLong("VPDeath") > System.currentTimeMillis()) {
+            entity.getPersistentData().putLong("VPDeath",0);
+            VPUtil.setHealth(entity,0);
+            VPUtil.setDead(entity, entity.damageSources().genericKill());
+        }
+        if(VPUtil.isBoss(entity) && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47")))){
+            VPUtil.spawnBoss(entity);
+        }
         /*if(entity.tickCount < 10 && VPUtil.isBoss(entity))
             entity.heal(9999);*/
         if(entity.tickCount % 20 == 0) {
@@ -1018,9 +1045,10 @@ public class EventHandler {
             VPUtil.spawnSphere(entity,ParticleTypes.BUBBLE,60,3,1);
             if(entity.tickCount % 20 == 0 && entity.getKillCredit() != null && entity.getKillCredit() instanceof Player player){
                 entity.hurt(player.damageSources().drown(),10);
+                VPUtil.play(player, SoundRegistry.BUBBLE1.get());
             }
         }
-        if(VPUtil.isNightmareBoss(entity) && !entity.getCommandSenderWorld().isClientSide()){
+        if(VPUtil.isNightmareBoss(entity)){
             VPUtil.nightmareTickEvent(entity);
         }
         if (entity.getPersistentData().getInt("VPGravity") > 30)
@@ -1092,8 +1120,8 @@ public class EventHandler {
             if(playerServer.getPersistentData().getLong("VPIgnisTime") != 0 && playerServer.getPersistentData().getLong("VPIgnisTime") < System.currentTimeMillis()){
                 playerServer.getPersistentData().putLong("VPIgnisTime",0);
                 playerServer.getPersistentData().putFloat("VPIgnis",0);
-                playerServer.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(playerServer,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:ignis_hp"));
-                playerServer.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(playerServer,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),1, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:ignis_hp"));
+                playerServer.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(playerServer,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),1, AttributeModifier.Operation.ADDITION,"vp:ignis_hp"));
+                playerServer.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(playerServer,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),1, AttributeModifier.Operation.ADDITION,"vp:ignis_armor"));
             }
         }
         if(entity.tickCount % 40 == 0)
@@ -1302,27 +1330,11 @@ public class EventHandler {
     @SubscribeEvent
     public static void onMobSpawn(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity entity && VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get()) {
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
-            entity.setHealth(entity.getMaxHealth());
-            VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
-            entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
-            if(VPUtil.isNightmareBoss(entity)){
-                entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
-                entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
-                entity.setHealth(entity.getMaxHealth());
-                VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
-                entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
-                entity.refreshDimensions();
-                AABB boundingBox = entity.getBoundingBox();
-                AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
-                entity.setBoundingBox(scaledBoundingBox);
-            }
+            VPUtil.spawnBoss(entity);
         }
         if(event.getEntity() instanceof Player player){
             VPUtil.updateStats(player);
+            player.getPersistentData().putLong("VPDeath",0);
         }
     }
     @SubscribeEvent

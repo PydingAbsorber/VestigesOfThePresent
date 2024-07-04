@@ -1,7 +1,10 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,6 +26,8 @@ public class Rune extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
+        VPUtil.play(player, SoundRegistry.RUNE1.get());
+        VPUtil.spawnParticles(player, ParticleTypes.SMALL_FLAME,5,30,0.1,0.1,0.1,0.5,false);
         float bonus = 0;
         if(player.getAttributes().hasAttribute(Attributes.KNOCKBACK_RESISTANCE))
             bonus += (float) player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
@@ -35,9 +40,13 @@ public class Rune extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
-        player.getPersistentData().putLong("VPRuneUlt",seconds);
-        player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR, UUID.fromString("4cfa176b-4d5b-43bf-bd9b-9d717ffd7689"),20*(1 + VPUtil.getShieldBonus(player)), AttributeModifier.Operation.ADDITION,"vp:rune"));
-        player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR_TOUGHNESS, UUID.fromString("16c73772-b469-4600-ae01-946807a719f7"),20*(1 + VPUtil.getShieldBonus(player)), AttributeModifier.Operation.ADDITION,"vp:rune2"));
+        VPUtil.play(player, SoundRegistry.RUNE2.get());
+        for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20,true)){
+            VPUtil.spawnSphere(entity,ParticleTypes.FLAME,30,5,1);
+            entity.getPersistentData().putLong("VPRuneUlt",seconds);
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR, UUID.fromString("4cfa176b-4d5b-43bf-bd9b-9d717ffd7689"),20*(1 + VPUtil.getShieldBonus(entity)), AttributeModifier.Operation.ADDITION,"vp:rune"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR_TOUGHNESS, UUID.fromString("16c73772-b469-4600-ae01-946807a719f7"),20*(1 + VPUtil.getShieldBonus(entity)), AttributeModifier.Operation.ADDITION,"vp:rune2"));
+        }
         super.doUltimate(seconds, player, level, stack);
     }
 

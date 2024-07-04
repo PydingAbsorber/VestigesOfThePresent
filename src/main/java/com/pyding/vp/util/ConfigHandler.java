@@ -117,8 +117,8 @@ public class ConfigHandler {
 
             nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareBoxChance", 0.5, 0, 1);
             nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
-            nightmareFrags = builder.comment("Nightmare Bosses max fragments").defineInRange("nightmareFrags", 13, 1, 2100000000);
-            nightmareFragsMin = builder.comment("Nightmare Bosses min fragments").defineInRange("nightmareFragsMin", 26, 1, 2100000000);
+            nightmareFrags = builder.comment("Nightmare Bosses max fragments").defineInRange("nightmareFrags", 26, 1, 2100000000);
+            nightmareFragsMin = builder.comment("Nightmare Bosses min fragments").defineInRange("nightmareFragsMin", 13, 1, 2100000000);
             nightmareLoot = builder.comment("Nightmare Bosses max loot multiplier").defineInRange("nightmareLoot", 20, 1, 2100000000);
             nightmareLootMin = builder.comment("Nightmare Bosses min loot multiplier").defineInRange("nightmareLootMin", 10, 1, 2100000000);
             nightmareBoxes = builder.comment("Nightmare Bosses max boxes").defineInRange("nightmareBoxes", 8, 1, 2100000000);
@@ -197,7 +197,7 @@ public class ConfigHandler {
             vortexReduction = builder.comment("Reduction of maximum amount needed for Vortex").defineInRange("vortexReduction", 0, 0, Integer.MAX_VALUE);
             easter = builder.comment("Enables Easter event").define("easter", false);
             easterChance = builder.comment("Additional chance for Easter Egg 10 is 10%").defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
-            fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship");
+            fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle");
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {

@@ -92,8 +92,9 @@ public class VPCommands {
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     player.sendSystemMessage(Component.literal("Friends can't take any damage or bad effects from you and your Vestiges").withStyle(ChatFormatting.GREEN));
+                                    player.sendSystemMessage(Component.literal("You can add creature to friends by it's Id/Display Name/Nametag").withStyle(ChatFormatting.BLUE));
                                     player.sendSystemMessage(Component.literal("To know creature's Id type command /vestiges getType"));
-                                    player.sendSystemMessage(Component.literal("If you type ,,cow,, it will count all mobs that has cow in it's id"));
+                                    player.sendSystemMessage(Component.literal("If you type for example ,,cow,, it will count all mobs that has cow in it's id"));
                                     player.sendSystemMessage(Component.literal("If you type entity.minecraft.cow from /vestiges getType it will count only vanilla cow"));
                                     return Command.SINGLE_SUCCESS;
                                 })

@@ -1,7 +1,9 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +29,9 @@ public class Pearl extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
+        VPUtil.play(player, SoundRegistry.BUBBLE3.get());
+        VPUtil.spawnSphere(player, ParticleTypes.FISHING,30,3,0);
+        VPUtil.spawnCircleParticles(player, 30,ParticleTypes.FISHING,3,0);
         if(player.fishing != null){
             FishingHook hook = player.fishing;
             if(hook.isOpenWaterFishing()){
@@ -72,6 +77,9 @@ public class Pearl extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
+        VPUtil.play(player, SoundRegistry.BUBBLE4.get());
+        VPUtil.spawnSphere(player, ParticleTypes.FISHING,30,3,0);
+        VPUtil.spawnCircleParticles(player, 30,ParticleTypes.FISHING,3,0);
         player.getPersistentData().putInt("VPLures",10);
         player.getPersistentData().putFloat("VPDepth", VPUtil.getWaterDepth(player));
         super.doUltimate(seconds, player, level, stack);

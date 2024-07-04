@@ -218,5 +218,115 @@
     "sounds": [
       "vp:open"
     ]
+  },
+  "rune1": {
+    "sounds": [
+      "vp:rune1"
+    ]
+  },
+  "rune2": {
+    "sounds": [
+      "vp:rune2"
+    ]
+  },
+  "lyreult": {
+    "sounds": [
+      "vp:lyreult"
+    ]
+  },
+  "bubblepop": {
+    "sounds": [
+      "vp:bubblepop"
+    ]
+  },
+  "bubble1": {
+    "sounds": [
+      "vp:bubble1"
+    ]
+  },
+  "bubble2": {
+    "sounds": [
+      "vp:bubble2"
+    ]
+  },
+  "bubble3": {
+    "sounds": [
+      "vp:bubble3"
+    ]
+  },
+  "bubble4": {
+    "sounds": [
+      "vp:bubble4"
+    ]
+  },
+  "bubble5": {
+    "sounds": [
+      "vp:bubble5"
+    ]
+  },
+  "lyresong1": {
+    "sounds": [
+      "vp:lyresong1"
+    ]
+  },
+  "lyresong2": {
+    "sounds": [
+      "vp:lyresong2"
+    ]
+  },
+  "lyresong3": {
+    "sounds": [
+      "vp:lyresong3"
+    ]
+  },
+  "lyresong4": {
+    "sounds": [
+      "vp:lyresong4"
+    ]
+  },
+  "lyresong5": {
+    "sounds": [
+      "vp:lyresong5"
+    ]
+  },
+  "lyre1": {
+    "sounds": [
+      "vp:lyre1"
+    ]
+  },
+  "lyre2": {
+    "sounds": [
+      "vp:lyre2"
+    ]
+  },
+  "lyre3": {
+    "sounds": [
+      "vp:lyre3"
+    ]
+  },
+  "lyre4": {
+    "sounds": [
+      "vp:lyre4"
+    ]
+  },
+  "lyre5": {
+    "sounds": [
+      "vp:lyre5"
+    ]
+  },
+  "lyre6": {
+    "sounds": [
+      "vp:lyre6"
+    ]
+  },
+  "lyre7": {
+    "sounds": [
+      "vp:lyre7"
+    ]
+  },
+  "lyre8": {
+    "sounds": [
+      "vp:lyre8"
+    ]
   }
 }

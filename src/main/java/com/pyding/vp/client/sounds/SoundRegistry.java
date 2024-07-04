@@ -59,6 +59,28 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> FLESH2 = registerSoundEvent("flesh2");
     public static RegistryObject<SoundEvent> GRAVITY = registerSoundEvent("gravity");
     public static RegistryObject<SoundEvent> OPEN = registerSoundEvent("open");
+    public static RegistryObject<SoundEvent> RUNE1 = registerSoundEvent("rune1");
+    public static RegistryObject<SoundEvent> RUNE2 = registerSoundEvent("rune2");
+    public static RegistryObject<SoundEvent> LYREULT = registerSoundEvent("lyreult");
+    public static RegistryObject<SoundEvent> BUBBLEPOP = registerSoundEvent("bubblepop");
+    public static RegistryObject<SoundEvent> BUBBLE1 = registerSoundEvent("bubble1");
+    public static RegistryObject<SoundEvent> BUBBLE2 = registerSoundEvent("bubble2");
+    public static RegistryObject<SoundEvent> BUBBLE3 = registerSoundEvent("bubble3");
+    public static RegistryObject<SoundEvent> BUBBLE4 = registerSoundEvent("bubble4");
+    public static RegistryObject<SoundEvent> BUBBLE5 = registerSoundEvent("bubble5");
+    public static RegistryObject<SoundEvent> LYRESONG1 = registerSoundEvent("lyresong1");
+    public static RegistryObject<SoundEvent> LYRESONG2 = registerSoundEvent("lyresong2");
+    public static RegistryObject<SoundEvent> LYRESONG3 = registerSoundEvent("lyresong3");
+    public static RegistryObject<SoundEvent> LYRESONG4 = registerSoundEvent("lyresong4");
+    public static RegistryObject<SoundEvent> LYRESONG5 = registerSoundEvent("lyresong5");
+    public static RegistryObject<SoundEvent> LYRE1 = registerSoundEvent("lyre1");
+    public static RegistryObject<SoundEvent> LYRE2 = registerSoundEvent("lyre2");
+    public static RegistryObject<SoundEvent> LYRE3 = registerSoundEvent("lyre3");
+    public static RegistryObject<SoundEvent> LYRE4 = registerSoundEvent("lyre4");
+    public static RegistryObject<SoundEvent> LYRE5 = registerSoundEvent("lyre5");
+    public static RegistryObject<SoundEvent> LYRE6 = registerSoundEvent("lyre6");
+    public static RegistryObject<SoundEvent> LYRE7 = registerSoundEvent("lyre7");
+    public static RegistryObject<SoundEvent> LYRE8 = registerSoundEvent("lyre8");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {

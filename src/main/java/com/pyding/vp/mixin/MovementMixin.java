@@ -18,27 +18,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Entity.class)
 public abstract class MovementMixin {
-    @Shadow public abstract EntityType<?> getType();
-
-    @Shadow @Final private static Logger LOGGER;
 
     @Inject(method = "setDeltaMovement",at = @At("HEAD"),cancellable = true, require = 1)
     private void setDeltaMovement(Vec3 p_20257_, CallbackInfo info){
-        if(VPUtil.isNpc(this.getType())) {
+        if(VPUtil.isNpc(((EntityVzlom)this).getTypeMix())) {
             info.cancel();
         }
     }
 
     @Inject(method = "moveTo",at = @At("HEAD"),cancellable = true, require = 1)
     private void moveTo(Vec3 p_20257_, CallbackInfo info){
-        if(VPUtil.isNpc(this.getType())) {
+        if(VPUtil.isNpc(((EntityVzlom)this).getTypeMix())) {
             info.cancel();
         }
     }
 
     @Inject(method = "changeDimension",at = @At("HEAD"), require = 1, cancellable = true)
     private void changeDimension(ServerLevel p_20118_, CallbackInfoReturnable<Entity> info){
-        if(VPUtil.isNpc(this.getType())) {
+        if(VPUtil.isNpc(((EntityVzlom)this).getTypeMix())) {
             info.setReturnValue(null);
         }
     }
