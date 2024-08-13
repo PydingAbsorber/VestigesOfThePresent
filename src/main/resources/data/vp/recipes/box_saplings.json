@@ -1,0 +1,31 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "SES",
+      "ADB",
+      "SCS"
+    ],
+    "key": {
+      "S": {
+        "item": "vp:stellar"
+      },
+      "A": {
+        "item": "minecraft:wheat_seeds"
+      },
+      "B": {
+        "item": "minecraft:oak_sapling"
+      },
+      "C": {
+        "item": "vp:shard"
+      },
+      "D": {
+        "item": "vp:seashell"
+      },
+      "E": {
+        "item": "vp:hearty_pearl"
+      }
+    },
+    "result": {
+      "item": "vp:box_saplings"
+    }
+}

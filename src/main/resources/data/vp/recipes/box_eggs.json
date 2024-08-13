@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ASB",
+    "SCS",
+    "DSE"
+  ],
+  "key": {
+    "S": {
+      "item": "vp:stellar"
+    },
+    "A": {
+      "item": "minecraft:egg"
+    },
+    "B": {
+      "item": "vp:eater_egg"
+    },
+    "C": {
+      "item": "vp:nightmareshard"
+    },
+    "D": {
+      "item": "minecraft:sniffer_egg"
+    },
+    "E": {
+      "item": "minecraft:turtle_egg"
+    }
+  },
+  "result": {
+    "item": "vp:box_eggs"
+  }
+}

@@ -59,7 +59,7 @@ public class VortexEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        if(this.getCommandSenderWorld().isClientSide)
+        if(getCommandSenderWorld().isClientSide)
             return;
         float r = 5;
         Player player = (Player) getOwner();

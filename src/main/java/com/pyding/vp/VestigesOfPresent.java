@@ -154,12 +154,13 @@ public class VestigesOfPresent
             event.accept(ModItems.NECKLACE_OF_TORTURED_DREAMS);
             event.accept(ModItems.BOX);
             event.accept(ModItems.VORTEX);
-            if(VPUtil.isEasterEvent())
-                event.accept(ModItems.EASTER_EGG);
-            event.accept(ModItems.BOX_SAPLINGS);
-            event.accept(ModItems.BOX_EGGS);
-            event.accept(ModItems.SHARD);
+            if(VPUtil.isEasterEvent()) {
+                event.accept(ModItems.BOX_SAPLINGS);
+                event.accept(ModItems.SHARD);
+            }
             event.accept(ModItems.NIGHTMARESHARD);
+            event.accept(ModItems.HEARTY_PEARL);
+            event.accept(ModItems.SEASHELL);
         }
     }
 }

@@ -77,6 +77,16 @@ public class PlayerCapabilityVP {
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
+    private int pearls = 0;
+
+    public void addPearl(Player player){
+        pearls += 1;
+        sync(player);
+    }
+
+    public int getPearls(){
+        return pearls;
+    }
 
     public void addDimension(Player player,String dim, String nameSpace){
         if(VPUtil.notContains(dimensions,dim)){
@@ -606,13 +616,13 @@ public class PlayerCapabilityVP {
         Level level = player.getCommandSenderWorld();
         VPUtil.initMonstersAndBosses(level);
         VPUtil.initBiomes(level);
-        VPUtil.initBuckets();
+        VPUtil.initBuckets(level);
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(i).get();
             switch (i) {
                 case 1:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesList().size()/3 - reduce);
+                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesList().size()/10 - reduce);
                     break;
                 case 2:
                     player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.monsterList.size() - reduce);
@@ -749,6 +759,7 @@ public class PlayerCapabilityVP {
         music = source.music;
         templates = source.templates;
         sea = source.sea;
+        pearls = source.pearls;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -783,6 +794,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPTemplate",templates);
         nbt.putString("VPSea",sea);
         nbt.putString("VPFriends",friends);
+        nbt.putInt("VPPearls",pearls);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -817,42 +829,7 @@ public class PlayerCapabilityVP {
         templates = nbt.getString("VPTemplate");
         sea = nbt.getString("VPSea");
         friends = nbt.getString("VPFriends");
-    }
-
-    public CompoundTag getNbt(){
-        CompoundTag nbt = new CompoundTag();
-        for(int i = 0; i < totalVestiges; i++){
-            nbt.putInt("challenge"+i,challenges[i]);
-        }
-        nbt.putString("VPCoolDowned",coolDowned);
-        nbt.putString("VPBiomesFound",biomesFound);
-        nbt.putString("VPDamageDie",damageDie);
-        nbt.putString("VPDamageDo",damageDo);
-        nbt.putString("VPMonstersKilled",monstersKilled);
-        nbt.putString("VPFoodEaten",foodEaten);
-        nbt.putString("VPLore",loreComplete);
-        nbt.putLong("VPCoolDown",coolDown);
-        nbt.putString("VPTools",tools);
-        nbt.putString("VPMobs",mobsTamed);
-        nbt.putString("VPFlowers",flowers);
-        nbt.putInt("VPChance",chance);
-        nbt.putString("VPCats",cats);
-        nbt.putString("VPGold",goldenItems);
-        nbt.putString("VPRandomEntity",randomEntity);
-        nbt.putLong("VPCT",chaosTime);
-        nbt.putString("VPCC",commonChallenges);
-        nbt.putString("VPSC",stellarChallenges);
-        nbt.putString("VPDimensions",dimensions);
-        nbt.putString("VPDimensionsDir",dimensionsDir);
-        nbt.putBoolean("VPDebug",debug);
-        nbt.putString("VPEffects",effects);
-        nbt.putString("VPBosses",bosses);
-        nbt.putString("VPAir",creaturesKilledAir);
-        nbt.putString("VPMusic",music);
-        nbt.putString("VPTemplate",templates);
-        nbt.putString("VPSea",sea);
-        nbt.putString("VPFriends",friends);
-        return nbt;
+        pearls = nbt.getInt("VPPearls");
     }
 
     public void sync(Player player){
@@ -860,7 +837,9 @@ public class PlayerCapabilityVP {
             return;
         VPUtil.resync(this,player);
         ServerPlayer serverPlayer = (ServerPlayer) player;
-        PacketHandler.sendToClient(new SendPlayerCapaToClient(this.getNbt()),serverPlayer);
+        CompoundTag nbt = new CompoundTag();
+        saveNBT(nbt);
+        PacketHandler.sendToClient(new SendPlayerCapaToClient(nbt),serverPlayer);
         /*
         /*
         if(player.getPersistentData() != null){
@@ -977,17 +956,18 @@ public class PlayerCapabilityVP {
                 break;
             }
         }
-        float stellarChance = (float) getChance();
+        double stellarChance = getChance();
+        Random random = new Random();
         if(VPUtil.getSet(player) == 9)
             stellarChance += 5;
-        if(Math.random() < stellarChance/100){
-            if(getChance() >= 200){
+        if(random.nextDouble() < VPUtil.getChance(stellarChance/100,player)){
+            if(stellarChance >= 200){
                 Vestige.setDoubleStellar(stack);
             }
             Vestige.setStellar(stack);
             setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
-            if(Math.random() < ConfigHandler.COMMON.refresherChance.get())
+            if(random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.refresherChance.get(),player))
                 VPUtil.giveStack(new ItemStack(ModItems.REFRESHER.get()),player);
         } else {
             setChance();

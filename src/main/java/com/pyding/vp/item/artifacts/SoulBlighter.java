@@ -24,6 +24,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class SoulBlighter extends Vestige{
@@ -81,7 +82,8 @@ public class SoulBlighter extends Vestige{
                 double chance = VPUtil.calculateCatchChance(player.getMaxHealth(),entity.getMaxHealth(),entity.getHealth());
                 if(entity.getPersistentData().getLong("VPAstral") > 0)
                     chance *= 2;
-                if(Math.random() < chance
+                Random random = new Random();
+                if(random.nextDouble() < VPUtil.getChance(chance,player)
                         || (entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").equals(player.getUUID()))
                         || player.isCreative()){
                     fuckNbt();

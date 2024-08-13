@@ -10,6 +10,7 @@ import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.KeyBinding;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
@@ -38,6 +39,10 @@ public class ClientEvents {
             LivingEntity entity = event.getEntity();
             if(VPUtil.isNightmareBoss(entity))
                 event.getPoseStack().scale(3.0F, 3.0F, 3.0F);
+            if(entity instanceof TropicalFish && entity.getPersistentData().getLong("VPEating") > 0) {
+                float scale = Math.min(10,(System.currentTimeMillis()-entity.getPersistentData().getLong("VPEating"))/10000f);
+                event.getPoseStack().scale(scale,scale,scale);
+            }
         }
     }
 
@@ -69,6 +74,7 @@ public class ClientEvents {
             event.registerEntityRenderer(ModEntities.KILLER.get(), VestigeHunterKillerRenderer::new);
             event.registerEntityRenderer(ModEntities.EASTER_EGG_ENTITY.get(), EasterEggRenderer::new);
             event.registerEntityRenderer(ModEntities.CLOUD_ENTITY.get(), CloudRenderer::new);
+            event.registerEntityRenderer(ModEntities.OYSTER.get(), OysterRenderer::new);
         }
     }
 }

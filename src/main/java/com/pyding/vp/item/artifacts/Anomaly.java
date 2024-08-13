@@ -59,7 +59,8 @@ public class Anomaly extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(isStellar(stack) && (Math.random() < 0.05)){
+                Random random = new Random();
+                if(isStellar(stack) && (random.nextDouble() < VPUtil.getChance(0.05,player))){
                     int counter = 0;
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){
@@ -84,7 +85,6 @@ public class Anomaly extends Vestige{
                     if (serverLevel == null) {
                         serverLevel = serverPlayer.getCommandSenderWorld().getServer().getLevel(Level.OVERWORLD);
                     }
-                    Random random = new Random();
                     double x;
                     double z;
                     double borderX;
@@ -96,13 +96,13 @@ public class Anomaly extends Vestige{
                         borderX = ConfigHandler.COMMON.anomalyBorder.get();
                         borderZ = borderX;
                     }
-                    if (Math.random() < 0.5) {
+                    if (random.nextDouble() < 0.5) {
                         x = random.nextInt((int) borderX);
                     } else {
                         x = random.nextInt((int) borderX);
                         x *= -1;
                     }
-                    if (Math.random() < 0.5) {
+                    if (random.nextDouble() < 0.5) {
                         z = borderZ;
                     } else {
                         z = random.nextInt((int) borderZ);

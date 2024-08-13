@@ -15,6 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.Random;
+
 public class Anemoculus extends Vestige{
     public Anemoculus(){
         super();
@@ -35,7 +37,8 @@ public class Anemoculus extends Vestige{
             }
         }
         else {
-            if(Math.random() < 0.5)
+            Random random = new Random();
+            if(random.nextDouble() < 0.5)
                 VPUtil.play(player,SoundRegistry.WIND1.get());
             else VPUtil.play(player,SoundRegistry.WIND2.get());
             for(LivingEntity entity: VPUtil.getEntities(player,16)){

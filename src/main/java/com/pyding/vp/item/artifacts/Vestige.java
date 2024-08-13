@@ -293,7 +293,8 @@ public class Vestige extends Item implements ICurioItem {
                 setTime(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
                 setSpecialActive(true,stack);
                 setCdSpecialActive(cdSpecialActive(stack)+specialCd(stack),stack);     //time until cd recharges in seconds*tps
-                if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || !(VPUtil.getSet(player) == 6 && Math.random() < 0.5) || Math.random() < player.getPersistentData().getFloat("VPDepth")/10)
+                Random random = new Random();
+                if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
                     setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
                 if(damageType == null)
                     init(stack);
@@ -316,7 +317,8 @@ public class Vestige extends Item implements ICurioItem {
                 setTimeUlt(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
                 setUltimateActive(true,stack);
                 setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
-                if(!(VPUtil.getSet(player) == 3 && Math.random() < 0.3) || !(VPUtil.getSet(player) == 6 && Math.random() < 0.5) || Math.random() < player.getPersistentData().getFloat("VPDepth")/10)
+                Random random = new Random();
+                if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
                     setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
                 long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
                 if(damageType == null)
@@ -472,7 +474,10 @@ public class Vestige extends Item implements ICurioItem {
                         .append(Component.translatable("vp.charges2").withStyle(color))
                         .append(Component.literal(" " + ultCd / 20).withStyle(color))
                         .append(Component.translatable("vp.seconds").withStyle(color)));
-                components.add(Component.translatable("vp.ultimate." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                if(vestigeNumber == 15){
+                    components.add(Component.translatable("vp.ultimate." + vestigeNumber,ConfigHandler.COMMON.devourer.get(),ConfigHandler.COMMON.devourerChance.get()*100).withStyle(ChatFormatting.GRAY));
+                }
+                else components.add(Component.translatable("vp.ultimate." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 if(vestigeNumber == 10)
                     components.add(Component.translatable("vp.worlds").withStyle(color).append(Component.literal("\n" + cap.getDimensions()).withStyle(ChatFormatting.GRAY)));
                 if (damageType) {
@@ -511,9 +516,12 @@ public class Vestige extends Item implements ICurioItem {
                 if(vestigeNumber == 9)
                     components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getGoldenChance()+"%").withStyle(ChatFormatting.GRAY)));
                 else if(vestigeNumber == 14){
-                    components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
                     components.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity())));
                     components.add(Component.translatable("vp.chaos2").withStyle(ChatFormatting.GRAY).append(VPUtil.formatMilliseconds(cap.getChaosTime()+VPUtil.getChaosTime()-System.currentTimeMillis())));
+                }
+                else if(vestigeNumber == 1 || vestigeNumber == 4 || vestigeNumber == 5 || vestigeNumber == 7){
+                    components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
                 }
                 else components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 int progress = 0;
@@ -547,7 +555,7 @@ public class Vestige extends Item implements ICurioItem {
                             .append(Component.literal(" " + progress))
                             .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber))));
                 }
-                int stellarChance = cap.getChance();
+                int stellarChance = (int) VPUtil.getChance((double) cap.getChance()/100,player)*100;
                 if(VPUtil.getSet(player) == 9)
                     stellarChance += 5;
                 components.add(Component.literal(stellarChance+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
@@ -618,9 +626,13 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 if(vestigeNumber == 24)
                     components.add(Component.translatable("vp.fish.2").withStyle(ChatFormatting.BLUE));
+                if(vestigeNumber == 22)
+                    components.add(Component.translatable("vp.lyre.authors").withStyle(ChatFormatting.BLUE));
                 if (text != null)
                     components.add(Component.literal(text).withStyle(ChatFormatting.GRAY));
                 if(vestigeNumber == 24){
+                    boolean fuckThisStupidGame = false;
+                    boolean fuckThisStupidGame2 = false;
                     for(MobBucketItem bucketItem: VPUtil.getBuckets()){
                         EntityType<?> type = ((BucketMixin)bucketItem).getFishSup().get();
                         List<String> bucketFish = new ArrayList<>();
@@ -630,6 +642,18 @@ public class Vestige extends Item implements ICurioItem {
                                 if (fish.trim().contains(name))
                                     bucketFish.add(fish.trim());
                             }
+                        }
+                        boolean axolotl = ((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.axolotl");
+                        boolean tropic = ((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.tropical_fish");
+                        if(axolotl){
+                            if(fuckThisStupidGame)
+                                continue;
+                            else fuckThisStupidGame = true;
+                        }
+                        if(tropic){
+                            if(fuckThisStupidGame2)
+                                continue;
+                            else fuckThisStupidGame2 = true;
                         }
                         if(allFish.size() == bucketFish.size() || allFish.size() <= 2)
                             continue;

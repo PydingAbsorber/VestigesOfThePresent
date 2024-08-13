@@ -1,6 +1,7 @@
 package com.pyding.vp.event;
 
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.entity.ModEntities;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -12,5 +13,6 @@ public class EntityCreation {
     @SubscribeEvent
     public static void createAttributes(EntityAttributeCreationEvent event){
         event.put(ModEntities.KILLER.get(), HunterKiller.createAttributes().build());
+        event.put(ModEntities.OYSTER.get(), HungryOyster.createAttributes().build());
     }
 }

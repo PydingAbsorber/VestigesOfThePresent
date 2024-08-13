@@ -33,17 +33,17 @@ public class Accessory extends Item implements ICurioItem {
         super(properties);
     }
 
-    public void init(ItemStack stack){
+    public void init(ItemStack stack,Player player){
         Random random = new Random();
         int type = random.nextInt(5)+1;
         stack.getOrCreateTag().putInt("VPLvl",0);
         stack.getOrCreateTag().putInt("VPType",type);
         switch (type) {
-            case 1 -> stack.getOrCreateTag().putFloat("VPStat", (float) (Math.random()*3 + 1));
-            case 2 -> stack.getOrCreateTag().putFloat("VPStat", (float) (Math.random()*6 + 2));
-            case 3 -> stack.getOrCreateTag().putFloat("VPStat", (float) (Math.random()*15 + 5));
-            case 4 -> stack.getOrCreateTag().putFloat("VPStat", (float) (Math.random()*9 + 3));
-            case 5 -> stack.getOrCreateTag().putFloat("VPStat", (float) (Math.random()*12 + 4));
+            case 1 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
+            case 2 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2));
+            case 3 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5));
+            case 4 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3));
+            case 5 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4));
             default -> {
             }
         }
@@ -58,21 +58,22 @@ public class Accessory extends Item implements ICurioItem {
         }*/
     }
 
-    public boolean lvlUp(ItemStack stack){
+    public boolean lvlUp(ItemStack stack,Player player){
         double baseChance = 0.9;
         int lvl = getLvl(stack);
         if(lvl > 0) {
             for (int i = 0; i < lvl; i++)
                 baseChance *= 0.8;
         }
-        if(Math.random() < baseChance){
+        Random random = new Random();
+        if(random.nextDouble() < baseChance){
             stack.getOrCreateTag().putInt("VPLvl",lvl+1);
             switch (getType(stack)) {
-                case 1 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (Math.random()*3 + 1));
-                case 2 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (Math.random()*6 + 2));
-                case 3 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (Math.random()*15 + 5));
-                case 4 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (Math.random()*9 + 3));
-                case 5 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (Math.random()*12 + 4));
+                case 1 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
+                case 2 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2));
+                case 3 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5));
+                case 4 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3));
+                case 5 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4));
                 default -> {
                 }
             }

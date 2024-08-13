@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -47,20 +48,24 @@ public class Shard extends Item {
         }
         if(!p_41432_.isClientSide && entity!= null && VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && (!VPUtil.isNightmareBoss(entity) || player.isCreative())) {
             stack.shrink(1);
-            if(Math.random() < 0.2 || player.isCreative()){
+            Random random = new Random();
+            if(random.nextDouble() < VPUtil.getChance(0.2,player) || player.isCreative()){
                 entity.getPersistentData().putBoolean("VPNightmareBoss",true);
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
                 VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
                 entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
                 entity.setGlowingTag(true);
-                Random random = new Random();
                 entity.getPersistentData().putInt("VPBossType",random.nextInt(7)+1);
                 entity.refreshDimensions();
                 VPUtil.setHealth(entity,entity.getMaxHealth());
                 if(player.getName().getString().equals("Pyding"))
                     player.sendSystemMessage(Component.literal(entity.getMaxHealth() + " curent" + entity.getHealth()));
             }
+        }
+        if(entity instanceof TropicalFish){
+            stack.shrink(1);
+            entity.getPersistentData().putLong("VPEating",System.currentTimeMillis());
         }
         return super.use(p_41432_, player, p_41434_);
     }

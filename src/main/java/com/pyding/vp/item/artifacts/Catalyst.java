@@ -40,7 +40,8 @@ public class Catalyst extends Vestige{
             for(MobEffectInstance effectInstance: list){
                 int duration = (int)(effectInstance.getDuration()*1.15);
                 int amplifier = effectInstance.getAmplifier();
-                if(Math.random() < 0.2)
+                Random random = new Random();
+                if(random.nextDouble() < 0.2)
                     amplifier += 1;
                 entity.addEffect(new MobEffectInstance(effectInstance.getEffect(),duration,amplifier));
             }

@@ -52,7 +52,9 @@ public class ModItems {
     public static final RegistryObject<Item> EASTER_EGG = ITEMS.register("easter_egg", () -> new EaterEgg());
     public static final RegistryObject<Item> SHARD = ITEMS.register("shard", () -> new Shard());
     public static final RegistryObject<Item> NIGHTMARESHARD = ITEMS.register("nightmareshard", () -> new NightmareShard());
-
+    public static final RegistryObject<Item> HEARTY_PEARL = ITEMS.register("hearty_pearl", () -> new HeartyPearl());
+    public static final RegistryObject<Item> PINKY_PEARL = ITEMS.register("pinky_pearl", () -> new PinkyPearl());
+    public static final RegistryObject<Item> SEASHELL = ITEMS.register("seashell", () -> new Seashell());
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
     public static void register(IEventBus eventBus) {

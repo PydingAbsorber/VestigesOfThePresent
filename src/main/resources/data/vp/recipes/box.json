@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DAD",
+    "ABA",
+    "DCD"
+  ],
+  "key": {
+    "S": {
+      "item": "vp:shard"
+    },
+    "A": {
+      "item": "vp:box_saplings"
+    },
+    "B": {
+      "item": "minecraft:oak_sapling"
+    },
+    "C": {
+      "item": "vp:nightmareshard"
+    },
+    "D": {
+      "item": "vp:seashell"
+    }
+  },
+  "result": {
+    "item": "vp:box"
+  }
+}

@@ -19,6 +19,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class Midas extends Vestige{
@@ -63,7 +64,8 @@ public class Midas extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.spawnParticles(player, ParticleTypes.GLOW,8,1,0,-0.1,0,1,false);
         int kills = stack.getOrCreateTag().getInt("VPKills");
-        if(Math.random() < (ConfigHandler.COMMON.midasChance.get())*kills) {
+        Random random = new Random();
+        if(random.nextDouble() < VPUtil.getChance((ConfigHandler.COMMON.midasChance.get())*kills,player)) {
             stack.getOrCreateTag().putInt("VPLuck", stack.getOrCreateTag().getInt("VPLuck") + 1);
             VPUtil.play(player,SoundRegistry.SUCCESS.get());
         } else VPUtil.play(player,SoundEvents.IRON_GOLEM_DEATH);

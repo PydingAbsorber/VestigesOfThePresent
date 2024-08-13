@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.Random;
+
 public class Killer extends Vestige{
     public Killer(){
         super();
@@ -22,7 +24,8 @@ public class Killer extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
-        if(Math.random() < 0.5)
+        Random random = new Random();
+        if(random.nextDouble() < 0.5)
             VPUtil.play(player,SoundRegistry.EXPLODE1.get());
         else VPUtil.play(player,SoundRegistry.EXPLODE2.get());
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20)){

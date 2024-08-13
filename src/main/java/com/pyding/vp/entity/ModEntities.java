@@ -42,4 +42,9 @@ public class ModEntities {
                     .sized(11, 11)
                     .clientTrackingRange(64)
                     .build(new ResourceLocation(VestigesOfPresent.MODID, "cloud_entity").toString()));
+    public static final RegistryObject<EntityType<HungryOyster>> OYSTER =
+            ENTITIES.register("oyster", () -> EntityType.Builder.of(HungryOyster::new, MobCategory.WATER_CREATURE)
+                    .sized(5, 5)
+                    .clientTrackingRange(64)
+                    .build("oyster"));
 }

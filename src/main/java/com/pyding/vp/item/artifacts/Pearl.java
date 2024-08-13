@@ -1,5 +1,6 @@
 package com.pyding.vp.item.artifacts;
 
+import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -80,7 +81,9 @@ public class Pearl extends Vestige{
         VPUtil.play(player, SoundRegistry.BUBBLE4.get());
         VPUtil.spawnSphere(player, ParticleTypes.FISHING,30,3,0);
         VPUtil.spawnCircleParticles(player, 30,ParticleTypes.FISHING,3,0);
-        player.getPersistentData().putInt("VPLures",10);
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            player.getPersistentData().putInt("VPLures",10+cap.getPearls()*5);
+        });
         player.getPersistentData().putFloat("VPDepth", VPUtil.getWaterDepth(player));
         super.doUltimate(seconds, player, level, stack);
     }

@@ -18,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 
 public class Box extends Item {
     public Box(Properties p_41383_) {
@@ -33,18 +34,16 @@ public class Box extends Item {
         VPUtil.play(player, SoundRegistry.OPEN.get());
         ItemStack stack = player.getItemInHand(p_41434_);
         stack.split(1);
-        double random = Math.random();
+        Random random = new Random();
         ItemStack accessory;
-        if(random > 0.5){
-            random = Math.random();
-            if(random > 0.5){
+        if(random.nextDouble() > 0.5){
+            if(random.nextDouble() > 0.5){
                 accessory = new ItemStack(ModItems.RING_OF_FALLEN_STAR.get());
             } else {
                 accessory = new ItemStack(ModItems.BELT_OF_BROKEN_MEMORIES.get());
             }
         } else {
-            random = Math.random();
-            if(random > 0.5){
+            if(random.nextDouble() > 0.5){
                 accessory = new ItemStack(ModItems.EARRING_OF_DEAD_HOPES.get());
             } else {
                 accessory = new ItemStack(ModItems.NECKLACE_OF_TORTURED_DREAMS.get());

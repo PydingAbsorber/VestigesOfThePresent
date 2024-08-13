@@ -42,6 +42,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -81,6 +82,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -109,13 +111,13 @@ public class VPUtil {
     public static String getDarkString(String text) {
         StringBuilder coloredText = new StringBuilder();
         ChatFormatting[] colors = ChatFormatting.values();
-
+        Random random = new Random();
         for (char letter : text.toCharArray()) {
             ChatFormatting color;
-            if(Math.random() > 0.5){
+            if(random.nextDouble() > 0.5){
                 color = ChatFormatting.BLACK;
             } else {
-                if(Math.random() > 0.5){
+                if(random.nextDouble() > 0.5){
                     color = ChatFormatting.DARK_GRAY;
                 }
                 else color = ChatFormatting.GRAY;
@@ -167,7 +169,6 @@ public class VPUtil {
         }
         return attack;
     }
-
     public static List<EntityType<?>> entities = new ArrayList<>();
 
     public static List<EntityType<?>> getEntitiesList(){
@@ -187,14 +188,16 @@ public class VPUtil {
     }
 
     public static void initEntities(){
-        entities.addAll(ForgeRegistries.ENTITY_TYPES.getValues());
+        HashSet<EntityType<?>> set = new HashSet<>(ForgeRegistries.ENTITY_TYPES.getValues());
+        entities.addAll(set);
     }
 
-    public static List<Item> items = new ArrayList<>();
-    private static Set<ResourceKey<Biome>> biomeNames = new HashSet<>();
+    public static HashSet<Item> items = new HashSet<>();
+    private static HashSet<ResourceKey<Biome>> biomeNames = new HashSet<>();
     public static void initBiomes(Level level){
         //biomeNames.addAll(ForgeRegistries.BIOMES.getKeys());
-        biomeNames = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
+        Set<ResourceKey<Biome>> biomes = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
+        biomeNames.addAll(biomes);
     }
     public static List<ResourceLocation> getBiomes(){
         List<ResourceLocation> list = new ArrayList<>();
@@ -204,9 +207,9 @@ public class VPUtil {
         return list;
     }
 
-    public static List<String> getBiomesLeft(String list, Player player){
-        List<String> biomeList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
-        List<String> allList = new ArrayList<>();
+    public static HashSet<String> getBiomesLeft(String list, Player player){
+        HashSet<String> biomeList = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>();
         for(ResourceLocation location: getBiomes()){
             allList.add(location.getPath().trim());
         }
@@ -214,8 +217,8 @@ public class VPUtil {
         player.getPersistentData().putString("VPBiomesClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
         return allList;
     }
-    public static List<String> getBiomesClient(Player player){
-        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPBiomesClient").split(",")));
+    public static HashSet<String> getBiomesClient(Player player){
+        return new HashSet<>(Arrays.asList(player.getPersistentData().getString("VPBiomesClient").split(",")));
     }
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
 
@@ -226,13 +229,13 @@ public class VPUtil {
         }
     }
 
-    public static List<Item> getItems(){
+    public static HashSet<Item> getItems(){
         return items;
     }
 
-    public static List<String> foodItems = new ArrayList();
-    public static List<String> toolItems = new ArrayList();
-    public static List<String> getEdibleItems(){
+    public static HashSet<String> foodItems = new HashSet<>();
+    public static HashSet<String> toolItems = new HashSet<>();
+    public static HashSet<String> getEdibleItems(){
         if(foodItems.isEmpty()) {
             for (Item item : items) {
                 if (item.isEdible())
@@ -242,14 +245,14 @@ public class VPUtil {
         return foodItems;
     }
 
-    public static List<String> getFoodLeft(String list){
-        List<String> foodList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
-        List<String> allList = new ArrayList<>(getEdibleItems());
+    public static HashSet<String> getFoodLeft(String list){
+        HashSet<String> foodList = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>(getEdibleItems());
         allList.removeAll(foodList);
         return allList;
     }
 
-    public static List<String> getTools(){
+    public static HashSet<String> getTools(){
         if(toolItems.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof TieredItem)
@@ -259,16 +262,16 @@ public class VPUtil {
         return toolItems;
     }
 
-    public static List<String> getToolLeft(String list){
-        List<String> toolList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
-        List<String> allList = new ArrayList<>(getTools());
+    public static HashSet<String> getToolLeft(String list){
+        HashSet<String> toolList = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>(getTools());
         allList.removeAll(toolList);
         return allList;
     }
 
-    public static List<String> templates = new ArrayList<>();
+    public static HashSet<String> templates = new HashSet<>();
 
-    public static List<String> getTemplates(){
+    public static HashSet<String> getTemplates(){
         if(templates.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof SmithingTemplateItem templateItem)
@@ -278,16 +281,16 @@ public class VPUtil {
         return templates;
     }
 
-    public static List<String> getTemplatesLeft(String list){
-        List<String> have = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
-        List<String> allList = new ArrayList<>(getTemplates());
+    public static HashSet<String> getTemplatesLeft(String list){
+        HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>(getTemplates());
         allList.removeAll(have);
         return allList;
     }
 
-    public static List<String> musicDisks = new ArrayList<>();
+    public static HashSet<String> musicDisks = new HashSet<>();
 
-    public static List<String> getMusicDisks(){
+    public static HashSet<String> getMusicDisks(){
         if(musicDisks.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof RecordItem recordItem)
@@ -297,9 +300,9 @@ public class VPUtil {
         return musicDisks;
     }
 
-    public static List<String> getMusicDisksLeft(String list){
-        List<String> have = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
-        List<String> allList = new ArrayList<>(getMusicDisks());
+    public static HashSet<String> getMusicDisksLeft(String list){
+        HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>(getMusicDisks());
         allList.removeAll(have);
         return allList;
     }
@@ -339,7 +342,8 @@ public class VPUtil {
 
     public static HashSet<String> seaList = new HashSet<>();
 
-    public static HashMap<MobBucketItem,List<String>> bucketMap = new HashMap<>();
+    public static HashMap<MobBucketItem,HashSet<String>> bucketMap = new HashMap<>();
+    public static HashMap<BucketItem,HashSet<String>> realBucketMap = new HashMap<>();
 
     public static HashSet<MobBucketItem> buckets = new HashSet<>();
 
@@ -353,34 +357,64 @@ public class VPUtil {
         return buckets;
     }
 
-    public static void initBuckets(){
+    public static boolean isRightBucket(BucketItem bucket,String fish,Player player){
+        for (Map.Entry<BucketItem, HashSet<String>> entry : realBucketMap.entrySet()) {
+            if (entry.getValue().contains(fish)) {
+                BucketItem bucketItem = entry.getKey();
+                if(bucketItem == bucket)
+                    return true;
+                else {
+                    player.sendSystemMessage(Component.translatable("vp.bucket",bucketItem.getDescriptionId()));
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void initBuckets(Level level){
         for(MobBucketItem bucketItem: getBuckets()){
-            if(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.tropical_fish")) {
-                List<String> tropicalFish = new ArrayList<>();
+            EntityType<?> type = ((BucketMixin)bucketItem).getFishSup().get();
+            if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
+                HashSet<String> tropicalFish = new HashSet<>();
                 for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
                     tropicalFish.add(variant.pattern().getSerializedName());
                 bucketMap.put(bucketItem, tropicalFish);
+                Entity entity = type.create(level);
+                if(entity instanceof Bucketable bucketable && bucketable.getBucketItemStack().getItem() instanceof BucketItem bucket){
+                    realBucketMap.put(bucket, tropicalFish);
+                }
             }
-            else if(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.axolotl")) {
-                List<String> axolotl = new ArrayList<>();
+            else if(type.getDescriptionId().contains("entity.minecraft.axolotl")) {
+                HashSet<String> axolotl = new HashSet<>();
                 for (Axolotl.Variant variant: Axolotl.Variant.values())
                     axolotl.add(variant.getName());
                 bucketMap.put(bucketItem, axolotl);
+                Entity entity = type.create(level);
+                if(entity instanceof Bucketable bucketable && bucketable.getBucketItemStack().getItem() instanceof BucketItem bucket){
+                    realBucketMap.put(bucket, axolotl);
+                }
             } else {
                 /*List<String> fish = new ArrayList<>();
                 fish.add(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId());
                 bucketMap.put(bucketItem,fish);*/
-                seaList.add(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId());
+                HashSet<String> set = new HashSet<>();
+                set.add(type.getDescriptionId());
+                bucketMap.put(bucketItem,set);
+                Entity entity = type.create(level);
+                if(entity instanceof Bucketable bucketable && bucketable.getBucketItemStack().getItem() instanceof BucketItem bucket){
+                    realBucketMap.put(bucket, set);
+                }
             }
         }
     }
 
-    public static List<String> fishTypesFromBucket(MobBucketItem bucketItem){
+    public static HashSet<String> fishTypesFromBucket(MobBucketItem bucketItem){
         if(bucketMap.isEmpty())
-            initBuckets();
+            return new HashSet<>();
         if(bucketMap.containsKey(bucketItem))
             return bucketMap.get(bucketItem);
-        else return new ArrayList<>();
+        else return new HashSet<>();
     }
 
     public static HashSet<String> getSeaList(){
@@ -404,19 +438,19 @@ public class VPUtil {
         return size;
     }
 
-    public static List<String> getSeaLeft(String list){
-        List<String> have = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
-        List<String> allList = new ArrayList<>(getSeaList());
+    public static HashSet<String> getSeaLeft(String list){
+        HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>(getSeaList());
         allList.removeAll(have);
         return allList;
     }
 
-    public static List<LootPool> getPools(LootTable lootTable) {
+    public static HashSet<LootPool> getPools(LootTable lootTable) {
         try {
             Field poolsField = LootTable.class.getDeclaredField("pools");
             poolsField.setAccessible(true);
             @SuppressWarnings("unchecked")
-            List<LootPool> pools = (List<LootPool>) poolsField.get(lootTable);
+            HashSet<LootPool> pools = (HashSet<LootPool>) poolsField.get(lootTable);
             return pools;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
@@ -516,8 +550,8 @@ public class VPUtil {
         return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPMobsClient").split(",")));
     }
 
-    public static List<Block> blocks = new ArrayList<>();
-    public static List<String> flowers = new ArrayList<>();
+    public static HashSet<Block> blocks = new HashSet<>();
+    public static HashSet<String> flowers = new HashSet<>();
 
     public static void initBlocks(){
         for(Block block: ForgeRegistries.BLOCKS){
@@ -540,7 +574,7 @@ public class VPUtil {
         }
     }
 
-    public static List<String> getFlowers(){
+    public static HashSet<String> getFlowers(){
         return flowers;
     }
 
@@ -587,19 +621,20 @@ public class VPUtil {
 
     public static float damagePercentBonus(Player player,int type){
         float percentBonus = 1;
+        Random random = new Random();
         if(type == 1)
             percentBonus += 0;
         else if(type == 2) {
             if(VPUtil.getSet(player) == 2)
                 percentBonus += 400;
-            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
                 percentBonus += 600;
             percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
         }
         else if(type == 3) {
             if(VPUtil.getSet(player) == 4)
                 percentBonus += 200;
-            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && Math.random() < 0.4)
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
                 percentBonus += 600;
             percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
         }
@@ -677,14 +712,14 @@ public class VPUtil {
     }
 
     public static void syncEntity(Entity entity){
-        /*CompoundTag sendNudes = new CompoundTag();
+        CompoundTag sendNudes = new CompoundTag();
         for (String key : entity.getPersistentData().getAllKeys()) {
             if (key.startsWith("VP") && entity.getPersistentData().get(key) != null) {
                 sendNudes.put(key, entity.getPersistentData().get(key));
             }
-        }*/
+        }
         if(!entity.getCommandSenderWorld().isClientSide)
-            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(sendNudes,entity.getId()));
     }
 
     public static final List<String> vanillaFlowers = Arrays.asList(
@@ -958,12 +993,13 @@ public class VPUtil {
     public static double commonPower = 3;
 
     public static void liftEntity(LivingEntity entity,double power) {
+        Random random = new Random();
         Vec3 motion = new Vec3(0, power, 0);
         if(entity instanceof ServerPlayer player){
             PacketHandler.sendToClient(new PlayerFlyPacket(1),player);
         } else entity.lerpMotion(motion.x, motion.y, motion.z);
         entity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 7 * 20));
-        if(Math.random() < 0.5)
+        if(random.nextDouble() < 0.5)
             play(entity,SoundRegistry.WIND1.get());
         else play(entity,SoundRegistry.WIND2.get());
     }
@@ -1160,9 +1196,10 @@ public class VPUtil {
         }
         else shield = tag.getFloat("VPShield") + amount;
         shield = shield*(1 + shieldBonus/100);
+        Random random = new Random();
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
-                if(Math.random() < 0.2)
+                if(random.nextDouble() < getChance(0.2,player))
                     addOverShield(player,shield*0.05f,false);
                 if(hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)) {
                     boolean found = false;
@@ -1201,8 +1238,9 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity,Player player){
+        Random random = new Random();
         if(entity instanceof Player) {
-            if (Math.random() < 0.5)
+            if (random.nextDouble() < 0.5)
                 play(entity, SoundRegistry.DEATH1.get());
             else play(entity, SoundRegistry.DEATH2.get());
         }
@@ -1215,8 +1253,9 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity){
+        Random random = new Random();
         if(entity instanceof Player) {
-            if (Math.random() < 0.5)
+            if (random.nextDouble() < 0.5)
                 play(entity, SoundRegistry.DEATH1.get());
             else play(entity, SoundRegistry.DEATH2.get());
         }
@@ -1354,7 +1393,7 @@ public class VPUtil {
     }
 
     public static boolean isNightmareBoss(LivingEntity entity){
-        return isBoss(entity) && entity.getPersistentData().getBoolean("VPNightmareBoss");
+        return entity.getPersistentData().getBoolean("VPNightmareBoss");
     }
 
     public static boolean isNightmareBoss(Entity entity){
@@ -1906,7 +1945,7 @@ public class VPUtil {
         return Optional.empty();
     }
 
-    public static List<MobEffect> effects = new ArrayList<>();
+    public static HashSet<MobEffect> effects = new HashSet<>();
 
     public static void initEffects(){
         for(MobEffect effect: ForgeRegistries.MOB_EFFECTS){
@@ -1914,7 +1953,7 @@ public class VPUtil {
         }
     }
 
-    public static List<MobEffect> getEffects(){
+    public static HashSet<MobEffect> getEffects(){
         return effects;
     }
 
@@ -2003,6 +2042,25 @@ public class VPUtil {
             double targetZ = originalZ + (random.nextDouble() - 0.5) * 2.0 * radius;
 
             if (isSafeLocation(world, targetX, targetY, targetZ)) {
+                entity.teleportTo(targetX, targetY, targetZ);
+                break;
+            }
+        }
+    }
+
+    public static void teleportRandomly(Entity entity, int radius,boolean water) {
+        Random random = new Random();
+        Level world = entity.getCommandSenderWorld();
+        double originalX = entity.getX();
+        double originalY = entity.getY();
+        double originalZ = entity.getZ();
+
+        for (int i = 0; i < 100+radius; i++) {
+            double targetX = originalX + (random.nextDouble() - 0.5) * 2.0 * radius;
+            double targetY = Math.min(Math.max(originalY + (random.nextInt(2 * radius) - radius), 0), world.getMaxBuildHeight() - 1);
+            double targetZ = originalZ + (random.nextDouble() - 0.5) * 2.0 * radius;
+            BlockPos blockPos = new BlockPos((int) targetX, (int) targetY, (int) targetZ);
+            if (world.isWaterAt(blockPos.above()) && world.isWaterAt(blockPos.below()) && world.isWaterAt(blockPos)) {
                 entity.teleportTo(targetX, targetY, targetZ);
                 break;
             }
@@ -2628,7 +2686,7 @@ public class VPUtil {
         }
         if(type == 1){
             player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt") + player.getMaxHealth() * 2);
-            if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < 0.2)
+            if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < getChance(0.2,player))
                 deadInside(player);
             float stack = player.getPersistentData().getFloat("VPIgnis");
             player.getPersistentData().putFloat("VPIgnis",Math.min(99,stack+5));
@@ -2653,7 +2711,7 @@ public class VPUtil {
             }
         }
         if(type == 4){
-            if(Math.random() < 0.3){
+            if(random.nextDouble() < getChance(0.3,player)){
                 player.invulnerableTime = 0;
                 float damage = attack;
                 int shield = 1;
@@ -2693,8 +2751,6 @@ public class VPUtil {
     }
 
     public static void nightmareTickEvent(LivingEntity entity){
-        if(entity.tickCount % 20 == 0)
-            syncEntity(entity);
         Random random = new Random();
         float slow = 1;
         boolean rage = entity.getHealth() < entity.getMaxHealth() * 0.5;
@@ -2779,7 +2835,7 @@ public class VPUtil {
         if(type == 3){
             if(entity.tickCount % (200*slow) == 0) {
                 regenOverShield(entity, getOverShield(entity) * 0.1f);
-                if(Math.random() < 0.2){
+                if(random.nextDouble() < 0.2){
                     spawnCircleParticles(entity,30,ParticleTypes.POOF,30,0.5);
                     for(LivingEntity livingEntity: getEntitiesAround(entity,20,20,20,false)){
                         livingEntity.invulnerableTime = 0;
@@ -2807,7 +2863,7 @@ public class VPUtil {
         if(type == 4){
             if(entity.getPersistentData().getInt("VPFreezeShield") > 0)
                 spawnSphere(entity,ParticleTypes.SNOWFLAKE,20,3,0);
-            if(entity.tickCount % (50*slow) == 0 && Math.random() < 0.3){
+            if(entity.tickCount % (50*slow) == 0 && random.nextDouble() < 0.3){
                 entity.getPersistentData().putLong("VPBlizzard",System.currentTimeMillis()+10000);
             }
         }
@@ -2846,11 +2902,15 @@ public class VPUtil {
                 for (int i = 0; i < random.nextInt(15)+5; i++) {
                     Entity monster = getRandomMonster().create(level);
                     if (monster instanceof LivingEntity livingEntity) {
-                        while(isBoss(livingEntity) || livingEntity instanceof HunterKiller){
+                        int count = 0;
+                        while((isBoss(livingEntity) || livingEntity instanceof HunterKiller) && count < 100){
+                            count++;
                             monster = getRandomMonster().create(level);
                             if(monster instanceof LivingEntity livingEntity1)
                                 livingEntity = livingEntity1;
                         }
+                        if(count >= 100)
+                            continue;
                         livingEntity.teleportTo(entity.getX(), entity.getY(), entity.getZ());
                         teleportRandomly(livingEntity, 10);
                         livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100000, 255));
@@ -2911,7 +2971,7 @@ public class VPUtil {
                     if(random.nextDouble() < 0.5) {
                         if(!player.isCreative() && player.getAbilities().flying) {
                             clearEffects(player,true);
-                            if(Math.random() < 0.5)
+                            if(random.nextDouble() < 0.5)
                                 play(player,SoundRegistry.WIND1.get());
                             else play(player,SoundRegistry.WIND2.get());
                             player.getAbilities().mayfly = false;
@@ -2930,7 +2990,7 @@ public class VPUtil {
                         }
                     }
                     if(random.nextDouble() < 0.3){
-                        if(Math.random() < 0.5)
+                        if(random.nextDouble() < 0.5)
                             play(player,SoundRegistry.WIND1.get());
                         else play(player,SoundRegistry.WIND2.get());
                         liftEntity(player,8);
@@ -3085,5 +3145,24 @@ public class VPUtil {
             }
         }
         spawnAura(entity,30,particleType,radius);
+    }
+
+    public static void setLuck(Player player){
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            int luck = cap.getPearls();
+            if(hasVestige(ModItems.CHAOS.get(),player))
+                luck += 7;
+            player.getPersistentData().putInt("VPPearlsLuck",luck);
+        });
+    }
+
+    public static int getLuck(Player player){
+        return player.getPersistentData().getInt("VPPearlsLuck");
+    }
+
+    public static double getChance(double chance,Player player){
+        double multiplier = 1.2d;
+        double newChance = chance + Math.log1p(getLuck(player)*multiplier / 100.0) * (1 - chance);
+        return Math.min(newChance, chance * 3);
     }
 }
