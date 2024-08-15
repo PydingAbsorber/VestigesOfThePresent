@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ObjectHolder;
 import net.minecraftforge.registries.RegistryObject;
 
 import static com.pyding.vp.VestigesOfPresent.MODID;
@@ -14,7 +15,6 @@ public class ModItems {
     public static DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
     public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new Item(new Item.Properties().stacksTo(1)));
-    //public static final RegistryObject<Item> ARTIFACT = ITEMS.register("artifact", () -> new Vestige(new Item.Properties().stacksTo(1).tab(null)));
     public static final RegistryObject<Item> ANEMOCULUS = ITEMS.register("anemoculus", () -> new Anemoculus());
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown", () -> new Crown());
     public static final RegistryObject<Item> ATLAS = ITEMS.register("atlas", () -> new Atlas());
@@ -57,6 +57,14 @@ public class ModItems {
     public static final RegistryObject<Item> SEASHELL = ITEMS.register("seashell", () -> new Seashell());
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
+
+
+
+    @ObjectHolder(value = MODID + ":seashell", registryName = "item")
+    public static final Seashell SEASHELL_HOLDER = null;
+
+
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

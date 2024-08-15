@@ -1,5 +1,6 @@
 package com.pyding.vp.item;
 
+import com.pyding.vp.util.ConfigHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -39,7 +40,7 @@ public class HeartyPearl extends Item {
             components.add(Component.translatable("vp.hearty_pearl.use").withStyle(ChatFormatting.GRAY));
         }
         else if (Screen.hasControlDown()){
-            components.add(Component.translatable("vp.hearty_pearl.obtain").withStyle(ChatFormatting.GRAY));
+            components.add(Component.translatable("vp.hearty_pearl.obtain", ConfigHandler.COMMON.eatingMinutes.get()).withStyle(ChatFormatting.GRAY));
         }
         else {
             components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.BLUE).append(Component.translatable("vp.shift"))));

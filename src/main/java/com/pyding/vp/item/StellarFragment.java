@@ -6,6 +6,7 @@ import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.particle.BubbleParticle;
@@ -50,7 +51,7 @@ public class StellarFragment extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
-        components.add(Component.translatable("vp.frag").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar"))));
+        components.add(Component.translatable("vp.frag", 1+"%").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar"))));
         components.add(Component.translatable("vp.frag.get").withStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack, level, components, flag);
     }

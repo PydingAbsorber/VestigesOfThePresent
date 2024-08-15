@@ -1680,9 +1680,15 @@ public class VPUtil {
     public static void spawnParticles(Entity player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {
         Random random = new Random();
         for (int i = 0; i < count; i++) {
-            x *= random.nextDouble();
-            y *= random.nextDouble();
-            z *= random.nextDouble();
+            if(random.nextDouble() < 0.5)
+                x += random.nextDouble();
+            else x -= random.nextDouble();
+            if(random.nextDouble() < 0.5)
+                y += random.nextDouble();
+            else y -= random.nextDouble();
+            if(random.nextDouble() < 0.5)
+                z += random.nextDouble();
+            else z -= random.nextDouble();
             for (LivingEntity entity: getEntitiesAround(player,20,20,20,true)){
                 if(entity instanceof ServerPlayer serverPlayer){
                     PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ),serverPlayer);
@@ -2060,7 +2066,8 @@ public class VPUtil {
             double targetY = Math.min(Math.max(originalY + (random.nextInt(2 * radius) - radius), 0), world.getMaxBuildHeight() - 1);
             double targetZ = originalZ + (random.nextDouble() - 0.5) * 2.0 * radius;
             BlockPos blockPos = new BlockPos((int) targetX, (int) targetY, (int) targetZ);
-            if (world.isWaterAt(blockPos.above()) && world.isWaterAt(blockPos.below()) && world.isWaterAt(blockPos)) {
+            if (world.isWaterAt(blockPos.above(3)) && world.isWaterAt(blockPos) && world.isWaterAt(blockPos.east())
+                    && world.isWaterAt(blockPos.west()) && world.isWaterAt(blockPos.north()) && world.isWaterAt(blockPos.south())) {
                 entity.teleportTo(targetX, targetY, targetZ);
                 break;
             }
@@ -2530,7 +2537,7 @@ public class VPUtil {
         }
     }
 
-    public static ItemStack getFishDrop(Player player, int amount){
+    public static ItemStack getFishDrop(Player player){
         ItemStack stack = ItemStack.EMPTY;
         Random random = new Random();
         if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel){
@@ -2541,10 +2548,23 @@ public class VPUtil {
             List<Item> items = biomeFishMap.getOrDefault(getCurrentBiome(player), new ArrayList<>());
             if (!items.isEmpty()) {
                 Item randomItem = items.get(random.nextInt(items.size()-1));
+                while(ConfigHandler.COMMON.fishingBlacklist.get().toString().contains(randomItem.getDescriptionId())){
+                    randomItem = items.get(random.nextInt(items.size()-1));
+                }
+                if(isRare(stack) && random.nextDouble() > getChance(0.1,player))
+                    randomItem = items.get(random.nextInt(items.size()-1));
                 stack = new ItemStack(randomItem);
             }
         }
         return stack;
+    }
+
+    public static boolean isRare(ItemStack stack){
+        for(String name: ConfigHandler.COMMON.rareItems.get().toString().split(",")) {
+            if (stack.getDescriptionId().contains(name))
+                return true;
+        }
+        return false;
     }
 
     public static void printFishDrop(Player player){
@@ -2556,6 +2576,8 @@ public class VPUtil {
         Item item;
         Random random = new Random();
         ChatFormatting style;
+        player.sendSystemMessage(Component.literal(""));
+        player.sendSystemMessage(Component.literal(""));
         for(int i = 0; i < items.size();i++) {
             int numba = random.nextInt(3);
             if(numba == 1)
@@ -2567,6 +2589,33 @@ public class VPUtil {
             item = items.get(i);
             player.sendSystemMessage(Component.literal((i+1)+") ").append(Component.translatable(item.getDescriptionId())).withStyle(style));
         }
+    }
+
+    public static List<Component>  getFishDropList(Player player){
+        List<Component> list = new ArrayList<>();
+        if(fishList.isEmpty())
+            initFishItems();
+        if(biomeFishMap.isEmpty())
+            initFishDrops(getBiomes());
+        List<Item> items = biomeFishMap.getOrDefault(getCurrentBiome(player), new ArrayList<>());
+        Item item;
+        Random random = new Random();
+        ChatFormatting style;
+        for(int i = 0; i < items.size();i++) {
+            int numba = random.nextInt(3);
+            item = items.get(i);
+            if(isRare(new ItemStack(item))){
+                style = ChatFormatting.RED;
+            }
+            else if(numba == 1)
+                style = ChatFormatting.BLUE;
+            else if(numba == 2)
+                style = ChatFormatting.AQUA;
+            else
+                style = ChatFormatting.DARK_AQUA;
+            list.add(Component.literal((i+1)+") ").append(Component.translatable(item.getDescriptionId())).withStyle(style));
+        }
+        return list;
     }
 
     public static int getWaterDepth(Player player) {
@@ -2750,6 +2799,18 @@ public class VPUtil {
         }
     }
 
+    public static void boostEntity(LivingEntity livingEntity,float amount, float shields, float overShields){
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MAX_HEALTH, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:1"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:5"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:6"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ATTACK_DAMAGE, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:4"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:7"));
+        if(shields > 0)
+            addShield(livingEntity,shields,true);
+        if(overShields > 0)
+            addOverShield(livingEntity,overShields,true);
+    }
+
     public static void nightmareTickEvent(LivingEntity entity){
         Random random = new Random();
         float slow = 1;
@@ -2914,11 +2975,7 @@ public class VPUtil {
                         livingEntity.teleportTo(entity.getX(), entity.getY(), entity.getZ());
                         teleportRandomly(livingEntity, 10);
                         livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100000, 255));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MAX_HEALTH, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:1"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), 20, AttributeModifier.Operation.ADDITION, "vp:boss7:5"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), 20, AttributeModifier.Operation.ADDITION, "vp:boss7:6"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ATTACK_DAMAGE, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:4"));
-                        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), 4, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:7"));
+                        boostEntity(livingEntity,4,0,0);
                         livingEntity.getPersistentData().putBoolean("VPSummoned", true);
                         livingEntity.setHealth(livingEntity.getMaxHealth());
                         level.addFreshEntity(livingEntity);

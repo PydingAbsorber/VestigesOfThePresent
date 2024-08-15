@@ -1,0 +1,13 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0":  "vp:item/seashell0"
+  },
+  "overrides": [
+    {"predicate": {"vp:shell": 1}, "model": "vp:overrides/seashell1"},
+    {"predicate": {"vp:shell": 2}, "model": "vp:overrides/seashell2"},
+    {"predicate": {"vp:shell": 3}, "model": "vp:overrides/seashell3"},
+    {"predicate": {"vp:shell": 4}, "model": "vp:overrides/seashell4"},
+    {"predicate": {"vp:shell": 5}, "model": "vp:overrides/seashell5"}
+  ]
+}

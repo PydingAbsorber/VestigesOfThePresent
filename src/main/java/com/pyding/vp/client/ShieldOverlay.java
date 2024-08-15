@@ -3,10 +3,12 @@ package com.pyding.vp.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.entity.SillySeashell;
 import com.pyding.vp.entity.VortexEntity;
 import com.pyding.vp.item.Box;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Catalyst;
+import com.pyding.vp.item.artifacts.Pearl;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
@@ -88,6 +90,13 @@ public class ShieldOverlay {
         Font fontRenderer = Minecraft.getInstance().font;
         List<ItemStack> vestiges = VPUtil.getVestigeList(player);
         int centerHeight = y - 230;
+        /*if (player.getMainHandItem().getItem() instanceof Pearl || player.getOffhandItem().getItem() instanceof Pearl){
+            int count = 0;
+            for(Component component: VPUtil.getFishDropList(player)) {
+                pose.drawString(fontRenderer, component, x + (132 + 80), y - (83-count*10),component.getStyle().getColor().getValue());
+                count++;
+            }
+        }*/
         if(vestiges.size() > 0){
             for(int i = 0; i < vestiges.size(); i++){
                     /*minecraft.getItemRenderer().render(stack, ItemDisplayContext.GROUND, true, poseStack, MultiBufferSource.immediate(new BufferBuilder(1)), 0, 1,
@@ -294,6 +303,11 @@ public class ShieldOverlay {
                 pose.drawString(fontRenderer, currentNumber + " / " + maxNumber, x - 10, centerHeight +10, 0x9932CC);
                 pose.drawString(fontRenderer, VPUtil.filterAndTranslate(listMax.toString(), ChatFormatting.LIGHT_PURPLE), x - 10, centerHeight +30, 0x9932CC);
                 break;
+            }
+            if(o instanceof SillySeashell sillySeashell){
+                int wave = sillySeashell.getPersistentData().getInt("VPWave");
+                if(wave > 0)
+                    pose.drawString(fontRenderer, Component.translatable("vp.wave",wave), x - 15, centerHeight - 60, 0xA699E6);
             }
         }
         if(targetOverShield > 0){

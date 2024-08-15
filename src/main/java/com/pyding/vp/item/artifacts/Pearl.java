@@ -5,6 +5,8 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -98,5 +100,11 @@ public class Pearl extends Vestige{
     public void ultimateEnds(Player player, ItemStack stack) {
         player.getPersistentData().putFloat("VPDepth",0);
         super.ultimateEnds(player, stack);
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level p_41432_, Player player, InteractionHand p_41434_) {
+        VPUtil.printFishDrop(player);
+        return super.use(p_41432_, player, p_41434_);
     }
 }

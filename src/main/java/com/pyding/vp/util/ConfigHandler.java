@@ -95,6 +95,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue bosses;
         public final ForgeConfigSpec.ConfigValue repairObjects;
         public final ForgeConfigSpec.ConfigValue repairBlackList;
+        public final ForgeConfigSpec.ConfigValue rareItems;
+        public final ForgeConfigSpec.ConfigValue fishingBlacklist;
         public final ForgeConfigSpec.DoubleValue nightmareBoxChance;
         public final ForgeConfigSpec.DoubleValue nightmareRefresherChance;
         public final ForgeConfigSpec.IntValue nightmareFrags;
@@ -103,6 +105,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue nightmareFragsMin;
         public final ForgeConfigSpec.IntValue nightmareBoxes;
         public final ForgeConfigSpec.IntValue nightmareBoxesMin;
+        public final ForgeConfigSpec.IntValue eatingMinutes;
 
         public final ForgeConfigSpec.ConfigValue fishObjects;
         public Common(ForgeConfigSpec.Builder builder) {
@@ -162,6 +165,7 @@ public class ConfigHandler {
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
             anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
             chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
+            eatingMinutes = builder.comment("Minutes for fish to fed up").defineInRange("eatingMinutes", 1, 1, 2100000000);
 
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
 
@@ -197,7 +201,9 @@ public class ConfigHandler {
             vortexReduction = builder.comment("Reduction of maximum amount needed for Vortex").defineInRange("vortexReduction", 0, 0, Integer.MAX_VALUE);
             easter = builder.comment("Enables Easter event").define("easter", false);
             easterChance = builder.comment("Additional chance for Easter Egg 10 is 10%").defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
-            fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle");
+            fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle,wet,river");
+            rareItems = builder.comment("Rare Items for fishing by Abyssal Pearl: ").define("rareItems","item.vp.hearty_pearl,item.vp.pinky_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
+            fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","item.vp.pearl");
         }
 
         public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {

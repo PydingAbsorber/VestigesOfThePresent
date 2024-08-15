@@ -79,6 +79,7 @@ public class HungryOyster extends WaterAnimal {
             }
         }
         if(eat >= 3){
+            VPUtil.play(this, SoundEvents.PLAYER_LEVELUP);
             for(LivingEntity entity: VPUtil.getEntitiesAround(this,10,10,10,false)){
                 if(entity instanceof Player player){
                     player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {

@@ -3,6 +3,7 @@ package com.pyding.vp.client;
 import com.pyding.vp.client.render.EarsRender;
 import com.pyding.vp.common.CommonProxy;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.Seashell;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,8 @@ public class ClientProxy extends CommonProxy {
     }
     @OnlyIn(Dist.CLIENT)
     public void onClientSetup(FMLClientSetupEvent event) {
-        CuriosRendererRegistry.register(ModItems.EARS.get(), () -> new EarsRender());
+        CuriosRendererRegistry.register(ModItems.EARS.get(), EarsRender::new);
+        ModItems.SEASHELL_HOLDER.registerChick();
     }
 
     @OnlyIn(Dist.CLIENT)

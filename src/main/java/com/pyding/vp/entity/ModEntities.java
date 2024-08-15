@@ -34,17 +34,27 @@ public class ModEntities {
                     .build("killer"));
     public static final RegistryObject<EntityType<EasterEggEntity>> EASTER_EGG_ENTITY =
             ENTITIES.register("easter_egg_entity", () -> EntityType.Builder.<EasterEggEntity>of(EasterEggEntity::new, MobCategory.MISC)
-                    .sized(4, 4)
+                    .sized(1, 1)
                     .clientTrackingRange(64)
                     .build(new ResourceLocation(VestigesOfPresent.MODID, "easter_egg_entity").toString()));
     public static final RegistryObject<EntityType<CloudEntity>> CLOUD_ENTITY =
             ENTITIES.register("cloud_entity", () -> EntityType.Builder.<CloudEntity>of(CloudEntity::new, MobCategory.MISC)
-                    .sized(11, 11)
+                    .sized(3, 3)
                     .clientTrackingRange(64)
                     .build(new ResourceLocation(VestigesOfPresent.MODID, "cloud_entity").toString()));
     public static final RegistryObject<EntityType<HungryOyster>> OYSTER =
             ENTITIES.register("oyster", () -> EntityType.Builder.of(HungryOyster::new, MobCategory.WATER_CREATURE)
-                    .sized(5, 5)
+                    .sized(3, 3)
                     .clientTrackingRange(64)
                     .build("oyster"));
+    public static final RegistryObject<EntityType<SillySeashell>> SEASHELL =
+            ENTITIES.register("seashell", () -> EntityType.Builder.of(SillySeashell::new, MobCategory.WATER_CREATURE)
+                    .sized(3, 3)
+                    .clientTrackingRange(64)
+                    .build("seashell"));
+    public static final RegistryObject<EntityType<ShellHealEntity>> SHELLHEAL =
+            ENTITIES.register("shellheal", () -> EntityType.Builder.<ShellHealEntity>of(ShellHealEntity::new, MobCategory.MISC)
+                    .sized(1, 1)
+                    .clientTrackingRange(64)
+                    .build(new ResourceLocation(VestigesOfPresent.MODID, "shellheal").toString()));
 }

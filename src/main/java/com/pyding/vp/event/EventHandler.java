@@ -8,6 +8,7 @@ import com.pyding.vp.commands.VPCommands;
 import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
+import com.pyding.vp.entity.SillySeashell;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.*;
@@ -475,12 +476,21 @@ public class EventHandler {
             event.getEntity().getPersistentData().putLong("VPQueenDeath",-1);
         }
         if(!event.isCanceled()) {
-            if(event.getEntity().getPersistentData().getBoolean("VPSummoned")){
-                event.getEntity().discard();
+            LivingEntity entity = event.getEntity();
+            if(entity.getPersistentData().getBoolean("VPSummoned")){
+                entity.discard();
+                return;
+            }
+            if(entity.getPersistentData().getBoolean("VPWaved")){
+                for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,40,40,40,false)) {
+                    if (livingEntity instanceof SillySeashell sillySeashell) {
+                        sillySeashell.getPersistentData().putInt("VPWaveKilled",sillySeashell.getPersistentData().getInt("VPWaveKilled")+1);
+                    }
+                }
+                entity.discard();
                 return;
             }
             if (event.getSource().getEntity() instanceof Player player) {
-                LivingEntity entity = event.getEntity();
                 if(VPUtil.isProtectedFromHit(player,entity))
                     event.setCanceled(true);
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
@@ -636,16 +646,15 @@ public class EventHandler {
                         VPUtil.spawnParticles(player, ParticleTypes.GLOW, player.getX(), player.getY(), player.getZ(), 8, 0, 0, 0);
                     }
                     boolean stellar = VPUtil.hasStellarVestige(ModItems.KILLER.get(), player);
-                    for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20,false)){
-                        VPUtil.dealDamage(entity,player, player.damageSources().explosion(entity,player),percent,3);
+                    for(LivingEntity livingEntity: VPUtil.getEntitiesAround(player,20,20,20,false)){
+                        VPUtil.dealDamage(livingEntity,player, player.damageSources().explosion(livingEntity,player),percent,3);
                         if(stellar){
-                            entity.getPersistentData().putLong("VPAntiShield",3*60*1000+System.currentTimeMillis());
-                            entity.getPersistentData().putLong("VPAntiTP",3*60*1000+System.currentTimeMillis());
+                            livingEntity.getPersistentData().putLong("VPAntiShield",3*60*1000+System.currentTimeMillis());
+                            livingEntity.getPersistentData().putLong("VPAntiTP",3*60*1000+System.currentTimeMillis());
                         }
                     }
                 }
             }
-            LivingEntity entity = event.getEntity();
             Player playerNear = entity.getCommandSenderWorld().getNearestPlayer(entity,20);
             if(playerNear != null && VPUtil.hasVestige(ModItems.CATALYST.get(), playerNear)) {
                 List<MobEffectInstance> effectList = new ArrayList<>(VPUtil.getEffectsHas(entity,false));
@@ -1023,8 +1032,10 @@ public class EventHandler {
         if(entity instanceof TropicalFish fish){
             long eat = fish.getPersistentData().getLong("VPEating");
             if(eat > 0){
-                if(eat+3*60*1000 < System.currentTimeMillis())
-                    fish.getPersistentData().putBoolean("VPEat",true);
+                if(eat+ConfigHandler.COMMON.eatingMinutes.get()*60*1000 < System.currentTimeMillis() && !fish.getPersistentData().getBoolean("VPEat")) {
+                    fish.getPersistentData().putBoolean("VPEat", true);
+                    VPUtil.spawnSphere(fish,ParticleTypes.HEART,20,2,0.1f);
+                }
                 if(entity.tickCount % 20 == 0){
                     VPUtil.spawnSphere(fish,ParticleTypes.BUBBLE,10,2,0.1f);
                     for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,30,30,30,false)){
@@ -1064,6 +1075,21 @@ public class EventHandler {
             if(entity.getPersistentData().getLong("VPWhirlVoid") != 0 && entity.getPersistentData().getLong("VPWhirlVoid") < System.currentTimeMillis()){
                 entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH,UUID.fromString("951043f3-5872-4dd5-a99e-7358b6c619d6"),0.2f, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:whirlHealth"));
                 entity.getPersistentData().putLong("VPWhirlVoid",0);
+            }
+            if(entity.getPersistentData().getBoolean("VPWaved")){
+                for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,20,20,20,false)){
+                    if(livingEntity instanceof SillySeashell sillySeashell){
+                        if(entity.getPersistentData().getInt("VPAbuse") >= 10){
+                            VPUtil.teleportRandomly(livingEntity,15);
+                            continue;
+                        }
+                        if(entity instanceof Monster monster) {
+                            if(monster.isWithinMeleeAttackRange(sillySeashell))
+                                monster.getPersistentData().putInt("VPAbuse", 0);
+                            else monster.getPersistentData().putInt("VPAbuse", monster.getPersistentData().getInt("VPAbuse")+1);
+                        }
+                    }
+                }
             }
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()){
@@ -1268,7 +1294,7 @@ public class EventHandler {
                 vestige.curioSucks(player,stack);
             }*/
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(player.tickCount % 8000 == 0 && VPUtil.getCurrentBiome(player) != null){
+                if(player.tickCount % 4000 == 0 && VPUtil.getCurrentBiome(player) != null){
                     Level level = player.getCommandSenderWorld();
                     String biome = VPUtil.getCurrentBiome(player).getPath();
                     if(biome.contains("ocean") && !biome.contains("deep")){
@@ -1276,6 +1302,7 @@ public class EventHandler {
                         if(biome.contains("warm"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
+                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get());
                             HungryOyster oyster = new HungryOyster(ModEntities.OYSTER.get(),level);
                             oyster.setPos(player.getX(),player.getY(),player.getZ());
                             VPUtil.teleportRandomly(oyster,30,true);
@@ -1298,10 +1325,11 @@ public class EventHandler {
                         if(biome.contains("cold"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
-                            HungryOyster oyster = new HungryOyster(ModEntities.OYSTER.get(),level);
-                            oyster.setPos(player.getX(),player.getY(),player.getZ());
-                            level.addFreshEntity(oyster);
-                            VPUtil.teleportRandomly(oyster,30,true);
+                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get());
+                            SillySeashell shell = new SillySeashell(ModEntities.OYSTER.get(),level);
+                            shell.setPos(player.getX(),player.getY(),player.getZ());
+                            level.addFreshEntity(shell);
+                            VPUtil.teleportRandomly(shell,30,true);
                         }
                     }
                 }
@@ -1429,15 +1457,15 @@ public class EventHandler {
         if(VPUtil.hasVestige(ModItems.PEARL.get(), player) && player.getPersistentData().getInt("VPLures") > 0){
             float drowning = player.getMaxAirSupply()-player.getAirSupply();
             player.getPersistentData().putInt("VPLures",player.getPersistentData().getInt("VPLures") - 1);
-            ItemStack stack = VPUtil.getFishDrop(player,1);
+            ItemStack stack = VPUtil.getFishDrop(player);
             if(drowning > 0 && random.nextDouble() < VPUtil.getChance(drowning/100,player)) {
-                stack = VPUtil.getFishDrop(player, 2);
+                stack = VPUtil.getFishDrop(player);
                 VPUtil.giveStack(event.getDrops().get(random.nextInt(event.getDrops().size()-1)),player);
             }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if(cap.getPearls() > 0){
-                    int luck = (int) (player.getMainHandItem().getEnchantmentLevel(Enchantments.FISHING_LUCK)+player.getAttributeValue(Attributes.LUCK)/10);
-                    if(random.nextDouble() < VPUtil.getChance(Math.min(0.1d,luck/100d),player)){
+                    int luck = (int) (player.getMainHandItem().getEnchantmentLevel(Enchantments.FISHING_LUCK)/3f+player.getAttributeValue(Attributes.LUCK)/10);
+                    if(random.nextDouble() < VPUtil.getChance(Math.min(0.03d,luck/100d),player)){
                         ItemStack itemStack;
                         if(random.nextDouble() < VPUtil.getChance(0.1+luck/100d,player))
                             itemStack = new ItemStack(ModItems.BOX.get());

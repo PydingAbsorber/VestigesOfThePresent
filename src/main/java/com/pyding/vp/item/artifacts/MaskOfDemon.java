@@ -127,7 +127,7 @@ public class MaskOfDemon extends Vestige{
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
             entity.getPersistentData().putFloat("HealDebt",entity.getPersistentData().getFloat("HealDebt")+healDebt);
             VPUtil.dealDamage(entity,player,player.damageSources().sonicBoom(player),damage,3);
-            VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.5,0);
+            VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.1,0);
         }
         super.doUltimate(seconds, player, level, stack);
     }

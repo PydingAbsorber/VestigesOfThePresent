@@ -9,6 +9,7 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.KeyBinding;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraftforge.api.distmarker.Dist;
@@ -75,6 +76,8 @@ public class ClientEvents {
             event.registerEntityRenderer(ModEntities.EASTER_EGG_ENTITY.get(), EasterEggRenderer::new);
             event.registerEntityRenderer(ModEntities.CLOUD_ENTITY.get(), CloudRenderer::new);
             event.registerEntityRenderer(ModEntities.OYSTER.get(), OysterRenderer::new);
+            event.registerEntityRenderer(ModEntities.SEASHELL.get(), SeashellRenderer::new);
+            event.registerEntityRenderer(ModEntities.SHELLHEAL.get(), ShellHealRenderer::new);
         }
     }
 }
