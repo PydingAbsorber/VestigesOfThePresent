@@ -17,9 +17,14 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -280,8 +285,29 @@ public class VPCommands {
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             player.sendSystemMessage(Component.literal(""));
+                            player.sendSystemMessage(Component.literal(""));
                             player.sendSystemMessage(Component.literal("Fish drops in current biome:").withStyle(ChatFormatting.BLUE));
                             VPUtil.printFishDrop(player);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("getAllFishLoot")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            VPUtil.initFishMap();
+                            List<String> list = new ArrayList<>();
+                            List<String> rares = new ArrayList<>();
+                            for(Item item: VPUtil.fishList){
+                                if(VPUtil.isRare(new ItemStack(item)))
+                                    rares.add(item.getDescriptionId());
+                                else list.add(item.getDescriptionId());
+                            }
+                            player.sendSystemMessage(Component.literal(""));
+                            player.sendSystemMessage(Component.literal(""));
+                            player.sendSystemMessage(Component.literal("All possible loot from fishing with Abyssal Pearl:").withStyle(ChatFormatting.GRAY));
+                            player.sendSystemMessage(VPUtil.filterAndTranslate(list.toString(),ChatFormatting.BLUE));
+                            player.sendSystemMessage(Component.literal("Rare loot:").withStyle(ChatFormatting.GRAY));
+                            player.sendSystemMessage(VPUtil.filterAndTranslate(rares.toString(),ChatFormatting.RED));
                             return Command.SINGLE_SUCCESS;
                         })
                 )

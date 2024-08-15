@@ -414,10 +414,14 @@ public class EventHandler {
                 float chance = (Math.min(69, armor) / 100);
                 float secondChance = (Math.min(90, exp / 10) / 100);
                 if (random.nextDouble() < VPUtil.getChance(chance,player)) {
-                    VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
+                    if(player.getPersistentData().getLong("VPSoundCd") < System.currentTimeMillis())
+                        VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
+                    player.getPersistentData().putLong("VPSoundCd",System.currentTimeMillis()+1000);
                     event.setCanceled(true);
                 } else if (player.getPersistentData().getBoolean("VPEarsUlt") && random.nextDouble() < VPUtil.getChance(secondChance,player)) {
-                    VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
+                    if(player.getPersistentData().getLong("VPSoundCd") < System.currentTimeMillis())
+                        VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
+                    player.getPersistentData().putLong("VPSoundCd",System.currentTimeMillis()+1000);
                     event.setCanceled(true);
                 }
             }

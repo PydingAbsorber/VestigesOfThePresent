@@ -2567,6 +2567,13 @@ public class VPUtil {
         return false;
     }
 
+    public static void initFishMap(){
+        if(fishList.isEmpty())
+            initFishItems();
+        if(biomeFishMap.isEmpty())
+            initFishDrops(getBiomes());
+    }
+
     public static void printFishDrop(Player player){
         if(fishList.isEmpty())
             initFishItems();
