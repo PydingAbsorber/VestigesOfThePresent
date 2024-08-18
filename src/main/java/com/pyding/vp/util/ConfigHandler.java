@@ -1,7 +1,11 @@
 package com.pyding.vp.util;
 
+import com.pyding.vp.capability.PlayerCapabilityVP;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigHandler {
     public static final ConfigHandler.Common COMMON;
@@ -35,31 +39,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue devourer;
         public final ForgeConfigSpec.IntValue blackhole;
         public final ForgeConfigSpec.IntValue stellarChanceIncrease;
-        public final ForgeConfigSpec.IntValue challengeReduce1;
-        public final ForgeConfigSpec.IntValue challengeReduce2;
-        public final ForgeConfigSpec.IntValue challengeReduce3;
-        public final ForgeConfigSpec.IntValue challengeReduce4;
-        public final ForgeConfigSpec.IntValue challengeReduce5;
-        public final ForgeConfigSpec.IntValue challengeReduce6;
-        public final ForgeConfigSpec.IntValue challengeReduce7;
-        public final ForgeConfigSpec.IntValue challengeReduce8;
-        public final ForgeConfigSpec.IntValue challengeReduce9;
-        public final ForgeConfigSpec.IntValue challengeReduce10;
-        public final ForgeConfigSpec.IntValue challengeReduce11;
-        public final ForgeConfigSpec.IntValue challengeReduce12;
-        public final ForgeConfigSpec.IntValue challengeReduce13;
-        public final ForgeConfigSpec.IntValue challengeReduce14;
-        public final ForgeConfigSpec.IntValue challengeReduce15;
-        public final ForgeConfigSpec.IntValue challengeReduce16;
-        public final ForgeConfigSpec.IntValue challengeReduce17;
-        public final ForgeConfigSpec.IntValue challengeReduce18;
-        public final ForgeConfigSpec.IntValue challengeReduce19;
-        public final ForgeConfigSpec.IntValue challengeReduce20;
-        public final ForgeConfigSpec.IntValue challengeReduce21;
-        public final ForgeConfigSpec.IntValue challengeReduce22;
-        public final ForgeConfigSpec.IntValue challengeReduce23;
-        public final ForgeConfigSpec.IntValue challengeReduce24;
-
         public final ForgeConfigSpec.IntValue armorAbsorbBase;
         public final ForgeConfigSpec.DoubleValue armorAbsorbPercent;
         public final ForgeConfigSpec.IntValue anomalyBorder;
@@ -106,9 +85,20 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue nightmareBoxes;
         public final ForgeConfigSpec.IntValue nightmareBoxesMin;
         public final ForgeConfigSpec.IntValue eatingMinutes;
-
+        public final ForgeConfigSpec.BooleanValue failFlowers;
+        public final ForgeConfigSpec.ConfigValue<List<Integer>> reduceChallenges;
+        public final ForgeConfigSpec.BooleanValue reduceChallengesPercent;
         public final ForgeConfigSpec.ConfigValue fishObjects;
+        public final ForgeConfigSpec.DoubleValue hardcoreDamage;
+
         public Common(ForgeConfigSpec.Builder builder) {
+            refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
+            List<Integer> reduceList = new ArrayList<>();
+            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
+                reduceList.add(0);
+            reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallenges",reduceList);
+            reduceChallengesPercent = builder.comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum").define("reduceChallengesPercent", false);
+
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x10 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);
             bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 10, 1, 2100000000);
             bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
@@ -117,6 +107,8 @@ public class ConfigHandler {
             shieldHardcore = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("shieldHardcore", 1.5d, 0.1, 2100000000);
             overShieldHardcore = builder.comment("Hardcore mode Over Shield from hp percent").defineInRange("overShieldHardcore", 0.5, 0.1, 2100000000);
             healPercent = builder.comment("Hardcore mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
+            hardcoreDamage = builder.comment("Hardcore mode damage percent from maximum hp when starving, drowning. Set 0 to disable.").defineInRange("hardcoreDamage", 0.15d, 0, 2100000000);
+
 
             nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareBoxChance", 0.5, 0, 1);
             nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
@@ -167,34 +159,6 @@ public class ConfigHandler {
             chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
             eatingMinutes = builder.comment("Minutes for fish to fed up").defineInRange("eatingMinutes", 1, 1, 2100000000);
 
-            refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
-
-            challengeReduce1 = builder.comment("This is the number on how many challenge 1 maximum progress will be reduced").defineInRange("challengeReduce1", 0, -2100000000, 2100000000);
-            challengeReduce2 = builder.comment("This is the number on how many challenge 2 maximum progress will be reduced").defineInRange("challengeReduce2", 0, -2100000000, 2100000000);
-            challengeReduce3 = builder.comment("This is the number on how many challenge 3 maximum progress will be reduced").defineInRange("challengeReduce3", 0, -2100000000, 2100000000);
-            challengeReduce4 = builder.comment("This is the number on how many challenge 4 maximum progress will be reduced").defineInRange("challengeReduce4", 0, -2100000000, 2100000000);
-            challengeReduce5 = builder.comment("This is the number on how many challenge 5 maximum progress will be reduced").defineInRange("challengeReduce5", 0, -2100000000, 2100000000);
-            challengeReduce6 = builder.comment("This is the number on how many challenge 6 maximum progress will be reduced").defineInRange("challengeReduce6", 0, -2100000000, 2100000000);
-            challengeReduce7 = builder.comment("This is the number on how many challenge 7 maximum progress will be reduced").defineInRange("challengeReduce7", 0, -2100000000, 2100000000);
-            challengeReduce8 = builder.comment("This is the number on how many challenge 8 maximum progress will be reduced").defineInRange("challengeReduce8", 0, -2100000000, 2100000000);
-            challengeReduce9 = builder.comment("This is the number on how many challenge 9 maximum progress will be reduced").defineInRange("challengeReduce9", 0, -2100000000, 2100000000);
-            challengeReduce10 = builder.comment("This is the number on how many challenge 10 maximum progress will be reduced").defineInRange("challengeReduce10", 0, -2100000000, 2100000000);
-            challengeReduce11 = builder.comment("This is the number on how many challenge 11 maximum progress will be reduced").defineInRange("challengeReduce11", 0, -2100000000, 2100000000);
-            challengeReduce12 = builder.comment("This is the number on how many challenge 12 maximum progress will be reduced").defineInRange("challengeReduce12", 0, -2100000000, 2100000000);
-            challengeReduce13 = builder.comment("This is the number on how many challenge 13 maximum progress will be reduced").defineInRange("challengeReduce13", 0, -2100000000, 2100000000);
-            challengeReduce14 = builder.comment("This is the number on how many challenge 14 maximum progress will be reduced").defineInRange("challengeReduce14", 0, -2100000000, 2100000000);
-            challengeReduce15 = builder.comment("This is the number on how many challenge 15 maximum progress will be reduced").defineInRange("challengeReduce15", 0, -2100000000, 2100000000);
-            challengeReduce16 = builder.comment("This is the number on how many challenge 16 maximum progress will be reduced").defineInRange("challengeReduce16", 0, -2100000000, 2100000000);
-            challengeReduce17 = builder.comment("This is the number on how many challenge 17 maximum progress will be reduced").defineInRange("challengeReduce17", 0, -2100000000, 2100000000);
-            challengeReduce18 = builder.comment("This is the number on how many challenge 18 maximum progress will be reduced").defineInRange("challengeReduce18", 0, -2100000000, 2100000000);
-            challengeReduce19 = builder.comment("This is the number on how many challenge 19 maximum progress will be reduced").defineInRange("challengeReduce19", 0, -2100000000, 2100000000);
-            challengeReduce20 = builder.comment("This is the number on how many challenge 20 maximum progress will be reduced").defineInRange("challengeReduce20", 0, -2100000000, 2100000000);
-            challengeReduce21 = builder.comment("This is the number on how many challenge 21 maximum progress will be reduced").defineInRange("challengeReduce21", 0, -2100000000, 2100000000);
-            challengeReduce22 = builder.comment("This is the number on how many challenge 22 maximum progress will be reduced").defineInRange("challengeReduce22", 0, -2100000000, 2100000000);
-            challengeReduce23 = builder.comment("This is the number on how many challenge 23 maximum progress will be reduced").defineInRange("challengeReduce23", 0, -2100000000, 2100000000);
-            challengeReduce24 = builder.comment("This is the number on how many challenge 24 maximum progress will be reduced").defineInRange("challengeReduce24", 0, -2100000000, 2100000000);
-
-
             bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,void_worm");
             repairObjects = builder.comment("repairObjectsId: ").define("repairObjects","mending,repair,unbreak,restore,heal,ingot");
             repairBlackList = builder.comment("repairBlackListId: ").define("repairBlackList","");
@@ -204,61 +168,12 @@ public class ConfigHandler {
             fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle,wet,river");
             rareItems = builder.comment("Rare Items for fishing by Abyssal Pearl: ").define("rareItems","item.vp.hearty_pearl,item.vp.pinky_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
             fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","item.vp.pearl");
+
+            failFlowers = builder.comment("Fails flowers Challenge when they are being placed.").define("failFlowers", false);
         }
 
-        public ForgeConfigSpec.IntValue getChallengeReduceByNumber(int number) {
-            switch (number) {
-                case 1:
-                    return challengeReduce1;
-                case 2:
-                    return challengeReduce2;
-                case 3:
-                    return challengeReduce3;
-                case 4:
-                    return challengeReduce4;
-                case 5:
-                    return challengeReduce5;
-                case 6:
-                    return challengeReduce6;
-                case 7:
-                    return challengeReduce7;
-                case 8:
-                    return challengeReduce8;
-                case 9:
-                    return challengeReduce9;
-                case 10:
-                    return challengeReduce10;
-                case 11:
-                    return challengeReduce11;
-                case 12:
-                    return challengeReduce12;
-                case 13:
-                    return challengeReduce13;
-                case 14:
-                    return challengeReduce14;
-                case 15:
-                    return challengeReduce15;
-                case 16:
-                    return challengeReduce16;
-                case 17:
-                    return challengeReduce17;
-                case 18:
-                    return challengeReduce18;
-                case 19:
-                    return challengeReduce19;
-                case 20:
-                    return challengeReduce20;
-                case 21:
-                    return challengeReduce21;
-                case 22:
-                    return challengeReduce22;
-                case 23:
-                    return challengeReduce23;
-                case 24:
-                    return challengeReduce24;
-                default:
-                    return null;
-            }
+        public int getChallengeReduceByNumber(int number) {
+            return reduceChallenges.get().get(number-1);
         }
     }
 }

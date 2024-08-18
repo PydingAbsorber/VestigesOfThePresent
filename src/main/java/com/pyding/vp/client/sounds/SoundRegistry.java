@@ -1,6 +1,6 @@
 package com.pyding.vp.client.sounds;
 
-import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.VestigesOfThePresent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -9,7 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class SoundRegistry {
-    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, VestigesOfPresent.MODID);
+    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, VestigesOfThePresent.MODID);
 
     public static void register(IEventBus eventBus) {
         SOUND_EVENTS.register(eventBus);
@@ -84,6 +84,6 @@ public class SoundRegistry {
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
-        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(VestigesOfPresent.MODID, name)));
+        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(VestigesOfThePresent.MODID, name)));
     }
 }

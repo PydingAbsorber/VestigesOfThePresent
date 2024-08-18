@@ -5,7 +5,6 @@ import com.pyding.vp.client.ClientProxy;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.common.CommonProxy;
 import com.pyding.vp.entity.ModEntities;
-import com.pyding.vp.event.EntityCreation;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
@@ -13,15 +12,12 @@ import com.pyding.vp.item.accessories.BeltOfBrokenMemories;
 import com.pyding.vp.item.accessories.EarringOfDeadHopes;
 import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
 import com.pyding.vp.item.accessories.RingOfFallenStar;
-import com.pyding.vp.mixin.VzlomJopiMixin;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtilParticles;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -39,11 +35,9 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Field;
-
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(VestigesOfPresent.MODID)
-public class VestigesOfPresent
+@Mod(VestigesOfThePresent.MODID)
+public class VestigesOfThePresent
 {
     public static final String MODID = "vp";
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -52,7 +46,7 @@ public class VestigesOfPresent
 
     public static final CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 
-    public VestigesOfPresent()
+    public VestigesOfThePresent()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);

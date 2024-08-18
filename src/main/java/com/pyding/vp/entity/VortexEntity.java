@@ -30,14 +30,12 @@ public class VortexEntity extends Projectile {
         super(pEntityType, pLevel);
     }
 
-    public ServerPlayer serverPlayer;
     public List<String> items = new ArrayList<>();
     public int frags = 0;
 
     public VortexEntity(Level pLevel, LivingEntity owner) {
         this(ModEntities.VORTEX.get(), pLevel);
         setOwner(owner);
-        serverPlayer = (ServerPlayer) getOwner();
     }
     @Override
     public void refreshDimensions() {
@@ -64,8 +62,11 @@ public class VortexEntity extends Projectile {
         float r = 5;
         Player player = (Player) getOwner();
         int maxSize = VPUtil.vortexItems().size()-ConfigHandler.COMMON.vortexReduction.get();
-        if(player == null)
+        if(player == null) {
+            discard();
+            kill();
             return;
+        }
         if(tickCount <= 2 && !getCommandSenderWorld().isClientSide)
             PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> this), new SendEntityNbtToClient(getPersistentData(),getId()));
         getPersistentData().putLong("VPAntiTP",System.currentTimeMillis()+10000);

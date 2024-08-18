@@ -80,7 +80,7 @@ public class Mark extends Vestige{
             player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(curses));
         }
         player.getPersistentData().putBoolean("VPMarkUlt",true);
-        player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()/100* ConfigHandler.COMMON.markHealDebt.get());
+        player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+player.getMaxHealth()/100* ConfigHandler.COMMON.markHealDebt.get());
         VPUtil.spawnParticles(player, ParticleTypes.FLAME,2,1,0,-0.5,0,1,false);
         super.doUltimate(seconds, player, level, stack);
     }

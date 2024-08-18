@@ -65,13 +65,12 @@ public class MaskOfDemon extends Vestige{
         if(isSpecialActive(stack)) {
             boolean hurt = false;
             if (player.tickCount % 20 == 0) {
-                if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1) {
-                    //player.setHealth((float) (player.getHealth() - player.getMaxHealth() * 0.1));
-                    VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,0,false);
+                if(player.getPersistentData().getFloat("VPHealDebt") > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1){
+                    player.getPersistentData().putFloat("VPHealDebt",Math.max(0,player.getPersistentData().getFloat("VPHealDebt")-player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1));
                     hurt = true;
                 }
-                else if(player.getPersistentData().getFloat("HealDebt") > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1){
-                    player.getPersistentData().putFloat("HealDebt",Math.max(0,player.getPersistentData().getFloat("HealDebt")-player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1));
+                else if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1) {
+                    VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,0,false);
                     hurt = true;
                 }
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
@@ -118,14 +117,14 @@ public class MaskOfDemon extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.IMPACT.get());
         float damage = 300;
-        float healDebt = player.getMaxHealth()*3;
+        float VPHealDebt = player.getMaxHealth()*3;
         if(player.getHealth() <= player.getMaxHealth()*0.5) {
             damage *= 2;
-            healDebt *= 2;
+            VPHealDebt *= 2;
         }
-        player.getPersistentData().putFloat("HealDebt",player.getPersistentData().getFloat("HealDebt")+healDebt);
+        player.getPersistentData().putFloat("VPHealDebt",player.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
-            entity.getPersistentData().putFloat("HealDebt",entity.getPersistentData().getFloat("HealDebt")+healDebt);
+            entity.getPersistentData().putFloat("VPHealDebt",entity.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
             VPUtil.dealDamage(entity,player,player.damageSources().sonicBoom(player),damage,3);
             VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.1,0);
         }

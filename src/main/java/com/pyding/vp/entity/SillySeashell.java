@@ -141,7 +141,7 @@ public class SillySeashell extends WaterAnimal {
                         monster.setTarget(this);
                         monster.setLastHurtByMob(this);
                         if(random.nextDouble() < 0.1 && !VPUtil.isBoss(monster))
-                            VPUtil.boostEntity(monster,4,200,100);
+                            VPUtil.boostEntity(monster,2,200,100);
                     }
                 }
             } else if(getPersistentData().getInt("VPWaveKilled") == wave*3){

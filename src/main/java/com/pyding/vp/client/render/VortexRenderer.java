@@ -2,10 +2,8 @@ package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.pyding.vp.VestigesOfPresent;
-import com.pyding.vp.entity.BlackHole;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.VortexEntity;
-import com.pyding.vp.entity.models.BlackHoleModel;
 import com.pyding.vp.entity.models.VortexModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -21,7 +19,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VortexRenderer extends EntityRenderer<VortexEntity> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfPresent.MODID,"textures/item/models/vortex.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfThePresent.MODID,"textures/item/models/vortex.png");
     public VortexRenderer(EntityRendererProvider.Context context) {
         super(context);
     }

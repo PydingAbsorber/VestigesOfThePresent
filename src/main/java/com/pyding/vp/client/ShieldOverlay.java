@@ -2,27 +2,21 @@ package com.pyding.vp.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.SillySeashell;
 import com.pyding.vp.entity.VortexEntity;
-import com.pyding.vp.item.Box;
-import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.artifacts.Catalyst;
-import com.pyding.vp.item.artifacts.Pearl;
 import com.pyding.vp.item.artifacts.Vestige;
-import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,36 +26,38 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pyding.vp.VestigesOfPresent.MODID;
+import static com.pyding.vp.VestigesOfThePresent.MODID;
 
 public class ShieldOverlay {
-    private static final ResourceLocation SHIELD = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation HEALDEBT = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/heal_debt.png");
+    private static final ResourceLocation SHIELD = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/shield.png");
-    private static final ResourceLocation OVER_SHIELD = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation OVER_SHIELD = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/overshield.png");
-    private static final ResourceLocation HEAL1 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation HEAL1 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/heal1.png");
-    private static final ResourceLocation HEAL2 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation HEAL2 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/heal2.png");
-    private static final ResourceLocation HEAL3 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation HEAL3 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/heal3.png");
-    private static final ResourceLocation ORCHESTRA = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation ORCHESTRA = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/orchestra.png");
-    private static final ResourceLocation NOTE1 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE1 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note1.png");
-    private static final ResourceLocation NOTE2 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE2 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note2.png");
-    private static final ResourceLocation NOTE3 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE3 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note3.png");
-    private static final ResourceLocation NOTE4 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE4 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note4.png");
-    private static final ResourceLocation NOTE5 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE5 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note5.png");
-    private static final ResourceLocation NOTE6 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE6 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note6.png");
-    private static final ResourceLocation NOTE7 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE7 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note7.png");
-    private static final ResourceLocation NOTE8 = new ResourceLocation(VestigesOfPresent.MODID,
+    private static final ResourceLocation NOTE8 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note8.png");
 
     public static ResourceLocation getNote(int number) {
@@ -362,6 +358,17 @@ public class ShieldOverlay {
                 else pose.blit(HEAL3, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
                             pictureSizeX, pictureSizeY);
             }
+        }
+        float healDebt = player.getPersistentData().getFloat("VPHealDebt");
+        if(healDebt > 0){
+            int sizeX = 16;
+            int sizeY = 16;
+            int pictureSizeX = 16;
+            int pictureSizeY = 16;
+            RenderSystem.setShaderTexture(0, HEALDEBT);
+            pose.blit(HEALDEBT, x - (114), y - 43, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY);
+            pose.drawString(fontRenderer,(int)(healDebt/player.getMaxHealth()*100)+"%", x - (117), y - 27, 0xCE5858);
         }
         float overShield = VPUtil.getOverShield(player); //x больше-левее, меньше-правее, y меньше-выше, больше-ниже
         float shield = VPUtil.getShield(player);

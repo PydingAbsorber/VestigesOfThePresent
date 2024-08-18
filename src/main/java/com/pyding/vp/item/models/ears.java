@@ -35,8 +35,6 @@ public class ears<T extends Entity> extends EntityModel<T> {
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.bb_main.y = 0;
-		this.bb_main.yRot = netHeadYaw * ((float) Math.PI / 180F);
-		this.bb_main.xRot = headPitch * ((float) Math.PI / 180F);
 	}
 
 	@Override

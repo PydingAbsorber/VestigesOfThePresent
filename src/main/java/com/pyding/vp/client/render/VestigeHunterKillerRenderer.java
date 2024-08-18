@@ -1,8 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pyding.vp.VestigesOfPresent;
-import com.pyding.vp.entity.BlackHole;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.HunterKiller;
 import com.pyding.vp.entity.models.Hunter;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,7 +16,7 @@ public class VestigeHunterKillerRenderer extends MobRenderer<HunterKiller, Hunte
 
     @Override
     public ResourceLocation getTextureLocation(HunterKiller p_114482_) {
-        return new ResourceLocation(VestigesOfPresent.MODID,"textures/models/hunter.png");
+        return new ResourceLocation(VestigesOfThePresent.MODID,"textures/models/hunter.png");
     }
 
     @Override

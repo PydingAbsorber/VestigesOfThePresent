@@ -1,25 +1,22 @@
 package com.pyding.vp.client;
 
-import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.client.render.*;
-import com.pyding.vp.entity.CloudEntity;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.models.Hunter;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.KeyBinding;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 public class ClientEvents {
-    @Mod.EventBusSubscriber(modid = VestigesOfPresent.MODID, value = Dist.CLIENT)
+    @Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID, value = Dist.CLIENT)
     public static class ClientForgeEvents {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
@@ -48,7 +45,7 @@ public class ClientEvents {
     }
 
 
-    @Mod.EventBusSubscriber(modid = VestigesOfPresent.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientModBusEvents {
         @SubscribeEvent
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {

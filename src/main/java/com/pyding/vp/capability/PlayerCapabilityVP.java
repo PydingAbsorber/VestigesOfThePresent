@@ -557,57 +557,111 @@ public class PlayerCapabilityVP {
         sync(player);
     }
 
-    public static int getMaximum(int number, Player player){
-        int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number).get();
-        switch (number){
-            case 1:
-                return VPUtil.getEntitiesList().size()/3-reduce;
-            case 2:
-                return VPUtil.monsterList.size()-reduce;
-            case 3:
-                return VPUtil.getBiomes().size()-reduce;
-            case 4:
-                return 100-reduce;
-            case 5:
-                return 100-reduce;
-            case 6:
-                return VPUtil.getEdibleItems().size()-reduce;
-            case 7:
-                return 15-reduce;
-            case 8:
-                return 11-reduce;
-            case 9:
-                return 8-reduce;
-            case 10:
-                return VPUtil.getTools().size()-reduce;
-            case 11:
-                return VPUtil.getDamageKinds().size()-reduce;
-            case 12:
-                return 10-reduce;
-            case 13:
-                return VPUtil.damageTypes(true).size();
-            case 14:
-                return 6-reduce;
-            case 15:
-                return VPUtil.bossList.size()-reduce;
-            case 16:
-                return VPUtil.getFlowers().size()-reduce;
-            case 17:
-                return VPUtil.getEffects().size()-reduce;
-            case 18:
-                return 20-reduce;
-            case 19:
-                return 1000000-reduce;
-            case 20:
-                return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size()-reduce;
-            case 21:
-                return VPUtil.getTemplates().size()-reduce;
-            case 22:
-                return VPUtil.getMusicDisks().size()-reduce;
-            case 23:
-                return 8-reduce;
-            case 24:
-                return VPUtil.getSeaSize()-reduce;
+    public static int getMaximum(int number){
+        if(ConfigHandler.COMMON.reduceChallengesPercent.get()){
+            float reduce = 1 - ((float)ConfigHandler.COMMON.getChallengeReduceByNumber(number)/100);
+            switch (number) {
+                case 1:
+                    return (int) ((float) VPUtil.getEntitiesList().size() / 10 * reduce);
+                case 2:
+                    return (int) (VPUtil.monsterList.size() * reduce);
+                case 3:
+                    return (int) (VPUtil.getBiomes().size() * reduce);
+                case 4:
+                    return (int) (100 * reduce);
+                case 5:
+                    return (int) (100 * reduce);
+                case 6:
+                    return (int) (VPUtil.getEdibleItems().size() * reduce);
+                case 7:
+                    return (int) (15 * reduce);
+                case 8:
+                    return (int) (11 * reduce);
+                case 9:
+                    return (int) (8 * reduce);
+                case 10:
+                    return (int) (VPUtil.getTools().size() * reduce);
+                case 11:
+                    return (int) (VPUtil.getDamageKinds().size() * reduce);
+                case 12:
+                    return (int) (10 * reduce);
+                case 13:
+                    return VPUtil.damageTypes(true).size();
+                case 14:
+                    return (int) (6 * reduce);
+                case 15:
+                    return (int) (VPUtil.bossList.size() * reduce);
+                case 16:
+                    return (int) (VPUtil.getFlowers().size() * reduce);
+                case 17:
+                    return (int) (VPUtil.getEffects().size() * reduce);
+                case 18:
+                    return (int) (20 * reduce);
+                case 19:
+                    return (int) (1000000 * reduce);
+                case 20:
+                    return (int) (VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() * reduce);
+                case 21:
+                    return (int) (VPUtil.getTemplates().size() * reduce);
+                case 22:
+                    return (int) (VPUtil.getMusicDisks().size() * reduce);
+                case 23:
+                    return (int) (8 * reduce);
+                case 24:
+                    return (int) (VPUtil.getSeaSize() * reduce);
+            }
+        } else {
+            int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number);
+            switch (number) {
+                case 1:
+                    return VPUtil.getEntitiesList().size() / 10 - reduce;
+                case 2:
+                    return VPUtil.monsterList.size() - reduce;
+                case 3:
+                    return VPUtil.getBiomes().size() - reduce;
+                case 4:
+                    return 100 - reduce;
+                case 5:
+                    return 100 - reduce;
+                case 6:
+                    return VPUtil.getEdibleItems().size() - reduce;
+                case 7:
+                    return 15 - reduce;
+                case 8:
+                    return 11 - reduce;
+                case 9:
+                    return 8 - reduce;
+                case 10:
+                    return VPUtil.getTools().size() - reduce;
+                case 11:
+                    return VPUtil.getDamageKinds().size() - reduce;
+                case 12:
+                    return 10 - reduce;
+                case 13:
+                    return VPUtil.damageTypes(true).size();
+                case 14:
+                    return 6 - reduce;
+                case 15:
+                    return VPUtil.bossList.size() - reduce;
+                case 16:
+                    return VPUtil.getFlowers().size() - reduce;
+                case 17:
+                    return VPUtil.getEffects().size() - reduce;
+                case 18:
+                    return 20 - reduce;
+                case 19:
+                    return 1000000 - reduce;
+                case 20:
+                    return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() - reduce;
+                case 21:
+                    return VPUtil.getTemplates().size() - reduce;
+                case 22:
+                    return VPUtil.getMusicDisks().size() - reduce;
+                case 23:
+                    return 8 - reduce;
+                case 24:
+                    return VPUtil.getSeaSize() - reduce;
+            }
         }
         return  0;
     }
@@ -619,81 +673,7 @@ public class PlayerCapabilityVP {
         VPUtil.initBuckets(level);
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
-            int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(i).get();
-            switch (i) {
-                case 1:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesList().size()/10 - reduce);
-                    break;
-                case 2:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.monsterList.size() - reduce);
-                    break;
-                case 3:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getBiomes().size() - reduce);
-                    break;
-                case 4:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,100 - reduce);
-                    break;
-                case 5:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,100 - reduce);
-                    break;
-                case 6:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEdibleItems().size() - reduce);
-                    break;
-                case 7:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,15 - reduce);
-                    break;
-                case 8:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,11 - reduce);
-                    break;
-                case 9:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,8 - reduce);
-                    break;
-                case 10:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getTools().size() - reduce);
-                    break;
-                case 11:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getDamageKinds().size() - reduce);
-                    break;
-                case 12:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,10 - reduce);
-                    break;
-                case 13:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.damageTypes(true).size());
-                    break;
-                case 14:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,6 - reduce);
-                    break;
-                case 15:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.bossList.size() - reduce);
-                    break;
-                case 16:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getFlowers().size() - reduce);
-                    break;
-                case 17:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEffects().size() - reduce);
-                    break;
-                case 18:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,20 - reduce);
-                    break;
-                case 19:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,1000000 - reduce);
-                    break;
-                case 20:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() - reduce);
-                    break;
-                case 21:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getTemplates().size()-reduce);
-                    break;
-                case 22:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getMusicDisks().size()-reduce);
-                    break;
-                case 23:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,8-reduce);
-                    break;
-                case 24:
-                    player.getPersistentData().putInt("VPMaxChallenge"+i,VPUtil.getSeaSize()-reduce);
-                    break;
-            }
+            player.getPersistentData().putInt("VPMaxChallenge"+i,getMaximum(i));
         }
         VPUtil.sync(player);
     }

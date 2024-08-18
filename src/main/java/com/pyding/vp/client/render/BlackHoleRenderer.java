@@ -2,7 +2,7 @@ package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.entity.models.BlackHoleModel;
 import net.minecraft.client.Minecraft;
@@ -19,7 +19,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfPresent.MODID,"textures/item/models/blackholepallet.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfThePresent.MODID,"textures/item/models/blackholepallet.png");
     //private final BlackHoleModel<BlackHole> model;
     public BlackHoleRenderer(EntityRendererProvider.Context context) {
         super(context);

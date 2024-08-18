@@ -75,7 +75,7 @@ public class SoulBlighter extends Vestige{
                 player.setHealth(player.getMaxHealth());
             } setCdUltimateActive((int) (ultimateCd(stack)*0.2),stack);
         } else {
-            player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt")+player.getMaxHealth()*20);
+            player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
                 if(entity instanceof Player || VPUtil.isProtectedFromHit(player,entity))
                     continue;

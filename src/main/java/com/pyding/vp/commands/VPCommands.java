@@ -124,7 +124,7 @@ public class VPCommands {
                                         player.sendSystemMessage(Component.literal("Current progress for Vestige ").append(Component.translatable("vp.name."+i)));
                                         player.sendSystemMessage(Component.translatable("vp.progress").withStyle(ChatFormatting.DARK_GREEN)
                                                 .append(Component.literal(" " + progress))
-                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i,player))));
+                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i))));
                                     }
                                     player.sendSystemMessage(Component.literal("Current chance for " + VPUtil.getRainbowString("Stellar:") + " " + cap.getChance()));
                                 });
@@ -261,7 +261,7 @@ public class VPCommands {
                                     return 0;
                                 }
                                 ServerPlayer player = context.getSource().getPlayerOrException();
-                                ConfigHandler.COMMON.getChallengeReduceByNumber(challenge).set(amount);
+                                ConfigHandler.COMMON.reduceChallenges.get().set(challenge-1,amount);
                                 player.sendSystemMessage(Component.literal("Progress maximum for challenge " + challenge + " has been reduced for " + amount));
                                 return Command.SINGLE_SUCCESS;
                             })

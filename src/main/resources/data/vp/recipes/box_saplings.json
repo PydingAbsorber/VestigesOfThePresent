@@ -1,9 +1,9 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-      "SES",
+      "ESE",
       "ADB",
-      "SCS"
+      "ECE"
     ],
     "key": {
       "S": {
@@ -19,13 +19,14 @@
         "item": "vp:shard"
       },
       "D": {
-        "item": "vp:seashell"
+        "item": "minecraft:chest"
       },
       "E": {
         "item": "vp:hearty_pearl"
       }
     },
     "result": {
-      "item": "vp:box_saplings"
+      "item": "vp:box_saplings",
+      "count": 4
     }
 }

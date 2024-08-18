@@ -1,6 +1,6 @@
 package com.pyding.vp.event;
 
-import com.pyding.vp.VestigesOfPresent;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -48,7 +48,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
@@ -70,11 +69,10 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
-@Mod.EventBusSubscriber(modid = VestigesOfPresent.MODID)
+@Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void damageEventLowest(LivingDamageEvent event){
@@ -133,12 +131,12 @@ public class EventHandler {
                 }
                 float curses = player.getPersistentData().getFloat("VPOverdrive");
                 if(VPUtil.hasStellarVestige(ModItems.MARK.get(), player) && curses > 0){
-                    float healDebt = player.getPersistentData().getFloat("HealDebt");
-                    VPUtil.dealDamage(entity,player,player.damageSources().magic(),curses*10+healDebt,3,true);
-                    player.getPersistentData().putFloat("HealDebt",healDebt*0.9f);
+                    float VPHealDebt = player.getPersistentData().getFloat("VPHealDebt");
+                    VPUtil.dealDamage(entity,player,player.damageSources().magic(),curses*10+VPHealDebt,3,true);
+                    player.getPersistentData().putFloat("VPHealDebt",VPHealDebt*0.9f);
                 }
                 if (VPUtil.hasVestige(ModItems.MASK.get(), player))
-                    entity.getPersistentData().putFloat("HealDebt", (float) (entity.getPersistentData().getFloat("HealDebt") + entity.getPersistentData().getFloat("HealDebt") * 0.01));
+                    entity.getPersistentData().putFloat("VPHealDebt", (float) (entity.getPersistentData().getFloat("VPHealDebt") + entity.getPersistentData().getFloat("VPHealDebt") * 0.01));
                 if (player.getPersistentData().getInt("VPMadness") > 0 && VPUtil.hasVestige(ModItems.MARK.get(), player)) {
                     //madness duplicate
                     if (entity.getHealth() <= entity.getMaxHealth() * 0.5 && random.nextDouble() < 0.5) {
@@ -272,6 +270,10 @@ public class EventHandler {
             if (entity instanceof Player player) {
                 if(attacker != null && VPUtil.isNightmareBoss(attacker)){
                     VPUtil.nightmareDamageEvent(attacker,player,event);
+                }
+                if(ConfigHandler.COMMON.hardcore.get() && ConfigHandler.COMMON.hardcoreDamage.get() > 0 && ((event.getSource().is(DamageTypes.STARVE) && player.getFoodData().getFoodLevel() <= 1)
+                || (event.getSource().is(DamageTypes.DROWN) && player.getAirSupply() <= 1))){
+                    VPUtil.dealParagonDamage(player,player,(float)(player.getMaxHealth()*ConfigHandler.COMMON.hardcoreDamage.get()),0,false);
                 }
                 double damagePlayer = player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
                 double entityDamage = 0;
@@ -443,7 +445,7 @@ public class EventHandler {
                 if (random.nextDouble() < VPUtil.getChance(Math.min(0.99,passiveChance),player)) {
                     if(random.nextDouble() < 0.5){
                         if (random.nextDouble() < 0.5) {
-                            if(player.getPersistentData().getFloat("HealDebt") == 0)
+                            if(player.getPersistentData().getFloat("VPHealDebt") == 0)
                                 amount = (event.getAmount() + random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
                         } else amount = (event.getAmount() - random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
                         event.setCanceled(true);
@@ -456,7 +458,7 @@ public class EventHandler {
                         if (random.nextDouble() < VPUtil.getChance(0.3,player) && hasStellar) {
                             for (LivingEntity livingEntity : VPUtil.getEntities(player, 30, false)) {
                                 livingEntity.hurt(damageSource, amount);
-                                livingEntity.getPersistentData().putFloat("HealDebt",event.getAmount()*0.1f);
+                                livingEntity.getPersistentData().putFloat("VPHealDebt",event.getAmount()*0.1f);
                             }
                         }
                     }
@@ -466,7 +468,7 @@ public class EventHandler {
                     if (player.getPersistentData().getInt("VPChaos") > 0) {
                         player.getPersistentData().putInt("VPChaos", player.getPersistentData().getInt("VPChaos"));
                         livingEntity.hurt(damageSource, amount);
-                        livingEntity.getPersistentData().putFloat("HealDebt",event.getAmount()*0.1f);
+                        livingEntity.getPersistentData().putFloat("VPHealDebt",event.getAmount()*0.1f);
                         event.setCanceled(true);
                     }
                 }
@@ -673,8 +675,8 @@ public class EventHandler {
                 if (livingEntity instanceof Player bard && VPUtil.hasVestige(ModItems.LYRA.get(), bard)) {
                     ItemStack stack = VPUtil.getVestigeStack(Lyra.class, bard);
                     if (stack != null && stack.getItem() instanceof Vestige vestige) {
-                        if (vestige.isUltimateActive(stack) && bard.getPersistentData().getFloat("HealDebt") <= 0 && entity.getPersistentData().getLong("VPDeath") == 0) {
-                            bard.getPersistentData().putFloat("HealDebt", bard.getPersistentData().getFloat("HealDebt") + entity.getMaxHealth() * 3);
+                        if (vestige.isUltimateActive(stack) && bard.getPersistentData().getFloat("VPHealDebt") <= 0 && entity.getPersistentData().getLong("VPDeath") == 0) {
+                            bard.getPersistentData().putFloat("VPHealDebt", bard.getPersistentData().getFloat("VPHealDebt") + entity.getMaxHealth() * 3);
                             entity.setHealth(entity.getMaxHealth());
                             event.setCanceled(true);
                         }
@@ -913,17 +915,17 @@ public class EventHandler {
             if(healingBonus < 0)
                 resedHeal = (event.getAmount()*(healingBonus/100))*-1;
             event.setAmount(Math.max(0,event.getAmount()+(event.getAmount()*(healingBonus/100))));
-            float healDebt = tag.getFloat("HealDebt");
-            if(healDebt > 0 && event.getAmount() > 0) {
+            float VPHealDebt = tag.getFloat("VPHealDebt");
+            if(VPHealDebt > 0 && event.getAmount() > 0) {
                 float lastHeal = event.getAmount();
-                event.setAmount(Math.max(0, lastHeal - healDebt));
-                if(healDebt-lastHeal > 0) {
+                event.setAmount(Math.max(0, lastHeal - VPHealDebt));
+                if(VPHealDebt-lastHeal > 0) {
                     resedHeal += lastHeal;
-                    tag.putFloat("HealDebt", healDebt - lastHeal);
+                    tag.putFloat("VPHealDebt", VPHealDebt - lastHeal);
                 }
                 else {
                     resedHeal += event.getAmount();
-                    tag.putFloat("HealDebt", 0);
+                    tag.putFloat("VPHealDebt", 0);
                 }
             }
             if(entity instanceof Player player) {
@@ -1164,9 +1166,9 @@ public class EventHandler {
             });
             if(VPUtil.hasStellarVestige(ModItems.CHAOS.get(), playerServer)){
                 for(LivingEntity livingEntity: VPUtil.getEntities(playerServer,20,false)){
-                    float healDebt = livingEntity.getPersistentData().getFloat("HealDebt");
-                    if(healDebt > 0)
-                        livingEntity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(livingEntity,Attributes.MAX_HEALTH,UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"),Math.max(-playerServer.getMaxHealth()+1,-healDebt/10), AttributeModifier.Operation.ADDITION,"vp.chaos.maxhp"));
+                    float VPHealDebt = livingEntity.getPersistentData().getFloat("VPHealDebt");
+                    if(VPHealDebt > 0)
+                        livingEntity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(livingEntity,Attributes.MAX_HEALTH,UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"),Math.max(-playerServer.getMaxHealth()+1,-VPHealDebt/10), AttributeModifier.Operation.ADDITION,"vp.chaos.maxhp"));
                 }
             }
             if(playerServer.isInWaterRainOrBubble() && VPUtil.hasVestige(ModItems.WHIRLPOOL.get(), playerServer)){
@@ -1340,7 +1342,7 @@ public class EventHandler {
                 cap.addBiome(player);
                 cap.addDimension(player,player.getCommandSenderWorld().dimension().location().getPath(),player.getCommandSenderWorld().dimension().location().getNamespace());
                 for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
-                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1,player) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1,player) > 0){
+                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1) > 0){
                         cap.giveVestige(player,i+1);
                     }
                 }
@@ -1384,7 +1386,7 @@ public class EventHandler {
     @SubscribeEvent
     public static void capabilityAttach(AttachCapabilitiesEvent<Entity> event){
         if(event.getObject() instanceof Player && !(event.getObject() instanceof FakePlayer)){
-            event.addCapability(new ResourceLocation(VestigesOfPresent.MODID, "properties"), new PlayerCapabilityProviderVP());
+            event.addCapability(new ResourceLocation(VestigesOfThePresent.MODID, "properties"), new PlayerCapabilityProviderVP());
         }
     }
 
@@ -1489,7 +1491,7 @@ public class EventHandler {
     public static void onPlaced(BlockEvent.EntityPlaceEvent event){
         if(event.getEntity() instanceof Player player) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if (event.getState().getBlock() instanceof FlowerBlock) {
+                if (event.getState().getBlock() instanceof FlowerBlock && ConfigHandler.COMMON.failFlowers.get()) {
                     cap.failChallenge(16,player);
                 }
             });

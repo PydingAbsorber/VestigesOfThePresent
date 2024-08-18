@@ -42,7 +42,7 @@ public class Chaos extends Vestige{
                         projectile.setDeltaMovement(projectile.getDeltaMovement().reverse());
                         projectile.setOwner(player);
                         strelyalki--;
-                        entity.getPersistentData().putFloat("HealDebt",100*0.1f);
+                        entity.getPersistentData().putFloat("VPHealDebt",100*0.1f);
                     }
                 }
             }

@@ -2505,11 +2505,20 @@ public class VPUtil {
     public static void initFishItems(){
         for(Item item: items){
             for(String name: ConfigHandler.COMMON.fishObjects.get().toString().split(",")) {
-                if (item.getDescriptionId().contains(name)){
+                if (item.getDescriptionId().contains(name) && !isBlackListed(item)){
                     fishList.add(item);
                 }
             }
         }
+    }
+
+    public static boolean isBlackListed(Item item){
+        for(String name: ConfigHandler.COMMON.fishingBlacklist.get().toString().split(",")) {
+            if (item.getDescriptionId().contains(name)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void initFishDrops(List<ResourceLocation> biomes) {
@@ -2587,15 +2596,27 @@ public class VPUtil {
         player.sendSystemMessage(Component.literal(""));
         for(int i = 0; i < items.size();i++) {
             int numba = random.nextInt(3);
-            if(numba == 1)
-                style = ChatFormatting.BLUE;
-            else if(numba == 2)
-                style = ChatFormatting.AQUA;
-            else
-                style = ChatFormatting.DARK_AQUA;
             item = items.get(i);
-            player.sendSystemMessage(Component.literal((i+1)+") ").append(Component.translatable(item.getDescriptionId())).withStyle(style));
+            if(isRare(new ItemStack(item))) {
+                style = ChatFormatting.RED;
+                player.sendSystemMessage(Component.literal((i + 1) + ") ").append(Component.translatable(item.getDescriptionId())).withStyle(style).withStyle(ChatFormatting.BOLD));
+            }
+            else {
+                if (numba == 1)
+                    style = ChatFormatting.BLUE;
+                else if (numba == 2)
+                    style = ChatFormatting.AQUA;
+                else
+                    style = ChatFormatting.DARK_AQUA;
+                player.sendSystemMessage(Component.literal((i + 1) + ") ").append(Component.translatable(item.getDescriptionId())).withStyle(style));
+            }
         }
+        /*for(ResourceLocation biome: getBiomes()){
+            for(Item element: biomeFishMap.getOrDefault(biome,new ArrayList<>())){
+                if(isRare(new ItemStack(element)))
+                    System.out.println(biome);
+            }
+        }*/
     }
 
     public static List<Component>  getFishDropList(Player player){
@@ -2741,7 +2762,7 @@ public class VPUtil {
             dealParagonDamage(player,boss,event.getAmount()*0.1f,0,true);
         }
         if(type == 1){
-            player.getPersistentData().putFloat("HealDebt", player.getPersistentData().getFloat("HealDebt") + player.getMaxHealth() * 2);
+            player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt") + player.getMaxHealth() * 2);
             if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < getChance(0.2,player))
                 deadInside(player);
             float stack = player.getPersistentData().getFloat("VPIgnis");

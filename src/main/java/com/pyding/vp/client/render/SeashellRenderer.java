@@ -2,11 +2,10 @@ package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.pyding.vp.VestigesOfPresent;
-import com.pyding.vp.entity.HungryOyster;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.SillySeashell;
-import com.pyding.vp.entity.models.OysterModel;
 import com.pyding.vp.entity.models.PearlModel;
+import com.pyding.vp.entity.models.SeashellModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,8 +20,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SeashellRenderer extends EntityRenderer<SillySeashell> {
-    public static final ResourceLocation PEARL = new ResourceLocation(VestigesOfPresent.MODID,"textures/models/common_pearl.png");
-    public static final ResourceLocation MAIN = new ResourceLocation(VestigesOfPresent.MODID,"textures/models/oyster_texture.png");
+    public static final ResourceLocation PEARL = new ResourceLocation(VestigesOfThePresent.MODID,"textures/models/common_pearl.png");
+    public static final ResourceLocation MAIN = new ResourceLocation(VestigesOfThePresent.MODID,"textures/models/silly_seashell.png");
     public SeashellRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
@@ -42,7 +41,7 @@ public class SeashellRenderer extends EntityRenderer<SillySeashell> {
         poseStack.mulPose(Axis.XP.rotationDegrees(180));
         poseStack.translate(0, -(15) / 10.0f, 0);
         Player player = Minecraft.getInstance().player;
-        OysterModel<LivingEntity> model = new OysterModel<>(OysterModel.createBodyLayer().bakeRoot());
+        SeashellModel<LivingEntity> model = new SeashellModel<>(SeashellModel.createBodyLayer().bakeRoot());
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);
         model.prepareMobModel(player, 50, 50, partialTicks);
         model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(MAIN)),

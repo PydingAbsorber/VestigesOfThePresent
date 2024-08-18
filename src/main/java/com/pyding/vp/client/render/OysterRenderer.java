@@ -2,10 +2,8 @@ package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.pyding.vp.VestigesOfPresent;
-import com.pyding.vp.entity.CloudEntity;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.HungryOyster;
-import com.pyding.vp.entity.models.CloudEntityModel;
 import com.pyding.vp.entity.models.OysterModel;
 import com.pyding.vp.entity.models.PearlModel;
 import net.minecraft.client.Minecraft;
@@ -22,9 +20,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class OysterRenderer extends EntityRenderer<HungryOyster> {
-    public static final ResourceLocation PINK_PEARL = new ResourceLocation(VestigesOfPresent.MODID,"textures/models/pearl.png");
-    public static final ResourceLocation PEARL = new ResourceLocation(VestigesOfPresent.MODID,"textures/models/common_pearl.png");
-    public static final ResourceLocation MAIN = new ResourceLocation(VestigesOfPresent.MODID,"textures/models/oyster_texture.png");
+    public static final ResourceLocation PINK_PEARL = new ResourceLocation(VestigesOfThePresent.MODID,"textures/models/pearl.png");
+    public static final ResourceLocation PEARL = new ResourceLocation(VestigesOfThePresent.MODID,"textures/models/common_pearl.png");
+    public static final ResourceLocation MAIN = new ResourceLocation(VestigesOfThePresent.MODID,"textures/models/oyster_texture.png");
     public OysterRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
