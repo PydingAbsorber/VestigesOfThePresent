@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.mojang.logging.LogUtils;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -343,7 +344,7 @@ public class VPUtil {
     public static HashSet<String> seaList = new HashSet<>();
 
     public static HashMap<MobBucketItem,HashSet<String>> bucketMap = new HashMap<>();
-    public static HashMap<BucketItem,HashSet<String>> realBucketMap = new HashMap<>();
+    //public static HashMap<BucketItem,HashSet<String>> realBucketMap = new HashMap<>();
 
     public static HashSet<MobBucketItem> buckets = new HashSet<>();
 
@@ -357,7 +358,7 @@ public class VPUtil {
         return buckets;
     }
 
-    public static boolean isRightBucket(BucketItem bucket,String fish,Player player){
+    /*public static boolean isRightBucket(BucketItem bucket,String fish,Player player){
         for (Map.Entry<BucketItem, HashSet<String>> entry : realBucketMap.entrySet()) {
             if (entry.getValue().contains(fish)) {
                 BucketItem bucketItem = entry.getKey();
@@ -370,9 +371,9 @@ public class VPUtil {
             }
         }
         return false;
-    }
+    }*/
 
-    public static void initBuckets(Level level){
+    public static void initBuckets(){
         for(MobBucketItem bucketItem: getBuckets()){
             EntityType<?> type = ((BucketMixin)bucketItem).getFishSup().get();
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
@@ -380,38 +381,24 @@ public class VPUtil {
                 for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
                     tropicalFish.add(variant.pattern().getSerializedName());
                 bucketMap.put(bucketItem, tropicalFish);
-                Entity entity = type.create(level);
-                if(entity instanceof Bucketable bucketable && bucketable.getBucketItemStack().getItem() instanceof BucketItem bucket){
-                    realBucketMap.put(bucket, tropicalFish);
-                }
             }
             else if(type.getDescriptionId().contains("entity.minecraft.axolotl")) {
                 HashSet<String> axolotl = new HashSet<>();
                 for (Axolotl.Variant variant: Axolotl.Variant.values())
                     axolotl.add(variant.getName());
                 bucketMap.put(bucketItem, axolotl);
-                Entity entity = type.create(level);
-                if(entity instanceof Bucketable bucketable && bucketable.getBucketItemStack().getItem() instanceof BucketItem bucket){
-                    realBucketMap.put(bucket, axolotl);
-                }
             } else {
-                /*List<String> fish = new ArrayList<>();
-                fish.add(((BucketMixin)bucketItem).getFishSup().get().getDescriptionId());
-                bucketMap.put(bucketItem,fish);*/
-                HashSet<String> set = new HashSet<>();
+                /*HashSet<String> set = new HashSet<>();
                 set.add(type.getDescriptionId());
-                bucketMap.put(bucketItem,set);
-                Entity entity = type.create(level);
-                if(entity instanceof Bucketable bucketable && bucketable.getBucketItemStack().getItem() instanceof BucketItem bucket){
-                    realBucketMap.put(bucket, set);
-                }
+                bucketMap.put(bucketItem,set);*/
+                seaList.add(type.getDescriptionId());
             }
         }
     }
 
     public static HashSet<String> fishTypesFromBucket(MobBucketItem bucketItem){
         if(bucketMap.isEmpty())
-            return new HashSet<>();
+            initBuckets();
         if(bucketMap.containsKey(bucketItem))
             return bucketMap.get(bucketItem);
         else return new HashSet<>();
@@ -424,6 +411,8 @@ public class VPUtil {
                     seaList.add(block.getDescriptionId());
             }
         }
+        if(bucketMap.isEmpty())
+            initBuckets();
         return seaList;
     }
 
@@ -479,9 +468,10 @@ public class VPUtil {
             if(entity instanceof HunterKiller)
                 continue;
             if (entity instanceof LivingEntity livingEntity) {
-                double health = livingEntity.getMaxHealth();
+                float health = livingEntity.getMaxHealth();
                 if (health > 190 || isCustomBoss(type)){
                     bossList.add(type);
+                    zaebali.put(type,health);
                 } else monsterList.add(type);
             }
         }
@@ -1804,10 +1794,18 @@ public class VPUtil {
         entity.setDeltaMovement(smoothedVelocity);
     }
 
+    public static void play(LivingEntity main, SoundEvent sound,double x,double y,double z){
+        for(LivingEntity entity: getEntitiesAround(main,20,20,20,true)) {
+            if (entity instanceof ServerPlayer player) {
+                PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1,x,y,z),player);
+            }
+        }
+    }
+
     public static void play(LivingEntity main, SoundEvent sound){
         for(LivingEntity entity: getEntitiesAround(main,20,20,20,true)) {
             if (entity instanceof ServerPlayer player) {
-                PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1),player);
+                PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1,0,0,0),player);
             }
         }
     }
@@ -2485,7 +2483,7 @@ public class VPUtil {
     }
 
     public static float dreadAbsorbtion(float number,float capAbsorb) {
-        float cap = Math.max(1,100-capAbsorb);
+        float cap = Math.max(1,(float)(ConfigHandler.COMMON.nightmareDamageCap.get()-capAbsorb));
         float damage;
         if (number <= cap) {
             damage = number * 0.05f;
@@ -2704,13 +2702,22 @@ public class VPUtil {
         return filtered;
     }
 
+    public static Map<EntityType<?>,Float> zaebali = new HashMap<>();
+
+    public static float getBaseHealth(EntityType<?> type){
+        if(zaebali.isEmpty() || !zaebali.containsKey(type)){
+            return 0;
+        }
+        return zaebali.get(type);
+    }
+
     public static void spawnBoss(LivingEntity entity){
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
         VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
-        VPUtil.setHealth(entity,entity.getMaxHealth()*ConfigHandler.COMMON.bossHP.get());
+        VPUtil.setHealth(entity,entity.getMaxHealth()); //test
         entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
         if(VPUtil.isNightmareBoss(entity)){
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
@@ -2718,11 +2725,11 @@ public class VPUtil {
             entity.setHealth(entity.getMaxHealth());
             VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
             entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
-            entity.refreshDimensions();
             AABB boundingBox = entity.getBoundingBox();
             AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
             entity.setBoundingBox(scaledBoundingBox);
         }
+        entity.refreshDimensions(); //test
     }
 
     public static void vzlomatJopu(float value){
@@ -3249,5 +3256,22 @@ public class VPUtil {
         double multiplier = 1.2d;
         double newChance = chance + Math.log1p(getLuck(player)*multiplier / 100.0) * (1 - chance);
         return Math.min(newChance, chance * 3);
+    }
+
+    public static void spawnGuardianParticle(LivingEntity livingEntity,LivingEntity target){
+        double d5 = 0.5;
+        double d0 = target.getX() - livingEntity.getX();
+        double d1 = target.getY(0.5D) - livingEntity.getEyeY();
+        double d2 = target.getZ() - livingEntity.getZ();
+        double d3 = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+        d0 /= d3;
+        d1 /= d3;
+        d2 /= d3;
+        double d4 = livingEntity.getRandom().nextDouble();
+
+        while(d4 < d3) {
+            d4 += 1.8D - d5 + livingEntity.getRandom().nextDouble() * (1.7D - d5);
+            livingEntity.level().addParticle(ParticleTypes.BUBBLE, livingEntity.getX() + d0 * d4, livingEntity.getEyeY() + d1 * d4, livingEntity.getZ() + d2 * d4, 0.0D, 0.0D, 0.0D);
+        }
     }
 }

@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DAD",
-    "ABA",
+    "DSD",
+    "SAS",
     "DCD"
   ],
   "key": {
@@ -11,9 +11,6 @@
     },
     "A": {
       "item": "vp:box_saplings"
-    },
-    "B": {
-      "item": "minecraft:oak_sapling"
     },
     "C": {
       "item": "vp:nightmareshard"

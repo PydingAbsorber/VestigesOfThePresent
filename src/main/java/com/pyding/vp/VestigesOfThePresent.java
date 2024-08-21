@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 public class VestigesOfThePresent
 {
     public static final String MODID = "vp";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static EventHandler eventHandler;
 

@@ -74,10 +74,19 @@ public class PlayerCapabilityVP {
     private String templates = "";
     private String sea = "";
     private String friends = "";
+    private boolean sleep = false;
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private Set<String> biomeNames = new HashSet<>();
     private int pearls = 0;
+
+    public void setSleep(boolean slept){
+        sleep = slept;
+    }
+
+    public boolean getSleep(){
+        return sleep;
+    }
 
     public void addPearl(Player player){
         pearls += 1;
@@ -670,7 +679,7 @@ public class PlayerCapabilityVP {
         Level level = player.getCommandSenderWorld();
         VPUtil.initMonstersAndBosses(level);
         VPUtil.initBiomes(level);
-        VPUtil.initBuckets(level);
+        VPUtil.initBuckets();
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
             player.getPersistentData().putInt("VPMaxChallenge"+i,getMaximum(i));
@@ -740,6 +749,7 @@ public class PlayerCapabilityVP {
         templates = source.templates;
         sea = source.sea;
         pearls = source.pearls;
+        sleep = source.sleep;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -774,6 +784,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPTemplate",templates);
         nbt.putString("VPSea",sea);
         nbt.putString("VPFriends",friends);
+        nbt.putBoolean("VPSlept",sleep);
         nbt.putInt("VPPearls",pearls);
     }
 
@@ -810,6 +821,7 @@ public class PlayerCapabilityVP {
         sea = nbt.getString("VPSea");
         friends = nbt.getString("VPFriends");
         pearls = nbt.getInt("VPPearls");
+        sleep = nbt.getBoolean("VPSlept");
     }
 
     public void sync(Player player){

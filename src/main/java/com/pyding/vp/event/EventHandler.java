@@ -27,6 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
@@ -770,14 +771,14 @@ public class EventHandler {
     public static void interactEvent(PlayerInteractEvent.EntityInteract event){
         Player player = event.getEntity();
         Entity entity = event.getTarget();
-        if(entity instanceof Bucketable && event.getItemStack().getItem() instanceof BucketItem bucket){
+        if(entity instanceof Bucketable && event.getItemStack().getItem() instanceof BucketItem && entity instanceof LivingEntity livingEntity){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                 String fish = entity.getType().getDescriptionId();
                 if(entity instanceof Axolotl axolotl)
                     fish = axolotl.getVariant().getName();
                 else if(entity instanceof TropicalFish tropicalFish)
                     fish = tropicalFish.getVariant().getSerializedName();
-                if(VPUtil.isRightBucket(bucket,fish,player))
+                if(!Bucketable.bucketMobPickup(player, InteractionHand.MAIN_HAND,(LivingEntity & Bucketable) livingEntity).equals(Optional.empty()))
                     challange.addSea(fish,player);
             });
         }
@@ -929,7 +930,7 @@ public class EventHandler {
                 }
             }
             if(entity instanceof Player player) {
-                if((!VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) || event.getAmount() > 1) && player.getPersistentData().getFloat("VPArmor") > 0)
+                if((VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) && event.getAmount() > 1) && player.getPersistentData().getFloat("VPArmor") > 0)
                     player.getPersistentData().putFloat("VPArmor", 0);
                 if(VPUtil.hasVestige(ModItems.FLOWER.get(), player) && player.getPersistentData().getLong("VPFlowerSpecial") > 0){
                     for(LivingEntity livingEntity: VPUtil.getCreaturesAround(player,20,20,20)){
@@ -958,7 +959,7 @@ public class EventHandler {
                 if(entity.getPersistentData().getBoolean("VPMarkUlt"))
                     overHeal = event.getAmount();
                 if(entity instanceof Player player) {
-                    if(VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) && player.getPersistentData().getFloat("VPArmor") > 0)
+                    if(!VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) && player.getPersistentData().getFloat("VPArmor") > 0)
                         player.getPersistentData().putFloat("VPArmor", 0);
                     if(VPUtil.hasStellarVestige(ModItems.TRIGON.get(), player)) {
                         VPUtil.regenOverShield(player, (float)(overHeal*ConfigHandler.COMMON.trigonHeal.get()));
@@ -1308,7 +1309,6 @@ public class EventHandler {
                         if(biome.contains("warm"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
-                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get());
                             HungryOyster oyster = new HungryOyster(ModEntities.OYSTER.get(),level);
                             oyster.setPos(player.getX(),player.getY(),player.getZ());
                             VPUtil.teleportRandomly(oyster,30,true);
@@ -1317,6 +1317,7 @@ public class EventHandler {
                                 oyster.getPersistentData().putBoolean("VPCool",true);
                                 VPUtil.syncEntity(oyster);
                             }
+                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get(),oyster.getX(),oyster.getY(),oyster.getZ());
                             for(int i = 0; i < 3; i++) {
                                 TropicalFish fish = new TropicalFish(EntityType.TROPICAL_FISH, level);
                                 fish.setPos(player.getX(),player.getY(),player.getZ());
@@ -1327,15 +1328,15 @@ public class EventHandler {
                         }
                     }
                     else if(biome.contains("ocean") && biome.contains("deep")){
-                        double chance = 0.1;
+                        double chance = 0.05;
                         if(biome.contains("cold"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
-                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get());
                             SillySeashell shell = new SillySeashell(ModEntities.OYSTER.get(),level);
                             shell.setPos(player.getX(),player.getY(),player.getZ());
                             level.addFreshEntity(shell);
                             VPUtil.teleportRandomly(shell,30,true);
+                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get(),shell.getX(),shell.getY(),shell.getZ());
                         }
                     }
                 }
@@ -1350,8 +1351,10 @@ public class EventHandler {
                     cap.clearCoolDown(player);
                     cap.addTimeCd(System.currentTimeMillis(),player);
                 }
-                if(player.tickCount < 24100 && player.tickCount % 24000 == 0 && !cap.getLore(player,2))
+                if(!cap.getSleep() && player.tickCount > 24000 && !cap.getLore(player,2)) {
                     player.sendSystemMessage(Component.translatable("vp.sleep"));
+                    cap.setSleep(true);
+                }
                 if(player.tickCount % 100 == 0 && !cap.getLore(player,1))
                     cap.addLore(player,1);
                 if(cap.getLore(player,4) && player.tickCount % 24000 == 0)

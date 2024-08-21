@@ -526,6 +526,11 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity())));
                     components.add(Component.translatable("vp.chaos2").withStyle(ChatFormatting.GRAY).append(VPUtil.formatMilliseconds(cap.getChaosTime()+VPUtil.getChaosTime()-System.currentTimeMillis())));
                 }
+                else if(vestigeNumber == 16){
+                    components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                    if(ConfigHandler.COMMON.failFlowers.get())
+                        components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
+                }
                 else {
                     int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23};
                     boolean yesHorsing = false;
@@ -544,6 +549,8 @@ public class Vestige extends Item implements ICurioItem {
                 if(vestigeNumber == 12)
                     progress = VPUtil.getCurseAmount(player);
                 if(vestigeNumber == 24){
+                    boolean fuckThisStupidGame = false;
+                    boolean fuckThisStupidGame2 = false;
                     for(MobBucketItem bucketItem: VPUtil.getBuckets()){
                         List<String> allFish = new ArrayList<>(VPUtil.fishTypesFromBucket(bucketItem));
                         EntityType<?> type = ((BucketMixin)bucketItem).getFishSup().get();
@@ -553,6 +560,18 @@ public class Vestige extends Item implements ICurioItem {
                                 if (fish.trim().contains(name))
                                     bucketFish.add(fish.trim());
                             }
+                        }
+                        boolean axolotl = ((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.axolotl");
+                        boolean tropic = ((BucketMixin)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.tropical_fish");
+                        if(axolotl){
+                            if(fuckThisStupidGame)
+                                continue;
+                            else fuckThisStupidGame = true;
+                        }
+                        if(tropic){
+                            if(fuckThisStupidGame2)
+                                continue;
+                            else fuckThisStupidGame2 = true;
                         }
                         if(allFish.size() <= 2)
                             continue;

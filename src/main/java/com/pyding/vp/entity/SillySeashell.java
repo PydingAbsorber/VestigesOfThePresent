@@ -6,6 +6,7 @@ import com.pyding.vp.item.HeartyPearl;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -99,6 +100,7 @@ public class SillySeashell extends WaterAnimal {
                 VPUtil.addShield(this, 100, true);
             }
             int wave = getPersistentData().getInt("VPWave");
+            int entitiesPerWave = 3+wave;
             if(!getPersistentData().getBoolean("VPActivated")) {
                 getPersistentData().putBoolean("VPActivated",true);
                 int shellHeals = 0;
@@ -127,7 +129,7 @@ public class SillySeashell extends WaterAnimal {
                             list.add(type);
                     }
                 }
-                for (int i = 0; i < wave * 3; i++) {
+                for (int i = 0; i < entitiesPerWave; i++) {
                     Entity entity = list.get(random.nextInt(list.size())).create(getCommandSenderWorld());
                     if (entity == null)
                         continue;
@@ -144,7 +146,7 @@ public class SillySeashell extends WaterAnimal {
                             VPUtil.boostEntity(monster,2,200,100);
                     }
                 }
-            } else if(getPersistentData().getInt("VPWaveKilled") == wave*3){
+            } else if(getPersistentData().getInt("VPWaveKilled") >= entitiesPerWave){
                 if(wave == 10){
                     dropLoot();
                     return;
@@ -152,6 +154,25 @@ public class SillySeashell extends WaterAnimal {
                 getPersistentData().putInt("VPWaveKilled",0);
                 getPersistentData().putInt("VPWave",wave+1);
                 getPersistentData().putBoolean("VPActivated",false);
+            } else if(getPersistentData().getInt("VPWaveKilled") < entitiesPerWave){
+                int count = 0;
+                for(LivingEntity entity: VPUtil.getEntitiesAround(this,40,40,40,false)){
+                    if(entity.getPersistentData().getBoolean("VPWaved"))
+                        count++;
+                }
+                if(count < (entitiesPerWave)-getPersistentData().getInt("VPWaveKilled")){
+                    for(LivingEntity entity: VPUtil.getEntitiesAround(this,20,20,20,false)) {
+                        if (entity instanceof Player player) {
+                            if(player.getPersistentData().getLong("VPErrorCd") < System.currentTimeMillis()) {
+                                player.sendSystemMessage(Component.translatable("vp.seashell.fail"));
+                                player.getPersistentData().putLong("VPErrorCd",System.currentTimeMillis()+10000);
+                            }
+                            getPersistentData().putBoolean("VPActivated",false);
+                        } else if(entity.getPersistentData().getBoolean("VPWaved")){
+                            entity.discard();
+                        }
+                    }
+                }
             }
         }
     }

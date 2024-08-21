@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -69,13 +70,12 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "getMaxHealth",at = @At("RETURN"),cancellable = true, require = 1)
     protected void getMaxHealthMix(CallbackInfoReturnable<Float> cir){
-        if(cir.getReturnValue() == 2048 && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"))
-        || (cir.getReturnValue() < 2048 && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34")))){
-            float maxHealth = 2048 * ConfigHandler.COMMON.bossHP.get();
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.unlockHp.get() && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
+            float maxHealth = VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) * ConfigHandler.COMMON.bossHP.get();
             if(this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
                 maxHealth *= 10;
             }
-            cir.setReturnValue(maxHealth);
+            cir.setReturnValue(maxHealth); //i hate this so fucking much, some bullshit server mod locks hp to 2048 and thats it
         }
     }
 

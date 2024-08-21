@@ -53,28 +53,35 @@ public class HungryOyster extends WaterAnimal {
         if(getCommandSenderWorld().isClientSide)
             return;
         int eat = getPersistentData().getInt("VPFish");
+        setGlowingTag(false);
         if(tickCount % 2 == 0){
             VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,15,3,0.1f);
-            for(LivingEntity entity: VPUtil.getEntitiesAround(this,20,20,20,false)){
-                if(entity instanceof TropicalFish fish && fish.getPersistentData().getBoolean("VPEat")){
-                    if(this.distanceTo(fish) < 8) {
-                        fish.discard();
-                        VPUtil.play(this, SoundEvents.GENERIC_EAT);
-                        this.getPersistentData().putInt("VPFish", eat + 1);
-                        VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,30,3,1f);
-                        VPUtil.spawnSphere(this,ParticleTypes.HEART,10,4,0.5f);
-                        TropicalFish tropicalFish = new TropicalFish(EntityType.TROPICAL_FISH, getCommandSenderWorld());
-                        tropicalFish.setPos(getX(),getY(),getZ());
-                        VPUtil.teleportRandomly(tropicalFish,30,true);
-                        tropicalFish.getPersistentData().putLong("VPEating",System.currentTimeMillis());
-                        getCommandSenderWorld().addFreshEntity(tropicalFish);
-                    } else {
-                        Vec3 targetVec = Vec3.atCenterOf(fish.blockPosition());
+            for(LivingEntity entity: VPUtil.getEntitiesAround(this,30,30,30,false)){
+                if(entity instanceof TropicalFish fish){
+                    if(fish.getPersistentData().getBoolean("VPEat")) {
+                        if (this.distanceTo(fish) < 8) {
+                            fish.discard();
+                            VPUtil.play(this, SoundEvents.GENERIC_EAT);
+                            this.getPersistentData().putInt("VPFish", eat + 1);
+                            VPUtil.spawnSphere(this, ParticleTypes.BUBBLE, 30, 3, 1f);
+                            VPUtil.spawnSphere(this, ParticleTypes.HEART, 10, 4, 0.5f);
+                            for (int i = 0; i < 3; i++) {
+                                TropicalFish tropicalFish = new TropicalFish(EntityType.TROPICAL_FISH, getCommandSenderWorld());
+                                tropicalFish.setPos(getX(), getY(), getZ());
+                                VPUtil.teleportRandomly(tropicalFish, 30, true);
+                                tropicalFish.getPersistentData().putLong("VPEating", System.currentTimeMillis());
+                                getCommandSenderWorld().addFreshEntity(tropicalFish);
+                            }
+                        }
+                    }
+                    /*if(fish.getPersistentData().getLong("VPEating") > 0){
+                        *//*Vec3 targetVec = Vec3.atCenterOf(fish.blockPosition());
                         Vec3 entityVec = entity.position();
                         Vec3 direction = targetVec.subtract(entityVec);
                         Vec3 pullVelocity = direction.normalize().scale(2);
-                        VPUtil.spawnParticle(this,ParticleTypes.BUBBLE,getX(),getY(),getZ(),pullVelocity.x, pullVelocity.y, pullVelocity.z);
-                    }
+                        VPUtil.spawnParticle(this,ParticleTypes.GLOW_SQUID_INK,getX(),getY(),getZ(),pullVelocity.x, pullVelocity.y, pullVelocity.z);*//*
+                        VPUtil.spawnGuardianParticle(this,fish);
+                    }*/
                 }
             }
         }
