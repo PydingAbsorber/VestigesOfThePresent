@@ -103,8 +103,9 @@ public class Pearl extends Vestige{
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level p_41432_, Player player, InteractionHand p_41434_) {
-        VPUtil.printFishDrop(player);
-        return super.use(p_41432_, player, p_41434_);
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
+        if(!level.isClientSide)
+            VPUtil.printFishDrop(player);
+        return super.use(level, player, p_41434_);
     }
 }

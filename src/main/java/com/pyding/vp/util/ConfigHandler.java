@@ -92,6 +92,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue hardcoreDamage;
         public final ForgeConfigSpec.DoubleValue nightmareDamageCap;
         public final ForgeConfigSpec.BooleanValue unlockHp;
+        public final ForgeConfigSpec.BooleanValue eventMode;
 
         public Common(ForgeConfigSpec.Builder builder) {
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
@@ -134,7 +135,7 @@ public class ConfigHandler {
             catEvadeCap = builder.comment("Cap for Cat Ears evasion.").defineInRange("catEvadeCap", 69, 0, 100);
             chaosDamageCap = builder.comment("Damage cap for Chaos Core").defineInRange("chaosDamageCap", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
             chaosChance = builder.comment("Chance for Chaos Core reflexion or damage change. 1 is 100%, 0.1 is 10%.").defineInRange("chaosChance", 0.1, 0, 1);
-            crownShield = builder.comment("How many % from enemy's health will crown give upon kill").defineInRange("crownShield", 10, 0, Integer.MAX_VALUE);
+            crownShield = builder.comment("How many % from enemy's health will crown give upon kill").defineInRange("crownShield", 50, 0, Integer.MAX_VALUE);
             devourerChance = builder.comment("Chance for Devourer's Ultimate per 1 kill. 1 is 100%, 0.001 is 0.1%").defineInRange("devourerChance", 0.01, 0, 100);
             flowerShield = builder.comment("Multiplier for Shield that will Flower give by Ultimate.").defineInRange("flowerShield", 1d, 0, Integer.MAX_VALUE);
             killerRes = builder.comment("Killer Queens' Special explosion damage resistance shred").defineInRange("killerRes", 70d, 0, Integer.MAX_VALUE);
@@ -173,6 +174,7 @@ public class ConfigHandler {
             failFlowers = builder.comment("Fails flowers Challenge when they are being placed.").define("failFlowers", false);
             nightmareDamageCap = builder.comment("Damage cap for Nightmare Bosses").defineInRange("nightmareDamageCap", 1000,0,Float.MAX_VALUE);
             unlockHp = builder.comment("For servers with maxed out desync and hp lock to 2048 or if you just have problems with MaxHp.").define("unlockHp", false);
+            eventMode = builder.comment("Event mode that disables all teleportations and fly.").define("eventMode", false);
 
         }
 

@@ -311,6 +311,20 @@ public class VPCommands {
                             return Command.SINGLE_SUCCESS;
                         })
                 )
+                .then(Commands.literal("enableEvent").requires(sender -> sender.hasPermission(2))
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            if(ConfigHandler.COMMON.eventMode.get()) {
+                                ConfigHandler.COMMON.eventMode.set(false);
+                                player.sendSystemMessage(Component.literal("Event mode disabled."));
+                            }
+                            else {
+                                ConfigHandler.COMMON.eventMode.set(true);
+                                player.sendSystemMessage(Component.literal("Event mode enabled. All teleportations and fly disabled for players with no creative."));
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
         );
     }
 }

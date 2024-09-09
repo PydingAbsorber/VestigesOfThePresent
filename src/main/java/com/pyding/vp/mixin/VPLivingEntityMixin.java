@@ -53,17 +53,11 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "setHealth",at = @At("HEAD"),cancellable = true, require = 1)
     protected void setHealthMix(float amount, CallbackInfo ci){
-        if(this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
-            if(amount < this.getHealth()) {
-                if (this.lastHurtByPlayer != null && this.lastHurtByPlayer.getPersistentData().getBoolean("VPAttacked")) {
-                    this.lastHurtByPlayer.getPersistentData().putBoolean("VPAttacked", false);
-                }
-                else if (this.lastDamageSource != null) {
-                    this.lastDamageSource = null;
-                }
-                else ci.cancel();
-            } else {
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && this.getAttributes() != null && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
+            if(getHealth()+amount < getHealth() && amount > ConfigHandler.COMMON.nightmareDamageCap.get()) {
+                amount = (float)(getHealth() - ConfigHandler.COMMON.nightmareDamageCap.get());
                 ci.cancel();
+                ((EntityVzlom)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),amount);
             }
         }
     }
@@ -72,7 +66,7 @@ public abstract class VPLivingEntityMixin {
     protected void getMaxHealthMix(CallbackInfoReturnable<Float> cir){
         if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.unlockHp.get() && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
             float maxHealth = VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) * ConfigHandler.COMMON.bossHP.get();
-            if(this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
+            if(this.getAttributes() != null && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
                 maxHealth *= 10;
             }
             cir.setReturnValue(maxHealth); //i hate this so fucking much, some bullshit server mod locks hp to 2048 and thats it
@@ -81,8 +75,18 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "getScale",at = @At("RETURN"),cancellable = true, require = 1)
     protected void getScaleMix(CallbackInfoReturnable<Float> cir){
-        if(this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
+        if(this.getAttributes() != null && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
             cir.setReturnValue(3f);
+        }
+    }
+
+    @Inject(method = "die",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void dieMix(DamageSource p_21014_, CallbackInfo ci){
+        if(this.getAttributes() != null && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
+            if(getHealth() > 0){
+                ci.cancel();
+                return;
+            }
         }
     }
 }

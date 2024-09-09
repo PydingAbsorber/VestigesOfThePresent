@@ -194,11 +194,14 @@ public class VPUtil {
     }
 
     public static HashSet<Item> items = new HashSet<>();
-    private static HashSet<ResourceKey<Biome>> biomeNames = new HashSet<>();
-    public static void initBiomes(Level level){
-        //biomeNames.addAll(ForgeRegistries.BIOMES.getKeys());
-        Set<ResourceKey<Biome>> biomes = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
-        biomeNames.addAll(biomes);
+    public static HashSet<ResourceKey<Biome>> biomeNames = new HashSet<>();
+
+    public static void initBiomes(Player player,Level level){
+        if(player instanceof ServerPlayer serverPlayer) {
+            Set<ResourceKey<Biome>> biomes = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
+            biomeNames.addAll(biomes);
+            //PacketHandler.sendToClient(new PlayerFlyPacket(1), serverPlayer);
+        }
     }
     public static List<ResourceLocation> getBiomes(){
         List<ResourceLocation> list = new ArrayList<>();
@@ -669,6 +672,12 @@ public class VPUtil {
             lightningBolt.moveTo(x, y, z);
             world.addFreshEntity(lightningBolt);
         }
+    }
+
+    public static boolean isEvent(Entity entity){
+        if(entity instanceof Player player && player.isCreative())
+            return false;
+        else return ConfigHandler.COMMON.eventMode.get();
     }
 
     public static void setHealth(LivingEntity entity,float amount){
@@ -2099,10 +2108,9 @@ public class VPUtil {
     }
 
     public static void dealParagonDamage(LivingEntity entity,Player player,float damage, int type, boolean hurt){
-        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
+        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity) || entity.isDeadOrDying())
             return;
         entity.setLastHurtByPlayer(player);
-        ItemStack stack = player.getMainHandItem();
         float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
@@ -2119,15 +2127,12 @@ public class VPUtil {
             }
             entity.getPersistentData().putLong("VPWhirlParagon",System.currentTimeMillis()+time);
         }
-        boolean nullify = false;
         if(entity.getPersistentData().getInt("VPBossType") == 7){
             for(LivingEntity livingEntity: getEntitiesAround(entity,20,20,20,false)){
                 if(livingEntity.getPersistentData().getBoolean("VPSummoned"))
-                    nullify = true;
+                    return;
             }
         }
-        if(nullify)
-            health = 0;
         if(overShields > 0) {
             if(entity.getPersistentData().getLong("VPWhirlParagon") > System.currentTimeMillis()) {
                 health *= 8;
@@ -2143,9 +2148,9 @@ public class VPUtil {
             }
         }
         if(entity.getHealth()-health > 0) {
+            setHealth(entity,entity.getHealth() - health);
             if(hurt)
                 entity.hurt(player.damageSources().generic(),0);
-            entity.setHealth(entity.getHealth() - health);
             if(entity instanceof Player deb && hasVestige(ModItems.RUNE.get(), deb) && (VPUtil.getShield(deb) <= 0 || VPUtil.getOverShield(deb) <= 0)){
                 if(VPUtil.getShield(deb) <= 0)
                     VPUtil.addShield(deb,health*0.5f,false);
@@ -2158,7 +2163,8 @@ public class VPUtil {
     }
 
     public static void dealParagonDamage(LivingEntity entity,LivingEntity player,float damage, int type, boolean hurt){
-        ItemStack stack = player.getMainHandItem();
+        if(entity.isDeadOrDying())
+            return;
         float health = damage;
         float overShields = getOverShield(entity);
         if(overShields > 0) {
@@ -2521,17 +2527,13 @@ public class VPUtil {
 
     public static void initFishDrops(List<ResourceLocation> biomes) {
         Random random = new Random();
-        int totalItems = fishList.size();
-        int totalBiomes = biomes.size();
-        int itemsPerBiome = totalItems / totalBiomes;
-
         for (ResourceLocation biome : biomes) {
             biomeFishMap.put(biome, new ArrayList<>());
         }
 
         int index = 0;
         for (Item item : fishList) {
-            ResourceLocation biome = biomes.get(index % totalBiomes);
+            ResourceLocation biome = biomes.get(index % biomes.size());
             biomeFishMap.get(biome).add(item);
             index++;
         }
@@ -2892,7 +2894,7 @@ public class VPUtil {
             entity.getPersistentData().putLong("VPGhost",System.currentTimeMillis()+13000);
         }
         if(entity.tickCount % (2*20*slow) == 0) {
-            entity.getPersistentData().putFloat("VPDreadAbsorb", Math.min(100,entity.getPersistentData().getFloat("VPDreadAbsorb")+1));
+            entity.getPersistentData().putFloat("VPDreadAbsorb", Math.min((float)(ConfigHandler.COMMON.nightmareDamageCap.get()+0),entity.getPersistentData().getFloat("VPDreadAbsorb")+(float)(ConfigHandler.COMMON.nightmareDamageCap.get()*0.01)));
         }
         if (entity.getHealth() < entity.getMaxHealth() * 0.5) {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 255, 255));
@@ -2902,7 +2904,9 @@ public class VPUtil {
             clearEffects(entity,false);
         if(!entity.isCurrentlyGlowing())
             entity.setGlowingTag(true);
-        float attack = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+        float attack = (float)(100*ConfigHandler.COMMON.hardcoreDamage.get());
+        if(entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
+            attack = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = entity.getPersistentData().getInt("VPBossType");
         if(entity.tickCount % 2 == 0) {
             nightmareAura(type, entity);
@@ -2986,6 +2990,11 @@ public class VPUtil {
             }
         }
         if(type == 7){
+            int amount = 0;
+            for(LivingEntity livingEntity: getEntitiesAround(entity,40,40,40,false)){
+                if(livingEntity.getPersistentData().getBoolean("VPSummoned"))
+                    amount++;
+            }
             if(entity instanceof Monster boss && boss.getTarget() != null && boss.getTarget().getPersistentData().getBoolean("VPSummoned")) {
                 boss.setTarget(null);
                 Player player = boss.getCommandSenderWorld().getNearestPlayer(boss,40);
@@ -2993,7 +3002,7 @@ public class VPUtil {
                     boss.setTarget(player);
                 }
             }
-            if(entity.tickCount % (30*20*slow) == 0) {
+            if(entity.tickCount % (30*20*slow) == 0 && amount < 20) {
                 Level level = entity.getCommandSenderWorld();
                 for (int i = 0; i < random.nextInt(15)+5; i++) {
                     Entity monster = getRandomMonster().create(level);

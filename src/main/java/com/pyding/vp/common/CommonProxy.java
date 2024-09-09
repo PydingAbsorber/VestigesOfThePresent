@@ -1,5 +1,6 @@
 package com.pyding.vp.common;
 
+import net.minecraft.world.item.crafting.SmithingTrimRecipe;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 
 public class CommonProxy {
@@ -9,7 +10,7 @@ public class CommonProxy {
         // NO-OP
     }
     public void loadComplete(FMLLoadCompleteEvent event) {
-        // Insert existential void here
+
     }
     public void initAuxiliaryRender() {
         // Insert existential void here

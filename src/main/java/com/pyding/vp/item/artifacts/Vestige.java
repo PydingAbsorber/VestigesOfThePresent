@@ -467,7 +467,11 @@ public class Vestige extends Item implements ICurioItem {
                         .append(Component.translatable("vp.charges2").withStyle(color))
                         .append(Component.literal(" " + spCd / 20).withStyle(color))
                         .append(Component.translatable("vp.seconds").withStyle(color)));
-                components.add(Component.translatable("vp.special." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                if(vestigeNumber == 2){
+                    components.add(Component.translatable("vp.special." + vestigeNumber,ConfigHandler.COMMON.crownShield.get()+"%").withStyle(ChatFormatting.GRAY));
+                }
+                else components.add(Component.translatable("vp.special." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+
                 components.add(Component.translatable("vp.ultimate").withStyle(color)
                         .append(Component.translatable("vp.charges").withStyle(color))
                         .append(Component.literal(" " + ultCharges ).withStyle(color))

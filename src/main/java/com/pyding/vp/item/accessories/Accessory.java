@@ -1,5 +1,6 @@
 package com.pyding.vp.item.accessories;
 
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.artifacts.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -66,7 +67,8 @@ public class Accessory extends Item implements ICurioItem {
                 baseChance *= 0.8;
         }
         Random random = new Random();
-        if(random.nextDouble() < baseChance){
+        if(random.nextDouble() < VPUtil.getChance(baseChance,player)){
+            VPUtil.play(player, SoundRegistry.RUNE1.get());
             stack.getOrCreateTag().putInt("VPLvl",lvl+1);
             switch (getType(stack)) {
                 case 1 -> stack.getOrCreateTag().putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
@@ -78,7 +80,7 @@ public class Accessory extends Item implements ICurioItem {
                 }
             }
             return true;
-        }
+        } else VPUtil.play(player,SoundRegistry.RUNE2.get());
         return false;
     }
     public int getLvl(ItemStack stack){
@@ -133,7 +135,10 @@ public class Accessory extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.acs.set."+i).withStyle(ChatFormatting.GREEN));
                 else components.add(Component.translatable("vp.acs.set."+i).withStyle(ChatFormatting.GRAY));
             }
-        } else {
+        } else if (Screen.hasAltDown()){
+            components.add(Component.translatable("vp.acs.upgrade"));
+        }
+        else {
             components.add(Component.translatable("vp.acs.lvl").append(Component.literal(" "+getLvl(stack)).withStyle(ChatFormatting.LIGHT_PURPLE)).withStyle(ChatFormatting.DARK_PURPLE));
             if(getType(stack) > 0) {
                 if(getType(stack) < 3)
@@ -141,6 +146,7 @@ public class Accessory extends Item implements ICurioItem {
                 else components.add(Component.translatable("vp.acs.stats").withStyle(ChatFormatting.DARK_PURPLE).append(Component.literal(" +"+String.format("%.1f", getStatAmount(stack)) + "%").append(Component.translatable("vp.acs.stats."+getType(stack))).withStyle(ChatFormatting.LIGHT_PURPLE)));
             }components.add(Component.translatable("vp.acs.shift"));
             components.add(Component.translatable("vp.acs.ctrl"));
+            components.add(Component.translatable("vp.acs.alt"));
         }
     }
 

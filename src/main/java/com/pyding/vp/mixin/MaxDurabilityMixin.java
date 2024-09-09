@@ -19,10 +19,14 @@ public abstract class MaxDurabilityMixin {
 
     @Shadow public abstract CompoundTag getOrCreateTag();
 
+    @Shadow public abstract boolean hasTag();
+
     @ModifyVariable(at = @At(value = "INVOKE", target = "net/minecraft/world/item/ItemStack.getDamageValue()I"), method = "hurt", argsOnly = true, ordinal = 0)
     public int duration(int amount, int amountCopy, RandomSource pRandom, @Nullable ServerPlayer player) {
-        if(this.getOrCreateTag().getBoolean("VPUnbreak"))
-            return 0;
+        if(this.hasTag()) {
+            if(this.getOrCreateTag().getBoolean("VPUnbreak"))
+                return 0;
+        }
         if(player != null && VPUtil.hasVestige(ModItems.RUNE.get(), player)){
             ItemStack stack = VPUtil.getVestigeStack(Rune.class,player);
             if(stack.getItem() instanceof Rune rune){

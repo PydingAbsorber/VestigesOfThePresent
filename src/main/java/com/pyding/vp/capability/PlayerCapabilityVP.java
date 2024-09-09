@@ -562,7 +562,6 @@ public class PlayerCapabilityVP {
         music = "";
         templates = "";
         sea = "";
-        friends = "";
         sync(player);
     }
 
@@ -678,7 +677,7 @@ public class PlayerCapabilityVP {
     public static void initMaximum(Player player){
         Level level = player.getCommandSenderWorld();
         VPUtil.initMonstersAndBosses(level);
-        VPUtil.initBiomes(level);
+        VPUtil.initBiomes(player,level);
         VPUtil.initBuckets();
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
@@ -750,6 +749,7 @@ public class PlayerCapabilityVP {
         sea = source.sea;
         pearls = source.pearls;
         sleep = source.sleep;
+        friends = source.friends;
     }
 
     public void saveNBT(CompoundTag nbt){

@@ -57,6 +57,7 @@ public class ModItems {
     public static final RegistryObject<Item> SEASHELL = ITEMS.register("seashell", () -> new Seashell());
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
+    public static final RegistryObject<Item> BLACKHOLE_ITEM = ITEMS.register("blackhole_item", () -> new Item(new Item.Properties().stacksTo(1)));
 
 
 

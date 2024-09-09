@@ -61,13 +61,13 @@ public class SillySeashell extends WaterAnimal {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if(player.getCommandSenderWorld().isClientSide)
-            return super.mobInteract(player,hand);
-        ItemStack stack = player.getMainHandItem();
-        if(stack.getItem() instanceof HeartyPearl && getPersistentData().getInt("VPPearls") < 3){
-            stack.shrink(1);
-            getPersistentData().putInt("VPPearls",getPersistentData().getInt("VPPearls")+1);
-            VPUtil.syncEntity(this);
+        if(!player.getCommandSenderWorld().isClientSide) {
+            ItemStack stack = player.getMainHandItem();
+            if (stack.getItem() instanceof HeartyPearl && getPersistentData().getInt("VPPearls") < 3) {
+                stack.shrink(1);
+                getPersistentData().putInt("VPPearls", getPersistentData().getInt("VPPearls") + 1);
+                VPUtil.syncEntity(this);
+            }
         }
         return super.mobInteract(player,hand);
     }

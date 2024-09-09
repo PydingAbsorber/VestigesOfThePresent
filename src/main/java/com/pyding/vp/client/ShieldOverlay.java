@@ -141,7 +141,7 @@ public class ShieldOverlay {
                         info = String.valueOf(player.getPersistentData().getInt("VPMadness"));
                     }
                     if(vestigeNumber == 11){
-                        info = String.valueOf((int)player.getPersistentData().getFloat("VPArmor"));
+                        info = String.valueOf((int)stack.getOrCreateTag().getFloat("VPArmor"));
                     }
                     if(vestigeNumber == 15){
                         info = String.valueOf(player.getPersistentData().getInt("VPDevourerHits"));

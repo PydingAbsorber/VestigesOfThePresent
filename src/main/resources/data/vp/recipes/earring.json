@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "vp:earring_of_dead_hopes"
+  },
+  "addition": {
+    "item": "vp:stellar"
+  },
+  "base": {
+    "item": "vp:earring_of_dead_hopes"
+  },
+  "result": {
+    "item": "vp:earring_of_dead_hopes"
+  }
+}

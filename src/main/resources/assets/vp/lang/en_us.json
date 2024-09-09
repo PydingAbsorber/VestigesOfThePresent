@@ -174,8 +174,8 @@
   "vp.get.1": "Kill %s different creatures in the air while being airborne.",
 
   "vp.passive.2": "Damage is reduced by the difference between the attack attribute of the owner and the attacker.",
-  "vp.special.2": "Deals 300% damage to all players and hostile creatures in the radius. \nEach slain enemy grants shield of 10% of its max HP. \nEach enemy that absorbed damage has a 5% chance to restore charge, 20% chance if enemy is under Ultimate effect.",
-  "vp.ultimate.2": "Turns off Invincibility/cancelling death of a creature at the point of view for the next 40 seconds.",
+  "vp.special.2": "Deals 300% damage to all players and hostile creatures in the radius. \nEach slain enemy grants Shields and Over Shields of 50% of its max HP. \nEach enemy that absorbed damage has a 5% chance to restore charge, 20% chance if enemy is under Ultimate effect.",
+  "vp.ultimate.2": "Turns off Invincibility/cancelling death of a creature at the point of view for the next 15 seconds. \nIf target is Player then also turns off Vestiges.",
   "vp.damagetype.2": "adaptive (changes until hurts enemy)",
   "vp.get.2": "Defeat all hostile creatures in the modpack.",
 
@@ -374,8 +374,10 @@
   "vp.acs.stats.3" : " to Damage dealt.",
   "vp.acs.stats.4" : " to Healing.",
   "vp.acs.stats.5" : " to Shields.",
-  "vp.acs.shift" : "§7Press §5Shift §7for Types information.",
-  "vp.acs.ctrl" : "§7Press §5Ctrl §7for Sets information.",
+  "vp.acs.shift" : "§7Press §5Shift §7for Types info.",
+  "vp.acs.ctrl" : "§7Press §5Ctrl §7for Sets info.",
+  "vp.acs.alt": "§7Press §5Alt §7for upgrade info",
+  "vp.acs.upgrade": "§7You can upgrade same Accessories on Smithing Table with a certain chance. \n§7Base chance §590% §7for lvl 0 and with each lvl chance will lower by §520% from current.",
 
   "item.vp.ring_of_fallen_star" : "§5Ring of Fallen Star",
   "item.vp.earring_of_dead_hopes" : "§5Earring of Dead Hopes",

@@ -1,5 +1,6 @@
 package com.pyding.vp.client;
 
+import com.pyding.vp.client.render.CrownRender;
 import com.pyding.vp.client.render.EarsRender;
 import com.pyding.vp.client.render.HornsRender;
 import com.pyding.vp.common.CommonProxy;
@@ -30,6 +31,7 @@ public class ClientProxy extends CommonProxy {
     public void onClientSetup(FMLClientSetupEvent event) {
         CuriosRendererRegistry.register(ModItems.EARS.get(), EarsRender::new);
         CuriosRendererRegistry.register(ModItems.MASK.get(), HornsRender::new);
+        CuriosRendererRegistry.register(ModItems.CROWN.get(), CrownRender::new);
         ModItems.SEASHELL_HOLDER.registerChick();
     }
 
