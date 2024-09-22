@@ -77,7 +77,6 @@ public class PlayerCapabilityVP {
     private boolean sleep = false;
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
-    private Set<String> biomeNames = new HashSet<>();
     private int pearls = 0;
 
     public void setSleep(boolean slept){
@@ -460,7 +459,6 @@ public class PlayerCapabilityVP {
             }
             case 3:{
                 biomesFound = "";
-                biomeNames.clear();
                 break;
             }
             case 6:{
@@ -536,7 +534,6 @@ public class PlayerCapabilityVP {
         mobsTamed = "";
         monstersKilled = "";
         biomesFound = "";
-        biomeNames.clear();
         damageDo = "";
         damageDie = "";
         coolDowned = "";
@@ -594,7 +591,7 @@ public class PlayerCapabilityVP {
                 case 12:
                     return (int) (10 * reduce);
                 case 13:
-                    return VPUtil.damageTypes(true).size();
+                    return (int) (20 * reduce);
                 case 14:
                     return (int) (6 * reduce);
                 case 15:
@@ -646,7 +643,7 @@ public class PlayerCapabilityVP {
                 case 12:
                     return 10 - reduce;
                 case 13:
-                    return VPUtil.damageTypes(true).size();
+                    return (20 * reduce);
                 case 14:
                     return 6 - reduce;
                 case 15:

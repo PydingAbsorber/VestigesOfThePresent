@@ -90,7 +90,7 @@
   "vp.chaos": "Current random entity: ",
   "vp.chaos2": "Time left until reset: ",
   "vp.frag": "Use to get +%s chance for next ",
-  "vp.frag.get": "Drops from Vestige Hunters with 10% chance and 100% chance if they are in rage",
+  "vp.frag.get": "Drops from killing Nightmare Bosses and defending Silly Seashell",
   "vp.getText1": "Each Vestige can be obtained once per ",
   "vp.getText2": "You can get another after ",
   "vp.getTime": "Hours ",
@@ -238,7 +238,7 @@
   "vp.passive.13": "Slain monster under the effect of Special grants second loot table. \nEach Mortage (from Ultimate) provides a 1% chance for x4 loot. \nIf the chance triggers, it divides by 10 for x6 loot and so on.",
   "vp.special.13": "Empowers the monster you're looking at until Special ends. \nThe monster gains vulnerability to one random damage type while becoming immune to the others.",
   "vp.ultimate.13": "For the next 60 seconds, the player receives 10 times more damage. \nFor each monster killed under the effect of Special, +1 Mortage.",
-  "vp.get.13": "Kill any boss with all types of damage and never die. \n(If there is no source of kill, like drawing, all nearby players will get progress).",
+  "vp.get.13": "Get rare drop %s times from any creature",
 
   "vp.passive.14": "With a 10% chance, one of two things can happen: \n1.The received damage may increase or decrease by a random number from 1 to infinity.\n2.The received damage may obtain random type of damage.(magic, bypassArmor, fall, etc.). Increases overall luck.",
   "vp.special.14": "The next 1-10 received hits can reflect back to the opponent with a chance of 10-100%. (Self-harm does not count.)",

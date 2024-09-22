@@ -117,6 +117,7 @@ public class SillySeashell extends WaterAnimal {
                     }
                 }
                 List<EntityType> list = new ArrayList<>();
+                List<EntityType> bossList = new ArrayList<>();
                 for(EntityType type: VPUtil.getEntitiesListOfType(MobCategory.MONSTER)){
                     Entity entity = type.create(getCommandSenderWorld());
                     if(entity instanceof Monster monster && monster.getMobType() == MobType.WATER)
@@ -126,13 +127,15 @@ public class SillySeashell extends WaterAnimal {
                     for(EntityType type: VPUtil.bossList){
                         Entity entity = type.create(getCommandSenderWorld());
                         if(entity instanceof Monster monster && monster.getMobType() == MobType.WATER)
-                            list.add(type);
+                            bossList.add(type);
                     }
                 }
                 for (int i = 0; i < entitiesPerWave; i++) {
                     Entity entity = list.get(random.nextInt(list.size())).create(getCommandSenderWorld());
                     if (entity == null)
                         continue;
+                    if(wave > 6 && random.nextDouble() < 0.1)
+                        entity = bossList.get(random.nextInt(bossList.size())).create(getCommandSenderWorld());
                     entity.setPos(getX(),getY(),getZ());
                     VPUtil.teleportRandomly(entity,15,true);
                     getCommandSenderWorld().addFreshEntity(entity);
@@ -170,6 +173,7 @@ public class SillySeashell extends WaterAnimal {
                             getPersistentData().putBoolean("VPActivated",false);
                         } else if(entity.getPersistentData().getBoolean("VPWaved")){
                             entity.discard();
+                            VPUtil.deadInside(entity);
                         }
                     }
                 }
@@ -204,6 +208,7 @@ public class SillySeashell extends WaterAnimal {
             }
         }
         this.discard();
+        VPUtil.deadInside(this);
     }
 
     @Override

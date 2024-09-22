@@ -25,7 +25,7 @@ public class Pearl extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(23, ChatFormatting.DARK_BLUE, 4, 40, 1, 60, 30, 30, false, stack);
+        super.dataInit(23, ChatFormatting.DARK_BLUE, 4, 40, 1, 360, 30, 30, false, stack);
     }
 
     boolean later = false;
@@ -84,7 +84,7 @@ public class Pearl extends Vestige{
         VPUtil.spawnSphere(player, ParticleTypes.FISHING,30,3,0);
         VPUtil.spawnCircleParticles(player, 30,ParticleTypes.FISHING,3,0);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            player.getPersistentData().putInt("VPLures",10+cap.getPearls()*5);
+            player.getPersistentData().putInt("VPLures",Math.min(30,10+cap.getPearls()*5));
         });
         player.getPersistentData().putFloat("VPDepth", VPUtil.getWaterDepth(player));
         super.doUltimate(seconds, player, level, stack);

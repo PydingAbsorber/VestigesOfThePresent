@@ -24,6 +24,7 @@ public class Crown extends Vestige{
         VPUtil.play(player,SoundRegistry.CROWN.get());
         for(LivingEntity entity : VPUtil.getMonstersAround(player,15,6,15)){
             entity.getPersistentData().putBoolean("VPCrownHit",true);
+            entity.getPersistentData().putBoolean("VPCrownHitDeath",true);
             float shields = VPUtil.getShield(player);
             if(entity.getPersistentData().getLong("VPDeath") > 0 && shields > 1000*10 && isStellar(stack)){
                 VPUtil.dealParagonDamage(entity,player,(shields*0.1f)/1000f,2,true);

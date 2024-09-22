@@ -9,6 +9,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.Iterator;
 
@@ -45,10 +46,16 @@ public class Armor extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.FLESH2.get());
-        int pain = (int)player.getPersistentData().getFloat("VPArmor");
+        int pain = (int)stack.getOrCreateTag().getFloat("VPArmor");
         VPUtil.repairAll(player,pain);
-        player.getPersistentData().putFloat("VPArmor",0);
+        stack.getOrCreateTag().putFloat("VPArmor",0);
         VPUtil.spawnParticles(player, ParticleTypes.CRIT,3,1,0,0,0,0,false);
         super.doUltimate(seconds, player, level, stack);
+    }
+
+    @Override
+    public void curioSucks(Player player, ItemStack stack) {
+        stack.getOrCreateTag().putFloat("VPArmor",0);
+        super.curioSucks(player, stack);
     }
 }

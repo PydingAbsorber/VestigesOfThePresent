@@ -36,15 +36,17 @@ public class BlackHole extends Projectile {
     }
     float gravity;
     BlockPos pos;
+    int ticks;
 
     public ServerPlayer serverPlayer;
-    public BlackHole(Level pLevel, LivingEntity owner, float gravitation, BlockPos position) {
+    public BlackHole(Level pLevel, LivingEntity owner, float gravitation, BlockPos position,int time) {
         this(ModEntities.BLACK_HOLE.get(), pLevel);
         gravity = gravitation;
         pos = position;
         setOwner(owner);
         serverPlayer = (ServerPlayer) getOwner();
         getPersistentData().putFloat("VPGravity",gravitation);
+        ticks = time;
     }
     @Override
     public void refreshDimensions() {
@@ -92,7 +94,7 @@ public class BlackHole extends Projectile {
             }
         }
         if (!getCommandSenderWorld().isClientSide) {
-            if (tickCount > 20 * (gravity+2)) {
+            if (tickCount > (ticks + gravity/4)) {
                 this.discard();
                 for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
                     if(entity.getUUID() != player.getUUID() && !VPUtil.isProtectedFromHit(player,entity)) {
@@ -107,7 +109,7 @@ public class BlackHole extends Projectile {
             }
         }
         VPUtil.syncEntity(this);
-        if(tickCount > 5*60*20) {
+        if(tickCount > 3000) {
             discard();
         }
     }

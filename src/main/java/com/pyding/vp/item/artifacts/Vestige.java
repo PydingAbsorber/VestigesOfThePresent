@@ -536,7 +536,7 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
                 }
                 else {
-                    int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23};
+                    int[] hobbyHorsing = {1,4,5,7,13,14,15,18,19,23};
                     boolean yesHorsing = false;
                     for (int horse : hobbyHorsing) {
                         if (horse == vestigeNumber) {
@@ -627,10 +627,10 @@ public class Vestige extends Item implements ICurioItem {
                         text = VPUtil.getDamageKindsLeft(cap.getDamageDie()).toString();
                         break;
                     }
-                    case 13:{
+                    /*case 13:{
                         text = VPUtil.getDamageDoLeft(cap.getDamageDo()).toString();
                         break;
-                    }
+                    }*/
                     case 15: {
                         text = VPUtil.getBossClient(player).toString();
                         break;
@@ -701,6 +701,8 @@ public class Vestige extends Item implements ICurioItem {
                     }
                 }
             } else {
+                if(isStellar(stack) && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
+                    components.add(Component.translatable("vp.meme."+vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(color).append(Component.translatable("vp.ctrl"))));
@@ -708,8 +710,8 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
                 if(vestigeNumber == 3)
                     components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));
-                if(vestigeNumber == 13)
-                    components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.prism"))));
+                //if(vestigeNumber == 13)
+                    //components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.prism"))));
             }
             if(vestigeNumber == 9){
                 int luck = stack.getOrCreateTag().getInt("VPLuck");

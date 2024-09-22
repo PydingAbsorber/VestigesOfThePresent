@@ -13,6 +13,11 @@ import com.pyding.vp.item.HeartyPearl;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.*;
+import com.pyding.vp.mixin.LootItemEnchantMixin;
+import com.pyding.vp.mixin.LootItemMixin;
+import com.pyding.vp.mixin.LootPoolMixin;
+import com.pyding.vp.mixin.LootRandomItemMixin;
+import com.pyding.vp.mixin.LootTableVzlom;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
@@ -42,6 +47,7 @@ import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Monster;
@@ -54,6 +60,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -401,11 +418,15 @@ public class EventHandler {
     public void attackEvent(LivingAttackEvent event){
         LivingEntity victim = event.getEntity();
         Random random = new Random();
-        if(VPUtil.isNpc(victim.getType()))
+        if(VPUtil.isNpc(victim.getType())) {
             event.setCanceled(true);
+            return;
+        }
         if(event.getSource().getEntity() instanceof Player player){
-            if(VPUtil.isProtectedFromHit(player,victim))
+            if(VPUtil.isProtectedFromHit(player,victim)) {
                 event.setCanceled(true);
+                return;
+            }
         }
         if(victim instanceof Player player){
             if(VPUtil.hasVestige(ModItems.EARS.get(), player)) {
@@ -421,11 +442,13 @@ public class EventHandler {
                         VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
                     player.getPersistentData().putLong("VPSoundCd",System.currentTimeMillis()+1000);
                     event.setCanceled(true);
+                    return;
                 } else if (player.getPersistentData().getBoolean("VPEarsUlt") && random.nextDouble() < VPUtil.getChance(secondChance,player)) {
                     if(player.getPersistentData().getLong("VPSoundCd") < System.currentTimeMillis())
                         VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
                     player.getPersistentData().putLong("VPSoundCd",System.currentTimeMillis()+1000);
                     event.setCanceled(true);
+                    return;
                 }
             }
             if(VPUtil.hasVestige(ModItems.WHIRLPOOL.get(), player)){
@@ -434,6 +457,7 @@ public class EventHandler {
                     player.getPersistentData().putInt("VPWhirlpool",block-1);
                     VPUtil.play(player,SoundEvents.BUBBLE_COLUMN_WHIRLPOOL_INSIDE);
                     event.setCanceled(true);
+                    return;
                 }
             }
             if (VPUtil.hasVestige(ModItems.CHAOS.get(), player)) {
@@ -451,6 +475,7 @@ public class EventHandler {
                         } else amount = (event.getAmount() - random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
                         event.setCanceled(true);
                         player.hurt(damageSource,amount);
+                        return;
                     } else {
                         player.invulnerableTime = 0;
                         damageSource = VPUtil.randomizeDamageType(player);
@@ -462,6 +487,7 @@ public class EventHandler {
                                 livingEntity.getPersistentData().putFloat("VPHealDebt",event.getAmount()*0.1f);
                             }
                         }
+                        return;
                     }
                 }
                 double chance = ConfigHandler.COMMON.chaosChance.get()*10 + random.nextInt(90);
@@ -471,6 +497,7 @@ public class EventHandler {
                         livingEntity.hurt(damageSource, amount);
                         livingEntity.getPersistentData().putFloat("VPHealDebt",event.getAmount()*0.1f);
                         event.setCanceled(true);
+                        return;
                     }
                 }
             }
@@ -497,6 +524,10 @@ public class EventHandler {
                 for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,40,40,40,false)) {
                     if (livingEntity instanceof SillySeashell sillySeashell) {
                         sillySeashell.getPersistentData().putInt("VPWaveKilled",sillySeashell.getPersistentData().getInt("VPWaveKilled")+1);
+                        for(LivingEntity living: VPUtil.getEntitiesAround(sillySeashell,40,40,40,false)) {
+                            if(living.getPersistentData().getBoolean("VPWaved"))
+                                living.discard();
+                        }
                     }
                 }
                 entity.discard();
@@ -527,8 +558,8 @@ public class EventHandler {
                         challange.addTool(tieredItem.toString(),player);
                     if((entity instanceof Player || entity instanceof Warden) && VPUtil.getCurseAmount(player) > 10)
                         challange.setChallenge(12,10,player);
-                    if(VPUtil.isBoss(entity))
-                        challange.addDamageDo(event.getSource(),player);
+                    /*if(VPUtil.isBoss(entity))
+                        challange.addDamageDo(event.getSource(),player);*/
                     if(entity.getType().getDescriptionId().equals(challange.getRandomEntity())) {
                         challange.setChallenge(14, player);
                         challange.setChaosTime(System.currentTimeMillis(),player);
@@ -540,7 +571,7 @@ public class EventHandler {
                     ItemStack stack2 = VPUtil.getVestigeStack(Prism.class,player);
                     if(stack2 != null && stack2.getItem() instanceof Prism prism) {
                         double chance = stack2.getOrCreateTag().getInt("VPPrismKill")*ConfigHandler.COMMON.prismChance.get();
-                        chance /= 100;
+                        chance /= 100; 
                         VPUtil.dropEntityLoot(entity, player,true);
                         count++;
                         while (random.nextDouble() < VPUtil.getChance(chance,player)) {
@@ -619,7 +650,7 @@ public class EventHandler {
                         stack3.getOrCreateTag().putInt("VPDevoured", stack3.getOrCreateTag().getInt("VPDevoured") + 1);
                     }
                 }
-                if(VPUtil.hasStellarVestige(ModItems.CROWN.get(), player) && entity.getPersistentData().getBoolean("VPCrownHit")) {
+                if(VPUtil.hasVestige(ModItems.CROWN.get(), player) && entity.getPersistentData().getBoolean("VPCrownHitDeath")) {
                     VPUtil.addShield(player, (entity.getMaxHealth() / 100 * ConfigHandler.COMMON.crownShield.get()), true);
                     VPUtil.addOverShield(player, (entity.getMaxHealth() / 100 * ConfigHandler.COMMON.crownShield.get()), true);
                 }
@@ -718,16 +749,44 @@ public class EventHandler {
         }
     }
 
-    /*@SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
-    public void onPlayerDeath(LivingDropsEvent event) {
-        if (event.getEntity() instanceof Player player){
+    @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
+    public void onLootDrops(LivingDropsEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (event.getSource().getEntity() instanceof Player player && !event.isCanceled() && player.getServer() != null){
+            List<Item> rareDrops = new ArrayList<>();
+            LootTable lootTable = player.getServer().getLootData().getLootTable(entity.getLootTable());
+            for(LootPool pool: ((LootTableVzlom)lootTable).getPools()){
+                for (LootPoolEntryContainer entry : ((LootPoolMixin) pool).getEntries()) {
+                    if (entry instanceof LootItem lootItemEntry) {
+                        Item item = ((LootItemMixin) lootItemEntry).getItem();
+                        for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
+                            if (condition instanceof LootItemRandomChanceCondition itemCondition) {
+                                float chance = ((LootRandomItemMixin) itemCondition).getChance();
+                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
+                                    rareDrops.add(item);
+                                }
+                            } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
+                                float chance = ((LootItemEnchantMixin) lootingCondition).getChance();
+                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
+                                    rareDrops.add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
-                if(event.isCanceled()) {
-                    System.out.println("canceled");
+                for(ItemEntity itemEntity: event.getDrops()){
+                    for(Item item: rareDrops){
+                        if(itemEntity.getItem().getItem().getDescriptionId().equals(item.getDescriptionId()) && player.getPersistentData().getLong("VPPrismChallenge") < System.currentTimeMillis()) {
+                            challange.setChallenge(13, player);
+                            player.getPersistentData().putLong("VPPrismChallenge",System.currentTimeMillis()+1000);
+                        }
+                    }
                 }
             });
         }
-    }*/
+    }
     public static boolean hasCurses(int curses,Player player){
         if(getCurses(player) >= curses)
             return true;
@@ -1506,11 +1565,11 @@ public class EventHandler {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if(cap.getPearls() > 0){
                     int luck = (int) (player.getMainHandItem().getEnchantmentLevel(Enchantments.FISHING_LUCK)/3f+player.getAttributeValue(Attributes.LUCK)/10);
-                    if(random.nextDouble() < VPUtil.getChance(Math.min(0.03d,luck/100d),player)){
+                    if(random.nextDouble() < VPUtil.getChance(Math.min(0.0005d,luck/100d),player)){
                         ItemStack itemStack;
-                        if(random.nextDouble() < VPUtil.getChance(0.1+luck/100d,player))
+                        if(random.nextDouble() < VPUtil.getChance(Math.min(0.1d,luck/100d),player))
                             itemStack = new ItemStack(ModItems.BOX.get());
-                        else if(random.nextDouble() < VPUtil.getChance(0.3+luck/100d,player))
+                        else if(random.nextDouble() < VPUtil.getChance(Math.min(0.3d,luck/100d),player))
                             itemStack = new ItemStack(ModItems.BOX_EGGS.get());
                         else itemStack = new ItemStack(ModItems.BOX_SAPLINGS.get());
                         VPUtil.giveStack(itemStack,player);

@@ -31,11 +31,11 @@ public class Flower extends Vestige{
         Player player = (Player) slotContext.entity();
         float healRes = 0;
         for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,30,30,30)){
-            healRes -= VPUtil.missingHealth(entity)/10;
+            healRes += VPUtil.missingHealth(entity)/10;
             if(isStellar(stack))
                 entity.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
         }
-        player.getPersistentData().putFloat("VPHealResFlower",healRes);
+        player.getPersistentData().putFloat("VPHealResFlower",-healRes);
         player.getPersistentData().putFloat("VPShieldBonusFlower",healRes*10);
         if(isStellar(stack))
             player.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);

@@ -3,6 +3,7 @@ package com.pyding.vp.mixin;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -15,4 +16,8 @@ public interface LootPoolMixin {
     @Accessor("entries")
     @Mutable
     LootPoolEntryContainer[] getEntries();
+
+    @Accessor("conditions")
+    @Mutable
+    LootItemCondition[] getConditions();
 }

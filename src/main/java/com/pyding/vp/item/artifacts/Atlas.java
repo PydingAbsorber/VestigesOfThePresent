@@ -23,7 +23,7 @@ public class Atlas extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(3, ChatFormatting.RED, 2, 10, 1, 30, 1, 3, true, stack);
+        super.dataInit(3, ChatFormatting.RED, 2, 10, 1, 30, 1, 4, true, stack);
     }
 
     @Override
@@ -62,7 +62,8 @@ public class Atlas extends Vestige{
         long gravity = Math.min(30,player.getPersistentData().getInt("VPGravity"));
         if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             BlockPos pos = VPUtil.rayCords(player,serverLevel,10);
-            BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos);
+            int time = (int) (seconds/50);
+            BlackHole blackHole = new BlackHole(serverLevel,player,gravity+1,pos,time);
             blackHole.setPos(pos.getX(),pos.getY(),pos.getZ());
             serverLevel.addFreshEntity(blackHole);
         }

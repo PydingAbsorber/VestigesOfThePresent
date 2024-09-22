@@ -1,16 +1,15 @@
 package com.pyding.vp.mixin;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(LootItem.class)
-public interface LootItemMixin {
+@Mixin(LootItemRandomChanceWithLootingCondition.class)
+public interface LootItemEnchantMixin {
 
-    @Accessor("item")
+    @Accessor("percent")
     @Mutable
-    Item getItem();
+    float getChance();
 }

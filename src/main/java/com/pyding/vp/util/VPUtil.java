@@ -1190,11 +1190,10 @@ public class VPUtil {
         float shield;
         if(!add) {
             if(amount*(1 + shieldBonus/100) > tag.getFloat("VPShield"))
-                shield = amount;
+                shield = amount*(1 + shieldBonus/100);
             else return;
         }
-        else shield = tag.getFloat("VPShield") + amount;
-        shield = shield*(1 + shieldBonus/100);
+        else shield = tag.getFloat("VPShield") + amount*(1 + shieldBonus/100);
         Random random = new Random();
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
@@ -1252,6 +1251,8 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity){
+        if(entity.isRemoved())
+            return;
         Random random = new Random();
         if(entity instanceof Player) {
             if (random.nextDouble() < 0.5)
@@ -1828,7 +1829,7 @@ public class VPUtil {
         float shieldBonus = getShieldBonus(entity);
         if(!applyBonus)
             shieldBonus = 0;
-        float shield = (tag.getFloat("VPOverShield") + amount)*(1 + shieldBonus/100);
+        float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
                 boolean found = false;
@@ -2560,7 +2561,7 @@ public class VPUtil {
                 while(ConfigHandler.COMMON.fishingBlacklist.get().toString().contains(randomItem.getDescriptionId())){
                     randomItem = items.get(random.nextInt(items.size()-1));
                 }
-                if(isRare(stack) && random.nextDouble() > getChance(0.1,player))
+                if(isRare(stack) && random.nextDouble() > getChance(0.001,player))
                     randomItem = items.get(random.nextInt(items.size()-1));
                 stack = new ItemStack(randomItem);
             }
@@ -3264,6 +3265,8 @@ public class VPUtil {
     public static double getChance(double chance,Player player){
         double multiplier = 1.2d;
         double newChance = chance + Math.log1p(getLuck(player)*multiplier / 100.0) * (1 - chance);
+        if(chance >= 100)
+            newChance = chance;
         return Math.min(newChance, chance * 3);
     }
 

@@ -2,6 +2,7 @@ package com.pyding.vp.client;
 
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.client.render.*;
+import com.pyding.vp.client.render.blackhole.BlackHoleRenderer;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.models.Hunter;
 import com.pyding.vp.network.PacketHandler;
