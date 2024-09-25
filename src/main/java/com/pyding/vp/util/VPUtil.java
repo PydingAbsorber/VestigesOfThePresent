@@ -28,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -65,8 +66,13 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -463,11 +469,12 @@ public class VPUtil {
         else return bossList.size();
     }
 
-    public static void initMonstersAndBosses(Level level){
+    public static void initMonstersAndBosses(Player player){
         if(!monsterList.isEmpty() || !bossList.isEmpty())
             return;
+        List<LivingEntity> list = new ArrayList<>();
         for(EntityType<?> type: getEntitiesListOfType(MobCategory.MONSTER)){
-            Entity entity = type.create(level);
+            Entity entity = type.create(player.getCommandSenderWorld());
             if(entity instanceof HunterKiller)
                 continue;
             if (entity instanceof LivingEntity livingEntity) {
@@ -476,8 +483,10 @@ public class VPUtil {
                     bossList.add(type);
                     zaebali.put(type,health);
                 } else monsterList.add(type);
+                list.add(livingEntity);
             }
         }
+        initRareDrops(list,player.getServer());
     }
 
     public static boolean isNpc(EntityType<?> type){
@@ -1446,6 +1455,47 @@ public class VPUtil {
         return key;
     }
 
+    public static HashMap<LivingEntity,List<Item>> rareDrops = new HashMap<>();
+
+    public static HashMap<LivingEntity,List<Item>> getRareDrops(){
+        return rareDrops;
+    }
+
+    public static List<Item> getRareDrops(LivingEntity livingEntity){
+        return rareDrops.get(livingEntity);
+    }
+
+    public static HashSet<Item> hashRares = new HashSet<>();
+
+    public static void initRareDrops(List<LivingEntity> list, MinecraftServer server){
+        for(LivingEntity livingEntity: list){
+            LootTable lootTable = server.getLootData().getLootTable(livingEntity.getLootTable());
+            List<Item> rareList = new ArrayList<>();
+            for(LootPool pool: ((LootTableVzlom)lootTable).getPools()){
+                for (LootPoolEntryContainer entry : ((LootPoolMixin) pool).getEntries()) {
+                    if (entry instanceof LootItem lootItemEntry) {
+                        Item item = ((LootItemMixin) lootItemEntry).getItem();
+                        for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
+                            if (condition instanceof LootItemRandomChanceCondition itemCondition) {
+                                float chance = ((LootRandomItemMixin) itemCondition).getChance();
+                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
+                                    rareList.add(item);
+                                }
+                            } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
+                                float chance = ((LootItemEnchantMixin) lootingCondition).getChance();
+                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
+                                    rareList.add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            rareDrops.put(livingEntity,rareList);
+            hashRares.addAll(rareList);
+        }
+    }
+
     public static MobEffect getRandomEffect(boolean isBenefit){
         MobEffect effect;
         Random random = new Random();
@@ -2026,6 +2076,16 @@ public class VPUtil {
         List<String> damageList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>(getDamageKinds());
         allList.removeAll(damageList);
+        return allList;
+    }
+
+    public static List<String> getRareItemsLeft(String list){
+        List<String> rareList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
+        List<String> allList = new ArrayList<>();
+        for(Item item: hashRares){
+            allList.add(item.getDescriptionId());
+        }
+        allList.removeAll(rareList);
         return allList;
     }
 

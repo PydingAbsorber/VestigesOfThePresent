@@ -40,7 +40,7 @@ public class PlayerCapabilityVP {
     private String coolDowned = "";
     private String biomesFound = "";
     private String damageDie = "";
-    private String damageDo = "";
+    private String rareItems = "";
     private String monstersKilled = "";
     private String creaturesKilledAir = "";
     private String mobsTamed = "";
@@ -272,8 +272,8 @@ public class PlayerCapabilityVP {
     public String getDamageDie(){
         return damageDie;
     }
-    public String getDamageDo(){
-        return damageDo;
+    public String getrareItems(){
+        return rareItems;
     }
 
     public void clearCoolDown(Player player){
@@ -358,15 +358,10 @@ public class PlayerCapabilityVP {
         }
     }
 
-    public void addDamageDo(DamageSource source, Player player){
-        for(TagKey<DamageType> key: VPUtil.damageTypes(true)){
-            if(source.is(key)) {
-                String damageName = key.location().getPath();
-                if (VPUtil.notContains(damageDo,damageName)) {
-                    this.damageDo += damageName + ",";
-                    setChallenge(13, player);
-                }
-            }
+    public void addrareItems(String item, Player player){
+        if (VPUtil.notContains(rareItems,item)) {
+            this.rareItems += item + ",";
+            setChallenge(13, player);
         }
     }
 
@@ -482,7 +477,7 @@ public class PlayerCapabilityVP {
                 break;
             }
             case 13:{
-                damageDo = "";
+                rareItems = "";
                 break;
             }
             case 14:{
@@ -534,7 +529,7 @@ public class PlayerCapabilityVP {
         mobsTamed = "";
         monstersKilled = "";
         biomesFound = "";
-        damageDo = "";
+        rareItems = "";
         damageDie = "";
         coolDowned = "";
         foodEaten = "";
@@ -591,7 +586,7 @@ public class PlayerCapabilityVP {
                 case 12:
                     return (int) (10 * reduce);
                 case 13:
-                    return (int) (20 * reduce);
+                    return (int) ((float) VPUtil.hashRares.size() /2 * reduce);
                 case 14:
                     return (int) (6 * reduce);
                 case 15:
@@ -643,7 +638,7 @@ public class PlayerCapabilityVP {
                 case 12:
                     return 10 - reduce;
                 case 13:
-                    return (20 * reduce);
+                    return (int) ((float) VPUtil.hashRares.size() /2 - reduce);
                 case 14:
                     return 6 - reduce;
                 case 15:
@@ -673,7 +668,7 @@ public class PlayerCapabilityVP {
 
     public static void initMaximum(Player player){
         Level level = player.getCommandSenderWorld();
-        VPUtil.initMonstersAndBosses(level);
+        VPUtil.initMonstersAndBosses(player);
         VPUtil.initBiomes(player,level);
         VPUtil.initBuckets();
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
@@ -720,7 +715,7 @@ public class PlayerCapabilityVP {
         coolDowned = source.coolDowned;
         biomesFound = source.biomesFound;
         damageDie = source.damageDie;
-        damageDo = source.damageDo;
+        rareItems = source.rareItems;
         monstersKilled = source.monstersKilled;
         foodEaten = source.foodEaten;
         loreComplete = source.loreComplete;
@@ -756,7 +751,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPCoolDowned",coolDowned);
         nbt.putString("VPBiomesFound",biomesFound);
         nbt.putString("VPDamageDie",damageDie);
-        nbt.putString("VPDamageDo",damageDo);
+        nbt.putString("VPrareItems",rareItems);
         nbt.putString("VPMonstersKilled",monstersKilled);
         nbt.putString("VPFoodEaten",foodEaten);
         nbt.putString("VPLore",loreComplete);
@@ -792,7 +787,7 @@ public class PlayerCapabilityVP {
         coolDowned = nbt.getString("VPCoolDowned");
         biomesFound = nbt.getString("VPBiomesFound");
         damageDie = nbt.getString("VPDamageDie");
-        damageDo = nbt.getString("VPDamageDo");
+        rareItems = nbt.getString("VPrareItems");
         monstersKilled = nbt.getString("VPMonstersKilled");
         foodEaten = nbt.getString("VPFoodEaten");
         loreComplete = nbt.getString("VPLore");

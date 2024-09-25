@@ -727,15 +727,6 @@ public class EventHandler {
                     }
                 }
             }
-            if(event.getSource().getEntity() == null && entity instanceof Warden){
-                    for(LivingEntity livingEntity: VPUtil.getEntitiesAround(event.getEntity(),20,20,20,false)){
-                        if(livingEntity instanceof Player player){
-                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challenge -> {
-                                challenge.addDamageDo(event.getSource(),player);
-                            });
-                        }
-                    }
-            }
         } else {
             LivingEntity entity = event.getEntity();
             if(entity.getPersistentData().getInt("VPMirnoeReshenie") > 10) {
@@ -753,34 +744,11 @@ public class EventHandler {
     public void onLootDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (event.getSource().getEntity() instanceof Player player && !event.isCanceled() && player.getServer() != null){
-            List<Item> rareDrops = new ArrayList<>();
-            LootTable lootTable = player.getServer().getLootData().getLootTable(entity.getLootTable());
-            for(LootPool pool: ((LootTableVzlom)lootTable).getPools()){
-                for (LootPoolEntryContainer entry : ((LootPoolMixin) pool).getEntries()) {
-                    if (entry instanceof LootItem lootItemEntry) {
-                        Item item = ((LootItemMixin) lootItemEntry).getItem();
-                        for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
-                            if (condition instanceof LootItemRandomChanceCondition itemCondition) {
-                                float chance = ((LootRandomItemMixin) itemCondition).getChance();
-                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
-                                    rareDrops.add(item);
-                                }
-                            } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
-                                float chance = ((LootItemEnchantMixin) lootingCondition).getChance();
-                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
-                                    rareDrops.add(item);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                 for(ItemEntity itemEntity: event.getDrops()){
-                    for(Item item: rareDrops){
-                        if(itemEntity.getItem().getItem().getDescriptionId().equals(item.getDescriptionId()) && player.getPersistentData().getLong("VPPrismChallenge") < System.currentTimeMillis()) {
-                            challange.setChallenge(13, player);
-                            player.getPersistentData().putLong("VPPrismChallenge",System.currentTimeMillis()+1000);
+                    for(Item item: VPUtil.getRareDrops(entity)){
+                        if(itemEntity.getItem().getItem().getDescriptionId().equals(item.getDescriptionId())) {
+                            challange.addrareItems(item.getDescriptionId(),player);
                         }
                     }
                 }
