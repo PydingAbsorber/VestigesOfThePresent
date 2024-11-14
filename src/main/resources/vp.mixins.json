@@ -21,6 +21,8 @@
     "LootTableVzlom",
     "MaxDurabilityMixin",
     "MinEnchLvlMixin",
+    "MobEntityVzlom",
+    "MobMixin",
     "MovementMixin",
     "SmithingMenuMixin",
     "SmithingVzlomMixing",

@@ -536,7 +536,7 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
                 }
                 else {
-                    int[] hobbyHorsing = {1,4,5,7,13,14,15,18,19,23};
+                    int[] hobbyHorsing = {1,4,5,7,10,14,15,18,19,23};
                     boolean yesHorsing = false;
                     for (int horse : hobbyHorsing) {
                         if (horse == vestigeNumber) {
@@ -546,6 +546,8 @@ public class Vestige extends Item implements ICurioItem {
                     }
                     if(yesHorsing)
                         components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
+                    else if(vestigeNumber == 13)
+                        components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber),ConfigHandler.COMMON.rareItemChance.get()+"%").withStyle(ChatFormatting.GRAY));
                     else components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
                 int progress = 0;

@@ -1,6 +1,8 @@
 package com.pyding.vp.item.artifacts;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.entity.SillySeashell;
+import com.pyding.vp.mixin.MobEntityVzlom;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -12,8 +14,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -22,10 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import top.theillusivec4.curios.api.SlotContext;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class SoulBlighter extends Vestige{
     public SoulBlighter(){
@@ -67,6 +74,7 @@ public class SoulBlighter extends Vestige{
             Entity entity = type.create(level);
             entity.load(entityData);
             entity.getPersistentData().putUUID("VPPlayer",player.getUUID());
+            player.getPersistentData().putUUID("VPSlave",entity.getUUID());
             entity.absMoveTo(pos.getX() + 0.5, pos.getY()+1, pos.getZ() + 0.5, 0, 0);
             VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
             level.addFreshEntity(entity);
@@ -129,40 +137,65 @@ public class SoulBlighter extends Vestige{
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        Player player1 = (Player) slotContext.entity();
-        if(stack.getOrCreateTag().contains("entityData") && player1.tickCount % 20 == 0){
-            VPUtil.regenOverShield(player1, (float) ((stack.getOrCreateTag().getFloat("VPMaxHealth")*0.1f) * ConfigHandler.COMMON.soulBlighterHeal.get()));
-            if(!player1.getAttributes().hasModifier(Attributes.MAX_HEALTH,UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"))){
-                player1.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player1, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
+        Player player = (Player) slotContext.entity();
+        if(stack.getOrCreateTag().contains("entityData") && player.tickCount % 20 == 0){
+            VPUtil.regenOverShield(player, (float) ((stack.getOrCreateTag().getFloat("VPMaxHealth")*0.1f) * ConfigHandler.COMMON.soulBlighterHeal.get()));
+            if(!player.getAttributes().hasModifier(Attributes.MAX_HEALTH,UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"))){
+                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
             }
         }
-        for (LivingEntity entity: VPUtil.getEntities(player1,50,false)){
+        boolean found = false;
+        for (LivingEntity entity: VPUtil.getEntities(player,50,false)){
             if (!entity.getPersistentData().hasUUID("VPPlayer"))
                 continue;
-            if(entity.getPersistentData().getUUID("VPPlayer").equals(player1.getUUID())){
-                VPUtil.spawnParticles(player1, ParticleTypes.SOUL,entity.getX(),entity.getY(),entity.getZ(),4,0,-0.5,0);
-                if(entity instanceof Mob mob) {
-                    mob.getBrain().removeAllBehaviors();
-                    if(mob.getTarget() == player1)
-                        mob.setTarget(null);
+            if(entity.getPersistentData().getUUID("VPPlayer").equals(player.getUUID())){
+                found = true;
+                VPUtil.spawnParticles(player, ParticleTypes.SOUL,entity.getX(),entity.getY(),entity.getZ(),4,0,-0.5,0);
+                boolean walk = true;
+                if(entity instanceof Monster monster){
+                    monster.goalSelector.removeAllGoals(goal -> {
+                        if(goal instanceof HurtByTargetGoal){
+                            return true;
+                        }
+                        return false;
+                    });
+                    if(monster.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && monster.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get() == player)
+                        monster.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+                    if(monster.getLastHurtByMob() == player) {
+                        monster.setLastHurtByMob(null);
+                        monster.setLastHurtByPlayer(null);
+                    }
+                    Goal goal = new NearestAttackableTargetGoal<>(monster, Monster.class, true);
+                    if(!monster.goalSelector.getAvailableGoals().contains(goal))
+                        monster.goalSelector.addGoal(0,goal);
+                    /*for(WrappedGoal goal: monster.goalSelector.getAvailableGoals()){
+                        goal.start();
+                    }*/
+                    if(player.getLastHurtMob() != null && player.getLastHurtMob() != entity && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity.distanceTo(player) < 10){
+                        ((MobEntityVzlom)monster).setTarget(player.getLastHurtMob());
+                        monster.setLastHurtByMob(player.getLastHurtMob());
+                        continue;
+                    }
+                    else if(player.getLastHurtByMob() != null && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity.distanceTo(player) < 10){
+                        ((MobEntityVzlom)monster).setTarget(player.getLastHurtByMob());
+                        monster.setLastHurtByMob(player.getLastHurtByMob());
+                        continue;
+                    }
+                    else if(entity.distanceTo(player) < 10){
+                        for(LivingEntity livingEntity: VPUtil.getEntitiesAround(player,30,30,30,false)) {
+                            if(livingEntity != player && livingEntity != entity && (livingEntity instanceof Monster || livingEntity instanceof Player)) {
+                                ((MobEntityVzlom) monster).setTarget(livingEntity);
+                                monster.setLastHurtByMob(livingEntity);
+                                walk = false;
+                            }
+                        }
+                    }
                 }
-                if(player1.getLastHurtMob() != null && player1.getLastHurtMob() != entity && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity instanceof Mob mob && entity.distanceTo(player1) < 30){
-                    mob.setTarget(player1.getLastHurtMob());
-                    mob.setLastHurtByMob(player1.getLastHurtMob());
-                }
-                else if(player1.getLastHurtByMob() != null && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity instanceof Mob mob && entity.distanceTo(player1) < 30){
-                    mob.setTarget(player1.getLastHurtByMob());
-                    mob.setLastHurtByMob(player1.getLastHurtByMob());
-                }
-                else if(VPUtil.getRandomEntityNear(player1,entity,false) != null && VPUtil.getRandomEntityNear(player1,entity,false).getType().getCategory() == MobCategory.MONSTER && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity instanceof Mob mob && entity.distanceTo(player1) < 30){
-                    mob.setTarget(VPUtil.getRandomEntityNear(player1,entity,false));
-                    mob.setLastHurtByMob(VPUtil.getRandomEntityNear(player1,entity,false));
-                }
-                else {
+                if (walk){
                     Vec3 vec3;
-                    if(player1.isShiftKeyDown())
-                        vec3 = player1.getEyePosition();
-                    else vec3 = player1.getPosition(10);
+                    if(player.isShiftKeyDown())
+                        vec3 = player.getEyePosition();
+                    else vec3 = player.getPosition(10);
                     if(entity instanceof Mob mob) {
                         PathNavigation pathNavigation = mob.getNavigation();
                         pathNavigation.moveTo(vec3.x, vec3.y, vec3.z, 1.5);
@@ -179,7 +212,7 @@ public class SoulBlighter extends Vestige{
                         float yaw = -((float) Mth.atan2(vec31.x, vec31.z)) * (180F / (float) Math.PI);
                         if (vec31.length() > 1F) {
                             vec31 = vec31.normalize();
-                            if (!player1.getCommandSenderWorld().isClientSide) {
+                            if (!player.getCommandSenderWorld().isClientSide) {
                                 entity.setYRot(yaw);
                                 entity.setYBodyRot(entity.getYRot());
                             }
@@ -194,6 +227,8 @@ public class SoulBlighter extends Vestige{
                 break;
             }
         }
+        if(!found)
+            player.getPersistentData().putUUID("VPSlave",player.getUUID());
         super.curioTick(slotContext, stack);
     }
 }

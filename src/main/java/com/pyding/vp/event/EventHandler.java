@@ -13,11 +13,7 @@ import com.pyding.vp.item.HeartyPearl;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.artifacts.*;
-import com.pyding.vp.mixin.LootItemEnchantMixin;
-import com.pyding.vp.mixin.LootItemMixin;
-import com.pyding.vp.mixin.LootPoolMixin;
-import com.pyding.vp.mixin.LootRandomItemMixin;
-import com.pyding.vp.mixin.LootTableVzlom;
+import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
@@ -516,6 +512,12 @@ public class EventHandler {
                 event.setCanceled(true);
                 entity.setHealth(entity.getMaxHealth());
             }
+            if(entity.getPersistentData().hasUUID("VPPlayer")){
+                Player player = entity.getCommandSenderWorld().getPlayerByUUID(entity.getPersistentData().getUUID("VPPlayer"));
+                if(player != null){
+                    player.getPersistentData().putUUID("VPSlave",player.getUUID());
+                }
+            }
             if(entity.getPersistentData().getBoolean("VPSummoned")){
                 entity.discard();
                 return;
@@ -554,8 +556,8 @@ public class EventHandler {
                         challange.addCreatureKilledAir(event.getEntity().getType().toString(), player);
                     if(event.getSource().is(DamageTypeTags.IS_EXPLOSION))
                         challange.setChallenge(4,player);
-                    if(entity instanceof EnderMan && player.getMainHandItem().getItem() instanceof TieredItem tieredItem)
-                        challange.addTool(tieredItem.toString(),player);
+                    /*if(entity instanceof EnderMan && player.getMainHandItem().getItem() instanceof TieredItem tieredItem)
+                        challange.addTool(tieredItem.toString(),player);*/
                     if((entity instanceof Player || entity instanceof Warden) && VPUtil.getCurseAmount(player) > 10)
                         challange.setChallenge(12,10,player);
                     /*if(VPUtil.isBoss(entity))
@@ -743,7 +745,7 @@ public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
     public void onLootDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
-        if (event.getSource().getEntity() instanceof Player player && !event.isCanceled() && player.getServer() != null){
+        if (event.getSource().getEntity() instanceof Player player && !event.isCanceled() && VPUtil.getRareDrops(entity) != null && !VPUtil.getRareDrops(entity).isEmpty()){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                 for(ItemEntity itemEntity: event.getDrops()){
                     for(Item item: VPUtil.getRareDrops(entity)){
@@ -887,6 +889,25 @@ public class EventHandler {
             }
         }
     }
+
+    @SubscribeEvent
+    public static void enderPealEvent(EntityTeleportEvent.EnderPearl event){
+        if(event.getEntity() instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+                for (LivingEntity livingEntity: VPUtil.getEntitiesAround(player,2,2,2,false)){
+                    if(livingEntity instanceof EnderMan && livingEntity.getPersistentData().getLong("VPTeleported") > System.currentTimeMillis())
+                        challange.setChallenge(10, player);
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent
+    public static void endermanTeleportEvent(EntityTeleportEvent.EnderEntity event){
+        if(event.getEntityLiving() instanceof EnderMan)
+            event.getEntityLiving().getPersistentData().putLong("VPTeleported",System.currentTimeMillis()+500);
+    }
+
     @SubscribeEvent
     public static void tameEvent(AnimalTameEvent event){
         Animal animal = event.getAnimal();
@@ -1083,6 +1104,9 @@ public class EventHandler {
             VPUtil.syncEntity(entity);
         if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47")))){
             VPUtil.spawnBoss(entity);
+        }
+        if (tag.hasUUID("VPPlayer") && entity instanceof Mob mob && mob.getTarget() != null && mob.getTarget().getUUID() == tag.getUUID("VPPlayer")){
+            ((MobEntityVzlom)mob).setTarget(null);
         }
         if(entity instanceof TropicalFish fish){
             long eat = fish.getPersistentData().getLong("VPEating");

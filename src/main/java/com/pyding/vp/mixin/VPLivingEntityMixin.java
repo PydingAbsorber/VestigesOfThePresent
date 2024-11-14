@@ -31,11 +31,8 @@ public abstract class VPLivingEntityMixin {
 
     @Shadow public abstract float getMaxHealth();
 
-    @Shadow @Nullable protected Player lastHurtByPlayer;
-
     @Shadow public abstract float getHealth();
 
-    @Shadow @Nullable private DamageSource lastDamageSource;
 
     @Inject(method = "getDamageAfterMagicAbsorb",at = @At("RETURN"),cancellable = true, require = 1)
     protected void fuckEnchantmentsFinallyIHope(DamageSource p_21193_, float p_21194_,CallbackInfoReturnable<Float> info){

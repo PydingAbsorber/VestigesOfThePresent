@@ -1455,14 +1455,14 @@ public class VPUtil {
         return key;
     }
 
-    public static HashMap<LivingEntity,List<Item>> rareDrops = new HashMap<>();
+    public static HashMap<String,List<Item>> rareDrops = new HashMap<>();
 
-    public static HashMap<LivingEntity,List<Item>> getRareDrops(){
+    public static HashMap<String,List<Item>> getRareDrops(){
         return rareDrops;
     }
 
     public static List<Item> getRareDrops(LivingEntity livingEntity){
-        return rareDrops.get(livingEntity);
+        return rareDrops.get(livingEntity.getType().getDescriptionId());
     }
 
     public static HashSet<Item> hashRares = new HashSet<>();
@@ -1478,7 +1478,7 @@ public class VPUtil {
                         for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
                             if (condition instanceof LootItemRandomChanceCondition itemCondition) {
                                 float chance = ((LootRandomItemMixin) itemCondition).getChance();
-                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
+                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){ //some wierd shit is going on, so I need a little boost
                                     rareList.add(item);
                                 }
                             } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
@@ -1491,7 +1491,7 @@ public class VPUtil {
                     }
                 }
             }
-            rareDrops.put(livingEntity,rareList);
+            rareDrops.put(livingEntity.getType().getDescriptionId(),rareList);
             hashRares.addAll(rareList);
         }
     }
@@ -1700,6 +1700,8 @@ public class VPUtil {
             return true;
         }
         if(isNpc(target.getType()))
+            return true;
+        if(attacker.getPersistentData().hasUUID("VPSlave") && attacker.getPersistentData().getUUID("VPSlave") == target.getUUID())
             return true;
         final boolean[] friend = {false};
         attacker.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
@@ -3345,5 +3347,10 @@ public class VPUtil {
             d4 += 1.8D - d5 + livingEntity.getRandom().nextDouble() * (1.7D - d5);
             livingEntity.level().addParticle(ParticleTypes.BUBBLE, livingEntity.getX() + d0 * d4, livingEntity.getEyeY() + d1 * d4, livingEntity.getZ() + d2 * d4, 0.0D, 0.0D, 0.0D);
         }
+    }
+
+    public static boolean isHalloween() {
+        LocalDate today = LocalDate.now();
+        return today.getMonthValue() == 10 && today.getDayOfMonth() == 31;
     }
 }

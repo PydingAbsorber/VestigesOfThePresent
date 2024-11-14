@@ -586,7 +586,7 @@ public class PlayerCapabilityVP {
                 case 12:
                     return (int) (10 * reduce);
                 case 13:
-                    return (int) ((float) VPUtil.hashRares.size() /2 * reduce);
+                    return (int) ((float) VPUtil.hashRares.size() * reduce);
                 case 14:
                     return (int) (6 * reduce);
                 case 15:
@@ -638,7 +638,7 @@ public class PlayerCapabilityVP {
                 case 12:
                     return 10 - reduce;
                 case 13:
-                    return (int) ((float) VPUtil.hashRares.size() /2 - reduce);
+                    return (int) ((float) VPUtil.hashRares.size() - reduce);
                 case 14:
                     return 6 - reduce;
                 case 15:

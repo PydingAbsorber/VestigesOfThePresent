@@ -220,7 +220,7 @@
   "vp.passive.10": "Using an Eye of Ender teleports self and nearest creatures within 4 blocks to the return point. \nIf return doesn't exist then teleports to respawn point.",
   "vp.special.10": "Special was pressed with Eye of Ender in hands: setting the return point. \nIn other cases: teleport to the creature by eye sight, deal 400% damage and prevent teleportation for 30 sec.",
   "vp.ultimate.10": "Teleport to a random world, where you've been at least once, at random coordinates within world's borders x, z and y 0-250.",
-  "vp.get.10": "Kill an Enderman with each modpack tool.",
+  "vp.get.10": "Teleport with Ender Pearl in the same place Enderman teleports in the same second %s times.",
   "vp.damagetype.10": "dragon breath",
 
   "vp.passive.11": "Reduces all incoming damage by 40 + Pain Accumulation. \nPain Accumulation doesn't increase after evasion. \nPain Accumulation nullifies when Over Healing",
@@ -238,7 +238,7 @@
   "vp.passive.13": "Slain monster under the effect of Special grants second loot table. \nEach Mortage (from Ultimate) provides a 1% chance for x4 loot. \nIf the chance triggers, it divides by 10 for x6 loot and so on.",
   "vp.special.13": "Empowers the monster you're looking at until Special ends. \nThe monster gains vulnerability to one random damage type while becoming immune to the others.",
   "vp.ultimate.13": "For the next 60 seconds, the player receives 10 times more damage. \nFor each monster killed under the effect of Special, +1 Mortage.",
-  "vp.get.13": "Get %s rare drops from creatures",
+  "vp.get.13": "Get %s rare drops from creatures. Rare drop is drop that has chance <= then %s.",
 
   "vp.passive.14": "With a 10% chance, one of two things can happen: \n1.The received damage may increase or decrease by a random number from 1 to infinity.\n2.The received damage may obtain random type of damage.(magic, bypassArmor, fall, etc.). Increases overall luck.",
   "vp.special.14": "The next 1-10 received hits can reflect back to the opponent with a chance of 10-100%. (Self-harm does not count.)",
