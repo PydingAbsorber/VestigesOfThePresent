@@ -4,15 +4,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.mojang.logging.LogUtils;
-import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
-import com.pyding.vp.item.artifacts.Vestige;
-import com.pyding.vp.item.artifacts.Whirlpool;
+import com.pyding.vp.item.vestiges.Vestige;
+import com.pyding.vp.item.vestiges.Whirlpool;
 import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
@@ -44,7 +43,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -77,10 +75,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
-import ru.noxus.rghelper.utils.EventHelper;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
@@ -89,7 +85,6 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1715,18 +1710,6 @@ public class VPUtil {
             }
         });
         return friend[0];
-    }
-
-    public static boolean isProtectedFromBreak(Entity destroyer,BlockPos pos) {
-        if(ModList.get().isLoaded("noxus_rghelper")) {
-            boolean canAttack;
-            if(destroyer instanceof Player player)
-                canAttack = EventHelper.canBreak(player, pos);
-            else canAttack = EventHelper.canBreak(destroyer, pos);
-            boolean protec = !canAttack;
-            return protec;
-        }
-        return false;
     }
 
     public static void spawnParticles(Entity player, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ) {

@@ -1,7 +1,7 @@
 package com.pyding.vp.mixin;
 
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.artifacts.Rune;
+import com.pyding.vp.item.vestiges.Rune;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;

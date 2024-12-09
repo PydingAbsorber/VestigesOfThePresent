@@ -1,6 +1,6 @@
 package com.pyding.vp.network.packets;
 
-import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +10,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 

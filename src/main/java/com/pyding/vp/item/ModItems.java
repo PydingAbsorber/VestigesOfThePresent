@@ -1,7 +1,7 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.item.accessories.*;
-import com.pyding.vp.item.artifacts.*;
+import com.pyding.vp.item.vestiges.*;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

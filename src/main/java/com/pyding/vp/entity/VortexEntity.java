@@ -2,13 +2,12 @@ package com.pyding.vp.entity;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

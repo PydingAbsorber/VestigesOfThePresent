@@ -9,10 +9,9 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.SillySeashell;
-import com.pyding.vp.item.HeartyPearl;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
-import com.pyding.vp.item.artifacts.*;
+import com.pyding.vp.item.vestiges.*;
 import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
@@ -56,17 +55,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -558,7 +546,7 @@ public class EventHandler {
                         challange.setChallenge(4,player);
                     /*if(entity instanceof EnderMan && player.getMainHandItem().getItem() instanceof TieredItem tieredItem)
                         challange.addTool(tieredItem.toString(),player);*/
-                    if((entity instanceof Player || entity instanceof Warden) && VPUtil.getCurseAmount(player) > 10)
+                    if((entity instanceof Player || entity instanceof Warden) && VPUtil.getCurseAmount(player) >= 10)
                         challange.setChallenge(12,10,player);
                     /*if(VPUtil.isBoss(entity))
                         challange.addDamageDo(event.getSource(),player);*/

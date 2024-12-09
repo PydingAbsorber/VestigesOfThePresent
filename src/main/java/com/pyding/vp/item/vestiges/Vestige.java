@@ -1,12 +1,12 @@
-package com.pyding.vp.item.artifacts;
+package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
-import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.mixin.BucketMixin;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.KeyBinding;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -461,12 +461,32 @@ public class Vestige extends Item implements ICurioItem {
                             + stack.getOrCreateTag().getDouble("VPReturnX") + "X, "
                             + stack.getOrCreateTag().getDouble("VPReturnY") + "Y, "
                             + stack.getOrCreateTag().getDouble("VPReturnZ") + "Z, ").withStyle(ChatFormatting.GRAY)));
+                String firstKey = "";
+                String secondKey = "";
+                if(VPUtil.getFirstVestige(player).get(0) == stack){
+                    if(!KeyBinding.FIRST_KEY.getKeyModifier().name().equals("NONE"))
+                        firstKey += KeyBinding.FIRST_KEY.getKeyModifier().name() + "+";
+                    firstKey += KeyBinding.FIRST_KEY.getKey().getDisplayName().getString();
+                    if(!KeyBinding.FIRST_KEY_ULT.getKeyModifier().name().equals("NONE"))
+                        secondKey += KeyBinding.FIRST_KEY_ULT.getKeyModifier().name() + "+";
+                    secondKey += KeyBinding.FIRST_KEY_ULT.getKey().getDisplayName().getString();
+                } else {
+                    if(!KeyBinding.SECOND_KEY.getKeyModifier().name().equals("NONE"))
+                        firstKey += KeyBinding.SECOND_KEY.getKeyModifier().name() + "+";
+                    firstKey += KeyBinding.SECOND_KEY.getKey().getDisplayName().getString();
+                    if(!KeyBinding.SECOND_KEY_ULT.getKeyModifier().name().equals("NONE"))
+                        secondKey += KeyBinding.SECOND_KEY_ULT.getKeyModifier().name() + "+";
+                    secondKey += KeyBinding.SECOND_KEY_ULT.getKey().getDisplayName().getString();
+                }
                 components.add(Component.translatable("vp.special").withStyle(color)
                         .append(Component.translatable("vp.charges").withStyle(color))
                         .append(Component.literal(" " + spCharges ).withStyle(color))
                         .append(Component.translatable("vp.charges2").withStyle(color))
                         .append(Component.literal(" " + spCd / 20).withStyle(color))
-                        .append(Component.translatable("vp.seconds").withStyle(color)));
+                        .append(Component.translatable("vp.seconds").withStyle(color))
+                        .append(Component.literal(" "))
+                        .append(Component.translatable("vp.activation"))
+                        .append(Component.literal(" " + firstKey)));
                 if(vestigeNumber == 2){
                     components.add(Component.translatable("vp.special." + vestigeNumber,ConfigHandler.COMMON.crownShield.get()+"%").withStyle(ChatFormatting.GRAY));
                 }
@@ -477,7 +497,10 @@ public class Vestige extends Item implements ICurioItem {
                         .append(Component.literal(" " + ultCharges ).withStyle(color))
                         .append(Component.translatable("vp.charges2").withStyle(color))
                         .append(Component.literal(" " + ultCd / 20).withStyle(color))
-                        .append(Component.translatable("vp.seconds").withStyle(color)));
+                        .append(Component.translatable("vp.seconds").withStyle(color))
+                        .append(Component.literal(" "))
+                        .append(Component.translatable("vp.activation"))
+                        .append(Component.literal(" " + secondKey)));
                 if(vestigeNumber == 15){
                     components.add(Component.translatable("vp.ultimate." + vestigeNumber,ConfigHandler.COMMON.devourer.get(),ConfigHandler.COMMON.devourerChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
                 }
@@ -547,7 +570,7 @@ public class Vestige extends Item implements ICurioItem {
                     if(yesHorsing)
                         components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
                     else if(vestigeNumber == 13)
-                        components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber),ConfigHandler.COMMON.rareItemChance.get()+"%").withStyle(ChatFormatting.GRAY));
+                        components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber),ConfigHandler.COMMON.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
                     else components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
                 int progress = 0;

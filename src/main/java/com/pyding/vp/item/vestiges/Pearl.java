@@ -1,4 +1,4 @@
-package com.pyding.vp.item.artifacts;
+package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -7,16 +7,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import top.theillusivec4.curios.api.SlotContext;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public class Pearl extends Vestige{
     public Pearl(){

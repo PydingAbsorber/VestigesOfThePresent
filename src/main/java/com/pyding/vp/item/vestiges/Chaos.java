@@ -1,4 +1,4 @@
-package com.pyding.vp.item.artifacts;
+package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.ConfigHandler;

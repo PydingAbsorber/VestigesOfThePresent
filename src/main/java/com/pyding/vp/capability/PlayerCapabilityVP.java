@@ -1,36 +1,25 @@
 package com.pyding.vp.capability;
 
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.LorePacket;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @AutoRegisterCapability

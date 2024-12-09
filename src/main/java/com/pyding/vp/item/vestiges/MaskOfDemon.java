@@ -1,4 +1,4 @@
-package com.pyding.vp.item.artifacts;
+package com.pyding.vp.item.vestiges;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

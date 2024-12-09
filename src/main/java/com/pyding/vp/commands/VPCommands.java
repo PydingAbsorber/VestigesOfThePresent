@@ -8,7 +8,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
-import com.pyding.vp.item.artifacts.Vestige;
+import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -23,7 +23,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class VPCommands {
