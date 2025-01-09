@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.TropicalFish;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -66,6 +67,10 @@ public class Shard extends Item {
         if(entity instanceof TropicalFish){
             stack.shrink(1);
             entity.getPersistentData().putLong("VPEating",System.currentTimeMillis());
+        }
+        if(entity instanceof Monster){
+            Random random = new Random();
+            VPUtil.boostEntity(entity,5,entity.getHealth()*3*(float)(0.5+4*random.nextDouble()),entity.getHealth()*(float)(0.5+4*random.nextDouble()));
         }
         return super.use(p_41432_, player, p_41434_);
     }

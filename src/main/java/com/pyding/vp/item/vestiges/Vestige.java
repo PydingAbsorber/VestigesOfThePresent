@@ -40,7 +40,9 @@ public class Vestige extends Item implements ICurioItem {
     public Vestige(Properties properties){
         super(properties);
     }
-    List<String> specialText;
+
+    public static int maxCurses = 5;
+
     public Boolean damageType;
     public int ultimateChargesBase;
     public int specialChargesBase;

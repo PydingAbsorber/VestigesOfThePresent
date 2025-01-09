@@ -29,6 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -55,6 +56,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -632,6 +634,10 @@ public class EventHandler {
                 }
                 if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
                     VPUtil.giveStack(new ItemStack(ModItems.SHARD.get()),player);
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),20),player);
+                }
+                if(VPUtil.isEmpoweredMob(entity)){
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get()),player);
                 }
                 if(VPUtil.hasVestige(ModItems.DEVOURER.get(), player) && VPUtil.isBoss(entity)){
                     ItemStack stack3 = VPUtil.getVestigeStack(Devourer.class,player);
@@ -743,6 +749,9 @@ public class EventHandler {
                     }
                 }
             });
+        }
+        if(VPUtil.isEmpoweredMob(event.getEntity()) && event.getEntity().getServer() != null){
+            event.getDrops().addAll(event.getDrops());
         }
     }
     public static boolean hasCurses(int curses,Player player){
@@ -1501,8 +1510,12 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onMobSpawn(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof LivingEntity entity && VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get()) {
-            VPUtil.spawnBoss(entity);
+        if (event.getEntity() instanceof LivingEntity entity && ConfigHandler.COMMON.hardcore.get()) {
+            RandomSource random = entity.getRandom();
+            if(VPUtil.isBoss(entity))
+                VPUtil.spawnBoss(entity);
+            else if(entity instanceof Monster && random.nextDouble() < ConfigHandler.COMMON.empoweredChance.get())
+                VPUtil.boostEntity(entity,5,entity.getHealth()*3*(float)(0.5+4*random.nextDouble()),entity.getHealth()*(float)(0.5+4*random.nextDouble()));
         }
         if(event.getEntity() instanceof Player player){
             VPUtil.updateStats(player);

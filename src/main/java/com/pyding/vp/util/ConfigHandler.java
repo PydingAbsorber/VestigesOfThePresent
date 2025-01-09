@@ -94,6 +94,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue unlockHp;
         public final ForgeConfigSpec.BooleanValue eventMode;
         public final ForgeConfigSpec.DoubleValue rareItemChance;
+        public final ForgeConfigSpec.DoubleValue empoweredChance;
+        public final ForgeConfigSpec.ConfigValue debuffBlacklist;
 
         public Common(ForgeConfigSpec.Builder builder) {
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
@@ -177,6 +179,8 @@ public class ConfigHandler {
             unlockHp = builder.comment("For servers with maxed out desync and hp lock to 2048 or if you just have problems with MaxHp.").define("unlockHp", false);
             eventMode = builder.comment("Event mode that disables all teleportations and fly.").define("eventMode", false);
             rareItemChance = builder.comment("Chance for Item to define as rare for Prism challenge. For example carrot has 0.025 chance to drop from zobmie").defineInRange("rareItemChance", 0.025d, 0.0001, 1);
+            empoweredChance = builder.comment("Chance to spawn Empowered mob in Hardcore mode").defineInRange("empoweredChance", 0.001, 0, 2100000000);
+            debuffBlacklist = builder.comment("Defines blacklist for random potion effects as from Heirloom's Special: ").define("debuffBlacklist","crystallized,");
         }
 
         public int getChallengeReduceByNumber(int number) {

@@ -1492,12 +1492,14 @@ public class VPUtil {
     }
 
     public static MobEffect getRandomEffect(boolean isBenefit){
+        List<String> blacklist = new ArrayList<>(Arrays.asList(ConfigHandler.COMMON.debuffBlacklist.get().toString().split(",")));
         MobEffect effect;
         Random random = new Random();
         List<MobEffect> effects = new ArrayList<>();
         for(MobEffect element: ForgeRegistries.MOB_EFFECTS){
-            if(element.isBeneficial() == isBenefit)
+            if(element.isBeneficial() == isBenefit && !blacklist.contains(element.getDescriptionId())) {
                 effects.add(element);
+            }
         }
         int numba = random.nextInt(effects.size());
         effect = effects.get(numba);
@@ -2892,6 +2894,7 @@ public class VPUtil {
             addShield(livingEntity,shields,true);
         if(overShields > 0)
             addOverShield(livingEntity,overShields,true);
+        livingEntity.getPersistentData().putBoolean("VPEmpowered",true);
     }
 
     public static void nightmareTickEvent(LivingEntity entity){
@@ -3335,5 +3338,13 @@ public class VPUtil {
     public static boolean isHalloween() {
         LocalDate today = LocalDate.now();
         return today.getMonthValue() == 10 && today.getDayOfMonth() == 31;
+    }
+
+    public static boolean isEmpoweredMob(LivingEntity livingEntity){
+        return (livingEntity.getPersistentData().getBoolean("VPEmpowered"));
+    }
+
+    public static void curseVestige(ItemStack stack, int curse){
+
     }
 }

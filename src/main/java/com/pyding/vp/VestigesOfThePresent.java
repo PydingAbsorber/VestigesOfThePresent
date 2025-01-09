@@ -161,6 +161,8 @@ public class VestigesOfThePresent
             }
             event.accept(ModItems.HEARTY_PEARL);
             event.accept(ModItems.SEASHELL);
+            event.accept(ModItems.CORRUPT_FRAGMENT);
+            event.accept(ModItems.CORRUPT_ITEM);
         }
     }
 }
