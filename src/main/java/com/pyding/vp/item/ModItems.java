@@ -58,8 +58,8 @@ public class ModItems {
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
     public static final RegistryObject<Item> BLACKHOLE_ITEM = ITEMS.register("blackhole_item", () -> new Item(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> CORRUPT_FRAGMENT = ITEMS.register("corrupt_fragment", () -> new CorruptFragment());
-    public static final RegistryObject<Item> CORRUPT_ITEM = ITEMS.register("corrupt_item", () -> new CorruptItem());
+    public static final RegistryObject<Item> CORRUPT_FRAGMENT = ITEMS.register("corrupted_fragment", () -> new CorruptFragment());
+    public static final RegistryObject<Item> CORRUPT_ITEM = ITEMS.register("corrupted_item", () -> new CorruptItem());
 
 
 

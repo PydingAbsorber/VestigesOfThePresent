@@ -3344,7 +3344,15 @@ public class VPUtil {
         return (livingEntity.getPersistentData().getBoolean("VPEmpowered"));
     }
 
-    public static void curseVestige(ItemStack stack, int curse){
+    public static boolean curseVestige(ItemStack stack, int curse){
+        if(stack.getOrCreateTag().getInt("VPCursed") <= 0){
+            stack.getOrCreateTag().putInt("VPCursed",curse);
+            return true;
+        }
+        return false;
+    }
 
+    public static int getVestigeCurse(ItemStack stack){
+        return stack.getOrCreateTag().getInt("VPCursed");
     }
 }

@@ -9,6 +9,7 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.SillySeashell;
+import com.pyding.vp.item.CorruptFragment;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.*;
@@ -633,11 +634,11 @@ public class EventHandler {
                     stack.getOrCreateTag().putInt("VPKills", stack.getOrCreateTag().getInt("VPKills") + kill);
                 }
                 if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
-                    VPUtil.giveStack(new ItemStack(ModItems.SHARD.get()),player);
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),20),player);
+                    VPUtil.giveStack(new ItemStack(ModItems.SHARD.get(),random.nextInt(2)+1),player);
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+1),player);
                 }
-                if(VPUtil.isEmpoweredMob(entity)){
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get()),player);
+                if(VPUtil.isEmpoweredMob(entity) || (entity instanceof Monster && random.nextDouble() < VPUtil.getChance(0.001,player))){
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), random.nextInt(3)+1),player);
                 }
                 if(VPUtil.hasVestige(ModItems.DEVOURER.get(), player) && VPUtil.isBoss(entity)){
                     ItemStack stack3 = VPUtil.getVestigeStack(Devourer.class,player);
@@ -796,6 +797,9 @@ public class EventHandler {
                     }
                 }
             });
+            if(player.getMainHandItem().getItem() instanceof CorruptFragment || player.getMainHandItem().getItem() instanceof CorruptFragment){
+                event.setCanceled(true);
+            }
         }
     }
 

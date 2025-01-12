@@ -751,6 +751,10 @@ public class Vestige extends Item implements ICurioItem {
             if(vestigeNumber == 15)
                 components.add(Component.translatable("vp.devourer").withStyle(color).append(Component.literal(stack.getOrCreateTag().getInt("VPDevoured")+"").withStyle(ChatFormatting.GRAY)));
 
+            int curse = VPUtil.getVestigeCurse(stack);
+            if(curse > 0)
+                components.add(Component.translatable("vp.curse."+curse).withStyle(ChatFormatting.BOLD));
+
             components.add(Component.translatable("vp.info").withStyle(ChatFormatting.GRAY));
             if (isStellar(stack)) {
                 String name = symbolsRandom(stack);

@@ -41,18 +41,13 @@ public class CorruptFragment extends Item{
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if(VPUtil.getCurseAmount(player.getOffhandItem()) > 0){
+            return super.use(level, player, hand);
+        }
         if(player.getOffhandItem().getItem() instanceof ArmorItem || player.getOffhandItem().getItem() instanceof TieredItem){
             ItemStack itemStack = player.getOffhandItem();
             Random random = new Random();
-            if(random.nextDouble() < 0.1){
-                List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
-                list.removeIf(enchantment -> !enchantment.isCurse());
-                Enchantment curse = list.get(new Random().nextInt(list.size()-1));
-                itemStack.enchant(curse,curse.getMaxLevel());
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.setChallenge(7,player);
-                });
-            } else {
+            if(random.nextDouble() < VPUtil.getChance(0.8,player)){
                 List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
                 list.removeIf(Enchantment::isCurse);
                 Enchantment enchantment = list.get(random.nextInt(list.size()));
@@ -67,6 +62,14 @@ public class CorruptFragment extends Item{
                         lvl--;
                 }
                 itemStack.enchant(enchantment, 1 + lvl);
+            } else {
+                List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                list.removeIf(enchantment -> !enchantment.isCurse());
+                Enchantment curse = list.get(new Random().nextInt(list.size()-1));
+                itemStack.enchant(curse,curse.getMaxLevel());
+                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                    cap.setChallenge(7,player);
+                });
             }
             player.getMainHandItem().split(1);
         }

@@ -50,31 +50,25 @@ public class CorruptItem extends Item{
                 });
                 list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
                 list.removeIf(Enchantment::isCurse);
-                List<Integer> enchantId = new ArrayList<>();
                 int attempts = 0;
-                int times = 0;
-                while (attempts < 5 && times < 1000) {
+                while (attempts < 5) {
                     int random = new Random().nextInt(list.size());
-                    if (!enchantId.contains(random)) {
-                        enchantId.add(random);
-                        Enchantment enchantment = list.get(random);
-                        if(itemStack.getEnchantmentLevel(enchantment) >= enchantment.getMaxLevel()*modifier)
-                            continue;
-                        if(itemStack.getEnchantmentLevel(enchantment) > 0) {
-                            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
-                            enchantments.remove(enchantment);
-                            EnchantmentHelper.setEnchantments(enchantments, itemStack);
-                        }
-                        itemStack.enchant(enchantment, enchantment.getMaxLevel() * modifier);
-                        attempts++;
+                    Enchantment enchantment = list.get(random);
+                    int original = itemStack.getEnchantmentLevel(enchantment);
+                    if(original > 0) {
+                        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
+                        enchantments.remove(enchantment);
+                        EnchantmentHelper.setEnchantments(enchantments, itemStack);
                     }
-                    times++;
+                    itemStack.enchant(enchantment, enchantment.getMaxLevel() * modifier + original);
+                    attempts++;
                 }
                 itemStack.getOrCreateTag().putBoolean("VPCursed",true);
                 player.getMainHandItem().split(1);
             }
             if(player.getOffhandItem().getItem() instanceof Vestige){
-                VPUtil.curseVestige(player.getOffhandItem(),new Random().nextInt(Vestige.maxCurses));
+                if(VPUtil.curseVestige(player.getOffhandItem(),new Random().nextInt(Vestige.maxCurses)))
+                    player.getMainHandItem().split(1);
             }
         }
         return super.use(level, player, hand);
