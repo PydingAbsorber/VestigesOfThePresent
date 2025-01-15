@@ -36,7 +36,7 @@ public class CorruptItem extends Item{
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if(!player.getOffhandItem().getOrCreateTag().getBoolean("VPCursed")){
-            if(player.getOffhandItem().getItem() instanceof ArmorItem || player.getOffhandItem().getItem() instanceof TieredItem){
+            if(VPUtil.isEnchantable(player.getOffhandItem())){
                 int modifier = 2;
                 if(VPUtil.hasVestige(ModItems.BOOK.get(),player))
                     modifier *= 2;

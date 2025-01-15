@@ -36,7 +36,6 @@ public class ChaosOrb extends Item{
             ItemStack itemStack = player.getOffhandItem();
             List<Enchantment> cursedList = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
             cursedList.removeIf(enchantment -> !enchantment.isCurse());
-            double curseChance = 0.05 * cursedList.size()+1;
             Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
             List<Enchantment> goodEnchant = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
             goodEnchant.removeIf(Enchantment::isCurse);
@@ -49,21 +48,21 @@ public class ChaosOrb extends Item{
                 enchantments.remove(enchantment);
                 enchantments.put(randomEnchant,lvl);
             }
-            if(random.nextDouble() < curseChance) {
-                Enchantment curse = cursedList.get(new Random().nextInt(cursedList.size() - 1));
+            double negativeChance = 0.05 * cursedList.size()+1;
+            if(random.nextDouble() < negativeChance) {
                 int count = 0;
                 int numba = random.nextInt(enchantments.size()-1);
                 for(Enchantment enchantment: enchantments.keySet()){
                     count++;
                     if(count == numba){
+                        int original = enchantments.get(enchantment);
+                        if(original > 0)
+                            original *= -1;
                         enchantments.remove(enchantment);
+                        enchantments.put(enchantment, original);
                         break;
                     }
                 }
-                enchantments.put(curse, curse.getMaxLevel());
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.setChallenge(7,player);
-                });
             }
             double splitChance = 0.03;
             if(random.nextDouble() < VPUtil.getChance(splitChance,player)) {
@@ -120,7 +119,7 @@ public class ChaosOrb extends Item{
             components.add(Component.translatable("vp.chaos_orb.desc2").withStyle(ChatFormatting.GRAY));
         }
         else {
-            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.BLUE).append(Component.translatable("vp.shift"))));
+            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.YELLOW).append(Component.translatable("vp.shift"))));
         }
         super.appendHoverText(stack, level, components, flag);
     }

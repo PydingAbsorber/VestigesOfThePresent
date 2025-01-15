@@ -60,6 +60,7 @@ public class ModItems {
     public static final RegistryObject<Item> BLACKHOLE_ITEM = ITEMS.register("blackhole_item", () -> new Item(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> CORRUPT_FRAGMENT = ITEMS.register("corrupted_fragment", () -> new CorruptFragment());
     public static final RegistryObject<Item> CORRUPT_ITEM = ITEMS.register("corrupted_item", () -> new CorruptItem());
+    public static final RegistryObject<Item> CHAOS_ORB = ITEMS.register("chaos_orb", () -> new ChaosOrb());
 
 
 

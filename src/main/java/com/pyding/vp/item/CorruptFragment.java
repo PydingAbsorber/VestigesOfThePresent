@@ -44,7 +44,7 @@ public class CorruptFragment extends Item{
         if(VPUtil.getCurseAmount(player.getOffhandItem()) > 0){
             return super.use(level, player, hand);
         }
-        if(player.getOffhandItem().getItem() instanceof ArmorItem || player.getOffhandItem().getItem() instanceof TieredItem){
+        if(VPUtil.isEnchantable(player.getOffhandItem())){
             ItemStack itemStack = player.getOffhandItem();
             Random random = new Random();
             if(random.nextDouble() < VPUtil.getChance(0.8,player)){

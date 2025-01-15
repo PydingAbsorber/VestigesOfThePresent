@@ -633,12 +633,32 @@ public class EventHandler {
                     midas.fuckNbt();
                     stack.getOrCreateTag().putInt("VPKills", stack.getOrCreateTag().getInt("VPKills") + kill);
                 }
+                double corruptedFragmentChance = 0.001;
+                double corruptedItemChance = 0.0001;
+                double orbChance = 0.00001;
                 if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
                     VPUtil.giveStack(new ItemStack(ModItems.SHARD.get(),random.nextInt(2)+1),player);
                     VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+1),player);
+                    corruptedFragmentChance *= 100;
+                    corruptedItemChance *= 100;
+                    orbChance *= 100;
                 }
-                if(VPUtil.isEmpoweredMob(entity) || (entity instanceof Monster && random.nextDouble() < VPUtil.getChance(0.001,player))){
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), random.nextInt(3)+1),player);
+                else if(VPUtil.isEmpoweredMob(entity)){
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), 1),player);
+                    corruptedFragmentChance *= 10;
+                    corruptedItemChance *= 10;
+                    orbChance *= 10;
+                }
+                corruptedFragmentChance *= count;
+                corruptedItemChance *= count;
+                orbChance *= count;
+                if(entity instanceof Monster){
+                    if(random.nextDouble() < VPUtil.getChance(corruptedFragmentChance,player))
+                        VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4)+1)*(count+1)),player);
+                    if(random.nextDouble() < VPUtil.getChance(corruptedItemChance,player))
+                        VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_ITEM.get(), (random.nextInt(1)+1)*(count+1)),player);
+                    if(random.nextDouble() < VPUtil.getChance(orbChance,player))
+                        VPUtil.giveStack(new ItemStack(ModItems.CHAOS_ORB.get(), (random.nextInt(1)+1)*(count+1)),player);
                 }
                 if(VPUtil.hasVestige(ModItems.DEVOURER.get(), player) && VPUtil.isBoss(entity)){
                     ItemStack stack3 = VPUtil.getVestigeStack(Devourer.class,player);
