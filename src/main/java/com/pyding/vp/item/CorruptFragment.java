@@ -87,8 +87,8 @@ public class CorruptFragment extends Item{
             components.add(Component.translatable("vp.corrupt_frag.obtain").withStyle(ChatFormatting.GRAY));
         }
         else {
-            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.BLUE).append(Component.translatable("vp.shift"))));
-            components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(ChatFormatting.BLUE).append(Component.translatable("vp.ctrl"))));
+            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.DARK_RED).append(Component.translatable("vp.shift"))));
+            components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(ChatFormatting.DARK_RED).append(Component.translatable("vp.ctrl"))));
         }
         super.appendHoverText(stack, level, components, flag);
     }

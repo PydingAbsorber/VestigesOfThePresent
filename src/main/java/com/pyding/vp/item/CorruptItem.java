@@ -82,7 +82,7 @@ public class CorruptItem extends Item{
             components.add(Component.translatable("vp.corrupt_item.desc2").withStyle(ChatFormatting.GRAY));
         }
         else {
-            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.BLUE).append(Component.translatable("vp.shift"))));
+            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.RED).append(Component.translatable("vp.shift"))));
         }
         super.appendHoverText(stack, level, components, flag);
     }

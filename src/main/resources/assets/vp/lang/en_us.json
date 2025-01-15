@@ -26,7 +26,7 @@
   "item.vp.catalyst": "§aInfested Catalyst",
   "item.vp.easter_egg": "§cEaster Egg",
   "item.vp.shard": "§dCrystallized §5Despair",
-  "item.vp.corrupted_fragment": "§dCorrupted Wish",
+  "item.vp.corrupted_fragment": "§4Corrupted Wish",
   "item.vp.corrupted_item": "§cCorrupted Fate",
   "item.vp.chaos_orb": "§eOrb of Chaos",
   "vp.chaos_orb.desc1": "Randomly changes all enchantments on the offhand item while preserving their levels.\nHas a 5% chance to make the enchantment level negative, with an additional +5% chance for each existing curse on the item.\nHas a 3% chance to remove a random enchantment and redistribute its level among the remaining enchantments.\nHas a 1% chance to extract one random enchantment as an enchanted book and erase all enchantments on the item.",

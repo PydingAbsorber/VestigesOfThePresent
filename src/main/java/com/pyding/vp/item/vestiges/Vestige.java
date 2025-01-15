@@ -465,7 +465,7 @@ public class Vestige extends Item implements ICurioItem {
                             + stack.getOrCreateTag().getDouble("VPReturnZ") + "Z, ").withStyle(ChatFormatting.GRAY)));
                 String firstKey = "";
                 String secondKey = "";
-                if(VPUtil.getFirstVestige(player).get(0) == stack){
+                if(!VPUtil.getFirstVestige(player).isEmpty() && VPUtil.getFirstVestige(player).get(0) == stack){
                     if(!KeyBinding.FIRST_KEY.getKeyModifier().name().equals("NONE"))
                         firstKey += KeyBinding.FIRST_KEY.getKeyModifier().name() + "+";
                     firstKey += KeyBinding.FIRST_KEY.getKey().getDisplayName().getString();
