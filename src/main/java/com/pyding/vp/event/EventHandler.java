@@ -636,6 +636,13 @@ public class EventHandler {
                 double corruptedFragmentChance = 0.001;
                 double corruptedItemChance = 0.0001;
                 double orbChance = 0.00001;
+                if(!VPUtil.isNightmareBoss(entity)) {
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+20),player);
+                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_ITEM.get(),random.nextInt(2)+2),player);
+                    corruptedFragmentChance *= 1000;
+                    corruptedItemChance *= 1000;
+                    orbChance *= 1000;
+                }
                 if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
                     VPUtil.giveStack(new ItemStack(ModItems.SHARD.get(),random.nextInt(2)+1),player);
                     VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+1),player);
@@ -652,7 +659,7 @@ public class EventHandler {
                 corruptedFragmentChance *= count;
                 corruptedItemChance *= count;
                 orbChance *= count;
-                if(entity instanceof Monster){
+                if(entity instanceof Monster && ConfigHandler.COMMON.hardcore.get()){
                     if(random.nextDouble() < VPUtil.getChance(corruptedFragmentChance,player))
                         VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4)+1)*(count+1)),player);
                     if(random.nextDouble() < VPUtil.getChance(corruptedItemChance,player))
