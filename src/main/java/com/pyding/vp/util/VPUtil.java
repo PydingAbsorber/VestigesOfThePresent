@@ -3355,4 +3355,11 @@ public class VPUtil {
     public static int getVestigeCurse(ItemStack stack){
         return stack.getOrCreateTag().getInt("VPCursed");
     }
+
+    public static boolean isEnchantable(ItemStack stack){
+        if(stack.getItem() instanceof ArmorItem || stack.getItem() instanceof TieredItem || stack.getItem() instanceof BowItem){
+            return true;
+        }
+        return false;
+    }
 }
