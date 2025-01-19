@@ -76,6 +76,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue repairBlackList;
         public final ForgeConfigSpec.ConfigValue rareItems;
         public final ForgeConfigSpec.ConfigValue fishingBlacklist;
+        public final ForgeConfigSpec.DoubleValue rareFishingDropChance;
         public final ForgeConfigSpec.DoubleValue nightmareBoxChance;
         public final ForgeConfigSpec.DoubleValue nightmareRefresherChance;
         public final ForgeConfigSpec.IntValue nightmareFrags;
@@ -96,6 +97,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue rareItemChance;
         public final ForgeConfigSpec.DoubleValue empoweredChance;
         public final ForgeConfigSpec.ConfigValue debuffBlacklist;
+        public final ForgeConfigSpec.ConfigValue cloneBlackList;
+        public final ForgeConfigSpec.ConfigValue cloneWhiteList;
 
         public Common(ForgeConfigSpec.Builder builder) {
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
@@ -174,6 +177,7 @@ public class ConfigHandler {
             fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle,wet,river");
             rareItems = builder.comment("Rare Items for fishing by Abyssal Pearl: ").define("rareItems","item.vp.hearty_pearl,item.vp.pinky_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
             fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","item.vp.pearl");
+            rareFishingDropChance = builder.comment("Chance of rare drop in current biome from Fishing with Pearl or by defending Silly Seashell.").defineInRange("rareFishingDropChance", 0.001, 0, 1);
             failFlowers = builder.comment("Fails flowers Challenge when they are being placed.").define("failFlowers", false);
             nightmareDamageCap = builder.comment("Damage cap for Nightmare Bosses").defineInRange("nightmareDamageCap", 1000,0,Float.MAX_VALUE);
             unlockHp = builder.comment("For servers with maxed out desync and hp lock to 2048 or if you just have problems with MaxHp.").define("unlockHp", false);
@@ -181,6 +185,8 @@ public class ConfigHandler {
             rareItemChance = builder.comment("Chance for Item to define as rare for Prism challenge. For example carrot has 0.025 chance to drop from zobmie").defineInRange("rareItemChance", 0.025d, 0.0001, 1);
             empoweredChance = builder.comment("Chance to spawn Empowered mob in Hardcore mode").defineInRange("empoweredChance", 0.001, 0, 2100000000);
             debuffBlacklist = builder.comment("Defines blacklist for random potion effects as from Heirloom's Special: ").define("debuffBlacklist","crystallized,");
+            cloneBlackList = builder.comment("Defines blacklist for items that cannot be cloned with Celestial Mirror: ").define("cloneBlackList","pouch,bag,backpack,chest,box,pocket,store,storage,satchel,knapsack,cargo,vault,locker,crate,trunk,barrel,bin,safe,drawer,compartment,cache,case,basket,haversack,receptacle,container,ghostly_pickaxe,soul_gem,horse_flute,sack,broom");
+            cloneWhiteList = builder.comment("Defines whitelist for items that can be cloned with Celestial Mirror with highest priority. F.e. chestplate to not be blocked by chest in blacklist: ").define("cloneWhiteList","chestplate,box_eggs,box_saplings,item.vp.box,");
         }
 
         public int getChallengeReduceByNumber(int number) {

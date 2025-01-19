@@ -61,6 +61,7 @@ public class ModItems {
     public static final RegistryObject<Item> CORRUPT_FRAGMENT = ITEMS.register("corrupted_fragment", () -> new CorruptFragment());
     public static final RegistryObject<Item> CORRUPT_ITEM = ITEMS.register("corrupted_item", () -> new CorruptItem());
     public static final RegistryObject<Item> CHAOS_ORB = ITEMS.register("chaos_orb", () -> new ChaosOrb());
+    public static final RegistryObject<Item> CELESTIAL_MIRROR = ITEMS.register("celestial_mirror", () -> new CelestialMirror());
 
 
 

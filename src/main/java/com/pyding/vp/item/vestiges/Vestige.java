@@ -561,7 +561,7 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
                 }
                 else {
-                    int[] hobbyHorsing = {1,4,5,7,10,14,15,18,19,23};
+                    int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23};
                     boolean yesHorsing = false;
                     for (int horse : hobbyHorsing) {
                         if (horse == vestigeNumber) {
@@ -644,10 +644,6 @@ public class Vestige extends Item implements ICurioItem {
                     }
                     case 6: {
                         text = VPUtil.filterAndTranslate(VPUtil.getFoodLeft(cap.getFoodEaten()).toString(),ChatFormatting.GRAY).getString();
-                        break;
-                    }
-                    case 10: {
-                        text = VPUtil.filterAndTranslate(VPUtil.getToolLeft(cap.getTools()).toString(),ChatFormatting.GRAY).getString();
                         break;
                     }
                     case 11:{
@@ -752,8 +748,45 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.devourer").withStyle(color).append(Component.literal(stack.getOrCreateTag().getInt("VPDevoured")+"").withStyle(ChatFormatting.GRAY)));
 
             int curse = VPUtil.getVestigeCurse(stack);
-            if(curse > 0)
-                components.add(Component.translatable("vp.curse."+curse).withStyle(ChatFormatting.BOLD));
+            if(curse > 0) {
+                int multiplier = 0;
+                if(curse == 1) {
+                    multiplier = 90;
+                    if(isStellar(stack))
+                        multiplier = 75;
+                    if(isDoubleStellar(stack))
+                        multiplier = 45;
+                }
+                else if (curse == 2){
+                    multiplier = -80;
+                    if(isStellar(stack))
+                        multiplier = -65;
+                    if(isDoubleStellar(stack))
+                        multiplier = -50;
+                }
+                else if(curse == 3){
+                    multiplier = 3;
+                    if(isStellar(stack))
+                        multiplier = 2;
+                    if(isDoubleStellar(stack))
+                        multiplier = 1;
+                }
+                else if(curse == 4){
+                    multiplier = 40;
+                    if(isStellar(stack))
+                        multiplier = 70;
+                    if(isDoubleStellar(stack))
+                        multiplier = 110;
+                }
+                else if(curse == 5){
+                    multiplier = 50;
+                    if(isStellar(stack))
+                        multiplier = 125;
+                    if(isDoubleStellar(stack))
+                        multiplier = 250;
+                }
+                components.add(Component.translatable("vp.curse." + curse,multiplier+"%").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+            }
 
             components.add(Component.translatable("vp.info").withStyle(ChatFormatting.GRAY));
             if (isStellar(stack)) {

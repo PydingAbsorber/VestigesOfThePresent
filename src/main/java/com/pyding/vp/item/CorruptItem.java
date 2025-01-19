@@ -36,14 +36,14 @@ public class CorruptItem extends Item{
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if(!player.getOffhandItem().getOrCreateTag().getBoolean("VPCursed")){
-            if(VPUtil.isEnchantable(player.getOffhandItem())){
+            if(VPUtil.isEnchantable(player.getOffhandItem()) && !level.isClientSide()){
                 int modifier = 2;
                 if(VPUtil.hasVestige(ModItems.BOOK.get(),player))
                     modifier *= 2;
                 ItemStack itemStack = player.getOffhandItem();
                 List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
                 list.removeIf(enchantment -> !enchantment.isCurse());
-                Enchantment curse = list.get(new Random().nextInt(list.size()-1));
+                Enchantment curse = list.get(new Random().nextInt(list.size()));
                 itemStack.enchant(curse,curse.getMaxLevel()*modifier);
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                     cap.setChallenge(7,player);

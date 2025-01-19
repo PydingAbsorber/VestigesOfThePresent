@@ -19,10 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class ChaosOrb extends Item{
     public ChaosOrb() {
@@ -31,29 +28,37 @@ public class ChaosOrb extends Item{
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if(VPUtil.isEnchantable(player.getOffhandItem()) && player.getOffhandItem().getAllEnchantments() != null){
+        if(player.getCommandSenderWorld().isClientSide() || hand == InteractionHand.OFF_HAND)
+            return super.use(level, player, hand);
+        if(VPUtil.isEnchantable(player.getOffhandItem()) && !player.getOffhandItem().getAllEnchantments().isEmpty()){
             Random random = new Random();
             ItemStack itemStack = player.getOffhandItem();
             List<Enchantment> cursedList = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
             cursedList.removeIf(enchantment -> !enchantment.isCurse());
-            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
             List<Enchantment> goodEnchant = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
             goodEnchant.removeIf(Enchantment::isCurse);
-            for(Enchantment enchantment: enchantments.keySet()){
-                Enchantment randomEnchant = goodEnchant.get(random.nextInt(goodEnchant.size()-1));
+            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
+            for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                if(enchantment.isCurse())
+                    continue;
+                Enchantment randomEnchant = goodEnchant.get(random.nextInt(goodEnchant.size()));
                 int lvl = enchantments.get(enchantment);
-                if(randomEnchant.getDescriptionId().equals(randomEnchant.getDescriptionId())){
-                    lvl = lvl*2;
+                if(enchantments.containsKey(randomEnchant)){
+                    lvl = lvl+enchantments.get(randomEnchant);
+                    enchantments.remove(enchantment);
+                    enchantments.remove(randomEnchant);
+                    enchantments.put(randomEnchant, lvl);
                 }
-                enchantments.remove(enchantment);
-                enchantments.put(randomEnchant,lvl);
+                else {
+                    enchantments.remove(enchantment);
+                    enchantments.put(randomEnchant, lvl);
+                }
             }
-            double negativeChance = 0.05 * cursedList.size()+1;
+            double negativeChance = 0.02 * (cursedList.size()+1);
             if(random.nextDouble() < negativeChance) {
                 int count = 0;
-                int numba = random.nextInt(enchantments.size()-1);
-                for(Enchantment enchantment: enchantments.keySet()){
-                    count++;
+                int numba = random.nextInt(enchantments.size());
+                for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
                     if(count == numba){
                         int original = enchantments.get(enchantment);
                         if(original > 0)
@@ -62,47 +67,61 @@ public class ChaosOrb extends Item{
                         enchantments.put(enchantment, original);
                         break;
                     }
+                    count++;
                 }
             }
-            double splitChance = 0.03;
+            double splitChance = 0.05;
             if(random.nextDouble() < VPUtil.getChance(splitChance,player)) {
                 int lvl = 0;
                 int count = 0;
-                int numba = random.nextInt(enchantments.size()-1);
-                for(Enchantment enchantment: enchantments.keySet()){
-                    count++;
+                int numba = random.nextInt(enchantments.size());
+                for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
                     if(count == numba){
                         lvl = enchantments.get(enchantment);
                         enchantments.remove(enchantment);
+                        break;
                     }
+                    count++;
                 }
                 while (lvl > 0){
                     count = 0;
-                    numba = random.nextInt(enchantments.size()-1);
-                    for(Enchantment enchantment: enchantments.keySet()){
-                        count++;
+                    numba = random.nextInt(enchantments.size());
+                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
                         if(count == numba){
                             int original = enchantments.get(enchantment);
                             enchantments.remove(enchantment);
                             enchantments.put(enchantment, original+1);
                             lvl--;
-                            break;
                         }
+                        count++;
+                    }
+                }
+                while (lvl < 0){
+                    count = 0;
+                    numba = random.nextInt(enchantments.size());
+                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                        if(count == numba){
+                            int original = enchantments.get(enchantment);
+                            enchantments.remove(enchantment);
+                            enchantments.put(enchantment, original-1);
+                            lvl++;
+                        }
+                        count++;
                     }
                 }
             }
             double bookChance = 0.01;
             if(random.nextDouble() < VPUtil.getChance(bookChance,player)) {
                 int count = 0;
-                int numba = random.nextInt(enchantments.size()-1);
-                for(Enchantment enchantment: enchantments.keySet()){
-                    count++;
+                int numba = random.nextInt(enchantments.size());
+                for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
                     if(count == numba){
                         ItemStack enchantedBook = new ItemStack(Items.ENCHANTED_BOOK);
                         EnchantmentHelper.setEnchantments(Map.of(enchantment, enchantments.get(enchantment)), enchantedBook);
                         VPUtil.giveStack(enchantedBook,player);
                         enchantments.clear();
                     }
+                    count++;
                 }
             }
             EnchantmentHelper.setEnchantments(enchantments, itemStack);

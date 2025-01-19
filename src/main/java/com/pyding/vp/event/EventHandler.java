@@ -9,8 +9,7 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.SillySeashell;
-import com.pyding.vp.item.CorruptFragment;
-import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.*;
 import com.pyding.vp.mixin.*;
@@ -39,10 +38,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Bucketable;
-import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.animal.TropicalFish;
+import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
@@ -633,39 +629,47 @@ public class EventHandler {
                     midas.fuckNbt();
                     stack.getOrCreateTag().putInt("VPKills", stack.getOrCreateTag().getInt("VPKills") + kill);
                 }
-                double corruptedFragmentChance = 0.001;
-                double corruptedItemChance = 0.0001;
-                double orbChance = 0.00001;
-                if(!VPUtil.isNightmareBoss(entity)) {
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+20),player);
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_ITEM.get(),random.nextInt(2)+2),player);
+                double looting = Math.min(20,(double) player.getMainHandItem().getEnchantmentLevel(Enchantments.MOB_LOOTING)/10+(double) player.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE)/20+1);
+                double corruptedFragmentChance = 0.001*looting;
+                double corruptedItemChance = 0.0001*looting;
+                double orbChance = 0.00001*looting;
+                double mirrorChance = 0.0000001*looting;
+                if(VPUtil.isNightmareBoss(entity)) {
+                    VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+20),entity);
+                    VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_ITEM.get(),random.nextInt(2)+2),entity);
                     corruptedFragmentChance *= 1000;
                     corruptedItemChance *= 1000;
                     orbChance *= 1000;
+                    mirrorChance *= 1000;
                 }
-                if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
-                    VPUtil.giveStack(new ItemStack(ModItems.SHARD.get(),random.nextInt(2)+1),player);
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+1),player);
+                else if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
+                    VPUtil.dropStack(new ItemStack(ModItems.SHARD.get(),random.nextInt(2)+1),entity);
+                    VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+1),entity);
                     corruptedFragmentChance *= 100;
                     corruptedItemChance *= 100;
                     orbChance *= 100;
+                    mirrorChance *= 100;
                 }
                 else if(VPUtil.isEmpoweredMob(entity)){
-                    VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), 1),player);
+                    VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), 1),entity);
                     corruptedFragmentChance *= 10;
                     corruptedItemChance *= 10;
                     orbChance *= 10;
+                    mirrorChance *= 10;
                 }
-                corruptedFragmentChance *= count;
-                corruptedItemChance *= count;
-                orbChance *= count;
+                corruptedFragmentChance *= count+1;
+                corruptedItemChance *= count+1;
+                orbChance *= count+1;
+                mirrorChance *= count+1;
                 if(entity instanceof Monster && ConfigHandler.COMMON.hardcore.get()){
                     if(random.nextDouble() < VPUtil.getChance(corruptedFragmentChance,player))
-                        VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4)+1)*(count+1)),player);
+                        VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4)+1)*(count+1)),entity);
                     if(random.nextDouble() < VPUtil.getChance(corruptedItemChance,player))
-                        VPUtil.giveStack(new ItemStack(ModItems.CORRUPT_ITEM.get(), (random.nextInt(1)+1)*(count+1)),player);
+                        VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_ITEM.get(), (random.nextInt(1)+1)*(count+1)),entity);
                     if(random.nextDouble() < VPUtil.getChance(orbChance,player))
-                        VPUtil.giveStack(new ItemStack(ModItems.CHAOS_ORB.get(), (random.nextInt(1)+1)*(count+1)),player);
+                        VPUtil.dropStack(new ItemStack(ModItems.CHAOS_ORB.get(), (random.nextInt(1)+1)*(count+1)),entity);
+                    if(random.nextDouble() < VPUtil.getChance(mirrorChance,player))
+                        VPUtil.dropStack(new ItemStack(ModItems.CELESTIAL_MIRROR.get(), 1),entity);
                 }
                 if(VPUtil.hasVestige(ModItems.DEVOURER.get(), player) && VPUtil.isBoss(entity)){
                     ItemStack stack3 = VPUtil.getVestigeStack(Devourer.class,player);
@@ -845,14 +849,14 @@ public class EventHandler {
         Player player = event.getEntity();
         Entity entity = event.getTarget();
         if(entity instanceof Bucketable && event.getItemStack().getItem() instanceof BucketItem && entity instanceof LivingEntity livingEntity){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challenge -> {
                 String fish = entity.getType().getDescriptionId();
                 if(entity instanceof Axolotl axolotl)
                     fish = axolotl.getVariant().getName();
                 else if(entity instanceof TropicalFish tropicalFish)
                     fish = tropicalFish.getVariant().getSerializedName();
                 if(!Bucketable.bucketMobPickup(player, InteractionHand.MAIN_HAND,(LivingEntity & Bucketable) livingEntity).equals(Optional.empty()))
-                    challange.addSea(fish,player);
+                    challenge.addSea(fish,player);
             });
         }
     }
@@ -863,6 +867,8 @@ public class EventHandler {
         if(player.getCommandSenderWorld().isClientSide)
             return;
         ItemStack stack = event.getItemStack();
+        if(event.getHand() == InteractionHand.OFF_HAND && (player.getMainHandItem().getItem() instanceof CorruptFragment || player.getMainHandItem().getItem() instanceof CorruptItem || player.getMainHandItem().getItem() instanceof ChaosOrb || player.getMainHandItem().getItem() instanceof CelestialMirror))
+            event.setCanceled(true);
         if(stack.getItem() instanceof EnderEyeItem && VPUtil.hasVestige(ModItems.ANOMALY.get(), player)){
             if(player instanceof ServerPlayer serverPlayer){
                 ItemStack stackInSlot = VPUtil.getVestigeStack(Anomaly.class,player);
@@ -1404,10 +1410,10 @@ public class EventHandler {
                 vestige.curioSucks(player,stack);
             }*/
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(player.tickCount % 4000 == 0 && VPUtil.getCurrentBiome(player) != null){
+                if(player.tickCount % 8000 == 0 && VPUtil.getCurrentBiome(player) != null){
                     Level level = player.getCommandSenderWorld();
                     String biome = VPUtil.getCurrentBiome(player).getPath();
-                    if(biome.contains("ocean") && !biome.contains("deep")){
+                    if(biome.contains("ocean") && !biome.contains("deep") && !biome.contains("frozen")){
                         double chance = 0.1;
                         if(biome.contains("warm"))
                             chance *= 3;
@@ -1432,7 +1438,7 @@ public class EventHandler {
                     }
                     else if(biome.contains("ocean") && biome.contains("deep")){
                         double chance = 0.1;
-                        if(biome.contains("cold"))
+                        if(biome.contains("cold") || biome.contains("frozen"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
                             SillySeashell shell = new SillySeashell(ModEntities.SEASHELL.get(),level);

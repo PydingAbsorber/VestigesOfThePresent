@@ -75,6 +75,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -2608,7 +2609,7 @@ public class VPUtil {
                 while(ConfigHandler.COMMON.fishingBlacklist.get().toString().contains(randomItem.getDescriptionId())){
                     randomItem = items.get(random.nextInt(items.size()-1));
                 }
-                if(isRare(stack) && random.nextDouble() > getChance(0.001,player))
+                if(isRare(stack) && random.nextDouble() > getChance(ConfigHandler.COMMON.rareFishingDropChance.get(),player))
                     randomItem = items.get(random.nextInt(items.size()-1));
                 stack = new ItemStack(randomItem);
             }
@@ -2890,10 +2891,15 @@ public class VPUtil {
         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:6"));
         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ATTACK_DAMAGE, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:4"));
         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:7"));
-        if(shields > 0)
-            addShield(livingEntity,shields,true);
-        if(overShields > 0)
-            addOverShield(livingEntity,overShields,true);
+        livingEntity.setHealth(livingEntity.getMaxHealth());
+        if(shields > 0) {
+            livingEntity.getPersistentData().putFloat("VPShieldInit",shields);
+            addShield(livingEntity, shields, true);
+        }
+        if(overShields > 0) {
+            livingEntity.getPersistentData().putFloat("VPOverShield", overShields);
+            livingEntity.getPersistentData().putFloat("VPOverShieldMax", overShields);
+        }
         livingEntity.getPersistentData().putBoolean("VPEmpowered",true);
     }
 
@@ -3359,6 +3365,20 @@ public class VPUtil {
     public static boolean isEnchantable(ItemStack stack){
         if(stack.getItem() instanceof ArmorItem || stack.getItem() instanceof TieredItem || stack.getItem() instanceof BowItem){
             return true;
+        }
+        return false;
+    }
+
+    public static void dropStack(ItemStack stack,LivingEntity livingEntity){
+        ItemEntity itemEntity = new ItemEntity(livingEntity.getCommandSenderWorld(), livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), stack);
+        livingEntity.getCommandSenderWorld().addFreshEntity(itemEntity);
+    }
+
+    public static boolean hasCurse(Player player, int curse){
+        List<ItemStack> list = getVestigeList(player);
+        for(ItemStack stack: list){
+            if(getVestigeCurse(stack) == curse)
+                return true;
         }
         return false;
     }

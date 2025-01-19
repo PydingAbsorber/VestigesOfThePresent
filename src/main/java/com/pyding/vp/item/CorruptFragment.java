@@ -41,7 +41,7 @@ public class CorruptFragment extends Item{
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if(VPUtil.getCurseAmount(player.getOffhandItem()) > 0){
+        if(VPUtil.getCurseAmount(player.getOffhandItem()) > 0 || player.getCommandSenderWorld().isClientSide() || hand == InteractionHand.OFF_HAND){
             return super.use(level, player, hand);
         }
         if(VPUtil.isEnchantable(player.getOffhandItem())){
@@ -65,7 +65,7 @@ public class CorruptFragment extends Item{
             } else {
                 List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
                 list.removeIf(enchantment -> !enchantment.isCurse());
-                Enchantment curse = list.get(new Random().nextInt(list.size()-1));
+                Enchantment curse = list.get(new Random().nextInt(list.size()));
                 itemStack.enchant(curse,curse.getMaxLevel());
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                     cap.setChallenge(7,player);
