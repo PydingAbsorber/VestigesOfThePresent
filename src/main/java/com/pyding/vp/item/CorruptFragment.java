@@ -33,10 +33,18 @@ public class CorruptFragment extends Item{
     @Override
     public void inventoryTick(ItemStack stack, Level p_41405_, Entity entity, int p_41407_, boolean p_41408_) {
         super.inventoryTick(stack, p_41405_, entity, p_41407_, p_41408_);
-        if(stack.getCount() >= 64 && entity instanceof Player player){
-            stack.setCount(0);
-            player.addItem(new ItemStack(ModItems.CORRUPT_ITEM.get()));
+        if (stack.getCount() >= 64 && entity instanceof Player player) {
+            List<ItemStack> inventoryItems = player.getInventory().items;
+            for (ItemStack inventoryStack : inventoryItems) {
+                if (inventoryStack.getItem() instanceof StellarFragment) {
+                    inventoryStack.split(1);
+                    stack.setCount(0);
+                    player.addItem(new ItemStack(ModItems.CORRUPT_ITEM.get()));
+                    break;
+                }
+            }
         }
+
     }
 
     @Override
@@ -72,6 +80,7 @@ public class CorruptFragment extends Item{
                 });
             }
             player.getMainHandItem().split(1);
+            player.getPersistentData().putBoolean("VPBlockHand",true);
         }
         return super.use(level, player, hand);
     }

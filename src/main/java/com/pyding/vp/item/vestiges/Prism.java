@@ -4,6 +4,9 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -43,6 +46,14 @@ public class Prism extends Vestige{
             VPUtil.spawnParticles(player, ParticleTypes.SOUL_FIRE_FLAME, player.getX(), player.getY(), player.getZ(), 20, 0, 0.5, 0);
         }
         super.doSpecial(seconds, player, level, stack);
+    }
+
+    @Override
+    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity entity, InteractionHand p_41401_) {
+        if(player.isCreative()){
+            player.sendSystemMessage(Component.literal("Is empty: " + VPUtil.getRareDrops().isEmpty() + " For entity: " + VPUtil.getRareDrops(entity)));
+        }
+        return super.interactLivingEntity(stack, player, entity, p_41401_);
     }
 
     @Override

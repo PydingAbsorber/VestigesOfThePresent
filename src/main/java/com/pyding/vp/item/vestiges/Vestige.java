@@ -303,6 +303,8 @@ public class Vestige extends Item implements ICurioItem {
                 if(damageType)
                     player.getPersistentData().putBoolean("VPAttacked",true);
                 this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
+                if(VPUtil.hasCurse(player,3))
+                    player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
             } else this.localSpecial(player);
         }
         return 0;

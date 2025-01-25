@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,10 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class CelestialMirror extends Item{
     public CelestialMirror() {
@@ -41,17 +39,66 @@ public class CelestialMirror extends Item{
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if(player.getCommandSenderWorld().isClientSide() || hand == InteractionHand.OFF_HAND)
             return super.use(level, player, hand);
+        if(!player.isCreative()) {
+            if (!player.getMainHandItem().getOrCreateTag().hasUUID("VPMirror")) {
+                player.getMainHandItem().split(1);
+                ConfigHandler.COMMON.dupersList.set(ConfigHandler.COMMON.dupersList.get() + "Name:" + player.getName().getString() + " UUID:" + player.getUUID() + ",");
+                if(player.getServer() != null)
+                    player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName().getString() + " tried to dupe Celestial Mirror by clearing its NBT or got it illegal!"),false);
+                return super.use(level, player, hand);
+            }
+            if(!ConfigHandler.COMMON.mirrorUUIDList.get().toString().isEmpty()) for (String element : ConfigHandler.COMMON.mirrorUUIDList.get().toString().split(",")) {
+                if (player.getMainHandItem().getOrCreateTag().getUUID("VPMirror").compareTo(UUID.fromString(element)) == 0) {
+                    player.getMainHandItem().split(1);
+                    ConfigHandler.COMMON.dupersList.set(ConfigHandler.COMMON.dupersList.get() + "Name:" + player.getName().getString() + " UUID:" + player.getUUID() + ",");
+                    VPUtil.deadInside(player);
+                    if(player.getServer() != null)
+                        player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName().getString() + " duped Celestial Mirror!"),false);
+                    return super.use(level, player, hand);
+                }
+            }
+        }
         if(!player.getOffhandItem().getOrCreateTag().getBoolean("VPMirrored") && !dupyPoPopochkam(player.getOffhandItem(),player)){
             ItemStack itemStack = player.getOffhandItem();
             itemStack.getOrCreateTag().putBoolean("VPMirrored",true);
             ItemStack clone = itemStack.copy();
             VPUtil.giveStack(clone,player);
+            ConfigHandler.COMMON.mirrorUUIDList.set(ConfigHandler.COMMON.mirrorUUIDList.get()+player.getMainHandItem().getOrCreateTag().getUUID("VPMirror").toString()+",");
             player.getMainHandItem().split(1);
+            player.getPersistentData().putBoolean("VPBlockHand",true);
         }
         return super.use(level, player, hand);
     }
 
-    public static boolean dupyPoPopochkam(ItemStack stack,Player player){
+    @Override
+    public void inventoryTick(ItemStack stack, Level p_41405_, Entity entity, int p_41407_, boolean p_41408_) {
+        if(entity instanceof Player player) {
+            if (!stack.getOrCreateTag().hasUUID("VPMirror") && player.isCreative()){
+                UUID uuid = UUID.randomUUID();
+                stack.getOrCreateTag().putUUID("VPMirror", uuid);
+            }
+            else if (!player.isCreative()){
+                if (!stack.getOrCreateTag().hasUUID("VPMirror")) {
+                    stack.split(1);
+                    ConfigHandler.COMMON.dupersList.set(ConfigHandler.COMMON.dupersList.get() + "Name:" + player.getName().getString() + " UUID:" + player.getUUID() + ",");
+                    if(player.getServer() != null)
+                        player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName().getString() + " tried to dupe Celestial Mirror by clearing its NBT or got it illegal!"),false);
+                }
+                else if(!ConfigHandler.COMMON.mirrorUUIDList.get().toString().isEmpty()) for(String element: ConfigHandler.COMMON.mirrorUUIDList.get().toString().split(",")){
+                    if(stack.getOrCreateTag().getUUID("VPMirror").compareTo(UUID.fromString(element)) == 0){
+                        stack.split(1);
+                        ConfigHandler.COMMON.dupersList.set(ConfigHandler.COMMON.dupersList.get()+"Name:"+player.getName().getString()+" UUID:"+player.getUUID()+",");
+                        VPUtil.deadInside(player);
+                        if(player.getServer() != null)
+                            player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName()+" duped Celestial Mirror!"),false);
+                    }
+                }
+            }
+        }
+        super.inventoryTick(stack, p_41405_, entity, p_41407_, p_41408_);
+    }
+
+    public static boolean dupyPoPopochkam(ItemStack stack, Player player){
         if (stack.getItem() instanceof CelestialMirror || (stack.getItem() instanceof SoulBlighter && stack.getOrCreateTag().contains("entityData"))){
             player.sendSystemMessage(Component.literal("Oh you thought you smart?"));
             return true;
@@ -67,10 +114,10 @@ public class CelestialMirror extends Item{
                 return true;
             }
         }
-        if(hasContainersOrInventory(stack.getClass())) {
+        /*if(hasContainersOrInventory(stack.getClass())) {
             player.sendSystemMessage(Component.literal("This item cannot be cloned because it has containers or inventory. If it's not please write an issue on GitHub."));
             return true;
-        }
+        }*/
         if(!stack.getItem().canFitInsideContainerItems()) {
             player.sendSystemMessage(Component.literal("Nah bro, this item is definitely has smth dirty. I wont even allow you to configure it."));
             return true;

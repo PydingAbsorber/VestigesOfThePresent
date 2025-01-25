@@ -170,6 +170,9 @@ public class VPUtil {
         if(!hasDurability && player.getMainHandItem().getItem() instanceof TieredItem tieredItem){
             attack -= tieredItem.getTier().getAttackDamageBonus();
         }
+        float curseMultiplier = getCurseMultiplier(player,4);
+        if(curseMultiplier > 0)
+            attack *= curseMultiplier;
         return attack;
     }
     public static List<EntityType<?>> entities = new ArrayList<>();
@@ -475,7 +478,7 @@ public class VPUtil {
                 continue;
             if (entity instanceof LivingEntity livingEntity) {
                 float health = livingEntity.getMaxHealth();
-                if (health > 190 || isCustomBoss(type)){
+                if ((health > 190 || isCustomBoss(type)) && !isBlacklistBoss(type)){
                     bossList.add(type);
                     zaebali.put(type,health);
                 } else monsterList.add(type);
@@ -495,6 +498,13 @@ public class VPUtil {
         EntityType<?> type = entity.getType();
         if(type.toString().contains("easy_npc"))
             return true;
+        return false;
+    }
+
+    public static boolean isBlacklistBoss(EntityType<?> type){
+        for(String types: ConfigHandler.COMMON.blacklistBosses.get().toString().split(","))
+            if(type.toString().contains(types))
+                return true;
         return false;
     }
 
@@ -668,6 +678,9 @@ public class VPUtil {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
+        float curseMultiplier = getCurseMultiplier(player,4);
+        if(curseMultiplier > 0)
+            damage *= curseMultiplier;
         entity.hurt(source,damage*(damagePercentBonus(player,type))/100);
     }
 
@@ -1177,11 +1190,16 @@ public class VPUtil {
     }
     
     public static float getShieldBonus(LivingEntity entity){
+        float curseMultiplier = 0;
+        if(entity instanceof Player player) {
+            curseMultiplier = getCurseMultiplier(player,2);
+        }
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
                 +entity.getPersistentData().getFloat("VPShieldBonusFlower")
                 +entity.getPersistentData().getFloat("VPAcsShields")
                 +entity.getPersistentData().getFloat("VPRuneBonus")
-                -entity.getPersistentData().getFloat("VPIgnis"));
+                -entity.getPersistentData().getFloat("VPIgnis")
+                -curseMultiplier);
         if(hasLyra(entity,6))
             shieldBonus += 70;
         return shieldBonus;
@@ -1199,6 +1217,25 @@ public class VPUtil {
             else return;
         }
         else shield = tag.getFloat("VPShield") + amount*(1 + shieldBonus/100);
+        if(entity instanceof Player player){
+            float curseShield = getCurseMultiplier(player,5);
+            if(curseShield != 0){
+                for(LivingEntity livingEntity: getEntities(player,30)){
+                    if(!isFriendlyFireBetween(player,livingEntity) && !isProtectedFromHit(player,livingEntity)){
+                        float entityShield = getShield(livingEntity);
+                        float entityOverShield = getOverShield(livingEntity);
+                        if(entityShield > shield*curseShield){
+                            tag.putFloat("VPShield", entityShield-shield*curseShield);
+                        } else tag.putFloat("VPShield", 0);
+                        if(entityOverShield > shield*curseShield){
+                            tag.putFloat("VPOverShield", entityOverShield-shield*curseShield);
+                        } else tag.putFloat("VPOverShield", 0);
+                    }
+                }
+                sync(player);
+                return;
+            }
+        }
         Random random = new Random();
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
@@ -1365,8 +1402,11 @@ public class VPUtil {
     public static float getHealBonus(LivingEntity entity){
         CompoundTag tag = entity.getPersistentData();
         float poison = 0;
-        if(entity instanceof Player player && isPoisonedByNightmare(player))
-            poison = 150;
+        if(entity instanceof Player player) {
+            if(isPoisonedByNightmare(player))
+                poison = 150;
+            poison += getCurseMultiplier(player,2);
+        }
         float healBonus = Math.max(-300,tag.getFloat("VPHealResMask")
                 +tag.getFloat("VPHealResFlower")
                 +tag.getFloat("VPHealBonusDonut")
@@ -1869,6 +1909,25 @@ public class VPUtil {
             shieldBonus = 0;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
+            if(entity instanceof Player player){
+                float curseShield = getCurseMultiplier(player,5);
+                if(curseShield != 0){
+                    for(LivingEntity livingEntity: getEntities(player,30)){
+                        if(!isFriendlyFireBetween(player,livingEntity) && !isProtectedFromHit(player,livingEntity)){
+                            float entityShield = getShield(livingEntity);
+                            float entityOverShield = getOverShield(livingEntity);
+                            if(entityShield > shield*curseShield){
+                                tag.putFloat("VPShield", entityShield-shield*curseShield);
+                            } else tag.putFloat("VPShield", 0);
+                            if(entityOverShield > shield*curseShield){
+                                tag.putFloat("VPOverShield", entityOverShield-shield*curseShield);
+                            } else tag.putFloat("VPOverShield", 0);
+                        }
+                    }
+                    sync(player);
+                    return;
+                }
+            }
             if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
                 boolean found = false;
                 for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
@@ -1895,7 +1954,7 @@ public class VPUtil {
     }
 
     public static void regenOverShield(LivingEntity entity,float amount){
-        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
+        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10 || (entity instanceof Player player && hasCurse(player,5)))
             return;
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
@@ -1919,7 +1978,7 @@ public class VPUtil {
     }
 
     public static void stealShields(LivingEntity entity,LivingEntity stealer,float percent, boolean applyBonus){
-        if(stealer.getPersistentData().getInt("VPSoulRotting") >= 10)
+        if(stealer.getPersistentData().getInt("VPSoulRotting") >= 10 || (entity instanceof Player player && hasCurse(player,5)))
             return;
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = getShieldBonus(stealer);
@@ -2196,6 +2255,9 @@ public class VPUtil {
                 health -= overShields;
             }
         }
+        float curseMultiplier = getCurseMultiplier(player,4);
+        if(curseMultiplier > 0)
+            health *= curseMultiplier;
         if(entity.getHealth()-health > 0) {
             setHealth(entity,entity.getHealth() - health);
             if(hurt)
@@ -3381,5 +3443,53 @@ public class VPUtil {
                 return true;
         }
         return false;
+    }
+
+    public static float getCurseMultiplier(Player player, int curse){
+        List<ItemStack> list = getVestigeList(player);
+        for(ItemStack stack: list){
+            if(getVestigeCurse(stack) == curse && stack.getItem() instanceof Vestige vestige) {
+                if(curse > 0) {
+                    float multiplier = 0;
+                    if(curse == 1) {
+                        multiplier = 0.1f; //maxhp*
+                        if(vestige.isStellar(stack))
+                            multiplier = 0.25f;
+                        if(vestige.isDoubleStellar(stack))
+                            multiplier = 0.55f;
+                    }
+                    else if (curse == 2){
+                        multiplier = 80; //bonus-
+                        if(vestige.isStellar(stack))
+                            multiplier = 65;
+                        if(vestige.isDoubleStellar(stack))
+                            multiplier = 50;
+                    }
+                    else if(curse == 3){
+                        multiplier = 0.03f; //shields-shields*s
+                        if(vestige.isStellar(stack))
+                            multiplier = 0.02f;
+                        if(vestige.isDoubleStellar(stack))
+                            multiplier = 0.01f;
+                    }
+                    else if(curse == 4){
+                        multiplier = 1.4f; //damage*
+                        if(vestige.isStellar(stack))
+                            multiplier = 1.7f;
+                        if(vestige.isDoubleStellar(stack))
+                            multiplier = 2.1f;
+                    }
+                    else if(curse == 5){
+                        multiplier = 1.5f;  //enemy shields - your add shield*
+                        if(vestige.isStellar(stack))
+                            multiplier = 2.25f;
+                        if(vestige.isDoubleStellar(stack))
+                            multiplier = 3.5f;
+                    }
+                    return multiplier;
+                }
+            }
+        }
+        return 0;
     }
 }

@@ -72,6 +72,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue vortexReduction;
         public final ForgeConfigSpec.IntValue easterChance;
         public final ForgeConfigSpec.ConfigValue bosses;
+        public final ForgeConfigSpec.ConfigValue blacklistBosses;
         public final ForgeConfigSpec.ConfigValue repairObjects;
         public final ForgeConfigSpec.ConfigValue repairBlackList;
         public final ForgeConfigSpec.ConfigValue rareItems;
@@ -99,6 +100,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue debuffBlacklist;
         public final ForgeConfigSpec.ConfigValue cloneBlackList;
         public final ForgeConfigSpec.ConfigValue cloneWhiteList;
+        public final ForgeConfigSpec.ConfigValue mirrorUUIDList;
+        public final ForgeConfigSpec.ConfigValue dupersList;
 
         public Common(ForgeConfigSpec.Builder builder) {
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
@@ -168,7 +171,8 @@ public class ConfigHandler {
             chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
             eatingMinutes = builder.comment("Minutes for fish to fed up").defineInRange("eatingMinutes", 1, 1, 2100000000);
 
-            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,void_worm");
+            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,void_worm,");
+            blacklistBosses = builder.comment("blacklist for bosses: ").define("blacklistBosses","void_worm_part,");
             repairObjects = builder.comment("repairObjectsId: ").define("repairObjects","mending,repair,unbreak,restore,heal,ingot");
             repairBlackList = builder.comment("repairBlackListId: ").define("repairBlackList","");
             vortexReduction = builder.comment("Reduction of maximum amount needed for Vortex").defineInRange("vortexReduction", 0, 0, Integer.MAX_VALUE);
@@ -187,6 +191,8 @@ public class ConfigHandler {
             debuffBlacklist = builder.comment("Defines blacklist for random potion effects as from Heirloom's Special: ").define("debuffBlacklist","crystallized,");
             cloneBlackList = builder.comment("Defines blacklist for items that cannot be cloned with Celestial Mirror: ").define("cloneBlackList","pouch,bag,backpack,chest,box,pocket,store,storage,satchel,knapsack,cargo,vault,locker,crate,trunk,barrel,bin,safe,drawer,compartment,cache,case,basket,haversack,receptacle,container,ghostly_pickaxe,soul_gem,horse_flute,sack,broom");
             cloneWhiteList = builder.comment("Defines whitelist for items that can be cloned with Celestial Mirror with highest priority. F.e. chestplate to not be blocked by chest in blacklist: ").define("cloneWhiteList","chestplate,box_eggs,box_saplings,item.vp.box,");
+            mirrorUUIDList = builder.comment("List of existing mirrors UUID: ").define("mirrorUUIDList","");
+            dupersList = builder.comment("List of dupers: ").define("dupersList","");
         }
 
         public int getChallengeReduceByNumber(int number) {

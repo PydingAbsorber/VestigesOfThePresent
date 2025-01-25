@@ -110,7 +110,7 @@ public class ChaosOrb extends Item{
                     }
                 }
             }
-            double bookChance = 0.01;
+            double bookChance = 0.005;
             if(random.nextDouble() < VPUtil.getChance(bookChance,player)) {
                 int count = 0;
                 int numba = random.nextInt(enchantments.size());
@@ -119,13 +119,35 @@ public class ChaosOrb extends Item{
                         ItemStack enchantedBook = new ItemStack(Items.ENCHANTED_BOOK);
                         EnchantmentHelper.setEnchantments(Map.of(enchantment, enchantments.get(enchantment)), enchantedBook);
                         VPUtil.giveStack(enchantedBook,player);
-                        enchantments.clear();
                     }
                     count++;
                 }
             }
+            double bookEnchantChance = 0.001;
+            if(random.nextDouble() < VPUtil.getChance(bookEnchantChance,player)) {
+                for (ItemStack inventoryStack : player.getInventory().items) {
+                    if (inventoryStack.getItem() instanceof EnchantedBookItem) {
+                        Map<Enchantment, Integer> bookEnchantments = EnchantmentHelper.getEnchantments(inventoryStack);
+                        for (Map.Entry<Enchantment, Integer> entry : bookEnchantments.entrySet()) {
+                            Enchantment enchantment = entry.getKey();
+                            int bookLevel = entry.getValue();
+                            int lvl = enchantments.get(enchantment);
+                            if(lvl > 0){
+                                lvl = lvl+bookLevel;
+                                enchantments.remove(enchantment);
+                                enchantments.put(enchantment, lvl);
+                            }
+                            else {
+                                enchantments.put(enchantment, bookLevel);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
             EnchantmentHelper.setEnchantments(enchantments, itemStack);
             player.getMainHandItem().split(1);
+            player.getPersistentData().putBoolean("VPBlockHand",true);
         }
         return super.use(level, player, hand);
     }

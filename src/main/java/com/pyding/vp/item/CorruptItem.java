@@ -65,6 +65,7 @@ public class CorruptItem extends Item{
                 }
                 itemStack.getOrCreateTag().putBoolean("VPCursed",true);
                 player.getMainHandItem().split(1);
+                player.getPersistentData().putBoolean("VPBlockHand",true);
             }
             if(player.getOffhandItem().getItem() instanceof Vestige){
                 if(VPUtil.curseVestige(player.getOffhandItem(),new Random().nextInt(Vestige.maxCurses)))

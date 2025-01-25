@@ -20,6 +20,7 @@
     }
   },
   "result": {
-    "item": "vp:box"
+    "item": "vp:box",
+    "count": 8
   }
 }
