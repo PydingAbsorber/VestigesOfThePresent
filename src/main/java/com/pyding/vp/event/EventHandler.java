@@ -1701,7 +1701,7 @@ public class EventHandler {
     @SubscribeEvent
     public void tooltipEvent(ItemTooltipEvent event){
         ItemStack stack = event.getItemStack();
-        if(stack.getOrCreateTag().getBoolean("VPMirrored"))
+        if(stack.hasTag() && stack.getTag().getBoolean("VPMirrored"))
             event.getToolTip().add(Component.translatable("vp.mirrored").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.DARK_AQUA));
     }
 
