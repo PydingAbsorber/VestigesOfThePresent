@@ -51,9 +51,10 @@ public class CelestialMirror extends Item{
                 if (player.getMainHandItem().getOrCreateTag().getUUID("VPMirror").compareTo(UUID.fromString(element)) == 0) {
                     player.getMainHandItem().split(1);
                     ConfigHandler.COMMON.dupersList.set(ConfigHandler.COMMON.dupersList.get() + "Name:" + player.getName().getString() + " UUID:" + player.getUUID() + ",");
-                    VPUtil.deadInside(player);
-                    if(player.getServer() != null)
-                        player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName().getString() + " duped Celestial Mirror!"),false);
+                    if(player.getServer() != null) {
+                        VPUtil.deadInside(player);
+                        player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName().getString() + " duped Celestial Mirror!"), false);
+                    }
                     return super.use(level, player, hand);
                 }
             }
@@ -88,9 +89,10 @@ public class CelestialMirror extends Item{
                     if(stack.getOrCreateTag().getUUID("VPMirror").compareTo(UUID.fromString(element)) == 0){
                         stack.split(1);
                         ConfigHandler.COMMON.dupersList.set(ConfigHandler.COMMON.dupersList.get()+"Name:"+player.getName().getString()+" UUID:"+player.getUUID()+",");
-                        VPUtil.deadInside(player);
-                        if(player.getServer() != null)
-                            player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName()+" duped Celestial Mirror!"),false);
+                        if(player.getServer() != null) {
+                            VPUtil.deadInside(player);
+                            player.getServer().getPlayerList().broadcastSystemMessage(Component.literal("Player " + player.getName() + " duped Celestial Mirror!"), false);
+                        }
                     }
                 }
             }

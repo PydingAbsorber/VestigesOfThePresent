@@ -711,7 +711,7 @@ public class EventHandler {
                     challange.failChallenge(13,player);
                     challange.failChallenge(18,player);
                 });
-                if(VPUtil.hasVestige(ModItems.BOOK.get(), player)){
+                if(event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPEnchant") > System.currentTimeMillis() && VPUtil.hasVestige(ModItems.BOOK.get(), player)){
                     ItemStack stack = VPUtil.getVestigeStack(Book.class,player);
                     if(stack.getItem() instanceof Book book) {
                         if (book.isUltimateActive(stack)) {
@@ -1161,6 +1161,8 @@ public class EventHandler {
         Random random = new Random();
         if(!entity.isAlive())
             return;
+        if(entity.getHealth() > entity.getMaxHealth())
+            entity.setHealth(entity.getMaxHealth());
         if(entity.tickCount % 20 == 0 && (VPUtil.getShield(entity) > 0 || VPUtil.getOverShield(entity) > 0))
             VPUtil.syncEntity(entity);
         if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47")))){
@@ -1328,14 +1330,14 @@ public class EventHandler {
             float overShield = VPUtil.getOverShield(playerServer);
             float curseShieldModifier = VPUtil.getCurseMultiplier(playerServer,3);
             if(curseShieldModifier != 0 && shield > 10 && overShield > 10){
-                tag.putFloat("VPShield", shield-shield*curseShieldModifier);
-                tag.putFloat("VPOverShield", overShield-overShield*curseShieldModifier);
                 for(ItemStack stack: VPUtil.getVestigeList(playerServer)){
-                    if(stack.getItem() instanceof Vestige vestige){
-                        int specialCd = (int)((float) vestige.cdSpecialActive(stack)-(float) vestige.specialCd(stack)*0.1);
-                        int ultimateCd = (int)((float) vestige.cdUltimateActive(stack)-(float) vestige.ultimateCd(stack)*0.1);
+                    if(stack.getItem() instanceof Vestige vestige && (vestige.cdSpecialActive(stack) > 0 || vestige.cdUltimateActive(stack) > 0)){
+                        int specialCd = (int)Math.max(((float) vestige.cdSpecialActive(stack)-(float) vestige.specialCd(stack)*0.1),0);
+                        int ultimateCd = (int)Math.max(((float) vestige.cdUltimateActive(stack)-(float) vestige.ultimateCd(stack)*0.1),0);
                         vestige.setCdSpecialActive(specialCd,stack);
                         vestige.setCdUltimateActive(ultimateCd,stack);
+                        tag.putFloat("VPShield", shield-shield*curseShieldModifier);
+                        tag.putFloat("VPOverShield", overShield-overShield*curseShieldModifier);
                     }
                 }
             }
@@ -1610,7 +1612,6 @@ public class EventHandler {
                 VPUtil.boostEntity(entity,5,entity.getHealth()*3*(float)(0.5+4*random.nextDouble()),entity.getHealth()*(float)(0.5+4*random.nextDouble()));
         }
         if(event.getEntity() instanceof Player player){
-            VPUtil.updateStats(player);
             VPUtil.updateStats(player);
             player.getPersistentData().putLong("VPDeath",0);
         }

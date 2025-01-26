@@ -75,7 +75,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -1225,11 +1224,12 @@ public class VPUtil {
                         float entityShield = getShield(livingEntity);
                         float entityOverShield = getOverShield(livingEntity);
                         if(entityShield > shield*curseShield){
-                            tag.putFloat("VPShield", entityShield-shield*curseShield);
-                        } else tag.putFloat("VPShield", 0);
+                            livingEntity.getPersistentData().putFloat("VPShield", entityShield-shield*curseShield);
+                        } else livingEntity.getPersistentData().putFloat("VPShield", 0);
                         if(entityOverShield > shield*curseShield){
-                            tag.putFloat("VPOverShield", entityOverShield-shield*curseShield);
-                        } else tag.putFloat("VPOverShield", 0);
+                            livingEntity.getPersistentData().putFloat("VPOverShield", entityOverShield-shield*curseShield);
+                        } else livingEntity.getPersistentData().putFloat("VPOverShield", 0);
+                        VPUtil.syncEntity(livingEntity);
                     }
                 }
                 sync(player);
@@ -1715,7 +1715,7 @@ public class VPUtil {
     }
 
     public static boolean isDamagePhysical(DamageSource source){
-        return !source.is(DamageTypes.LIGHTNING_BOLT) && !source.is(DamageTypes.FREEZE) && !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
+        return !source.is(DamageTypes.FELL_OUT_OF_WORLD) && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.LAVA) && !source.is(DamageTypes.LIGHTNING_BOLT) && !source.is(DamageTypes.FREEZE) && !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
     }
 
     public static boolean isFriendlyFireBetween(Entity attacker, Entity target) {
@@ -3452,11 +3452,11 @@ public class VPUtil {
                 if(curse > 0) {
                     float multiplier = 0;
                     if(curse == 1) {
-                        multiplier = 0.1f; //maxhp*
+                        multiplier = -0.9f; //maxhp*
                         if(vestige.isStellar(stack))
-                            multiplier = 0.25f;
+                            multiplier = -0.75f;
                         if(vestige.isDoubleStellar(stack))
-                            multiplier = 0.55f;
+                            multiplier = -0.45f;
                     }
                     else if (curse == 2){
                         multiplier = 80; //bonus-
