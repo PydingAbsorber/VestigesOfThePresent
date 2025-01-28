@@ -179,7 +179,7 @@ public class ConfigHandler {
             easter = builder.comment("Enables Easter event").define("easter", false);
             easterChance = builder.comment("Additional chance for Easter Egg 10 is 10%").defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
             fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle,wet,river");
-            rareItems = builder.comment("Rare Items for fishing by Abyssal Pearl: ").define("rareItems","item.vp.hearty_pearl,item.vp.pinky_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
+            rareItems = builder.comment("Rare Items for fishing by Abyssal Pearl: ").define("rareItems","item.vp.hearty_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
             fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","item.vp.pearl");
             rareFishingDropChance = builder.comment("Chance of rare drop in current biome from Fishing with Pearl or by defending Silly Seashell.").defineInRange("rareFishingDropChance", 0.001, 0, 1);
             failFlowers = builder.comment("Fails flowers Challenge when they are being placed.").define("failFlowers", false);

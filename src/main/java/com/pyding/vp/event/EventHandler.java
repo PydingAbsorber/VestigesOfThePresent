@@ -642,38 +642,30 @@ public class EventHandler {
                     midas.fuckNbt();
                     stack.getOrCreateTag().putInt("VPKills", stack.getOrCreateTag().getInt("VPKills") + kill);
                 }
-                double looting = Math.min(20,(double) player.getMainHandItem().getEnchantmentLevel(Enchantments.MOB_LOOTING)/10+(double) player.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE)/20+1);
+                double looting = VPUtil.scaleDown((double) player.getMainHandItem().getEnchantmentLevel(Enchantments.MOB_LOOTING)/10+(double) player.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE)/20+1,20);
                 double corruptedFragmentChance = 0.001*looting;
                 double corruptedItemChance = 0.0001*looting;
                 double orbChance = 0.00001*looting;
                 double mirrorChance = 0.0000001*looting;
+                double multiplier = 1;
                 if(VPUtil.isNightmareBoss(entity)) {
                     VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+20),entity);
                     VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_ITEM.get(),random.nextInt(2)+2),entity);
-                    corruptedFragmentChance *= 1000;
-                    corruptedItemChance *= 1000;
-                    orbChance *= 1000;
-                    mirrorChance *= 1000;
+                    multiplier = 500;
                 }
                 else if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && !VPUtil.isNightmareBoss(entity)) {
                     VPUtil.dropStack(new ItemStack(ModItems.SHARD.get(),random.nextInt(2)+1),entity);
                     VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+1),entity);
-                    corruptedFragmentChance *= 100;
-                    corruptedItemChance *= 100;
-                    orbChance *= 100;
-                    mirrorChance *= 100;
+                    multiplier = 100;
                 }
                 else if(VPUtil.isEmpoweredMob(entity)){
                     VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), 1),entity);
-                    corruptedFragmentChance *= 10;
-                    corruptedItemChance *= 10;
-                    orbChance *= 10;
-                    mirrorChance *= 10;
+                    multiplier = 10;
                 }
-                corruptedFragmentChance *= count+1;
-                corruptedItemChance *= count+1;
-                orbChance *= count+1;
-                mirrorChance *= count+1;
+                corruptedFragmentChance *= count+multiplier;
+                corruptedItemChance *= count+multiplier;
+                orbChance *= count+multiplier;
+                mirrorChance *= count+multiplier;
                 if(entity instanceof Monster && ConfigHandler.COMMON.hardcore.get()){
                     if(random.nextDouble() < VPUtil.getChance(corruptedFragmentChance,player))
                         VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4)+1)*(count+1)),entity);
@@ -1652,11 +1644,11 @@ public class EventHandler {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if(cap.getPearls() > 0){
                     int luck = (int) (player.getMainHandItem().getEnchantmentLevel(Enchantments.FISHING_LUCK)/3f+player.getAttributeValue(Attributes.LUCK)/10);
-                    if(random.nextDouble() < VPUtil.getChance(Math.min(0.0005d,luck/100d),player)){
+                    if(random.nextDouble() < VPUtil.getChance(Math.min(0.001d,luck/1000d),player)){
                         ItemStack itemStack;
-                        if(random.nextDouble() < VPUtil.getChance(Math.min(0.1d,luck/100d),player))
+                        if(random.nextDouble() < VPUtil.getChance(Math.min(0.01d,luck/1000d),player))
                             itemStack = new ItemStack(ModItems.BOX.get());
-                        else if(random.nextDouble() < VPUtil.getChance(Math.min(0.3d,luck/100d),player))
+                        else if(random.nextDouble() < VPUtil.getChance(Math.min(0.1d,luck/100d),player))
                             itemStack = new ItemStack(ModItems.BOX_EGGS.get());
                         else itemStack = new ItemStack(ModItems.BOX_SAPLINGS.get());
                         VPUtil.giveStack(itemStack,player);

@@ -61,8 +61,8 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "getMaxHealth",at = @At("RETURN"),cancellable = true, require = 1)
     protected void getMaxHealthMix(CallbackInfoReturnable<Float> cir){
-        if(ConfigHandler.COMMON_SPEC.isLoaded() && (ConfigHandler.COMMON.unlockHp.get() || cir.getReturnValue() < 2050) && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
-            float maxHealth = VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) * ConfigHandler.COMMON.bossHP.get();
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && (ConfigHandler.COMMON.unlockHp.get() || cir.getReturnValue() <= 2048) && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
+            float maxHealth = Math.max(600,VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix())) * ConfigHandler.COMMON.bossHP.get();
             if(this.getAttributes() != null && this.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"))){
                 maxHealth *= 10;
             }

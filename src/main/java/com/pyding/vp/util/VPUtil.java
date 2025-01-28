@@ -9,6 +9,7 @@ import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.PinkyPearl;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.item.vestiges.Whirlpool;
@@ -2600,14 +2601,16 @@ public class VPUtil {
     }
 
     public static float dreadAbsorbtion(float number,float capAbsorb) {
-        float cap = Math.max(1,(float)(ConfigHandler.COMMON.nightmareDamageCap.get()-capAbsorb));
+        float maxCap = (float) (ConfigHandler.COMMON.nightmareDamageCap.get() + 0);
+        float baseAbsorb = 0.05f;
+        float cap = Math.max(1,(maxCap-capAbsorb));
         float damage;
         if (number <= cap) {
-            damage = number * 0.05f;
+            damage = number * baseAbsorb;
         } else {
-            damage = 5f + 10f * (float) Math.log10(number);
+            damage = baseAbsorb*100 + 10f * (float) Math.log10(number);
         }
-        return damage * (cap/100);
+        return damage*maxCap/(maxCap+cap*baseAbsorb*100);
     }
 
     public static boolean hasLyra(LivingEntity entity, int number){
@@ -2671,7 +2674,10 @@ public class VPUtil {
                 while(ConfigHandler.COMMON.fishingBlacklist.get().toString().contains(randomItem.getDescriptionId())){
                     randomItem = items.get(random.nextInt(items.size()-1));
                 }
-                if(isRare(stack) && random.nextDouble() > getChance(ConfigHandler.COMMON.rareFishingDropChance.get(),player))
+                if((stack.getItem() instanceof PinkyPearl && random.nextDouble() > getChance(ConfigHandler.COMMON.rareFishingDropChance.get(),player)/10)){
+                    randomItem = items.get(random.nextInt(items.size()-1));
+                }
+                else if((isRare(stack) && random.nextDouble() > getChance(ConfigHandler.COMMON.rareFishingDropChance.get(),player)))
                     randomItem = items.get(random.nextInt(items.size()-1));
                 stack = new ItemStack(randomItem);
             }
@@ -3491,5 +3497,27 @@ public class VPUtil {
             }
         }
         return 0;
+    }
+
+    public static int scaleDown(int number, int cap) {
+        if (number <= cap) {
+            return number;
+        }
+        double scaled = cap + Math.log((number - cap) + 1);
+        return (int) Math.round(scaled);
+    }
+
+    public static float scaleDown(float number, float cap) {
+        if (number <= cap) {
+            return number;
+        }
+        return (float) (cap + Math.log((number - cap) + 1));
+    }
+
+    public static double scaleDown(double number, double cap) {
+        if (number <= cap) {
+            return number;
+        }
+        return cap + Math.log((number - cap) + 1);
     }
 }
