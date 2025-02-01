@@ -64,6 +64,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.level.BlockEvent;
@@ -244,7 +245,7 @@ public class EventHandler {
                         }
                         else if(source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
                             entity.getPersistentData().putLong("VPWhirlVoid", System.currentTimeMillis() + time);
-                            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH,UUID.fromString("951043f3-5872-4dd5-a99e-7358b6c619d6"),0.2f, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:whirlHealth"));
+                            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH,UUID.fromString("951043f3-5872-4dd5-a99e-7358b6c619d6"),-0.8f, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:whirlHealth"));
                         }
                         else entity.getPersistentData().putLong("VPWhirlOther",System.currentTimeMillis()+time);
                     }
@@ -507,7 +508,6 @@ public class EventHandler {
         }
         if(!event.isCanceled()) {
             LivingEntity entity = event.getEntity();
-            entity.getPersistentData().putInt("VPMirnoeReshenie",0);
             if(VPUtil.isNightmareBoss(entity) && (entity.getHealth() > 0 || VPUtil.getOverShield(entity) > 0) && entity.getPersistentData().getInt("VPSoulRotting") < 100){
                 event.setCanceled(true);
                 entity.setHealth(entity.getMaxHealth());
@@ -667,12 +667,27 @@ public class EventHandler {
                 orbChance *= count+multiplier;
                 mirrorChance *= count+multiplier;
                 if(entity instanceof Monster && ConfigHandler.COMMON.hardcore.get()){
-                    if(random.nextDouble() < VPUtil.getChance(corruptedFragmentChance,player))
-                        VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4)+1)*(count+1)),entity);
-                    if(random.nextDouble() < VPUtil.getChance(corruptedItemChance,player))
-                        VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_ITEM.get(), (random.nextInt(1)+1)*(count+1)),entity);
-                    if(random.nextDouble() < VPUtil.getChance(orbChance,player))
-                        VPUtil.dropStack(new ItemStack(ModItems.CHAOS_ORB.get(), (random.nextInt(1)+1)*(count+1)),entity);
+                    if(random.nextDouble() < VPUtil.getChance(corruptedFragmentChance,player)) {
+                        ItemStack itemStack = new ItemStack(ModItems.CORRUPT_FRAGMENT.get(), (random.nextInt(4) + 1) * (count + 1));
+                        VPUtil.dropStack(itemStack, entity);
+                        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+                            challange.addrareItems(itemStack.getDescriptionId(),player);
+                        });
+                    }
+                    if(random.nextDouble() < VPUtil.getChance(corruptedItemChance,player)) {
+                        ItemStack itemStack = new ItemStack(ModItems.CORRUPT_ITEM.get(), (random.nextInt(1) + 1) * (count + 1));
+                        VPUtil.dropStack(itemStack, entity);
+                        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+                            challange.addrareItems(itemStack.getDescriptionId(),player);
+                        });
+                    }
+                    if(random.nextDouble() < VPUtil.getChance(orbChance,player)) {
+                        ItemStack itemStack = new ItemStack(ModItems.CHAOS_ORB.get(), (random.nextInt(1) + 1) * (count + 1));
+                        VPUtil.dropStack(itemStack, entity);
+                        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+                            challange.addrareItems(itemStack.getDescriptionId(),player);
+                        });
+                    }
                     if(random.nextDouble() < VPUtil.getChance(mirrorChance,player)) {
                         ItemStack mirror = new ItemStack(ModItems.CELESTIAL_MIRROR.get(), 1);
                         UUID uuid = UUID.randomUUID();
@@ -766,13 +781,12 @@ public class EventHandler {
             }
         } else {
             LivingEntity entity = event.getEntity();
-            if(entity.getPersistentData().getInt("VPMirnoeReshenie") > 10) {
-                VPUtil.setHealth(entity,0);
-                VPUtil.setDead(entity, entity.damageSources().genericKill());
-            }
-            else if(entity.getPersistentData().getLong("VPDeath") > 0){
+            if(entity.getPersistentData().getLong("VPDeath") > 0){
                 entity.setHealth(0);
-                event.setCanceled(true);
+                event.setCanceled(false);
+            }
+            if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0){
+                VPUtil.despawn(entity);
             }
         }
     }
@@ -1142,6 +1156,7 @@ public class EventHandler {
             }
         }
     }
+
     @SubscribeEvent
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
@@ -1224,6 +1239,11 @@ public class EventHandler {
                         }
                     }
                 }
+            }
+            if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && ((entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 950 || (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 100)){
+                if(entity instanceof Player)
+                    VPUtil.setDead(entity,entity.damageSources().dryOut());
+                else VPUtil.despawn(entity);
             }
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()){
@@ -1344,7 +1364,7 @@ public class EventHandler {
         }
         if(entity.tickCount % 40 == 0)
             Objects.requireNonNull(entity.getAttribute(Attributes.MAX_HEALTH)).removeModifier(UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"));
-        if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath")+ 40*1000 < System.currentTimeMillis())
+        if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath") + 100 > System.currentTimeMillis())
             tag.putLong("VPDeath",0);
         if(event.getEntity() instanceof Player player){
             if(entity.tickCount % 4000 == 0 && random.nextDouble() < VPUtil.getChance(0.2+ConfigHandler.COMMON.easterChance.get()/100d,player)){
@@ -1462,39 +1482,41 @@ public class EventHandler {
                 if(player.tickCount % 8000 == 0 && VPUtil.getCurrentBiome(player) != null){
                     Level level = player.getCommandSenderWorld();
                     String biome = VPUtil.getCurrentBiome(player).getPath();
-                    if(biome.contains("ocean") && !biome.contains("deep") && !biome.contains("frozen")){
-                        double chance = 0.1;
+                    if(biome.contains("ocean") && !biome.contains("frozen") && !biome.contains("cold")){
+                        double chance = 0.05;
                         if(biome.contains("warm"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
                             HungryOyster oyster = new HungryOyster(ModEntities.OYSTER.get(),level);
                             oyster.setPos(player.getX(),player.getY(),player.getZ());
-                            VPUtil.teleportRandomly(oyster,30,true);
-                            level.addFreshEntity(oyster);
-                            if(random.nextDouble() < VPUtil.getChance(0.1,player)){
-                                oyster.getPersistentData().putBoolean("VPCool",true);
-                                VPUtil.syncEntity(oyster);
-                            }
-                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get(),oyster.getX(),oyster.getY(),oyster.getZ());
-                            for(int i = 0; i < 3; i++) {
-                                TropicalFish fish = new TropicalFish(EntityType.TROPICAL_FISH, level);
-                                fish.setPos(player.getX(),player.getY(),player.getZ());
-                                VPUtil.teleportRandomly(fish,30,true);
-                                fish.getPersistentData().putLong("VPEating",System.currentTimeMillis());
-                                level.addFreshEntity(fish);
+                            if(VPUtil.teleportRandomly(oyster,30,true)) {
+                                level.addFreshEntity(oyster);
+                                if (random.nextDouble() < VPUtil.getChance(0.1, player)) {
+                                    oyster.getPersistentData().putBoolean("VPCool", true);
+                                    VPUtil.syncEntity(oyster);
+                                }
+                                VPUtil.play(player, SoundRegistry.BUBBLEPOP.get(), oyster.getX(), oyster.getY(), oyster.getZ(), 0.4f);
+                                for (int i = 0; i < 3; i++) {
+                                    TropicalFish fish = new TropicalFish(EntityType.TROPICAL_FISH, level);
+                                    fish.setPos(player.getX(), player.getY(), player.getZ());
+                                    VPUtil.teleportRandomly(fish, 30, true);
+                                    fish.getPersistentData().putLong("VPEating", System.currentTimeMillis());
+                                    level.addFreshEntity(fish);
+                                }
                             }
                         }
                     }
-                    else if(biome.contains("ocean") && biome.contains("deep")){
-                        double chance = 0.1;
+                    else if(biome.contains("ocean") && biome.contains("deep") && !biome.contains("warm")){
+                        double chance = 0.05;
                         if(biome.contains("cold") || biome.contains("frozen"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
                             SillySeashell shell = new SillySeashell(ModEntities.SEASHELL.get(),level);
                             shell.setPos(player.getX(),player.getY(),player.getZ());
-                            level.addFreshEntity(shell);
-                            VPUtil.teleportRandomly(shell,30,true);
-                            VPUtil.play(player,SoundRegistry.BUBBLEPOP.get(),shell.getX(),shell.getY(),shell.getZ());
+                            if(VPUtil.teleportRandomly(shell,30,true)) {
+                                level.addFreshEntity(shell);
+                                VPUtil.play(player, SoundRegistry.BUBBLEPOP.get(), shell.getX(), shell.getY(), shell.getZ(), 0.4f);
+                            }
                         }
                     }
                 }
@@ -1606,6 +1628,7 @@ public class EventHandler {
         if(event.getEntity() instanceof Player player){
             VPUtil.updateStats(player);
             player.getPersistentData().putLong("VPDeath",0);
+            player.getPersistentData().putLong("VPMirnoeReshenie",0);
         }
     }
     @SubscribeEvent

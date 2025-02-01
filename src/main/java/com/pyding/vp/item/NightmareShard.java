@@ -42,7 +42,8 @@ public class NightmareShard extends Item {
         }
         if(entity instanceof HungryOyster){
             entity.getPersistentData().putBoolean("VPCool",true);
-        }
+        } else if(entity != null && player.isCreative())
+            VPUtil.deadInside(entity, player);
         return super.use(p_41432_, player, p_41434_);
     }
 

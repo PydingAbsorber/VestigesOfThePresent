@@ -64,7 +64,7 @@ public class Seashell extends Item {
                 VPUtil.play(player, SoundRegistry.BUBBLE5.get());
             }
         }
-        for(LivingEntity entity: VPUtil.getEntities(player,20)){
+        for(LivingEntity entity: VPUtil.getEntities(player,20,false)){
             if(entity instanceof WaterAnimal waterAnimal){
                 waterAnimal.goalSelector.addGoal(1,new TemptGoal(waterAnimal,2d, Ingredient.of(stack),false));
             }

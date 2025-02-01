@@ -112,8 +112,8 @@ public class SillySeashell extends WaterAnimal {
                     for (int i = 0; i < random.nextInt(7) + 10; i++) {
                         ShellHealEntity shell = new ShellHealEntity(getCommandSenderWorld());
                         shell.setPos(getX(), getY(), getZ());
-                        VPUtil.teleportRandomly(shell, 20, true);
-                        getCommandSenderWorld().addFreshEntity(shell);
+                        if(VPUtil.teleportRandomly(shell, 20, true))
+                            getCommandSenderWorld().addFreshEntity(shell);
                     }
                 }
                 List<EntityType> list = new ArrayList<>();
@@ -163,7 +163,7 @@ public class SillySeashell extends WaterAnimal {
                     if(entity.getPersistentData().getBoolean("VPWaved"))
                         count++;
                 }
-                if(count < (entitiesPerWave)-getPersistentData().getInt("VPWaveKilled")){
+                if(count < (entitiesPerWave-getPersistentData().getInt("VPWaveKilled"))){
                     for(LivingEntity entity: VPUtil.getEntitiesAround(this,20,20,20,false)) {
                         if (entity instanceof Player player) {
                             if(player.getPersistentData().getLong("VPErrorCd") < System.currentTimeMillis()) {

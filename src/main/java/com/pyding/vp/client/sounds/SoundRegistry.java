@@ -81,6 +81,11 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> LYRE6 = registerSoundEvent("lyre6");
     public static RegistryObject<SoundEvent> LYRE7 = registerSoundEvent("lyre7");
     public static RegistryObject<SoundEvent> LYRE8 = registerSoundEvent("lyre8");
+    public static RegistryObject<SoundEvent> DESPAWN = registerSoundEvent("despawn");
+    public static RegistryObject<SoundEvent> DROP_CORRUPT1 = registerSoundEvent("drop_corrupt1");
+    public static RegistryObject<SoundEvent> DROP_CORRUPT2 = registerSoundEvent("drop_corrupt2");
+    public static RegistryObject<SoundEvent> DROP_CHAOS = registerSoundEvent("drop_chaos");
+    public static RegistryObject<SoundEvent> DROP_MIRROR = registerSoundEvent("drop_mirror");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {

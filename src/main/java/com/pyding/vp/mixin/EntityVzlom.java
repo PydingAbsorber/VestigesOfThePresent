@@ -6,6 +6,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.entity.EntityInLevelCallback;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,4 +22,10 @@ public interface EntityVzlom {
 
     @Accessor("type")
     EntityType<?> getTypeMix();
+
+    @Accessor("persistentData")
+    public void setPersistentData(CompoundTag tag);
+
+    @Accessor("levelCallback")
+    EntityInLevelCallback getLevelCallback();
 }

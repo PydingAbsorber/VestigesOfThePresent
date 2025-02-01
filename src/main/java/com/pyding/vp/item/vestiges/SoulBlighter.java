@@ -2,6 +2,7 @@ package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.mixin.MobEntityVzlom;
+import com.pyding.vp.mixin.NearestAttackebleTargetMixinVzlom;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -20,6 +21,8 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -81,20 +84,21 @@ public class SoulBlighter extends Vestige{
         } else {
             player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){
-                if(entity instanceof Player || VPUtil.isProtectedFromHit(player,entity))
+                if((entity instanceof Player || VPUtil.isProtectedFromHit(player,entity)) && !((entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").compareTo(player.getUUID()) == 0)))
                     continue;
                 double chance = VPUtil.calculateCatchChance(player.getMaxHealth(),entity.getMaxHealth(),entity.getHealth());
                 if(entity.getPersistentData().getLong("VPAstral") > 0)
                     chance *= 2;
                 Random random = new Random();
                 if(random.nextDouble() < VPUtil.getChance(chance,player)
-                        || (entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").equals(player.getUUID()))
+                        || (entity.getPersistentData().hasUUID("VPPlayer") && entity.getPersistentData().getUUID("VPPlayer").compareTo(player.getUUID()) == 0)
                         || player.isCreative()){
                     fuckNbt();
                     stack.getOrCreateTag().put("entityData",entity.serializeNBT());
                     stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
                     VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
-                    entity.remove(Entity.RemovalReason.DISCARDED);
+                    //entity.remove(Entity.RemovalReason.DISCARDED);
+                    VPUtil.despawn(entity);
                     if(isStellar(stack))
                         player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
                 }
@@ -149,24 +153,51 @@ public class SoulBlighter extends Vestige{
                 VPUtil.spawnParticles(player, ParticleTypes.SOUL,entity.getX(),entity.getY(),entity.getZ(),4,0,-0.5,0);
                 boolean walk = true;
                 if(entity instanceof Monster monster){
-                    monster.goalSelector.removeAllGoals(goal -> {
-                        if(goal instanceof HurtByTargetGoal){
-                            return true;
+                    if(monster.getLastHurtByMob() == player) {
+                        monster.setLastHurtByMob(null);
+                    }
+                    if(monster.getLastAttacker() == player)
+                        monster.setLastHurtByPlayer(null);
+                    if(monster.getTarget() == player)
+                        ((MobEntityVzlom) monster).setTarget(null);
+                    monster.targetSelector.getAvailableGoals().removeIf(goal ->
+                            goal.getGoal() instanceof NearestAttackableTargetGoal<?> targetGoal &&
+                                    ((NearestAttackebleTargetMixinVzlom)targetGoal).getTargetType() == Player.class
+                    );
+
+                    monster.targetSelector.getAvailableGoals().removeIf(wrapper -> {
+                        Goal goal = wrapper.getGoal();
+                        if (goal instanceof NearestAttackableTargetGoal<?>) {
+                            NearestAttackableTargetGoal<?> natg = (NearestAttackableTargetGoal<?>) goal;
+                            return ((NearestAttackebleTargetMixinVzlom)natg).getTargetType() == Player.class;
                         }
                         return false;
                     });
-                    if(monster.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && monster.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get() == player)
-                        monster.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
-                    if(monster.getLastHurtByMob() == player) {
-                        monster.setLastHurtByMob(null);
-                        monster.setLastHurtByPlayer(null);
+
+                    monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<Player>(
+                            monster,
+                            Player.class,
+                            10,
+                            true,
+                            false,
+                            candidate -> {
+                                if (monster.getPersistentData().hasUUID("VPPlayer")) {
+                                    UUID ownerUUID = monster.getPersistentData().getUUID("VPPlayer");
+                                    return !candidate.getUUID().equals(ownerUUID);
+                                }
+                                return true;
+                            }
+                    ));
+
+                    if (monster instanceof Warden warden && warden.getTarget() == player) {
+                        warden.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+                        warden.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
                     }
-                    Goal goal = new NearestAttackableTargetGoal<>(monster, Monster.class, true);
+
+                    /*Goal goal = new NearestAttackableTargetGoal<>(monster, Monster.class, true);
                     if(!monster.goalSelector.getAvailableGoals().contains(goal))
-                        monster.goalSelector.addGoal(0,goal);
-                    /*for(WrappedGoal goal: monster.goalSelector.getAvailableGoals()){
-                        goal.start();
-                    }*/
+                        monster.goalSelector.addGoal(0,goal);*/
+
                     if(player.getLastHurtMob() != null && player.getLastHurtMob() != entity && entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) && entity.distanceTo(player) < 10){
                         ((MobEntityVzlom)monster).setTarget(player.getLastHurtMob());
                         monster.setLastHurtByMob(player.getLastHurtMob());
@@ -185,6 +216,9 @@ public class SoulBlighter extends Vestige{
                                 walk = false;
                             }
                         }
+                    }
+                    if(entity.distanceTo(player) > 40){
+                        entity.teleportTo(player.getX(),player.getY(),player.getZ());
                     }
                 }
                 if (walk){

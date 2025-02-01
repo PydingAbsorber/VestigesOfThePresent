@@ -94,14 +94,14 @@ public class PlayerCapabilityVP {
     }
 
     public void addMusic(String musicDisk, Player player){
-        if(VPUtil.notContains(music,musicDisk)) {
+        if(VPUtil.notContains(music,musicDisk) && !hasCoolDown(22)) {
             this.music += musicDisk + ",";
             setChallenge(22,player);
         }
     }
 
     public void addTemplate(String template, Player player){
-        if(VPUtil.notContains(templates,template)) {
+        if(VPUtil.notContains(templates,template) && !hasCoolDown(21)) {
             this.templates += template + ",";
             setChallenge(21,player);
         }
@@ -109,7 +109,7 @@ public class PlayerCapabilityVP {
 
 
     public void addSea(String seaElement, Player player){
-        if(VPUtil.notContains(sea,seaElement)) {
+        if(VPUtil.notContains(sea,seaElement) && !hasCoolDown(24)) {
             this.sea += seaElement + ",";
             setChallenge(24,player);
         }
@@ -302,14 +302,14 @@ public class PlayerCapabilityVP {
         return friends;
     }
     public void addCat(String cat, Player player){
-        if(VPUtil.notContains(cats,cat)) {
+        if(VPUtil.notContains(cats,cat) && !hasCoolDown(8)) {
             this.cats += cat + ",";
             setChallenge(8,player);
         }
     }
 
     public void addEffect(String effect, Player player){
-        if(VPUtil.notContains(effects,effect)) {
+        if(VPUtil.notContains(effects,effect) && !hasCoolDown(17)) {
             this.effects += effect + ",";
             setChallenge(17,player);
         }
@@ -319,7 +319,7 @@ public class PlayerCapabilityVP {
         if(key != null) {
             //String biomeName = key.toDebugFileName();
             String biomeName = key.getPath();
-            if (VPUtil.notContains(biomesFound,biomeName)) {
+            if (VPUtil.notContains(biomesFound,biomeName) && !hasCoolDown(3)) {
                 this.biomesFound += biomeName + ",";
                 setChallenge(3, player);
             }
@@ -327,35 +327,35 @@ public class PlayerCapabilityVP {
     }
 
     public void addFlower(String flower, Player player){
-        if(VPUtil.notContains(flowers,flower)) {
+        if(VPUtil.notContains(flowers,flower) && !hasCoolDown(16)) {
             this.flowers += flower + ",";
             setChallenge(16, player);
         }
     }
 
     public void addCreatureKilledAir(String name, Player player){
-        if(VPUtil.notContains(creaturesKilledAir,name)) {
+        if(VPUtil.notContains(creaturesKilledAir,name) && !hasCoolDown(1)) {
             this.creaturesKilledAir += name + ",";
             setChallenge(1,player);
         }
     }
 
     public void addDamageDie(String damage, Player player){
-        if(VPUtil.notContains(damageDie,damage)) {
+        if(VPUtil.notContains(damageDie,damage) && !hasCoolDown(11)) {
             this.damageDie += damage + ",";
             setChallenge(11,player);
         }
     }
 
     public void addrareItems(String item, Player player){
-        if (VPUtil.notContains(rareItems,item)) {
+        if (VPUtil.notContains(rareItems,item) && !hasCoolDown(13)) {
             this.rareItems += item + ",";
             setChallenge(13, player);
         }
     }
 
     public void addMonsterKill(String monster, Player player){
-        if(VPUtil.notContains(monstersKilled,monster)) {
+        if(VPUtil.notContains(monstersKilled,monster) && !hasCoolDown(2)) {
             this.monstersKilled += monster + ",";
             setChallenge(2,player);
         }
@@ -376,7 +376,7 @@ public class PlayerCapabilityVP {
     }
 
     public void addBossKill(String monster, Player player){
-        if(VPUtil.notContains(bosses,monster)) {
+        if(VPUtil.notContains(bosses,monster) && !hasCoolDown(15)) {
             this.bosses += monster + ",";
             setChallenge(15,player);
         }
@@ -407,22 +407,23 @@ public class PlayerCapabilityVP {
     public String getEffects(){
         return effects;
     }
+
     public void addMobTame(String mob, Player player){
-        if(VPUtil.notContains(mobsTamed,mob)) {
+        if(VPUtil.notContains(mobsTamed,mob) && !hasCoolDown(20)) {
             this.mobsTamed += mob + ",";
             setChallenge(20,player);
         }
     }
 
     public void addFood(String food, Player player){
-        if(VPUtil.notContains(foodEaten,food)) {
+        if(VPUtil.notContains(foodEaten,food) && !hasCoolDown(6)) {
             this.foodEaten += food + ",";
             setChallenge(6,player);
         }
     }
 
     public void addTool(String tool, Player player){
-        if(VPUtil.notContains(tools,tool)) {
+        if(VPUtil.notContains(tools,tool) && !hasCoolDown(10)) {
             this.tools += tool + ",";
             setChallenge(10,player);
         }

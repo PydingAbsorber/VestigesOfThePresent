@@ -3,14 +3,10 @@ package com.pyding.vp.item;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.TropicalFish;
@@ -18,14 +14,18 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -47,7 +47,16 @@ public class Shard extends Item {
             entity = livingEntity;
             break;
         }
-        if(!p_41432_.isClientSide && entity!= null && VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && (!VPUtil.isNightmareBoss(entity) || player.isCreative())) {
+        if(p_41432_.isClientSide)
+            return super.use(p_41432_, player, p_41434_);
+        if(!ConfigHandler.COMMON.hardcore.get()){
+            player.sendSystemMessage(Component.literal("Cruel mode is disabled!"));
+            return super.use(p_41432_, player, p_41434_);
+        }
+        if(entity== null || VPUtil.isEmpoweredMob(entity)) {
+            return super.use(p_41432_, player, p_41434_);
+        }
+        if(VPUtil.isBoss(entity)) {
             stack.shrink(1);
             Random random = new Random();
             if(random.nextDouble() < VPUtil.getChance(0.2,player) || player.isCreative()){
@@ -64,11 +73,11 @@ public class Shard extends Item {
                     player.sendSystemMessage(Component.literal(entity.getMaxHealth() + " curent" + entity.getHealth()));
             }
         }
-        if(entity instanceof TropicalFish){
+        else if(entity instanceof TropicalFish){
             stack.shrink(1);
             entity.getPersistentData().putLong("VPEating",System.currentTimeMillis());
         }
-        if(entity instanceof Monster){
+        else if(entity instanceof Monster){
             Random random = new Random();
             VPUtil.boostEntity(entity,5,entity.getHealth()*3*(float)(0.5+4*random.nextDouble()),entity.getHealth()*(float)(0.5+4*random.nextDouble()));
         }

@@ -328,5 +328,30 @@
     "sounds": [
       "vp:lyre8"
     ]
+  },
+  "despawn": {
+    "sounds": [
+      "vp:despawn"
+    ]
+  },
+  "drop_corrupt1": {
+    "sounds": [
+      "vp:drop_corrupt1"
+    ]
+  },
+  "drop_corrupt2": {
+    "sounds": [
+      "vp:drop_corrupt2"
+    ]
+  },
+  "drop_chaos": {
+    "sounds": [
+      "vp:drop_chaos"
+    ]
+  },
+  "drop_mirror": {
+    "sounds": [
+      "vp:drop_mirror"
+    ]
   }
 }

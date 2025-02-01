@@ -31,7 +31,7 @@ public class Anemoculus extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         if(!isUltimateActive(stack)) {
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,25,0,0.5,0,3,false);
-            for (LivingEntity entity : VPUtil.getEntities(player, 8)) {
+            for (LivingEntity entity : VPUtil.getEntities(player, 8,true)) {
                 if(!VPUtil.isProtectedFromHit(player,entity))
                     VPUtil.liftEntity(entity, VPUtil.commonPower);
             }
@@ -41,7 +41,7 @@ public class Anemoculus extends Vestige{
             if(random.nextDouble() < 0.5)
                 VPUtil.play(player,SoundRegistry.WIND1.get());
             else VPUtil.play(player,SoundRegistry.WIND2.get());
-            for(LivingEntity entity: VPUtil.getEntities(player,16)){
+            for(LivingEntity entity: VPUtil.getEntities(player,16,false)){
                 VPUtil.suckEntity(entity,player,2,true);
             }
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
