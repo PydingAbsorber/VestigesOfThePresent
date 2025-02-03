@@ -2,6 +2,7 @@ package com.pyding.vp.item;
 
 import com.pyding.vp.item.accessories.*;
 import com.pyding.vp.item.vestiges.*;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -14,7 +15,7 @@ import static com.pyding.vp.VestigesOfThePresent.MODID;
 public class ModItems {
     public static DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
-    public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new Item(new Item.Properties().stacksTo(1).tab(null)));
     public static final RegistryObject<Item> ANEMOCULUS = ITEMS.register("anemoculus", () -> new Anemoculus());
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown", () -> new Crown());
     public static final RegistryObject<Item> ATLAS = ITEMS.register("atlas", () -> new Atlas());
@@ -39,9 +40,9 @@ public class ModItems {
     public static final RegistryObject<Item> LYRA = ITEMS.register("lyra", () -> new Lyra());
     public static final RegistryObject<Item> PEARL = ITEMS.register("pearl", () -> new Pearl());
     public static final RegistryObject<Item> WHIRLPOOL = ITEMS.register("whirlpool", () -> new Whirlpool());
-    public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64)));
-    public static final RegistryObject<Item> REFRESHER = ITEMS.register("refresher", () -> new Refresher(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> INFINITE_REFRESHER = ITEMS.register("infinite_refresher", () -> new InfiniteRefresher(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab)));
+    public static final RegistryObject<Item> REFRESHER = ITEMS.register("refresher", () -> new Refresher(new Item.Properties().stacksTo(1).tab(ModCreativeModTab.tab)));
+    public static final RegistryObject<Item> INFINITE_REFRESHER = ITEMS.register("infinite_refresher", () -> new InfiniteRefresher(new Item.Properties().stacksTo(1).tab(null)));
     public static final RegistryObject<Item> RING_OF_FALLEN_STAR = ITEMS.register("ring_of_fallen_star", () -> new RingOfFallenStar());
     public static final RegistryObject<Item> EARRING_OF_DEAD_HOPES = ITEMS.register("earring_of_dead_hopes", () -> new EarringOfDeadHopes());
     public static final RegistryObject<Item> NECKLACE_OF_TORTURED_DREAMS = ITEMS.register("necklace_of_tortured_dreams", () -> new NecklaceOfTorturedDreams());
@@ -57,7 +58,7 @@ public class ModItems {
     public static final RegistryObject<Item> SEASHELL = ITEMS.register("seashell", () -> new Seashell());
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
-    public static final RegistryObject<Item> BLACKHOLE_ITEM = ITEMS.register("blackhole_item", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> BLACKHOLE_ITEM = ITEMS.register("blackhole_item", () -> new Item(new Item.Properties().stacksTo(1).tab(null)));
     public static final RegistryObject<Item> CORRUPT_FRAGMENT = ITEMS.register("corrupted_fragment", () -> new CorruptFragment());
     public static final RegistryObject<Item> CORRUPT_ITEM = ITEMS.register("corrupted_item", () -> new CorruptItem());
     public static final RegistryObject<Item> CHAOS_ORB = ITEMS.register("chaos_orb", () -> new ChaosOrb());

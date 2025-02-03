@@ -89,6 +89,8 @@ public class SoundRegistry {
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
-        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(VestigesOfThePresent.MODID, name)));
+        return SOUND_EVENTS.register(name,
+                () -> new SoundEvent(new ResourceLocation(VestigesOfThePresent.MODID, name)));
     }
+
 }

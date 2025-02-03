@@ -23,7 +23,7 @@ public class HeartyPearl extends Item {
     }
 
     public HeartyPearl() {
-        super(new Properties().stacksTo(64));
+        super(new Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

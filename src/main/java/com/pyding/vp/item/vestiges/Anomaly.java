@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -46,7 +47,7 @@ public class Anomaly extends Vestige{
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
                     serverPlayer.teleportTo(entity.getX()-1,entity.getY(),entity.getZ()-1);
-                    VPUtil.dealDamage(entity,player,player.damageSources().dragonBreath(),400,2);
+                    VPUtil.dealDamage(entity,player, DamageSource.DRAGON_BREATH,400,2);
                     entity.getPersistentData().putLong("VPAntiTP",seconds+System.currentTimeMillis());
                 }
             }

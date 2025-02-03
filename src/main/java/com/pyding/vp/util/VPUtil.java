@@ -3,7 +3,6 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.mojang.logging.LogUtils;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -17,13 +16,11 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -33,11 +30,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -48,7 +42,6 @@ import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
@@ -62,14 +55,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
@@ -78,17 +71,17 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
+import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-import java.io.IOException;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.util.*;
@@ -96,6 +89,22 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VPUtil {
+    public static void registerCurioType(final String identifier, final int slots, final boolean isHidden, @Nullable final ResourceLocation icon) {
+        final SlotTypeMessage.Builder message = new SlotTypeMessage.Builder(identifier);
+
+        message.size(slots);
+
+        if (isHidden) {
+            message.hide();
+        }
+
+        if (icon != null) {
+            message.icon(icon);
+        }
+
+        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> message.build());
+
+    }
     public static long coolDown(Player player){
         double reduce = 1;
         if(getSet(player) == 10)
@@ -191,7 +200,7 @@ public class VPUtil {
 
     public static void initBiomes(Player player,Level level){
         if(player instanceof ServerPlayer serverPlayer) {
-            Set<ResourceKey<Biome>> biomes = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
+            Set<ResourceKey<Biome>> biomes = level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).registryKeySet();
             biomeNames.addAll(biomes);
             //PacketHandler.sendToClient(new PlayerFlyPacket(1), serverPlayer);
         }
@@ -262,12 +271,12 @@ public class VPUtil {
     public static HashSet<String> templates = new HashSet<>();
 
     public static HashSet<String> getTemplates(){
-        if(templates.isEmpty()) {
+        /*if(templates.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof SmithingTemplateItem templateItem)
-                    templates.add(((SmitingMixing) templateItem).upgradeDescription().getString());
+                    templates.add(((SmitngMixing) templateItem).upgradeDescription().getString());
             }
-        }
+        }*/
         return templates;
     }
 
@@ -319,8 +328,11 @@ public class VPUtil {
             EntityType<?> type = ((BucketMixin)bucketItem).getFishSup().get();
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
                 HashSet<String> tropicalFish = new HashSet<>();
-                for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
-                    tropicalFish.add(variant.pattern().getSerializedName());
+                for (Integer variant : TropicalFish.COMMON_VARIANTS){
+                    //tropicalFish.add(variant.pattern().getSerializedName());
+                    String name = TropicalFish.getFishTypeName(variant);
+                    tropicalFish.add(name.substring(name.lastIndexOf('.') + 1));
+                }
                 bucketMap.put(bucketItem, tropicalFish);
             }
             else if(type.getDescriptionId().contains("entity.minecraft.axolotl")) {
@@ -554,8 +566,7 @@ public class VPUtil {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
-        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
-        entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
+        entity.hurt(source,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
@@ -600,10 +611,9 @@ public class VPUtil {
         VPUtil.spawnSphere(livingEntity,ParticleTypes.WHITE_ASH,50,2,0.01f);
         VPUtil.play(livingEntity,SoundRegistry.DESPAWN.get());
         if(livingEntity instanceof Player){
-            setDead(livingEntity,livingEntity.damageSources().dryOut());
+            setDead(livingEntity,DamageSource.DRY_OUT);
         } else {
             setHealth(livingEntity,0);
-            livingEntity.getBrain().clearMemories();
             ((EntityVzlom) livingEntity).setPersistentData(null);
             ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
         }
@@ -615,21 +625,21 @@ public class VPUtil {
             if (corpse.isSleeping()) {
                 corpse.stopSleeping();
             }
-            if (!corpse.level().isClientSide && corpse instanceof Player player) {
+            if (!corpse.getLevel().isClientSide && corpse instanceof Player player) {
                 player.sendSystemMessage(Component.literal("§cSome fool tried to cancel legal death from Paragon Damage, you died forcefully!"));
             }
             setHealth(corpse,0);
             ((LivingEntityVzlom)corpse).setDead(true);
             corpse.getCombatTracker().recheckStatus();
-            Level level = corpse.level();
+            Level level = corpse.getLevel();
             if (level instanceof ServerLevel) {
                 ServerLevel serverlevel = (ServerLevel)level;
-                if (entity == null || entity.killedEntity(serverlevel, corpse)) {
+                if (entity == null || entity.wasKilled(serverlevel, corpse)) {
                     corpse.gameEvent(GameEvent.ENTITY_DIE);
                     ((LivingEntityVzlom)corpse).invokeDropAllDeathLoot(source);
                 }
 
-                corpse.level().broadcastEntityEvent(corpse, (byte)3);
+                corpse.getLevel().broadcastEntityEvent(corpse, (byte)3);
             }
             corpse.setPose(Pose.DYING);
         }
@@ -672,10 +682,28 @@ public class VPUtil {
             if (cap.getDebug() && !player.getCommandSenderWorld().isClientSide) {
                 player.sendSystemMessage(event.getEntity().getType().getDescription());
                 player.sendSystemMessage(Component.literal("Damage source:§5 " + event.getSource().getMsgId() + "§r, amount after absorption:§5" + event.getAmount()));
-                for(TagKey<DamageType> type : damageTypes(false)){
-                    if(event.getSource().is(type))
-                        player.sendSystemMessage(Component.translatable(type.location().toLanguageKey()));
-                }
+                if (event.getSource().isMagic())
+                    player.sendSystemMessage(Component.literal("§5isMagic"));
+                if (event.getSource().isBypassMagic())
+                    player.sendSystemMessage(Component.literal("§5isBypassMagic"));
+                if (event.getSource().isFire())
+                    player.sendSystemMessage(Component.literal("§5isFire"));
+                if (event.getSource().isDamageHelmet())
+                    player.sendSystemMessage(Component.literal("§5isDamageHelmet"));
+                if (event.getSource().isProjectile())
+                    player.sendSystemMessage(Component.literal("§5isProjectile"));
+                if (event.getSource().isExplosion())
+                    player.sendSystemMessage(Component.literal("§5isExplosion"));
+                if (event.getSource().isNoAggro())
+                    player.sendSystemMessage(Component.literal("§5isNoAggro"));
+                if (event.getSource().isBypassInvul())
+                    player.sendSystemMessage(Component.literal("§5isBypassInvul"));
+                if (event.getSource().isBypassEnchantments())
+                    player.sendSystemMessage(Component.literal("§5isBypassEnchantments"));
+                if (event.getSource().isBypassArmor())
+                    player.sendSystemMessage(Component.literal("§5isBypassArmor"));
+                if (event.getSource().isFall())
+                    player.sendSystemMessage(Component.literal("§5isFall"));
                 float shield = getShield(event.getEntity());
                 float overshield = getOverShield(event.getEntity());
                 if(shield > 0)
@@ -711,35 +739,23 @@ public class VPUtil {
     public static boolean hasVestige(Item item,Player player){
         if(!(item instanceof Vestige))
             return false;
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(item));
-        });
-        return result.size() > 0;
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() == item);
+        return !result.isEmpty();
     }
 
 
     public static ItemStack getVestigeStack(Vestige vestige,Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() == vestige));
-        });
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() == vestige);
         return result.get(0).stack();
     }
     public static ItemStack getVestigeStack(Class vestige,Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem().getClass() == vestige));
-        });
-        if(result.size() > 0)
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem().getClass() == vestige);
+        if(!result.isEmpty())
             return result.get(0).stack();
         return null;
     }
     public static List<ItemStack> getFirstVestige(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            handler.findFirstCurio(itemStack -> itemStack.getItem() instanceof Vestige).ifPresent(result::add);
-        });
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() instanceof Vestige);
         List<ItemStack> stacks = new ArrayList<>();
         for(SlotResult hitResult: result){
             stacks.add(hitResult.stack());
@@ -747,10 +763,7 @@ public class VPUtil {
         return stacks;
     }
     public static List<ItemStack> getVestigeList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Vestige));
-        });
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() instanceof Vestige);
         List<ItemStack> stacks = new ArrayList<>();
         for(SlotResult hitResult: result){
             stacks.add(hitResult.stack());
@@ -759,10 +772,7 @@ public class VPUtil {
     }
 
     public static List<ItemStack> getCurioList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof ICurioItem));
-        });
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() instanceof ICurioItem);
         List<ItemStack> stacks = new ArrayList<>();
         for(SlotResult hitResult: result){
             stacks.add(hitResult.stack());
@@ -771,10 +781,7 @@ public class VPUtil {
     }
 
     public static List<ItemStack> getAccessoryList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Accessory));
-        });
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() instanceof Accessory);
         List<ItemStack> stacks = new ArrayList<>();
         for(SlotResult hitResult: result){
             stacks.add(hitResult.stack());
@@ -785,10 +792,7 @@ public class VPUtil {
     public static boolean hasStellarVestige(Item item,Player player){
         if(!(item instanceof Vestige))
             return false;
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(item));
-        });
+        List<SlotResult> result = CuriosApi.getCuriosHelper().findCurios(player, (stackInSlot) -> stackInSlot.getItem() == item);
         for(SlotResult stack: result){
             if(stack.stack().getItem() instanceof Vestige vestige && vestige.isStellar(stack.stack()))
                 return true;
@@ -1036,8 +1040,7 @@ public class VPUtil {
                 damage = 0;
             entity.getPersistentData().putInt("VPCrownDamage", damage);
         }
-        DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
-        dealDamage(entity,player,source,percent,2);
+        dealDamage(entity,player,DamageSource.playerAttack(player),percent,2);
         //this fucking stinky dinky spaggety code wrote by an absolute disgusting imbecile(me lol) didn't work even after 20 tries to fix it
     }
 
@@ -1144,12 +1147,12 @@ public class VPUtil {
             else play(entity, SoundRegistry.DEATH2.get());
         }
         entity.invulnerableTime = 0;
-        entity.hurt(player.damageSources().playerAttack(player),0);
+        entity.hurt(DamageSource.playerAttack(player),0);
         entity.setLastHurtByPlayer(player);
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+1000);
         setHealth(entity,0);
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
-        entity.die(player.damageSources().genericKill());
+        entity.die(DamageSource.GENERIC);
     }
 
     public static void deadInside(LivingEntity entity){
@@ -1162,11 +1165,11 @@ public class VPUtil {
             else play(entity, SoundRegistry.DEATH2.get());
         }
         entity.invulnerableTime = 0;
-        entity.hurt(entity.damageSources().genericKill(),0);
+        entity.hurt(DamageSource.GENERIC,0);
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
         entity.setHealth(0);
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
-        entity.die(entity.damageSources().genericKill());
+        entity.die(DamageSource.GENERIC);
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -1267,24 +1270,60 @@ public class VPUtil {
         else return false;
     }
 
-    public static void dropEntityLoot(LivingEntity entity, Player player, boolean drop) {
+    /*public static void dropEntityLoot(LivingEntity entity, Player player, boolean drop) {
         if (entity instanceof Player) {
             return;
         }
         if(player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
             ResourceLocation lootTableLocation = entity.getLootTable();
-            LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(lootTableLocation);
+            LootTable lootTable = serverLevel.getServer().getLootTables().get(lootTableLocation);
             Map<LootContextParam<?>, Object> lootparams = new HashMap<>();
             lootparams.put(LootContextParams.ORIGIN, entity.position());
             lootparams.put(LootContextParams.THIS_ENTITY, entity);
-            lootparams.put(LootContextParams.DAMAGE_SOURCE, player.damageSources().playerAttack(player));
-            LootParams params = new LootParams(serverLevel,lootparams,null,1);
+            lootparams.put(LootContextParams.DAMAGE_SOURCE, DamageSource.playerAttack(player));
+            LootContext params = new LootContext(RandomSource.create(),0,serverLevel,null,null,lootparams,null,null);
             List<ItemStack> list = lootTable.getRandomItems(params);
             for(ItemStack stack: list){
                 ItemEntity itemEntity = new ItemEntity(serverLevel,entity.getX(),entity.getY(),entity.getZ(),stack);
                 if(drop)
                     serverLevel.addFreshEntity(itemEntity);
                 else giveStack(stack,player);
+            }
+        }
+    }*/
+
+    public static void dropEntityLoot(LivingEntity entity, Player player, boolean drop) {
+        if (entity instanceof Player) return;
+
+        if (player.getCommandSenderWorld() instanceof ServerLevel serverLevel) {
+            ResourceLocation lootTableLocation = entity.getLootTable();
+            LootTable lootTable = serverLevel.getServer().getLootTables().get(lootTableLocation);
+            LootContext.Builder contextBuilder = new LootContext.Builder(serverLevel)
+                    .withRandom(RandomSource.create())
+                    .withParameter(LootContextParams.ORIGIN, entity.position())
+                    .withParameter(LootContextParams.THIS_ENTITY, entity)
+                    .withParameter(LootContextParams.DAMAGE_SOURCE, DamageSource.playerAttack(player))
+                    .withOptionalParameter(LootContextParams.KILLER_ENTITY, player)
+                    .withOptionalParameter(LootContextParams.LAST_DAMAGE_PLAYER, player)
+                    .withLuck(player.getLuck());
+
+            LootContext lootContext = contextBuilder.create(LootContextParamSets.ENTITY);
+
+            List<ItemStack> items = lootTable.getRandomItems(lootContext);
+
+            for (ItemStack stack : items) {
+                if (drop) {
+                    ItemEntity itemEntity = new ItemEntity(
+                            serverLevel,
+                            entity.getX(),
+                            entity.getY(),
+                            entity.getZ(),
+                            stack
+                    );
+                    serverLevel.addFreshEntity(itemEntity);
+                } else {
+                    giveStack(stack, player);
+                }
             }
         }
     }
@@ -1294,7 +1333,7 @@ public class VPUtil {
     }
 
     public static ResourceKey<Level> getWorldKey(String path,String directory){
-        ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(directory,path));
+        ResourceKey<Level> key = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(directory,path));
         return key;
     }
 
@@ -1312,7 +1351,7 @@ public class VPUtil {
 
     public static void initRareDrops(List<LivingEntity> list, MinecraftServer server){
         for(LivingEntity livingEntity: list){
-            LootTable lootTable = server.getLootData().getLootTable(livingEntity.getLootTable());
+            LootTable lootTable = server.getLootTables().get(livingEntity.getLootTable());
             List<Item> rareList = new ArrayList<>();
             for(LootPool pool: ((LootTableVzlom)lootTable).getPools()){
                 for (LootPoolEntryContainer entry : ((LootPoolMixin) pool).getEntries()) {
@@ -1502,7 +1541,7 @@ public class VPUtil {
     }
 
     public static boolean isDamagePhysical(DamageSource source){
-        return !source.is(DamageTypes.FELL_OUT_OF_WORLD) && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.LAVA) && !source.is(DamageTypes.LIGHTNING_BOLT) && !source.is(DamageTypes.FREEZE) && !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
+        return source != DamageSource.OUT_OF_WORLD && source != DamageSource.DROWN && source != DamageSource.LAVA && source != DamageSource.FREEZE && source != DamageSource.LIGHTNING_BOLT && source != DamageSource.IN_FIRE && source != DamageSource.MAGIC && !source.isBypassInvul() && !source.isBypassEnchantments() && !source.isBypassMagic();
     }
 
     public static boolean isFriendlyFireBetween(Entity attacker, Entity target) {
@@ -1967,7 +2006,7 @@ public class VPUtil {
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
             VPUtil.play(player, SoundRegistry.BUBBLE1.get());
             entity.getPersistentData().putLong("VPBubble", 0);
-            VPUtil.dealDamage(entity, player, player.damageSources().drown(), 1000, 3);
+            VPUtil.dealDamage(entity, player, DamageSource.DROWN, 1000, 3);
             entity.getPersistentData().putLong("VPWet", System.currentTimeMillis() + 20000);
             overShields /= 2;
             entity.getPersistentData().putFloat("VPOverShield",overShields);
@@ -2004,7 +2043,7 @@ public class VPUtil {
         if(entity.getHealth()-health > 0) {
             setHealth(entity,entity.getHealth() - health);
             if(hurt)
-                entity.hurt(player.damageSources().generic(),0);
+                entity.hurt(DamageSource.playerAttack(player),0);
             if(entity instanceof Player deb && hasVestige(ModItems.RUNE.get(), deb) && (VPUtil.getShield(deb) <= 0 || VPUtil.getOverShield(deb) <= 0)){
                 if(VPUtil.getShield(deb) <= 0)
                     VPUtil.addShield(deb,health*0.5f,false);
@@ -2032,7 +2071,7 @@ public class VPUtil {
         }
         if(entity.getHealth()-health > 0) {
             if(hurt)
-                entity.hurt(player.damageSources().generic(),0);
+                entity.hurt(DamageSource.GENERIC,0);
             entity.setHealth(entity.getHealth() - health);
             if(entity instanceof Player deb && hasVestige(ModItems.RUNE.get(), deb) && (VPUtil.getShield(deb) <= 0 || VPUtil.getOverShield(deb) <= 0)){
                 if(VPUtil.getShield(deb) <= 0)
@@ -2045,72 +2084,34 @@ public class VPUtil {
         }
     }
 
-    public static List<TagKey<DamageType>> damageTypes(boolean warden){
-        List<TagKey<DamageType>> damageTypes = new ArrayList<>();
-        damageTypes.add(DamageTypeTags.DAMAGES_HELMET);
-        damageTypes.add(DamageTypeTags.BYPASSES_ARMOR);
-        damageTypes.add(DamageTypeTags.BYPASSES_SHIELD);
-        damageTypes.add(DamageTypeTags.BYPASSES_INVULNERABILITY);
-        damageTypes.add(DamageTypeTags.BYPASSES_EFFECTS);
-        damageTypes.add(DamageTypeTags.BYPASSES_RESISTANCE);
-        damageTypes.add(DamageTypeTags.BYPASSES_ENCHANTMENTS);
-        if(!warden)
-            damageTypes.add(DamageTypeTags.IS_FIRE);
-        damageTypes.add(DamageTypeTags.IS_PROJECTILE);
-        damageTypes.add(DamageTypeTags.WITCH_RESISTANT_TO);
-        damageTypes.add(DamageTypeTags.IS_EXPLOSION);
-        damageTypes.add(DamageTypeTags.IS_FALL);
-        damageTypes.add(DamageTypeTags.IS_DROWNING);
-        damageTypes.add(DamageTypeTags.IS_FREEZING);
-        damageTypes.add(DamageTypeTags.IS_LIGHTNING);
-        if(!warden)
-            damageTypes.add(DamageTypeTags.NO_ANGER);
-        damageTypes.add(DamageTypeTags.NO_IMPACT);
-        damageTypes.add(DamageTypeTags.ALWAYS_MOST_SIGNIFICANT_FALL);
-        damageTypes.add(DamageTypeTags.WITHER_IMMUNE_TO);
-        if(!warden)
-            damageTypes.add(DamageTypeTags.IGNITES_ARMOR_STANDS);
-        if(!warden)
-            damageTypes.add(DamageTypeTags.BURNS_ARMOR_STANDS);
-        damageTypes.add(DamageTypeTags.AVOIDS_GUARDIAN_THORNS);
-        damageTypes.add(DamageTypeTags.ALWAYS_TRIGGERS_SILVERFISH);
-        damageTypes.add(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS);
-        return damageTypes;
-    }
 
     public static List<DamageSource> playerDamageSources(LivingEntity player, LivingEntity entity){
-        List<DamageSource> damageSources = new ArrayList<>();
-        damageSources.add(player.damageSources().lightningBolt());
-        damageSources.add(player.damageSources().inWall());
-        damageSources.add(player.damageSources().cramming());
-        damageSources.add(player.damageSources().drown());
-        damageSources.add(player.damageSources().starve());
-        damageSources.add(player.damageSources().cactus());
-        damageSources.add(player.damageSources().fall());
-        damageSources.add(player.damageSources().flyIntoWall());
-        damageSources.add(player.damageSources().fellOutOfWorld());
-        damageSources.add(player.damageSources().generic());
-        damageSources.add(player.damageSources().magic());
-        damageSources.add(player.damageSources().wither());
-        damageSources.add(player.damageSources().dragonBreath());
-        //damageSources.add(player.damageSources().dryOut());
-        damageSources.add(player.damageSources().sweetBerryBush());
-        damageSources.add(player.damageSources().freeze());
-        damageSources.add(player.damageSources().stalagmite());
-        damageSources.add(player.damageSources().fallingBlock(player));
-        damageSources.add(player.damageSources().anvil(player));
-        damageSources.add(player.damageSources().fallingStalactite(player));
-        damageSources.add(player.damageSources().sting(player));
-        damageSources.add(player.damageSources().mobAttack(player));
-        damageSources.add(player.damageSources().trident(player,entity));
-        damageSources.add(player.damageSources().mobProjectile(player,entity));
-        damageSources.add(player.damageSources().thorns(player));
-        damageSources.add(player.damageSources().explosion(player,entity));
-        damageSources.add(player.damageSources().sonicBoom(player));
-        damageSources.add(player.damageSources().inFire());
-        damageSources.add(player.damageSources().onFire());
-        damageSources.add(player.damageSources().lava());
-        damageSources.add(player.damageSources().hotFloor());
+        List<DamageSource> damageSources = new ArrayList<>(Arrays.asList(
+                DamageSource.IN_FIRE,
+                DamageSource.LIGHTNING_BOLT,
+                DamageSource.ON_FIRE,
+                DamageSource.LAVA,
+                DamageSource.HOT_FLOOR,
+                DamageSource.IN_WALL,
+                DamageSource.CRAMMING,
+                DamageSource.DROWN,
+                DamageSource.STARVE,
+                DamageSource.CACTUS,
+                DamageSource.FALL,
+                DamageSource.FLY_INTO_WALL,
+                DamageSource.OUT_OF_WORLD,
+                DamageSource.GENERIC,
+                DamageSource.MAGIC,
+                DamageSource.WITHER,
+                DamageSource.ANVIL,
+                DamageSource.FALLING_BLOCK,
+                DamageSource.DRAGON_BREATH,
+                DamageSource.DRY_OUT,
+                DamageSource.SWEET_BERRY_BUSH,
+                DamageSource.FREEZE,
+                DamageSource.FALLING_STALACTITE,
+                DamageSource.STALAGMITE
+        ));
         return damageSources;
     }
 
@@ -2561,7 +2562,7 @@ public class VPUtil {
     }
 
     public static void vzlomatJopu(float value){
-        final Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(new ResourceLocation("generic.max_health"));
+        final Attribute attribute = Registry.ATTRIBUTE.get(new ResourceLocation("generic.max_health"));//BuiltInRegistries.ATTRIBUTE.get(new ResourceLocation("generic.max_health"));
         if (attribute instanceof RangedAttribute ranged) {
             final VzlomJopiMixin vzlom = (VzlomJopiMixin) (Object) attribute;
             if (ranged.getMaxValue() != value)
@@ -2631,12 +2632,12 @@ public class VPUtil {
                     damage *= 30;
                     shield = 5;
                 }
-                player.hurt(boss.damageSources().freeze(),damage);
+                player.hurt(DamageSource.FREEZE,damage);
                 boss.getPersistentData().putInt("VPFreezeShield",shield);
             }
         }
         if(type == 5){
-            if((!player.onGround() && !player.isInWater()) || (!boss.onGround() && !boss.isInWater()))
+            if((!player.isOnGround() && !player.isInWater()) || (!boss.isOnGround() && !boss.isInWater()))
                 dealParagonDamage(player,boss,attack*0.05f,0,true);
         }
         if(type == 6 && (getShield(player) > 0 || getOverShield(player) > 0))
@@ -2656,7 +2657,7 @@ public class VPUtil {
                 if (!somebodyHelp) {
                     damage *= 10;
                 }
-                player.hurt(boss.damageSources().fellOutOfWorld(), damage);
+                player.hurt(DamageSource.OUT_OF_WORLD, damage);
                 dealParagonDamage(player,boss,50,0,true);
             }
         }
@@ -2772,7 +2773,7 @@ public class VPUtil {
                     spawnCircleParticles(entity,30,ParticleTypes.POOF,30,0.5);
                     for(LivingEntity livingEntity: getEntitiesAround(entity,20,20,20,false)){
                         livingEntity.invulnerableTime = 0;
-                        livingEntity.hurt(entity.damageSources().inWall(),attack*40);
+                        livingEntity.hurt(DamageSource.IN_WALL,attack*40);
                     }
                     play(entity, SoundEvents.STONE_BREAK);
                     play(entity, SoundEvents.STONE_PLACE);
@@ -2886,7 +2887,7 @@ public class VPUtil {
                 double z = player.getZ();
                 if(type == 1 && entity.tickCount % (4*20*slow) == 0){
                     player.setSecondsOnFire(entity.getRemainingFireTicks()+10000);
-                    player.hurt(entity.damageSources().lava(),attack*0.6f);
+                    player.hurt(DamageSource.LAVA,attack*0.6f);
                 }
                 if(type == 2 && (entity.tickCount % (10*20*slow)) == 0){
                     spawnParticle(player,ParticleTypes.CLOUD,x,y,z,0,0,0);
@@ -2900,7 +2901,7 @@ public class VPUtil {
                         play(player,SoundEvents.SNOW_GOLEM_HURT);
                     if(entity.getPersistentData().getLong("VPBlizzard") > System.currentTimeMillis() && entity.tickCount % 20 == 0){
                         player.invulnerableTime = 0;
-                        player.hurt(entity.damageSources().freeze(),attack*10);
+                        player.hurt(DamageSource.FREEZE,attack*10);
                         player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+1000);
                     }
                 }
@@ -2917,7 +2918,7 @@ public class VPUtil {
                             if (player instanceof ServerPlayer serverPlayer)
                                 PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
                             player.invulnerableTime = 0;
-                            player.hurt(entity.damageSources().fall(), attack * 8);
+                            player.hurt(DamageSource.FALL, attack * 8);
                         }
                     } else {
                         if(pos != null) {
@@ -2935,7 +2936,7 @@ public class VPUtil {
                     }
                 }
                 if(entity.tickCount % (1*20*slow) == 0 && type == 6){
-                    if(position != null && livingEntity.distanceToSqr(position.getCenter()) <= 5){
+                    if(position != null && livingEntity.distanceToSqr(entity) <= 5){
                         lightList.add(livingEntity);
                     }
                     entity.getPersistentData().putLong("VPBossL",System.currentTimeMillis()+random.nextInt(10)*1000);
@@ -2964,7 +2965,7 @@ public class VPUtil {
                         if(living == entity)
                             continue;
                         living.invulnerableTime = 0;
-                        living.hurt(entity.damageSources().lightningBolt(),attack*0.5f);
+                        living.hurt(DamageSource.LIGHTNING_BOLT,attack*0.5f);
                         stealShields(living,entity,15,true);
                     }
                     entity.getPersistentData().putFloat("VPAcsHeal",entity.getPersistentData().getFloat("VPAcsHeal")+lightList.size());
@@ -3118,7 +3119,7 @@ public class VPUtil {
 
         while(d4 < d3) {
             d4 += 1.8D - d5 + livingEntity.getRandom().nextDouble() * (1.7D - d5);
-            livingEntity.level().addParticle(ParticleTypes.BUBBLE, livingEntity.getX() + d0 * d4, livingEntity.getEyeY() + d1 * d4, livingEntity.getZ() + d2 * d4, 0.0D, 0.0D, 0.0D);
+            livingEntity.getLevel().addParticle(ParticleTypes.BUBBLE, livingEntity.getX() + d0 * d4, livingEntity.getEyeY() + d1 * d4, livingEntity.getZ() + d2 * d4, 0.0D, 0.0D, 0.0D);
         }
     }
 

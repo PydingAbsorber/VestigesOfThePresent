@@ -1,7 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.models.OysterModel;
@@ -39,7 +39,7 @@ public class OysterRenderer extends EntityRenderer<HungryOyster> {
         poseStack.pushPose();
         float scale = 3;
         poseStack.scale(scale,scale,scale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
         poseStack.translate(0, -(15) / 10.0f, 0);
         Player player = Minecraft.getInstance().player;
         OysterModel<LivingEntity> model = new OysterModel<>(OysterModel.createBodyLayer().bakeRoot());

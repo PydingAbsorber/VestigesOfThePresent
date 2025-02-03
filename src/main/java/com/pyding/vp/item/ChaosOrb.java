@@ -23,7 +23,7 @@ import java.util.*;
 
 public class ChaosOrb extends Item{
     public ChaosOrb() {
-        super(new Properties().stacksTo(64));
+        super(new Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

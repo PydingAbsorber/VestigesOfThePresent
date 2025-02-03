@@ -17,14 +17,9 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtilParticles;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -64,8 +59,8 @@ public class VestigesOfThePresent
         FMLJavaModLoadingContext.get().getModEventBus().register(PROXY);
         MinecraftForge.EVENT_BUS.register(PROXY);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC); //bye  bye
-        ModCreativeModTab.register(modEventBus);
-        modEventBus.addListener(this::addCreative);
+        //ModCreativeModTab.register(modEventBus);
+        //modEventBus.addListener(this::addCreative);
         VPUtil.vzlomatJopu(Float.MAX_VALUE);
     }
 
@@ -105,6 +100,11 @@ public class VestigesOfThePresent
 
     private void postInit(InterModEnqueueEvent event) {
         LOGGER.info("Sending messages to Curios API...");
+        VPUtil.registerCurioType("vestige", 2, false, new ResourceLocation("curios:slot/vpslot"));
+        VPUtil.registerCurioType("charm", 1, false, null);
+        VPUtil.registerCurioType("ring", 1, false, null);
+        VPUtil.registerCurioType("belt",1,false,null);
+        VPUtil.registerCurioType("necklace",1,false,null);
         VPUtil.initEntities();
         VPUtil.initItems();
         VPUtil.initBlocks();
@@ -118,7 +118,7 @@ public class VestigesOfThePresent
         PROXY.loadComplete(event);
     }
 
-    private void addCreative(BuildCreativeModeTabContentsEvent event){
+    /*private void addCreative(BuildCreativeModeTabContentsEvent event){
         if(event.getTab() == ModCreativeModTab.VP_TAB.get()){
             event.accept(ModItems.ANEMOCULUS);
             event.accept(ModItems.CROWN);
@@ -166,5 +166,5 @@ public class VestigesOfThePresent
             event.accept(ModItems.CHAOS_ORB);
             event.accept(ModItems.CELESTIAL_MIRROR);
         }
-    }
+    }*/
 }

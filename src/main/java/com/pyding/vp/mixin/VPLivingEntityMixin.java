@@ -2,15 +2,10 @@ package com.pyding.vp.mixin;
 
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.ai.attributes.*;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -21,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 @Mixin(value = LivingEntity.class)
@@ -36,7 +30,7 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "getDamageAfterMagicAbsorb",at = @At("RETURN"),cancellable = true, require = 1)
     protected void fuckEnchantmentsFinallyIHope(DamageSource p_21193_, float p_21194_,CallbackInfoReturnable<Float> info){
-        if(!p_21193_.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)) {
+        if(!p_21193_.isBypassEnchantments()) {
             for (ItemStack stack : ((LivingEntityVzlom)this).getArmorSlots()) {
                 for (Enchantment enchantment : stack.getAllEnchantments().keySet()) {
                     if (stack.getEnchantmentLevel(enchantment) < 0) {

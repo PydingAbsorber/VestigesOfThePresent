@@ -30,7 +30,7 @@ import java.util.Random;
 
 public class CorruptItem extends Item{
     public CorruptItem() {
-        super(new Item.Properties().stacksTo(64));
+        super(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

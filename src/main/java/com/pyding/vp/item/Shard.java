@@ -36,7 +36,7 @@ public class Shard extends Item {
     }
 
     public Shard() {
-        super(new Item.Properties().stacksTo(64));
+        super(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

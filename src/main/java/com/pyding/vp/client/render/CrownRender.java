@@ -1,10 +1,9 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.item.models.CrownModel;
-import com.pyding.vp.item.models.HornsModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -30,11 +29,11 @@ public class CrownRender implements ICurioRenderer {
         if (livingEntity.isCrouching()) {
             matrixStack.translate(0.0F, 0.25F, 0.0F);
         }
-        matrixStack.mulPose(Axis.YP.rotationDegrees(netHeadYaw));
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(netHeadYaw));
         if(livingEntity.isVisuallySwimming()){
-            matrixStack.mulPose(Axis.XP.rotationDegrees(-45));
+            matrixStack.mulPose(Vector3f.XP.rotationDegrees(-45));
         }
-        else matrixStack.mulPose(Axis.XP.rotationDegrees(headPitch));
+        else matrixStack.mulPose(Vector3f.XP.rotationDegrees(headPitch));
         matrixStack.translate(0.0F, 0.0F, 0.0F);
         CrownModel<LivingEntity> model = new CrownModel<>(CrownModel.createBodyLayer().bakeRoot());
         model.setupAnim(livingEntity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);

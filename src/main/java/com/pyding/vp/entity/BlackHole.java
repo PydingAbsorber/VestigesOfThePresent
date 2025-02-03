@@ -90,7 +90,7 @@ public class BlackHole extends Projectile {
                 if(entity instanceof ServerPlayer serverPlayer1)
                     PacketHandler.sendToClient(new SuckPacket((float) (r/(entity.distanceTo(this)*2)),blockPosition()),serverPlayer1);
                 if (entity.distanceTo(this) <= Math.max(10,gravity-10) && tickCount % ConfigHandler.COMMON.blackhole.get() == 0)
-                    VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),10/entity.distanceTo(this),3);
+                    VPUtil.dealDamage(entity,player, DamageSource.OUT_OF_WORLD,10/entity.distanceTo(this),3);
             }
         }
         if (!getCommandSenderWorld().isClientSide) {

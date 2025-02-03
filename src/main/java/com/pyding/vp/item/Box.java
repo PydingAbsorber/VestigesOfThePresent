@@ -26,7 +26,7 @@ public class Box extends Item {
     }
 
     public Box() {
-        super(new Item.Properties().stacksTo(64));
+        super(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.util.*;
 
 public class CelestialMirror extends Item{
     public CelestialMirror() {
-        super(new Properties().stacksTo(1));
+        super(new Properties().stacksTo(1).tab(ModCreativeModTab.tab));
     }
 
     @Override

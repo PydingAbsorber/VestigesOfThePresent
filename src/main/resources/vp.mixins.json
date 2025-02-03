@@ -29,7 +29,6 @@
     "SmithingMenuMixin",
     "SmithingVzlomMixing",
     "SmitingMenuVzlom",
-    "SmitingMixing",
     "VPEntityMixin",
     "VPLivingEntityMixin",
     "VzlomJopiMixin"

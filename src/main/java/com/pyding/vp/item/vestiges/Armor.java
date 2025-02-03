@@ -4,6 +4,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +36,7 @@ public class Armor extends Vestige{
                 debuffCount++;
             }
         }
-        player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(1 + debuffCount));
+        player.hurt(DamageSource.CACTUS,VPUtil.getAttack(player,true)*(1 + debuffCount));
         player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+debuffCount*player.getMaxHealth());
         stack.getOrCreateTag().putFloat("VPArmor",stack.getOrCreateTag().getFloat("VPArmor")+100);
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);

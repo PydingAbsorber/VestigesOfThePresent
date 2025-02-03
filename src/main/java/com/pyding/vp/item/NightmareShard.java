@@ -29,7 +29,7 @@ public class NightmareShard extends Item {
     }
 
     public NightmareShard() {
-        super(new Properties().stacksTo(64));
+        super(new Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

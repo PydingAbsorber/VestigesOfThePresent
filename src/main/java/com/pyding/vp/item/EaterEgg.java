@@ -14,7 +14,7 @@ public class EaterEgg extends Item {
     }
 
     public EaterEgg() {
-        super(new Item.Properties().stacksTo(64));
+        super(new Item.Properties().stacksTo(64).tab(null));
     }
 
     @Override

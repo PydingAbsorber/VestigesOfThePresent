@@ -1,7 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.CloudEntity;
 import com.pyding.vp.entity.models.CloudEntityModel;
@@ -45,7 +45,7 @@ public class CloudRenderer extends EntityRenderer<CloudEntity> {
             scale = sequence[tickCount];
         }
         poseStack.scale(10,scale,scale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
         poseStack.translate(0, -(19) / 10.0f, 0);
         Player player = Minecraft.getInstance().player;
         CloudEntityModel<LivingEntity> model = new CloudEntityModel<>(CloudEntityModel.createBodyLayer().bakeRoot());

@@ -1,6 +1,5 @@
 package com.pyding.vp.common;
 
-import net.minecraft.world.item.crafting.SmithingTrimRecipe;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 
 public class CommonProxy {

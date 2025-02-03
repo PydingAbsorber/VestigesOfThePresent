@@ -156,7 +156,7 @@ public class SoulBlighter extends Vestige{
                     if(monster.getLastHurtByMob() == player) {
                         monster.setLastHurtByMob(null);
                     }
-                    if(monster.getLastAttacker() == player)
+                    if(monster.getLastHurtByMob() == player)
                         monster.setLastHurtByPlayer(null);
                     if(monster.getTarget() == player)
                         ((MobEntityVzlom) monster).setTarget(null);
@@ -234,7 +234,7 @@ public class SoulBlighter extends Vestige{
                         boolean flying = entity instanceof FlyingAnimal || entity instanceof FlyingMob;
                         Vec3 vec31 = vec3.subtract(entity.position());
                         boolean jumpFlag = false;
-                        if (!flying && entity.horizontalCollision && entity.onGround() && vec31.y > 0) {
+                        if (!flying && entity.horizontalCollision && entity.isOnGround() && vec31.y > 0) {
                             jumpFlag = true;
                         } else if (!flying && vec31.y > 0) {
                             vec31 = new Vec3(vec31.x, 0, vec31.z);

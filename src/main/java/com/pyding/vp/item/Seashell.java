@@ -35,7 +35,7 @@ public class Seashell extends Item {
     }
 
     public Seashell() {
-        super(new Properties().stacksTo(1));
+        super(new Properties().stacksTo(1).tab(ModCreativeModTab.tab));
     }
 
     @Override

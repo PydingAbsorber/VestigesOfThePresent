@@ -22,7 +22,7 @@ public class PinkyPearl extends Item {
     }
 
     public PinkyPearl() {
-        super(new Properties().stacksTo(64));
+        super(new Properties().stacksTo(64).tab(null));
     }
 
     @Override

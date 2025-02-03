@@ -1,20 +1,19 @@
 package com.pyding.vp.client.render.blackhole;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.BlackHole;
 import com.pyding.vp.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -48,10 +47,12 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
             scale /= (entity.tickCount+20)-(20 * (gravity+2));
         poseStack.scale(scale,scale,scale);
         float angle = (System.currentTimeMillis() % 36000) / 2.0f;
-        poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(-angle));
         ItemStack stack = new ItemStack(ModItems.BLACKHOLE_ITEM.get());
         poseStack.scale(0.5F, 0.5F, 0.5F);
-        this.itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
+        //this.itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.getLevel(), entity.getId());
+        BakedModel model = this.itemRenderer.getModel(stack, entity.getLevel(), null, 0);
+        this.itemRenderer.render(stack, ItemTransforms.TransformType.FIXED, false, poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY, model);
 
         ShaderBlackHole shader = null;
         try {

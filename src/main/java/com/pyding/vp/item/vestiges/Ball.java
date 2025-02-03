@@ -7,6 +7,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,9 +28,9 @@ public class Ball extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.BOLT.get());
         for(LivingEntity entity: VPUtil.getEntities(player,5,true)){
-            VPUtil.dealDamage(entity,player, player.damageSources().lightningBolt(),500,2);
+            VPUtil.dealDamage(entity,player, DamageSource.LIGHTNING_BOLT,500,2);
         }
-        player.hurt(player.damageSources().lightningBolt(),VPUtil.getAttack(player,true)*5);
+        player.hurt(DamageSource.LIGHTNING_BOLT,VPUtil.getAttack(player,true)*5);
         if(level instanceof ServerLevel serverLevel)
             VPUtil.spawnLightning(serverLevel, player.getX(),player.getY(),player.getZ());
         Vec3 motion = new Vec3(0, 1, 0);
@@ -59,7 +60,7 @@ public class Ball extends Vestige{
             float shield = VPUtil.getShield(entity) + VPUtil.getOverShield(entity);
             if(shield > 0 || entity.getHealth() < player.getHealth() || entity.getArmorCoverPercentage() > 0 || entity.isInWaterRainOrBubble()){
                 float damageBonus = 1+(shield*0.001f)+(entity.getArmorCoverPercentage()*2)*(entity.getArmorValue()*0.1f);
-                VPUtil.dealDamage(entity,player,player.damageSources().lightningBolt(),1000*damageBonus,3);
+                VPUtil.dealDamage(entity,player,DamageSource.LIGHTNING_BOLT,1000*damageBonus,3);
                 if(level instanceof ServerLevel serverLevel)
                     VPUtil.spawnLightning(serverLevel, entity.getX(),entity.getY(),entity.getZ());
                 if(entity.isInWaterRainOrBubble())

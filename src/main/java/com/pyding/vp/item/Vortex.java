@@ -23,7 +23,7 @@ public class Vortex extends Item {
     }
 
     public Vortex() {
-        super(new Item.Properties().stacksTo(64));
+        super(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

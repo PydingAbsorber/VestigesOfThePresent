@@ -25,7 +25,7 @@ public class BoxEggs extends Item {
     }
 
     public BoxEggs() {
-        super(new Properties().stacksTo(64));
+        super(new Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -102,7 +103,7 @@ public class Mark extends Vestige{
         float heal = player.getPersistentData().getFloat("VPHealReduced");
         float damageFinal = damage-heal;
         if(damageFinal > 0) {
-            player.hurt(player.damageSources().fellOutOfWorld(), damageFinal);
+            player.hurt(DamageSource.OUT_OF_WORLD, damageFinal);
         }
         else setCdUltimateActive(cdUltimateActive(stack)-(int) Math.min(ultimateCd(stack) * 0.6, ultimateCd(stack) * ((VPUtil.calculatePercentageDifference(damage,heal))/100)),stack);
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap(0));

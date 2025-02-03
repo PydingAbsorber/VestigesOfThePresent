@@ -1,7 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.VortexEntity;
 import com.pyding.vp.entity.models.VortexModel;
@@ -42,8 +42,8 @@ public class VortexRenderer extends EntityRenderer<VortexEntity> {
         poseStack.scale(scale,scale,scale);
         //poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
         float angle = (System.currentTimeMillis() % 36000) / 16.0f;
-        poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(-angle));
+        poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
         poseStack.translate(0.0, -2.0, 0.0);
         Player player = Minecraft.getInstance().player;
         VortexModel<LivingEntity> model = new VortexModel<>(VortexModel.createBodyLayer().bakeRoot());

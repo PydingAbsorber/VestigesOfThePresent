@@ -11,6 +11,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +78,6 @@ public class ShieldOverlay {
     public static final IGuiOverlay HUD_SHIELD = ((gui, pose, partialTick, width, height) -> {
         int x = width / 2;
         int y = height;
-        PoseStack poseStack = pose.pose();
-        Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         Player player = Minecraft.getInstance().player;
@@ -108,8 +106,8 @@ public class ShieldOverlay {
                     int vestigeNumber = vestige.vestigeNumber;
                     if(vestigeNumber == 0)
                         continue;
-                    pose.blit(getTexture(vestigeNumber),x+(130+i*40),y-22, 0, 0, 16, 16,
-                            16, 16);
+                    renderImage(getTexture(vestigeNumber),x+(130+i*40),y-22, 0, 0, 16, 16,
+                            16, 16,pose);
                     /*int currentChargeSpecial = player.getPersistentData().getInt("VPCharge"+vestigeNumber);
                     int currentChargeUltimate = player.getPersistentData().getInt("VPChargeUlt"+vestigeNumber);
                     long time = player.getPersistentData().getLong("VPTime"+vestigeNumber);
@@ -121,8 +119,8 @@ public class ShieldOverlay {
                     int currentChargeUltimate = stack.getOrCreateTag().getInt("VPCurrentChargeUltimate");
                     long time = stack.getOrCreateTag().getLong("VPTime");
                     long timeUlt = stack.getOrCreateTag().getLong("VPTimeUlt");
-                    pose.drawString(fontRenderer,""+currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
-                    pose.drawString(fontRenderer,""+currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
+                    fontRenderer.draw(pose,""+currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
+                    fontRenderer.draw(pose,""+currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeSpecial, x+(150+i*40),y-24, vestige.color.getColor());
                     //fontRenderer.draw(poseStack, ""+vestige.currentChargeUltimate, x+(150+i*40),y-15, vestige.color.getColor());
                     String info = "";
@@ -204,16 +202,16 @@ public class ShieldOverlay {
                             durationUlt = String.valueOf(number);
                     }
                     if(!info.isEmpty())
-                        pose.drawString(fontRenderer,""+info, x+(132+i*40),y-33, vestige.color.getColor());
+                        fontRenderer.draw(pose,""+info, x+(132+i*40),y-33, vestige.color.getColor());
                     if(!durationSpecial.isEmpty())
-                        pose.drawString(fontRenderer,""+durationSpecial, x+(132+i*40),y-33, 0x00BFFF);
+                        fontRenderer.draw(pose,""+durationSpecial, x+(132+i*40),y-33, 0x00BFFF);
                     if(!durationUlt.isEmpty())
-                        pose.drawString(fontRenderer,""+durationUlt, x+(132+i*40),y-33, 0x9932CC);
+                        fontRenderer.draw(pose,""+durationUlt, x+(132+i*40),y-33, 0x9932CC);
                     info = "";
                     if(vestigeNumber == 15){
                         int show = player.getPersistentData().getInt("VPDevourerShow");
                         if(show > 0)
-                            pose.drawString(fontRenderer,""+show, x+(132+i*40),y-43, 0x54717B);
+                            fontRenderer.draw(pose,""+show, x+(132+i*40),y-43, 0x54717B);
                     }
                     if(vestigeNumber == 13){
                         int number = Math.round(timeUlt-System.currentTimeMillis())/1000;
@@ -231,7 +229,7 @@ public class ShieldOverlay {
                             info = String.valueOf(number);
                     }
                     if(!info.isEmpty())
-                        pose.drawString(fontRenderer,""+info, x+(132+i*40),y-43, 0x9932CC);
+                        fontRenderer.draw(pose,""+info, x+(132+i*40),y-43, 0x9932CC);
                     //fontRenderer.draw(poseStack, ""+info, x+(132+i*40),y-30, vestige.color.getColor());
                     if(vestigeNumber == 22){
                         int sizeX = 20;
@@ -242,9 +240,9 @@ public class ShieldOverlay {
                             long song = player.getPersistentData().getLong("VPOrchestra");
                             long duration = Math.round(song - System.currentTimeMillis()) / 1000;
                             RenderSystem.setShaderTexture(0, ORCHESTRA);
-                            pose.blit(ORCHESTRA, x + (132 + i * 40), y - (70), 0, 0, sizeX, sizeY,
-                                    pictureSizeX, pictureSizeY);
-                            pose.drawString(fontRenderer, "" + duration, x + (132 + i * 33), y - (43), 0x9932CC);
+                            renderImage(ORCHESTRA, x + (132 + i * 40), y - (70), 0, 0, sizeX, sizeY,
+                                    pictureSizeX, pictureSizeY,pose);
+                            fontRenderer.draw(pose, "" + duration, x + (132 + i * 33), y - (43), 0x9932CC);
 
                         } else {
                             for (int s = 1; s < 9; s++) {
@@ -259,9 +257,9 @@ public class ShieldOverlay {
                                 int xPos = x - moveX + (183 + i * 40);
                                 if (duration > 0) {
                                     RenderSystem.setShaderTexture(0, getNote(s));
-                                    pose.blit(getNote(s), xPos, y - (70 + moveY), 0, 0, sizeX, sizeY,
-                                            pictureSizeX, pictureSizeY);
-                                    pose.drawString(fontRenderer, "" + duration, xPos, y - (43 + moveY), 0x9932CC);
+                                    renderImage(getNote(s), xPos, y - (70 + moveY), 0, 0, sizeX, sizeY,
+                                            pictureSizeX, pictureSizeY,pose);
+                                    fontRenderer.draw(pose, "" + duration, xPos, y - (43 + moveY), 0x9932CC);
                                 }
                             }
                         }
@@ -296,14 +294,14 @@ public class ShieldOverlay {
                     listMax.add(name.trim());
                 }
                 listMax.removeAll(listCurrent);
-                pose.drawString(fontRenderer, currentNumber + " / " + maxNumber, x - 10, centerHeight +10, 0x9932CC);
-                pose.drawString(fontRenderer, VPUtil.filterAndTranslate(listMax.toString(), ChatFormatting.LIGHT_PURPLE), x - 10, centerHeight +30, 0x9932CC);
+                fontRenderer.draw(pose, currentNumber + " / " + maxNumber, x - 10, centerHeight +10, 0x9932CC);
+                fontRenderer.draw(pose, VPUtil.filterAndTranslate(listMax.toString(), ChatFormatting.LIGHT_PURPLE), x - 10, centerHeight +30, 0x9932CC);
                 break;
             }
             if(o instanceof SillySeashell sillySeashell){
                 int wave = sillySeashell.getPersistentData().getInt("VPWave");
                 if(wave > 0)
-                    pose.drawString(fontRenderer, Component.translatable("vp.wave",wave), x - 15, centerHeight - 60, 0xA699E6);
+                    fontRenderer.draw(pose, Component.translatable("vp.wave",wave), x - 15, centerHeight - 60, 0xA699E6);
             }
         }
         if(targetOverShield > 0){
@@ -312,13 +310,13 @@ public class ShieldOverlay {
             int pictureSizeX = 20;
             int pictureSizeY = 20;
             RenderSystem.setShaderTexture(0, OVER_SHIELD);
-            pose.blit(OVER_SHIELD, x - 10, centerHeight, 0, 0, sizeX, sizeY,
-                    pictureSizeX, pictureSizeY);
+            renderImage(OVER_SHIELD, x - 10, centerHeight, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY,pose);
             double log10 = Math.log10(targetOverShield);
             int move = (int) Math.floor(log10) + 1;
-            pose.drawString(fontRenderer, ""+Math.round(targetOverShield * 100.0f) / 100.0f, x - (10 + move), centerHeight - 9, 0x9932CC);
+            fontRenderer.draw(pose, ""+Math.round(targetOverShield * 100.0f) / 100.0f, x - (10 + move), centerHeight - 9, 0x9932CC);
             if(targetShield > 0)
-                pose.drawString(fontRenderer, ""+Math.round(targetShield * 100.0f) / 100.0f, x - (10 + move), centerHeight + 22, 0x808080);
+                fontRenderer.draw(pose, ""+Math.round(targetShield * 100.0f) / 100.0f, x - (10 + move), centerHeight + 22, 0x808080);
         }
         else if(targetShield > 0) {
             int sizeX = 16;
@@ -326,11 +324,11 @@ public class ShieldOverlay {
             int pictureSizeX = 16;
             int pictureSizeY = 16;
             RenderSystem.setShaderTexture(0, SHIELD);
-            pose.blit(SHIELD, x - 8, centerHeight-3, 0, 0, sizeX, sizeY,
-                    pictureSizeX, pictureSizeY);
+            renderImage(SHIELD, x - 8, centerHeight-3, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY,pose);
             double log10 = Math.log10(targetShield);
             int move = (int) Math.floor(log10) + 1;
-            pose.drawString(fontRenderer,""+Math.round(targetShield * 100.0f) / 100.0f, x - (8 + move), centerHeight + 22, 0x808080);
+            fontRenderer.draw(pose,""+Math.round(targetShield * 100.0f) / 100.0f, x - (8 + move), centerHeight + 22, 0x808080);
         }
 
 
@@ -350,13 +348,13 @@ public class ShieldOverlay {
                 /*poseStack.pushPose();
                 renderTextureFromCenter(poseStack,x - 90 + (i * sizeX - 1), y - 39,width,height,16,16,16,16,1);*/
                 if (healBonus <= 30)
-                    pose.blit(HEAL1, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
-                            pictureSizeX, pictureSizeY);
+                    renderImage(HEAL1, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
+                            pictureSizeX, pictureSizeY,pose);
                 else if (healBonus <= 60)
-                    pose.blit(HEAL2, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
-                            pictureSizeX, pictureSizeY);
-                else pose.blit(HEAL3, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
-                            pictureSizeX, pictureSizeY);
+                    renderImage(HEAL2, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
+                            pictureSizeX, pictureSizeY,pose);
+                else renderImage(HEAL3, x - 90 + (i * sizeX - 1), y - 39, 0, 0, sizeX, sizeY,
+                            pictureSizeX, pictureSizeY,pose);
             }
         }
         float healDebt = player.getPersistentData().getFloat("VPHealDebt");
@@ -366,9 +364,9 @@ public class ShieldOverlay {
             int pictureSizeX = 16;
             int pictureSizeY = 16;
             RenderSystem.setShaderTexture(0, HEALDEBT);
-            pose.blit(HEALDEBT, x - (114), y - 43, 0, 0, sizeX, sizeY,
-                    pictureSizeX, pictureSizeY);
-            pose.drawString(fontRenderer,(int)(healDebt/player.getMaxHealth()*100)+"%", x - (117), y - 27, 0xCE5858);
+            renderImage(HEALDEBT, x - (114), y - 43, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY,pose);
+            fontRenderer.draw(pose,(int)(healDebt/player.getMaxHealth()*100)+"%", x - (117), y - 27, 0xCE5858);
         }
         float overShield = VPUtil.getOverShield(player); //x больше-левее, меньше-правее, y меньше-выше, больше-ниже
         float shield = VPUtil.getShield(player);
@@ -380,15 +378,15 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, OVER_SHIELD);
             /*poseStack.pushPose();
             renderTextureFromCenter(poseStack,x - (132+20), y - 42,width,height,16,16,16,16,1);*/
-            pose.blit(OVER_SHIELD, x - (132+20), y - 42, 0, 0, sizeX, sizeY,
-                    pictureSizeX, pictureSizeY);
+            renderImage(OVER_SHIELD, x - (132+20), y - 42, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY,pose);
             //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
             double log10 = Math.log10(overShield);
             int move = (int) Math.floor(log10) + 1;
-            pose.drawString(fontRenderer, ""+Math.round(overShield * 100.0f) / 100.0f, x - (129+20 + move), y - 51, 0x9932CC);
+            fontRenderer.draw(pose, ""+Math.round(overShield * 100.0f) / 100.0f, x - (129+20 + move), y - 51, 0x9932CC);
             //fontRenderer.draw(poseStack, ""+Math.round(overShield * 100.0f) / 100.0f, x - (129+20 + move), y - 51, 0x9932CC); //0x000000 for black
             if(shield > 0)
-                pose.drawString(fontRenderer, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
+                fontRenderer.draw(pose, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
                 //fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
         else if(shield > 0) {
@@ -399,11 +397,11 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, SHIELD);
             /*poseStack.pushPose();
             renderTextureFromCenter(poseStack,x - (130+20), y - 39,width,height,16,16,16,16,1);*/
-            pose.blit(SHIELD, x - (130+20), y - 39, 0, 0, sizeX, sizeY,
-                    pictureSizeX, pictureSizeY);
+            renderImage(SHIELD, x - (130+20), y - 39, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY,pose);
             double log10 = Math.log10(shield);
             int move = (int) Math.floor(log10) + 1;
-            pose.drawString(fontRenderer,""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
+            fontRenderer.draw(pose,""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
             //fontRenderer.(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
 
@@ -417,37 +415,12 @@ public class ShieldOverlay {
     });
 
 
-    public static void renderTextureFromCenter(PoseStack matrix, float centerX, float centerY, float texOffX, float texOffY, float texWidth, float texHeight, float width, float height, float scale) {
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-
+    public static void renderImage(ResourceLocation texture, int x, int y, int a, int b, int c, int d, int e, int f, PoseStack poseStack) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
-        matrix.pushPose();
-
-        matrix.translate(centerX, centerY, 0);
-        matrix.scale(scale, scale, scale);
-
-        Matrix4f m = matrix.last().pose();
-
-        float u1 = texOffX / texWidth;
-        float u2 = (texOffX + width) / texWidth;
-        float v1 = texOffY / texHeight;
-        float v2 = (texOffY + height) / texHeight;
-
-        float w2 = width / 2F;
-        float h2 = height / 2F;
-
-        builder.vertex(m, -w2, +h2, 0).uv(u1, v2).endVertex();
-        builder.vertex(m, +w2, +h2, 0).uv(u2, v2).endVertex();
-        builder.vertex(m, +w2, -h2, 0).uv(u2, v1).endVertex();
-        builder.vertex(m, -w2, -h2, 0).uv(u1, v1).endVertex();
-
-        matrix.popPose();
-
-        BufferUploader.drawWithShader(builder.end());
+        RenderSystem.setShaderTexture(0, texture);
+        GuiComponent.blit(poseStack, x, y, a, b, c, d, e, f);
     }
+
 
     public static ResourceLocation getTexture(int vp) {
         List<ResourceLocation> locations = new ArrayList<>();

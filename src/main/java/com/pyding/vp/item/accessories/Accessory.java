@@ -1,6 +1,7 @@
 package com.pyding.vp.item.accessories;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -26,7 +27,7 @@ import java.util.UUID;
 
 public class Accessory extends Item implements ICurioItem {
     public Accessory() {
-        super(new Item.Properties().stacksTo(1));
+        super(new Item.Properties().stacksTo(1).tab(ModCreativeModTab.tab));
     }
 
     public Accessory(Properties properties) {

@@ -1,7 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.ShellHealEntity;
 import com.pyding.vp.entity.models.ShellhealModel;
@@ -35,10 +35,10 @@ public class ShellHealRenderer extends EntityRenderer<ShellHealEntity> {
         poseStack.pushPose();
         float scale = 1;
         poseStack.scale(scale,scale,scale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
         poseStack.translate(0.0, -1.5, 0.0);
         float angle = (System.currentTimeMillis() % 36000) / 20.0f;
-        poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(-angle));
         Player player = Minecraft.getInstance().player;
         ShellhealModel<LivingEntity> model = new ShellhealModel<>(ShellhealModel.createBodyLayer().bakeRoot());
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);

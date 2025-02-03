@@ -1,7 +1,7 @@
 package com.pyding.vp.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.models.EasterEggModel;
@@ -35,7 +35,7 @@ public class EasterEggRenderer extends EntityRenderer<EasterEggEntity> {
         poseStack.pushPose();
         float scale = 2;
         poseStack.scale(scale,scale,scale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
         poseStack.translate(0.0, -1.5, 0.0);
         Player player = Minecraft.getInstance().player;
         EasterEggModel<LivingEntity> model = new EasterEggModel<>(EasterEggModel.createBodyLayer().bakeRoot());

@@ -8,6 +8,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -125,7 +126,7 @@ public class MaskOfDemon extends Vestige{
         player.getPersistentData().putFloat("VPHealDebt",player.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
             entity.getPersistentData().putFloat("VPHealDebt",entity.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
-            VPUtil.dealDamage(entity,player,player.damageSources().sonicBoom(player),damage,3);
+            VPUtil.dealDamage(entity,player, DamageSource.sonicBoom(player),damage,3);
             VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.1,0);
         }
         super.doUltimate(seconds, player, level, stack);

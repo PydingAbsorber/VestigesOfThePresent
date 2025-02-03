@@ -42,7 +42,6 @@ public class VPUtilParticles {
         particleOptionsMap.put(ParticleTypes.FIREWORK, 26);
         particleOptionsMap.put(ParticleTypes.FISHING, 27);
         particleOptionsMap.put(ParticleTypes.FLAME, 28);
-        particleOptionsMap.put(ParticleTypes.CHERRY_LEAVES, 29);
         particleOptionsMap.put(ParticleTypes.SCULK_SOUL, 30);
         //particleOptionsMap.put(ParticleTypes.SCULK_CHARGE, 31);
         particleOptionsMap.put(ParticleTypes.SCULK_CHARGE_POP, 32);

@@ -1,6 +1,7 @@
 package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.mixin.BucketMixin;
 import com.pyding.vp.network.PacketHandler;
@@ -35,7 +36,7 @@ import java.util.*;
 
 public class Vestige extends Item implements ICurioItem {
     public Vestige() {
-        super(new Item.Properties().stacksTo(1));
+        super(new Item.Properties().stacksTo(1).tab(ModCreativeModTab.tab));
     }
     public Vestige(Properties properties){
         super(properties);

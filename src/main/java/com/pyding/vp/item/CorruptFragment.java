@@ -27,7 +27,7 @@ import java.util.Random;
 
 public class CorruptFragment extends Item{
     public CorruptFragment() {
-        super(new Item.Properties().stacksTo(64));
+        super(new Item.Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

@@ -26,7 +26,7 @@ public class BoxSaplings extends Item {
     }
 
     public BoxSaplings() {
-        super(new Properties().stacksTo(64));
+        super(new Properties().stacksTo(64).tab(ModCreativeModTab.tab));
     }
 
     @Override

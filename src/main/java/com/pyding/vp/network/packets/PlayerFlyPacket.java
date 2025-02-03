@@ -5,7 +5,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -80,7 +81,7 @@ public class PlayerFlyPacket {
         }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {
-                Set<ResourceKey<Biome>> biomes = Minecraft.getInstance().level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
+                Set<ResourceKey<Biome>> biomes = Minecraft.getInstance().level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).registryKeySet();
                 VPUtil.biomeNames.addAll(biomes);
             }
         }
