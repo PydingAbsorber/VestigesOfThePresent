@@ -240,11 +240,11 @@ public class VPCommands {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             if(ConfigHandler.COMMON.hardcore.get()) {
                                 ConfigHandler.COMMON.hardcore.set(false);
-                                player.sendSystemMessage(Component.literal("Cruel mode disabled."));
+                                player.sendSystemMessage(Component.literal("Cruel mode §4disabled."));
                             }
                             else {
                                 ConfigHandler.COMMON.hardcore.set(true);
-                                player.sendSystemMessage(Component.literal("Cruel mode enabled, all bosses hp now is x" + ConfigHandler.COMMON.bossHP.get() + " and attack is x" + ConfigHandler.COMMON.bossHP.get() + " armor and armor toughness " + ConfigHandler.COMMON.bossHP.get() + " Shields from max hp percent " + ConfigHandler.COMMON.bossHP.get() + " Over Shields percent " + ConfigHandler.COMMON.bossHP.get() + " Healing per second percent from max hp " + ConfigHandler.COMMON.bossHP.get() + " damage absorption percent " + ConfigHandler.COMMON.absorbHardcore.get()));
+                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7All bosses max hp now is §cx" + ConfigHandler.COMMON.bossHP.get() + " §7and attack is §cx" + ConfigHandler.COMMON.bossHP.get() + " §7armor and armor toughness is §cx" + ConfigHandler.COMMON.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ConfigHandler.COMMON.bossHP.get() + " §7and Over Shields §cx" + ConfigHandler.COMMON.bossHP.get() + " \n§7All bosses now are also Healing §c" + ConfigHandler.COMMON.bossHP.get() +"% §7from max hp per second.\nAll bosses also have damage absorption §c" + ConfigHandler.COMMON.absorbHardcore.get()*100 + "%"));
                             }
                             return Command.SINGLE_SUCCESS;
                         })

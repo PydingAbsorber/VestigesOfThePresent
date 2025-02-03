@@ -502,6 +502,11 @@ public class EventHandler {
     }
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
     public void deathEventLowest(LivingDeathEvent event){
+        if(event.getEntity().getMainHandItem().getItem() instanceof StellarFragment) {
+            event.getEntity().setHealth(1);
+            event.setCanceled(true);
+            return;
+        }
         Random random = new Random();
         if(event.getEntity().getPersistentData().getLong("VPQueenDeath") <= System.currentTimeMillis()){
             event.getEntity().getPersistentData().putLong("VPQueenDeath",-1);
@@ -1240,9 +1245,11 @@ public class EventHandler {
                     }
                 }
             }
-            if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && ((entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 950 || (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 100)){
-                if(entity instanceof Player)
-                    VPUtil.setDead(entity,entity.damageSources().dryOut());
+            if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && ((entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 990 || (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 100)){
+                if(entity instanceof Player) {
+                    ((LivingEntityVzlom)entity).setDead(false);
+                    VPUtil.setDead(entity, entity.damageSources().dryOut());
+                }
                 else VPUtil.despawn(entity);
             }
         }
@@ -1629,6 +1636,8 @@ public class EventHandler {
             VPUtil.updateStats(player);
             player.getPersistentData().putLong("VPDeath",0);
             player.getPersistentData().putLong("VPMirnoeReshenie",0);
+            if(((LivingEntityVzlom)player).isDead())
+                ((LivingEntityVzlom)player).setDead(false);
         }
     }
     @SubscribeEvent

@@ -602,6 +602,7 @@ public class VPUtil {
         if(livingEntity instanceof Player){
             setDead(livingEntity,livingEntity.damageSources().dryOut());
         } else {
+            setHealth(livingEntity,0);
             livingEntity.getBrain().clearMemories();
             ((EntityVzlom) livingEntity).setPersistentData(null);
             ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
@@ -609,14 +610,15 @@ public class VPUtil {
     }
 
     public static void setDead(LivingEntity corpse, DamageSource source){
-        if (!corpse.isRemoved()) {
+        if (!corpse.isRemoved() && !((LivingEntityVzlom)corpse).isDead()) {
             Entity entity = source.getEntity();
             if (corpse.isSleeping()) {
                 corpse.stopSleeping();
             }
             if (!corpse.level().isClientSide && corpse instanceof Player player) {
-                player.sendSystemMessage(Component.literal("Fool and absolute silly in name of " + player.getName().getString() + " tried to block Paragon Damage, The Greatest damage in all mods, and died..."));
+                player.sendSystemMessage(Component.literal("§cSome fool tried to cancel legal death from Paragon Damage, you died forcefully!"));
             }
+            setHealth(corpse,0);
             ((LivingEntityVzlom)corpse).setDead(true);
             corpse.getCombatTracker().recheckStatus();
             Level level = corpse.level();
@@ -2731,7 +2733,7 @@ public class VPUtil {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 255, 255));
             entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 255, 255));
         }
-        if(entity.tickCount % (15*20*slow) == 0)
+        if(entity.tickCount % (5*20*slow) == 0)
             clearEffects(entity,false);
         if(!entity.isCurrentlyGlowing())
             entity.setGlowingTag(true);
