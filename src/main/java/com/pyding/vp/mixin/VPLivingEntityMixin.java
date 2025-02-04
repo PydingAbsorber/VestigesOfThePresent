@@ -48,7 +48,7 @@ public abstract class VPLivingEntityMixin {
             if(getHealth()+amount < getHealth() && amount > ConfigHandler.COMMON.nightmareDamageCap.get()) {
                 amount = (float)(getHealth() - ConfigHandler.COMMON.nightmareDamageCap.get());
                 ci.cancel();
-                ((EntityVzlom)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),amount);
+                ((LivingEntity)(Object)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),amount);
             }
         }
     }

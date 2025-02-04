@@ -614,7 +614,6 @@ public class VPUtil {
             setDead(livingEntity,DamageSource.DRY_OUT);
         } else {
             setHealth(livingEntity,0);
-            ((EntityVzlom) livingEntity).setPersistentData(null);
             ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
         }
     }
@@ -3256,45 +3255,5 @@ public class VPUtil {
         }
         System.out.println(number);
         return cap + Math.log((number - cap) + 1);
-    }
-
-    public static String calculateClassHash(Class<?> clazz) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-            digest.update(clazz.getName().getBytes());
-
-            Field[] fields = clazz.getDeclaredFields();
-            Arrays.sort(fields, Comparator.comparing(Field::getName));
-            for (Field field : fields) {
-                digest.update(field.getName().getBytes());
-                digest.update(field.getType().getName().getBytes());
-            }
-
-            Method[] methods = clazz.getDeclaredMethods();
-            Arrays.sort(methods, Comparator.comparing(Method::getName));
-            for (Method method : methods) {
-                digest.update(method.getName().getBytes());
-                digest.update(method.getReturnType().getName().getBytes());
-
-                for (Class<?> parameterType : method.getParameterTypes()) {
-                    digest.update(parameterType.getName().getBytes());
-                }
-            }
-
-            byte[] hashBytes = digest.digest();
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-
-            return hexString.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при расчёте хэша класса", e);
-        }
     }
 }

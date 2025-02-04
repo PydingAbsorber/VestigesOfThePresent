@@ -23,9 +23,6 @@ public interface EntityVzlom {
     @Accessor("type")
     EntityType<?> getTypeMix();
 
-    @Accessor("persistentData")
-    public void setPersistentData(CompoundTag tag);
-
     @Accessor("levelCallback")
     EntityInLevelCallback getLevelCallback();
 }

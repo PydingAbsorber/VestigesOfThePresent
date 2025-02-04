@@ -54,17 +54,6 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
         BakedModel model = this.itemRenderer.getModel(stack, entity.getLevel(), null, 0);
         this.itemRenderer.render(stack, ItemTransforms.TransformType.FIXED, false, poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY, model);
 
-        ShaderBlackHole shader = null;
-        try {
-            shader = new ShaderBlackHole();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        shader.bind();
-        shader.setUniform("iTime", (System.currentTimeMillis() % 10000L) / 1000.0f);
-        shader.setUniform("iResolution", Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
-        shader.unbind();
-
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }
