@@ -40,24 +40,19 @@ public class VPCommands {
                         )
                         .then(Commands.literal("showAll")
                                 .executes(context -> {
-                                    ServerPlayer player = context.getSource().getPlayerOrException();
-                                    for(String name: VPUtil.filterString(VPUtil.getAll()).split(",")){
-                                        player.sendSystemMessage(Component.literal(name));
-                                    }
+                                    VPUtil.printAll(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("showYourself")
                                 .executes(context -> {
-                                    ServerPlayer player = context.getSource().getPlayerOrException();
-                                    player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID())));
+                                    VPUtil.printYourself(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("checkConnection")
                                 .executes(context -> {
-                                    ServerPlayer player = context.getSource().getPlayerOrException();
-                                    player.sendSystemMessage(Component.literal(VPUtil.check()));
+                                    VPUtil.printCheck(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )

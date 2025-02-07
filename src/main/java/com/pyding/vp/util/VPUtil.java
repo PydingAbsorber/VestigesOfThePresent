@@ -3252,86 +3252,131 @@ public class VPUtil {
         return cap + Math.log((number - cap) + 1);
     }
 
+    public static String getHost() {
+        if(ConfigHandler.COMMON_SPEC.isLoaded())
+            return ConfigHandler.COMMON.leaderboardHost.get().toString();
+        return "";
+    }
+
+    public static String getPort() {
+        if(ConfigHandler.COMMON_SPEC.isLoaded())
+            return ConfigHandler.COMMON.leaderboardPort.get().toString();
+        return "";
+    }
+
+    public static void addNickname(String nickName,UUID uuid){
+        new Thread(() -> {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addNickname?nickName=" + nickName + "&UUID=" + uuid.toString()))
+                        .GET()
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public static void addChallenge(UUID uuid, int id){
+        new Thread(() -> {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addChallenge?UUID=" + uuid.toString() + "&id=" + id))
+                        .GET()
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public static void setCheating(UUID uuid){
+        new Thread(() -> {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/ban?UUID=" + uuid.toString()))
+                        .GET()
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     public static String getInformation(UUID uuid){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/getInformation?UUID=" + uuid.toString()))
-                .GET()
-                .build();
         try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getInformation?UUID=" + uuid.toString()))
+                    .GET()
+                    .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "null";
     }
 
     public static String getAll(){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/getAll"))
-                .GET()
-                .build();
         try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getAll"))
+                    .GET()
+                    .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "null";
     }
 
-    public static void addNickname(String nickName,UUID uuid){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/addNickname?nickName=" + nickName + "&UUID=" + uuid.toString()))
-                .GET()
-                .build();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void addChallenge(UUID uuid, int id){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/addChallenge?UUID=" + uuid.toString() + "&id=" + id))
-                .GET()
-                .build();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void setCheating(UUID uuid){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/ban?UUID=" + uuid.toString()))
-                .GET()
-                .build();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static String check(){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/check"))
-                .GET()
-                .build();
         try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/check"))
+                    .GET()
+                    .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             return "Something is not ok :(((( Backend may be offline \n"+e.getMessage();
         }
+    }
+
+    public static void printCheck(Player player){
+        player.sendSystemMessage(Component.literal("This may take some time to check"));
+        new Thread(() -> {
+            String response = "";
+            try {
+                response += VPUtil.check();
+            } catch (Exception e){
+                response += e.getMessage();
+            }
+            player.sendSystemMessage(Component.literal(response));
+        }).start();
+    }
+
+    public static void printAll(Player player){
+        new Thread(() -> {
+            for(String name: VPUtil.filterString(VPUtil.getAll()).split(",")){
+                player.sendSystemMessage(Component.literal(name));
+            }
+        }).start();
+    }
+
+    public static void printYourself(Player player){
+        new Thread(() -> {
+            player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID())));
+        }).start();
     }
 }

@@ -103,6 +103,9 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue mirrorUUIDList;
         public final ForgeConfigSpec.ConfigValue dupersList;
 
+        public final ForgeConfigSpec.ConfigValue leaderboardHost;
+        public final ForgeConfigSpec.ConfigValue leaderboardPort;
+
         public Common(ForgeConfigSpec.Builder builder) {
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
             List<Integer> reduceList = new ArrayList<>();
@@ -193,6 +196,8 @@ public class ConfigHandler {
             cloneWhiteList = builder.comment("Defines whitelist for items that can be cloned with Celestial Mirror with highest priority. F.e. chestplate to not be blocked by chest in blacklist: ").define("cloneWhiteList","chestplate,box_eggs,box_saplings,item.vp.box,");
             mirrorUUIDList = builder.comment("List of existing mirrors UUID: ").define("mirrorUUIDList","");
             dupersList = builder.comment("List of dupers: ").define("dupersList","");
+            leaderboardHost = builder.comment("Ip address for leaderboard: ").define("leaderboardHost","95.153.103.118");
+            leaderboardPort = builder.comment("Ip port for leaderboard: ").define("leaderboardPort","5242");
         }
 
         public int getChallengeReduceByNumber(int number) {

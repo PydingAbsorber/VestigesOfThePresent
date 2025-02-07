@@ -1023,6 +1023,8 @@ public class EventHandler {
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
         VPUtil.addNickname(player.getScoreboardName(),player.getUUID());
+        if(player.isCreative())
+            VPUtil.setCheating(player.getUUID());
     }
 
     @SubscribeEvent
