@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 @AutoRegisterCapability
@@ -696,6 +697,7 @@ public class PlayerCapabilityVP {
     public void setChallenge(int vp, Player player) {
         if (vp >= 1 && vp <= totalVestiges && !hasCoolDown(vp)) {
             challenges[vp-1] += 1;
+            VPUtil.addChallenge(player.getUUID(), vp);
         }
         sync(player);
     }

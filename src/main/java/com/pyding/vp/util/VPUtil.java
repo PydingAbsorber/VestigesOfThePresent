@@ -3,7 +3,6 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.mojang.logging.LogUtils;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -19,7 +18,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -48,7 +46,6 @@ import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
@@ -62,7 +59,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -85,11 +81,10 @@ import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -3257,43 +3252,86 @@ public class VPUtil {
         return cap + Math.log((number - cap) + 1);
     }
 
-    public static String calculateClassHash(Class<?> clazz) {
+    public static String getInformation(UUID uuid){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/getInformation?UUID=" + uuid.toString()))
+                .GET()
+                .build();
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "null";
+    }
 
-            digest.update(clazz.getName().getBytes());
+    public static String getAll(){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/getAll"))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "null";
+    }
 
-            Field[] fields = clazz.getDeclaredFields();
-            Arrays.sort(fields, Comparator.comparing(Field::getName));
-            for (Field field : fields) {
-                digest.update(field.getName().getBytes());
-                digest.update(field.getType().getName().getBytes());
-            }
+    public static void addNickname(String nickName,UUID uuid){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/addNickname?nickName=" + nickName + "&UUID=" + uuid.toString()))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-            Method[] methods = clazz.getDeclaredMethods();
-            Arrays.sort(methods, Comparator.comparing(Method::getName));
-            for (Method method : methods) {
-                digest.update(method.getName().getBytes());
-                digest.update(method.getReturnType().getName().getBytes());
+    public static void addChallenge(UUID uuid, int id){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/addChallenge?UUID=" + uuid.toString() + "&id=" + id))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-                for (Class<?> parameterType : method.getParameterTypes()) {
-                    digest.update(parameterType.getName().getBytes());
-                }
-            }
+    public static void setCheating(UUID uuid){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/ban?UUID=" + uuid.toString()))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-            byte[] hashBytes = digest.digest();
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-
-            return hexString.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при расчёте хэша класса", e);
+    public static String check(){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/check"))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (IOException | InterruptedException e) {
+            return "Something is not ok :(((( Backend may be offline \n"+e.getMessage();
         }
     }
 }

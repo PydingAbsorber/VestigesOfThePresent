@@ -22,12 +22,46 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("vestiges")
+                .then(Commands.literal("leaderboard")
+                        .then(Commands.literal("info")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.translatable("vp.leaderboard"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("showAll")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    for(String name: VPUtil.filterString(VPUtil.getAll()).split(",")){
+                                        player.sendSystemMessage(Component.literal(name));
+                                    }
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("showYourself")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID())));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("checkConnection")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal(VPUtil.check()));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
                 .then(Commands.literal("clear").requires(sender -> sender.hasPermission(2))
                         .then(Commands.literal("progress")
                                 .executes(context -> {

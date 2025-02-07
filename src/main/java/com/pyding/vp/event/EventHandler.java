@@ -68,6 +68,7 @@ import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -75,6 +76,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class EventHandler {
@@ -500,13 +502,14 @@ public class EventHandler {
             }
         }
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public void playerSwitching(PlayerEvent.PlayerChangeGameModeEvent event){
+        VPUtil.setCheating(event.getEntity().getUUID());
+    }
+
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
     public void deathEventLowest(LivingDeathEvent event){
-        if(event.getEntity().getMainHandItem().getItem() instanceof StellarFragment) {
-            event.getEntity().setHealth(1);
-            event.setCanceled(true);
-            return;
-        }
         Random random = new Random();
         if(event.getEntity().getPersistentData().getLong("VPQueenDeath") <= System.currentTimeMillis()){
             event.getEntity().getPersistentData().putLong("VPQueenDeath",-1);
@@ -1019,6 +1022,7 @@ public class EventHandler {
         }*/
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
+        VPUtil.addNickname(player.getScoreboardName(),player.getUUID());
     }
 
     @SubscribeEvent
@@ -1640,6 +1644,7 @@ public class EventHandler {
                 ((LivingEntityVzlom)player).setDead(false);
         }
     }
+
     @SubscribeEvent
     public static void onBreak(BlockEvent.BreakEvent event){
         Player player = event.getPlayer();

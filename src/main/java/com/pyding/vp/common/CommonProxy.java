@@ -10,7 +10,6 @@ public class CommonProxy {
         // NO-OP
     }
     public void loadComplete(FMLLoadCompleteEvent event) {
-
     }
     public void initAuxiliaryRender() {
         // Insert existential void here
