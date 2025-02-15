@@ -793,9 +793,6 @@ public class EventHandler {
                 entity.setHealth(0);
                 event.setCanceled(false);
             }
-            if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0){
-                VPUtil.despawn(entity);
-            }
         }
     }
 
@@ -1252,7 +1249,7 @@ public class EventHandler {
                 }
             }
             if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && ((entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 990 || (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 100)){
-                if(entity instanceof Player) {
+                if(entity instanceof Player player && (!player.isDeadOrDying() || !((LivingEntityVzlom)player).isDead())) {
                     ((LivingEntityVzlom)entity).setDead(false);
                     VPUtil.setDead(entity, entity.damageSources().dryOut());
                 }
