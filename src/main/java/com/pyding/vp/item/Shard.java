@@ -3,7 +3,10 @@ package com.pyding.vp.item;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,6 +19,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +64,9 @@ public class Shard extends Item {
         if(VPUtil.isBoss(entity)) {
             stack.shrink(1);
             Random random = new Random();
-            if(random.nextDouble() < VPUtil.getChance(0.2,player) || player.isCreative()){
+            if(random.nextDouble() < VPUtil.getChance(0.03,player) || player.isCreative()){
+                if(entity.getPersistentData().hasUUID("VPPlayer"))
+                    entity.getPersistentData().remove("VPPlayer");
                 entity.getPersistentData().putBoolean("VPNightmareBoss",true);
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
@@ -91,4 +98,5 @@ public class Shard extends Item {
         components.add(Component.translatable("vp.shard").withStyle(ChatFormatting.GRAY));
         components.add(Component.translatable("vp.shard.1").withStyle(ChatFormatting.GRAY));
     }
+
 }

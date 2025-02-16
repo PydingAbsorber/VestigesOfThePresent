@@ -1144,6 +1144,7 @@ public class VPUtil {
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+1000);
         setHealth(entity,0);
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
+        entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis()+1000);
         entity.die(player.damageSources().genericKill());
     }
 
@@ -3375,8 +3376,8 @@ public class VPUtil {
     }
 
     public static void printYourself(Player player){
-        new Thread(() -> {
-            player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID())));
-        }).start();
+        new Thread(() -> player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID())))).start();
     }
+
+    
 }

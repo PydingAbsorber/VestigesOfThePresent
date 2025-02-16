@@ -28,13 +28,17 @@ public class Mark extends Vestige{
         super.dataInit(7, ChatFormatting.DARK_RED, 3, 5, 1, 120, 1, 5, hasDamage, stack);
     }
 
-    private Multimap<Attribute, AttributeModifier> createAttributeMap(int curses) {
-        curses *= ConfigHandler.COMMON.markBonus.get();
+    private Multimap<Attribute, AttributeModifier> createAttributeMap() {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
         attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("4fc18d7a-9353-45b1-ad77-29117c1d9e6f"), "vp:attack_speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
         attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("78cf254b-36df-41d6-be91-ad06220d9dd8"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
         attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("54b7f5ed-0851-4745-b98c-e1f08a1a2f67"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.MULTIPLY_BASE));
+        return attributesDefault;
+    }
 
+    private Multimap<Attribute, AttributeModifier> overdrive(int curses) {
+        Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
+        curses *= ConfigHandler.COMMON.markBonus.get();
         attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("fd7417d3-ecd6-433c-8d76-6e0cb8bda70a"), "vp:mark1", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("f1a19717-72ab-4f79-b8b8-0c0d3df8b7d9"), "vp:mark2", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.MAX_HEALTH, new AttributeModifier(UUID.fromString("d5206e9e-9b3c-4314-a7c2-b6097df335b5"), "vp:mark3", curses, AttributeModifier.Operation.ADDITION));
@@ -42,7 +46,6 @@ public class Mark extends Vestige{
         attributesDefault.put(Attributes.ARMOR, new AttributeModifier(UUID.fromString("a1dd7557-8941-4e78-abba-4a146bf1574f"), "vp:mark5", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(UUID.fromString("0743d5eb-9657-48d6-b7a7-e72055084e16"), "vp:mark6", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.fromString("5cc193b4-7513-43f3-9724-c3453b7681b2"), "vp:mark7", curses, AttributeModifier.Operation.ADDITION));
-
         return attributesDefault;
     }
 
@@ -71,13 +74,14 @@ public class Mark extends Vestige{
 
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
-        int curses = VPUtil.getCurseAmount(player);
-        if(curses > 20) {
-            player.getPersistentData().putFloat("VPOverdrive", curses);
-        } else curses = 0;
         VPUtil.play(player,SoundRegistry.RAGE.get());
+        int curses = VPUtil.getCurseAmount(player);
+        if(curses > 20 && isStellar(stack)) {
+            player.getPersistentData().putFloat("VPOverdrive", curses);
+            player.getAttributes().addTransientAttributeModifiers(this.overdrive(curses));
+        }
         if(player.getHealth() < player.getMaxHealth()*0.3){
-            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(curses));
+            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
         }
         player.getPersistentData().putBoolean("VPMarkUlt",true);
         player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+player.getMaxHealth()/100* ConfigHandler.COMMON.markHealDebt.get());
@@ -89,7 +93,9 @@ public class Mark extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
         if(!isUltimateActive(stack)) {
-            player.getAttributes().removeAttributeModifiers(this.createAttributeMap(0));
+            player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
+            if(isStellar(stack))
+                player.getAttributes().removeAttributeModifiers(this.overdrive(0));
             player.getPersistentData().putBoolean("VPMarkUlt",false);
         }
         super.curioTick(slotContext, stack);
@@ -105,7 +111,9 @@ public class Mark extends Vestige{
             player.hurt(player.damageSources().fellOutOfWorld(), damageFinal);
         }
         else setCdUltimateActive(cdUltimateActive(stack)-(int) Math.min(ultimateCd(stack) * 0.6, ultimateCd(stack) * ((VPUtil.calculatePercentageDifference(damage,heal))/100)),stack);
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap(0));
+        player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
+        if(isStellar(stack))
+            player.getAttributes().removeAttributeModifiers(this.overdrive(0));
         player.getPersistentData().putFloat("VPDamageReduced",0);
         player.getPersistentData().putFloat("VPHealReduced",0);
         player.getPersistentData().putFloat("VPOverdrive",0);

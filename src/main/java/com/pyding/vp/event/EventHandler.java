@@ -1166,6 +1166,25 @@ public class EventHandler {
     }
 
     @SubscribeEvent
+    public static void dropExpEvent(LivingExperienceDropEvent event){
+        if(ConfigHandler.COMMON.hardcore.get()) {
+            if(VPUtil.isEmpoweredMob(event.getEntity()))
+                event.setDroppedExperience(event.getDroppedExperience() * 20);
+            else if(VPUtil.isBoss(event.getEntity()))
+                event.setDroppedExperience(event.getDroppedExperience() * 100);
+            else if(VPUtil.isNightmareBoss(event.getEntity()))
+                event.setDroppedExperience(event.getDroppedExperience() * 1000);
+        }
+        if(event.getAttackingPlayer() != null) {
+            Player player = event.getAttackingPlayer();
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(cap.getVip() > System.currentTimeMillis())
+                    event.setDroppedExperience(event.getDroppedExperience() * 4);
+            });
+        }
+    }
+
+    @SubscribeEvent
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
         if(Float.isNaN(entity.getHealth())) {
@@ -1327,9 +1346,12 @@ public class EventHandler {
             }
             if(VPUtil.hasStellarVestige(ModItems.CHAOS.get(), playerServer)){
                 for(LivingEntity livingEntity: VPUtil.getEntities(playerServer,20,false)){
-                    float VPHealDebt = livingEntity.getPersistentData().getFloat("VPHealDebt");
-                    if(VPHealDebt > 0)
-                        livingEntity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(livingEntity,Attributes.MAX_HEALTH,UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"),Math.max(-playerServer.getMaxHealth()+1,-VPHealDebt/10), AttributeModifier.Operation.ADDITION,"vp.chaos.maxhp"));
+                    float healDebt = livingEntity.getPersistentData().getFloat("VPHealDebt")/10;
+                    if(healDebt > 0) {
+                        if(healDebt > livingEntity.getMaxHealth())
+                            VPUtil.deadInside(livingEntity,playerServer);
+                        else livingEntity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(livingEntity, Attributes.MAX_HEALTH, UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"), -healDebt, AttributeModifier.Operation.ADDITION, "vp.chaos.maxhp"));
+                    }
                 }
             }
             if(playerServer.isInWaterRainOrBubble() && VPUtil.hasVestige(ModItems.WHIRLPOOL.get(), playerServer)){

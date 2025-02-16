@@ -65,6 +65,7 @@ public class PlayerCapabilityVP {
     private String sea = "";
     private String friends = "";
     private boolean sleep = false;
+    private long vip = 0;
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
@@ -571,7 +572,7 @@ public class PlayerCapabilityVP {
                 case 9:
                     return (int) (8 * reduce);
                 case 10:
-                    return (int) (VPUtil.getTools().size() * reduce);
+                    return (int) (20 * reduce);
                 case 11:
                     return (int) (VPUtil.getDamageKinds().size() * reduce);
                 case 12:
@@ -623,7 +624,7 @@ public class PlayerCapabilityVP {
                 case 9:
                     return 8 - reduce;
                 case 10:
-                    return VPUtil.getTools().size() - reduce;
+                    return 20 - reduce;
                 case 11:
                     return VPUtil.getDamageKinds().size() - reduce;
                 case 12:
@@ -734,6 +735,7 @@ public class PlayerCapabilityVP {
         pearls = source.pearls;
         sleep = source.sleep;
         friends = source.friends;
+        vip = source.vip;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -770,6 +772,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPFriends",friends);
         nbt.putBoolean("VPSlept",sleep);
         nbt.putInt("VPPearls",pearls);
+        nbt.putLong("VPVIP",vip);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -806,11 +809,14 @@ public class PlayerCapabilityVP {
         friends = nbt.getString("VPFriends");
         pearls = nbt.getInt("VPPearls");
         sleep = nbt.getBoolean("VPSlept");
+        vip = nbt.getLong("VPVIP");
     }
 
     public void sync(Player player){
         if(player.getCommandSenderWorld().isClientSide)
             return;
+        if(getVip() < System.currentTimeMillis())
+            setVip(0);
         VPUtil.resync(this,player);
         ServerPlayer serverPlayer = (ServerPlayer) player;
         CompoundTag nbt = new CompoundTag();
@@ -952,5 +958,15 @@ public class PlayerCapabilityVP {
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new ItemAnimationPacket(stack),serverPlayer);
         return stack;
+    }
+
+    public long getVip() {
+        return vip;
+    }
+
+    public void setVip(long vip) {
+        if(this.vip > 0){
+            this.vip += vip-System.currentTimeMillis();
+        } else this.vip = vip;
     }
 }
