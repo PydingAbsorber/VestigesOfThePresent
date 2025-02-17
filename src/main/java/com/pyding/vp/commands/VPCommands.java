@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
@@ -14,6 +15,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,6 +33,20 @@ public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("vestiges")
                 .then(Commands.literal("leaderboard")
+                        .then(Commands.literal("enable")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    if(ConfigHandler.COMMON.leaderboard.get()) {
+                                        ConfigHandler.COMMON.leaderboard.set(false);
+                                        player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
+                                    }
+                                    else {
+                                        ConfigHandler.COMMON.leaderboard.set(true);
+                                        player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
+                                    }
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
                         .then(Commands.literal("info")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
@@ -40,18 +56,30 @@ public class VPCommands {
                         )
                         .then(Commands.literal("showAll")
                                 .executes(context -> {
+                                    if(!ConfigHandler.COMMON.leaderboard.get()){
+                                        context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
                                     VPUtil.printAll(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("showYourself")
                                 .executes(context -> {
+                                    if(!ConfigHandler.COMMON.leaderboard.get()){
+                                        context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
                                     VPUtil.printYourself(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("checkConnection")
                                 .executes(context -> {
+                                    if(!ConfigHandler.COMMON.leaderboard.get()){
+                                        context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
                                     VPUtil.printCheck(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -139,6 +167,18 @@ public class VPCommands {
                             player.sendSystemMessage(Component.translatable("vp.info.mechanics"));
                             return Command.SINGLE_SUCCESS;
                         })
+                )
+                .then(Commands.literal("jail")
+                    .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("time", LongArgumentType.longArg())
+                            .executes(context -> {
+                                ServerPlayer player = EntityArgument.getPlayer(context, "player");
+                                long time = LongArgumentType.getLong(context,"time");
+                                VPUtil.bindEntity(player,time);
+                                return Command.SINGLE_SUCCESS;
+                            })
+                        )
+                    )
                 )
                 .then(Commands.literal("progress")
                         .then(Commands.literal("show")

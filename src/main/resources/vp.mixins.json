@@ -32,6 +32,7 @@
     "SmitingMixing",
     "VPEntityMixin",
     "VPLivingEntityMixin",
+    "VPPlayerMixin",
     "VzlomJopiMixin"
   ],
   "client": [

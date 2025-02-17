@@ -66,6 +66,11 @@ public class PlayerCapabilityVP {
     private String friends = "";
     private boolean sleep = false;
     private long vip = 0;
+    private long bindTime = 0;
+    private long antiTp = 0;
+    private double bindX = 0;
+    private double bindY = 0;
+    private double bindZ = 0;
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
@@ -736,6 +741,11 @@ public class PlayerCapabilityVP {
         sleep = source.sleep;
         friends = source.friends;
         vip = source.vip;
+        antiTp = source.antiTp;
+        bindTime = source.bindTime;
+        bindX = source.bindX;
+        bindY = source.bindY;
+        bindZ = source.bindZ;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -773,6 +783,11 @@ public class PlayerCapabilityVP {
         nbt.putBoolean("VPSlept",sleep);
         nbt.putInt("VPPearls",pearls);
         nbt.putLong("VPVIP",vip);
+        nbt.putLong("VPAntiTP",antiTp);
+        nbt.putLong("VPBind",bindTime);
+        nbt.putDouble("VPBindX",bindX);
+        nbt.putDouble("VPBindY",bindY);
+        nbt.putDouble("VPBindZ",bindZ);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -810,6 +825,11 @@ public class PlayerCapabilityVP {
         pearls = nbt.getInt("VPPearls");
         sleep = nbt.getBoolean("VPSlept");
         vip = nbt.getLong("VPVIP");
+        antiTp = nbt.getLong("VPAntiTP");
+        bindTime = nbt.getLong("VPBind");
+        bindX = nbt.getDouble("VPBindX");
+        bindY = nbt.getDouble("VPBindY");
+        bindZ = nbt.getDouble("VPBindZ");
     }
 
     public void sync(Player player){
@@ -942,6 +962,8 @@ public class PlayerCapabilityVP {
         Random random = new Random();
         if(VPUtil.getSet(player) == 9)
             stellarChance += 5;
+        if(getVip() > System.currentTimeMillis())
+            stellarChance += 10;
         if(random.nextDouble() < VPUtil.getChance(stellarChance/100,player)){
             if(stellarChance >= 200){
                 Vestige.setDoubleStellar(stack);
@@ -968,5 +990,45 @@ public class PlayerCapabilityVP {
         if(this.vip > 0){
             this.vip += vip-System.currentTimeMillis();
         } else this.vip = vip;
+    }
+
+    public long getBindTime() {
+        return bindTime;
+    }
+
+    public void setBindTime(long bindTime) {
+        this.bindTime = bindTime;
+    }
+
+    public long getAntiTp() {
+        return antiTp;
+    }
+
+    public void setAntiTp(long antiTp) {
+        this.antiTp = antiTp;
+    }
+
+    public double getBindX() {
+        return bindX;
+    }
+
+    public void setBindX(double bindX) {
+        this.bindX = bindX;
+    }
+
+    public double getBindY() {
+        return bindY;
+    }
+
+    public void setBindY(double bindY) {
+        this.bindY = bindY;
+    }
+
+    public double getBindZ() {
+        return bindZ;
+    }
+
+    public void setBindZ(double bindZ) {
+        this.bindZ = bindZ;
     }
 }

@@ -129,7 +129,7 @@ public class ShieldOverlay {
                     if(vestigeNumber == 3){
                         info = String.valueOf(player.getPersistentData().getInt("VPGravity"));
                     }
-                    if(vestigeNumber == 5 && VPUtil.getHealBonus(player) < 0){
+                    if(vestigeNumber == 5 && vestige.isSpecialActive(stack)){
                         if(vestige.isStellar(vestiges.get(i)))
                             info = ((int)VPUtil.missingHealth(player)*8 + "%");
                         else info = ((int)VPUtil.missingHealth(player)*4 + "%");
@@ -270,14 +270,13 @@ public class ShieldOverlay {
             }
         }
 
-        float targetOverShield = 0;
-        float targetShield = 0;
-        for(LivingEntity entity: VPUtil.ray(player,3,50,true)){
-            targetShield = VPUtil.getShield(entity);
-            targetOverShield = VPUtil.getOverShield(entity);
-            break;
-        }
+        float targetShield = player.getPersistentData().getFloat("VPRender1");
+        float targetOverShield = player.getPersistentData().getFloat("VPRender2");
+        float targetHealingDebt = player.getPersistentData().getFloat("VPRender3");
+        LivingEntity target = null;
         for(Object o : VPUtil.rayClass(Entity.class,player,3,20,true)){
+            if(o instanceof LivingEntity livingEntity)
+                target = livingEntity;
             if(o instanceof VortexEntity vortexEntity){
                 String current = (vortexEntity.getPersistentData().getString("VPVortexList"));
                 String max = (player.getPersistentData().getString("VPVortex"));
@@ -332,8 +331,16 @@ public class ShieldOverlay {
             int move = (int) Math.floor(log10) + 1;
             pose.drawString(fontRenderer,""+Math.round(targetShield * 100.0f) / 100.0f, x - (8 + move), centerHeight + 22, 0x808080);
         }
-
-
+        if(targetHealingDebt > 0 && target != null){
+            int sizeX = 16;
+            int sizeY = 16;
+            int pictureSizeX = 16;
+            int pictureSizeY = 16;
+            RenderSystem.setShaderTexture(0, HEALDEBT);
+            pose.blit(HEALDEBT, x - (40), centerHeight-3, 0, 0, sizeX, sizeY,
+                    pictureSizeX, pictureSizeY);
+            pose.drawString(fontRenderer,(int)(targetHealingDebt/target.getMaxHealth()*100)+"%", x - (40), centerHeight + 22, 0xCE5858);
+        }
 
         if(player.isCreative())
             return;

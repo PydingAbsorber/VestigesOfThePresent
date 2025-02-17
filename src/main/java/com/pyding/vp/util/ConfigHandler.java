@@ -105,6 +105,7 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.ConfigValue leaderboardHost;
         public final ForgeConfigSpec.ConfigValue leaderboardPort;
+        public final ForgeConfigSpec.BooleanValue leaderboard;
 
         public Common(ForgeConfigSpec.Builder builder) {
             refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
@@ -198,6 +199,7 @@ public class ConfigHandler {
             dupersList = builder.comment("List of dupers: ").define("dupersList","");
             leaderboardHost = builder.comment("Ip address for leaderboard: ").define("leaderboardHost","95.153.103.118");
             leaderboardPort = builder.comment("Ip port for leaderboard: ").define("leaderboardPort","5242");
+            leaderboard = builder.comment("Defines if Leaderboard should be enabled: ").define("leaderboard",false);
         }
 
         public int getChallengeReduceByNumber(int number) {

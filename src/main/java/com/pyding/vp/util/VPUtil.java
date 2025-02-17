@@ -80,13 +80,14 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -1144,7 +1145,7 @@ public class VPUtil {
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+1000);
         setHealth(entity,0);
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
-        entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis()+1000);
+        antiTp(entity,1000);
         entity.die(player.damageSources().genericKill());
     }
 
@@ -1162,6 +1163,7 @@ public class VPUtil {
         entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
         entity.setHealth(0);
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
+        antiTp(entity,1000);
         entity.die(entity.damageSources().genericKill());
     }
 
@@ -3253,6 +3255,8 @@ public class VPUtil {
         return cap + Math.log((number - cap) + 1);
     }
 
+
+
     public static String getHost() {
         if(ConfigHandler.COMMON_SPEC.isLoaded())
             return ConfigHandler.COMMON.leaderboardHost.get().toString();
@@ -3266,7 +3270,10 @@ public class VPUtil {
     }
 
     public static void addNickname(String nickName,UUID uuid){
-        new Thread(() -> {
+        if(!ConfigHandler.COMMON.leaderboard.get()){
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -3277,11 +3284,14 @@ public class VPUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     public static void addChallenge(UUID uuid, int id){
-        new Thread(() -> {
+        if(!ConfigHandler.COMMON.leaderboard.get()){
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -3292,11 +3302,14 @@ public class VPUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     public static void setCheating(UUID uuid){
-        new Thread(() -> {
+        if(!ConfigHandler.COMMON.leaderboard.get()){
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -3307,7 +3320,7 @@ public class VPUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     public static String getInformation(UUID uuid){
@@ -3356,7 +3369,7 @@ public class VPUtil {
 
     public static void printCheck(Player player){
         player.sendSystemMessage(Component.literal("This may take some time to check"));
-        new Thread(() -> {
+        CompletableFuture.runAsync(() -> {
             String response = "";
             try {
                 response += VPUtil.check();
@@ -3364,20 +3377,100 @@ public class VPUtil {
                 response += e.getMessage();
             }
             player.sendSystemMessage(Component.literal(response));
-        }).start();
+        });
     }
 
     public static void printAll(Player player){
-        new Thread(() -> {
-            for(String name: VPUtil.filterString(VPUtil.getAll()).split(",")){
+        CompletableFuture.runAsync(() -> {
+            String response = VPUtil.filterString(VPUtil.getAll());
+            player.sendSystemMessage(Component.literal("Position | Nickname | Challenges | Unique Challenges"));
+            for(String name: response.split(",")){
                 player.sendSystemMessage(Component.literal(name));
             }
-        }).start();
+        });
     }
 
     public static void printYourself(Player player){
-        new Thread(() -> player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID())))).start();
+        CompletableFuture.runAsync(() -> player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID()))));
     }
 
-    
+    public static List<String> topPlayers = new ArrayList<>();
+
+    public static String getTopPlayers(){
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/check"))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception e) {
+            return "Something is not ok :(((( Backend may be offline \n"+e.getMessage();
+        }
+    }
+
+    public static void refreshTopPlayers(){
+        CompletableFuture.runAsync(() -> {
+            try {
+                topPlayers.clear();
+                Collections.addAll(topPlayers, getTopPlayers().split(","));
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        });
+    }
+
+    public static boolean hasGoldenName(String name){
+        if(!topPlayers.isEmpty()){
+            for(String element: topPlayers){
+                if(name.equals(element))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public static void bindEntity(LivingEntity entity, long time){
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.setAntiTp(System.currentTimeMillis() + time);
+                cap.setBindTime(System.currentTimeMillis() + time);
+                cap.setBindX(entity.getX());
+                cap.setBindY(entity.getY());
+                cap.setBindZ(entity.getZ());
+            });
+        } else {
+            entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
+            entity.getPersistentData().putDouble("VPDevourerX", entity.getX());
+            entity.getPersistentData().putDouble("VPDevourerY", entity.getY());
+            entity.getPersistentData().putDouble("VPDevourerZ", entity.getZ());
+        }
+    }
+
+    public static void antiTp(LivingEntity entity, long time){
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.setAntiTp(System.currentTimeMillis() + time);
+            });
+        } else {
+            entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
+        }
+    }
+
+    public static boolean canTeleport(LivingEntity entity){
+        AtomicBoolean teleport = new AtomicBoolean(true);
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(cap.getAntiTp() > System.currentTimeMillis())
+                    teleport.set(false);
+            });
+        }
+        else if(entity.getPersistentData().getLong("VPAntiTP") > System.currentTimeMillis() || VPUtil.isEvent(entity))
+            teleport.set(false);
+        return teleport.get();
+    }
+
+
+
 }

@@ -58,6 +58,7 @@ import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -243,7 +244,7 @@ public class EventHandler {
                         else if(source.is(DamageTypes.MAGIC)) {
                             entity.getPersistentData().putLong("VPAntiShield", System.currentTimeMillis() + time);
                             entity.getPersistentData().putLong("VPDeath", System.currentTimeMillis() + time);
-                            entity.getPersistentData().putLong("VPAntiTp", System.currentTimeMillis() + time);
+                            VPUtil.antiTp(entity,time);
                         }
                         else if(source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
                             entity.getPersistentData().putLong("VPWhirlVoid", System.currentTimeMillis() + time);
@@ -508,6 +509,13 @@ public class EventHandler {
         VPUtil.setCheating(event.getEntity().getUUID());
     }
 
+    @SubscribeEvent
+    public static void commandEvent(CommandEvent event){
+        if(ConfigHandler.COMMON.leaderboard.get() && event.getParseResults().getContext().getSource().hasPermission(2)){
+            VPUtil.setCheating(Objects.requireNonNull(event.getParseResults().getContext().getSource().getEntity()).getUUID());
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
     public void deathEventLowest(LivingDeathEvent event){
         Random random = new Random();
@@ -760,7 +768,7 @@ public class EventHandler {
                         VPUtil.dealDamage(livingEntity,player, player.damageSources().explosion(livingEntity,player),percent,3);
                         if(stellar){
                             livingEntity.getPersistentData().putLong("VPAntiShield",3*60*1000+System.currentTimeMillis());
-                            livingEntity.getPersistentData().putLong("VPAntiTP",3*60*1000+System.currentTimeMillis());
+                            VPUtil.antiTp(livingEntity,3*60*1000);
                         }
                     }
                 }
@@ -1020,8 +1028,11 @@ public class EventHandler {
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
         VPUtil.addNickname(player.getScoreboardName(),player.getUUID());
-        if(player.isCreative())
-            VPUtil.setCheating(player.getUUID());
+        if(ConfigHandler.COMMON.leaderboard.get()) {
+            if (player.isCreative())
+                VPUtil.setCheating(player.getUUID());
+            VPUtil.refreshTopPlayers();
+        }
     }
 
     @SubscribeEvent
@@ -1130,7 +1141,7 @@ public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void teleportEvent(EntityTeleportEvent event){
         if(event.getEntity() instanceof LivingEntity entity){
-            if(entity.getPersistentData().getLong("VPAntiTP") > 0 || VPUtil.isEvent(entity))
+            if(!VPUtil.canTeleport(entity))
                 event.setCanceled(true);
         }
     }
@@ -1138,7 +1149,7 @@ public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void entityChangeDimension(EntityTravelToDimensionEvent event){
         if(event.getEntity() instanceof LivingEntity entity){
-            if(entity.getPersistentData().getLong("VPAntiTP") > 0 || VPUtil.isEvent(entity))
+            if(!VPUtil.canTeleport(entity))
                 event.setCanceled(true);
         }
     }
@@ -1146,7 +1157,7 @@ public class EventHandler {
     public static void playerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event){
         Player player = event.getEntity();
         PlayerCapabilityVP.initMaximum(player);
-        if(player.getPersistentData().getLong("VPAntiTP") > 0 || VPUtil.isEvent(player))
+        if(!VPUtil.canTeleport(player))
             event.setCanceled(true);
     }
 
@@ -1228,7 +1239,7 @@ public class EventHandler {
             if(VPUtil.isBoss(entity))
                 entity.heal((float) (entity.getMaxHealth() * ConfigHandler.COMMON.healPercent.get()));
             if(VPUtil.isNpc(entity.getType())){
-                entity.getPersistentData().putLong("VPAntiTp",System.currentTimeMillis()+99999);
+                VPUtil.antiTp(entity,99999);
             }
             if(Float.isNaN(entity.getHealth())) {
                 entity.setHealth(1);
@@ -1297,9 +1308,6 @@ public class EventHandler {
                 tag.putBoolean("MaskStellar", false);
             }
         }
-        if(entity.getPersistentData().getLong("VPAntiTP") != 0 && entity.getPersistentData().getLong("VPAntiTP") <= System.currentTimeMillis()) {
-            entity.getPersistentData().putLong("VPAntiTP", 0);
-        }
         if(entity.getPersistentData().getLong("VPAntiShield") != 0 && entity.getPersistentData().getLong("VPAntiShield") <= System.currentTimeMillis()) {
             entity.getPersistentData().putLong("VPAntiShield", 0);
         }
@@ -1319,6 +1327,12 @@ public class EventHandler {
         }
         if(entity.tickCount % 2 == 0){
             if(entity instanceof ServerPlayer player && !player.getCommandSenderWorld().isClientSide) {
+                for(LivingEntity target: VPUtil.ray(player,3,50,true)){
+                    player.getPersistentData().putFloat("VPRender1",VPUtil.getShield(target));
+                    player.getPersistentData().putFloat("VPRender2",VPUtil.getOverShield(target));
+                    player.getPersistentData().putFloat("VPRender3",target.getPersistentData().getFloat("VPHealDebt"));
+                    break;
+                }
                 CompoundTag sendNudes = new CompoundTag();
                 for (String key : player.getPersistentData().getAllKeys()) {
                     if (key.startsWith("VP") && player.getPersistentData().get(key) != null && !key.startsWith("VPMaxChallenge")) {
