@@ -20,7 +20,7 @@ public class VPPlayerMixin {
 
     @Inject(method = "getName",at = @At("RETURN"),cancellable = true, require = 1)
     private void getNameMixin(CallbackInfoReturnable<Component> cir){
-        if(VPUtil.hasGoldenName(cir.getReturnValue().getString()))
+        if(VPUtil.hasGoldenName(((Player)(Object)this).getUUID()))
             cir.setReturnValue(Component.literal(gameProfile.getName()).withStyle(ChatFormatting.GOLD));
     }
 }

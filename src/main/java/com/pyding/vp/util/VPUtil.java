@@ -3421,10 +3421,10 @@ public class VPUtil {
         });
     }
 
-    public static boolean hasGoldenName(String name){
+    public static boolean hasGoldenName(UUID uuid){
         if(!topPlayers.isEmpty()){
             for(String element: topPlayers){
-                if(name.equals(element))
+                if(UUID.fromString(element).compareTo(uuid) == 0)
                     return true;
             }
         }
