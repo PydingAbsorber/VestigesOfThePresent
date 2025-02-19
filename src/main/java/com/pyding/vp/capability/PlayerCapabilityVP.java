@@ -551,6 +551,7 @@ public class PlayerCapabilityVP {
         music = "";
         templates = "";
         sea = "";
+        vip = 0;
         sync(player);
     }
 

@@ -26,7 +26,8 @@ public class Armor extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.FLESH.get());
         player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false), 60 * 20));
-        int debuffCount = 1;
+        player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false), 60 * 20));
+        float debuffCount = 0;
         Iterator<MobEffectInstance> iterator = player.getActiveEffects().iterator();
         while (iterator.hasNext()) {
             MobEffectInstance effectInstance = iterator.next();
@@ -35,9 +36,12 @@ public class Armor extends Vestige{
                 debuffCount++;
             }
         }
-        player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(1 + debuffCount));
-        player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+debuffCount*player.getMaxHealth());
-        stack.getOrCreateTag().putFloat("VPArmor",stack.getOrCreateTag().getFloat("VPArmor")+100);
+        player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(0.3f + debuffCount));
+        player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+((debuffCount+4)/4*player.getMaxHealth()*0.4f));
+        if(player.getPersistentData().getFloat("VPHealDebt") > player.getMaxHealth()*6) {
+            stack.getOrCreateTag().putFloat("VPArmor", stack.getOrCreateTag().getFloat("VPArmor") + 40);
+            VPUtil.addShield(player,stack.getOrCreateTag().getFloat("VPArmor")*0.1f,true);
+        }
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
         super.doSpecial(seconds, player, level, stack); 
     }
@@ -45,11 +49,16 @@ public class Armor extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.FLESH2.get());
+        VPUtil.spawnParticles(player, ParticleTypes.CRIT,3,1,0,0,0,0,false);
+        super.doUltimate(seconds, player, level, stack);
+    }
+
+    @Override
+    public void ultimateEnds(Player player, ItemStack stack) {
         int pain = (int)stack.getOrCreateTag().getFloat("VPArmor");
         VPUtil.repairAll(player,pain);
         stack.getOrCreateTag().putFloat("VPArmor",0);
-        VPUtil.spawnParticles(player, ParticleTypes.CRIT,3,1,0,0,0,0,false);
-        super.doUltimate(seconds, player, level, stack);
+        super.ultimateEnds(player, stack);
     }
 
     @Override

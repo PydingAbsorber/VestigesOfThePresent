@@ -9,6 +9,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
+import com.pyding.vp.item.vestiges.Armor;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.item.vestiges.Whirlpool;
 import com.pyding.vp.mixin.*;
@@ -1866,14 +1867,19 @@ public class VPUtil {
         return allList;
     }
 
-    public static List<String> getRareItemsLeft(String list){
+    public static List<String> getRareItemsLeft(String list,Player player){
         List<String> rareList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
         List<String> allList = new ArrayList<>();
         for(Item item: hashRares){
             allList.add(item.getDescriptionId());
         }
         allList.removeAll(rareList);
+        player.getPersistentData().putString("VPRaresClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
         return allList;
+    }
+
+    public static List<String> getRaresClient(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPRaresClient").split(",")));
     }
 
     public static double calculateCatchChance(float playerHealth, float entityMaxHealth, float entityHealth){
@@ -1962,6 +1968,11 @@ public class VPUtil {
         entity.setLastHurtByPlayer(player);
         float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
+        if(entity instanceof Player playerTarget && hasStellarVestige(ModItems.ARMOR.get(),player)){
+            ItemStack stack = getVestigeStack(Armor.class,player);
+            if(stack.getItem() instanceof Armor armor && armor.isUltimateActive(stack))
+                dealParagonDamage(player,entity,damage*3,3,true);
+        }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
             VPUtil.play(player, SoundRegistry.BUBBLE1.get());
             entity.getPersistentData().putLong("VPBubble", 0);
@@ -2324,6 +2335,7 @@ public class VPUtil {
             VPUtil.getMonsterLeft(cap.getMonstersKilled(),player);
             VPUtil.getBossesLeft(cap.getBosses(),player);
             VPUtil.getMobsLeft(cap.getMobsTamed(),player);
+            VPUtil.getRareItemsLeft(cap.getrareItems(),player);
         }
     }
 
@@ -3384,8 +3396,12 @@ public class VPUtil {
         CompletableFuture.runAsync(() -> {
             String response = VPUtil.filterString(VPUtil.getAll());
             player.sendSystemMessage(Component.literal("Position | Nickname | Challenges | Unique Challenges"));
+            int count = 0;
             for(String name: response.split(",")){
-                player.sendSystemMessage(Component.literal(name));
+                if(count < 10) {
+                    count++;
+                    player.sendSystemMessage(Component.literal(name).withStyle(ChatFormatting.GOLD));
+                } else player.sendSystemMessage(Component.literal(name));
             }
         });
     }
@@ -3471,6 +3487,26 @@ public class VPUtil {
         return teleport.get();
     }
 
-
+    public static void bindTick(LivingEntity livingEntity){
+        if(livingEntity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(cap.getBindTime() > System.currentTimeMillis()) {
+                    BlockPos pos = new BlockPos((int) cap.getBindX(),(int)cap.getBindY(),(int)cap.getBindZ());
+                    VPUtil.suckToPos(player,pos,1);
+                    if(player instanceof ServerPlayer serverPlayer)
+                        PacketHandler.sendToClient(new PlayerFlyPacket(301),serverPlayer);
+                }
+            });
+        } else if(livingEntity.getPersistentData().getDouble("VPDevourerX") != 0){
+            if(livingEntity.getPersistentData().getLong("VPAntiTP") < System.currentTimeMillis()){
+                livingEntity.getPersistentData().putDouble("VPDevourerX", 0);
+                livingEntity.getPersistentData().putDouble("VPDevourerY", 0);
+                livingEntity.getPersistentData().putDouble("VPDevourerZ", 0);
+                return;
+            }
+            BlockPos pos = new BlockPos((int) livingEntity.getPersistentData().getDouble("VPDevourerX"),(int)livingEntity.getPersistentData().getDouble("VPDevourerY"),(int)livingEntity.getPersistentData().getDouble("VPDevourerZ"));
+            VPUtil.suckToPos(livingEntity,pos,1);
+        }
+    }
 
 }

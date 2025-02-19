@@ -5,6 +5,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.commands.VPCommands;
+import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
@@ -321,8 +322,14 @@ public class EventHandler {
                 });
                 if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
                     ItemStack stack = VPUtil.getVestigeStack(Armor.class,player);
-                    event.setAmount(Math.max(0, event.getAmount() - (ConfigHandler.COMMON.armorAbsorbBase.get() + stack.getOrCreateTag().getFloat("VPArmor"))));
-                    stack.getOrCreateTag().putFloat("VPArmor", stack.getOrCreateTag().getFloat("VPArmor") + (float)(event.getAmount()*ConfigHandler.COMMON.armorAbsorbPercent.get()));
+                    float damageBefore = event.getAmount();
+                    event.setAmount(event.getAmount()*(1-VPUtil.missingHealth(player)/100));
+                    event.setAmount((float) Math.max(1, event.getAmount() - (ConfigHandler.COMMON.armorAbsorbBase.get()*stack.getOrCreateTag().getFloat("VPArmor"))));
+                    if(stack.getItem() instanceof Armor armor && armor.isUltimateActive(stack)) {
+                        stack.getOrCreateTag().putFloat("VPArmor", stack.getOrCreateTag().getFloat("VPArmor") + (float) (event.getAmount() * ConfigHandler.COMMON.armorAbsorbPercent.get()));
+                        if(armor.isStellar(stack) && event.getSource().is(DamageTypes.CACTUS))
+                            VPUtil.dealDamage(attacker,player,player.damageSources().cactus(),damageBefore*3,3);
+                    }
                 }
                 if(!VPUtil.isDamagePhysical(event.getSource()) && VPUtil.hasCurse(player,1)){
                     event.setAmount(0);
@@ -1073,11 +1080,6 @@ public class EventHandler {
                 }
             }
             if(entity instanceof Player player) {
-                if((VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) && event.getAmount() > 1)){
-                    ItemStack stack = VPUtil.getVestigeStack(Armor.class,player);
-                    if(stack.getOrCreateTag().getFloat("VPArmor") > 0)
-                        stack.getOrCreateTag().putFloat("VPArmor",0);
-                }
                 if(VPUtil.hasVestige(ModItems.FLOWER.get(), player) && player.getPersistentData().getLong("VPFlowerSpecial") > 0){
                     for(LivingEntity livingEntity: VPUtil.getCreaturesAround(player,20,20,20)){
                         livingEntity.heal(resedHeal);
@@ -1105,11 +1107,6 @@ public class EventHandler {
                 if(entity.getPersistentData().getBoolean("VPMarkUlt"))
                     overHeal = event.getAmount();
                 if(entity instanceof Player player) {
-                    if(!VPUtil.hasStellarVestige(ModItems.ARMOR.get(), player) && VPUtil.hasVestige(ModItems.ARMOR.get(), player)){
-                        ItemStack stack = VPUtil.getVestigeStack(Armor.class,player);
-                        if(stack.getOrCreateTag().getFloat("VPArmor") > 0)
-                            stack.getOrCreateTag().putFloat("VPArmor",0);
-                    }
                     if(VPUtil.hasStellarVestige(ModItems.TRIGON.get(), player)) {
                         VPUtil.regenOverShield(player, (float)(overHeal*ConfigHandler.COMMON.trigonHeal.get()));
                     }
@@ -1216,6 +1213,7 @@ public class EventHandler {
         if (tag.hasUUID("VPPlayer") && entity instanceof Mob mob && mob.getTarget() != null && mob.getTarget().getUUID() == tag.getUUID("VPPlayer")){
             ((MobEntityVzlom)mob).setTarget(null);
         }
+        VPUtil.bindTick(entity);
         if(entity instanceof TropicalFish fish){
             long eat = fish.getPersistentData().getLong("VPEating");
             if(eat > 0){
@@ -1354,6 +1352,9 @@ public class EventHandler {
         if(entity.tickCount % 20 == 0 && entity instanceof ServerPlayer playerServer){
             playerServer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.sync(playerServer);
+                if(cap.getVip() > System.currentTimeMillis()){
+                    playerServer.addEffect(new MobEffectInstance(VPEffects.VIP_EFFECT.get(), (int)((cap.getVip()-System.currentTimeMillis())), 0,false,false));
+                }
             });
             if(VPUtil.isEvent(playerServer)){
                 PacketHandler.sendToClient(new PlayerFlyPacket(2), playerServer);

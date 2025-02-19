@@ -28,7 +28,7 @@ public class VipActivator extends Item {
         super(p_41383_);
     }
 
-    long day = System.currentTimeMillis()+24*360000;
+    long day = 24*60*60*1000;
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
@@ -38,7 +38,7 @@ public class VipActivator extends Item {
             return super.use(level, player, p_41434_);
         }
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            cap.setVip(day*stack.getOrCreateTag().getInt("VPDays"));
+            cap.setVip((day*stack.getOrCreateTag().getInt("VPDays"))+System.currentTimeMillis());
             cap.sync(player);
         });
         if(player instanceof ServerPlayer serverPlayer)

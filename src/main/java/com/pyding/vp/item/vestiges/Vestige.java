@@ -655,7 +655,7 @@ public class Vestige extends Item implements ICurioItem {
                         break;
                     }
                     case 13:{
-                        text = VPUtil.filterAndTranslate(VPUtil.getRareItemsLeft(cap.getrareItems()).toString(),ChatFormatting.GRAY).getString();
+                        text = VPUtil.getRaresClient(player).toString();
                         break;
                     }
                     case 15: {

@@ -38,29 +38,16 @@ public class Devourer extends Vestige{
         return super.setSpecialActive(seconds, player, stack);
     }
 
-    LivingEntity victim = null;
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.DEVOURER_BIND.get());
         for (LivingEntity entity : VPUtil.ray(player, 6, 30, true)) {
             if(!VPUtil.isProtectedFromHit(player,entity)) {
-                victim = entity;
                 VPUtil.bindEntity(entity,seconds);
             }
         }
         VPUtil.rayParticles(player, ParticleTypes.DRAGON_BREATH,30,6,30,0,-1,0,5,false);
         super.doSpecial(seconds, player, level, stack);
-    }
-
-    @Override
-    public void whileSpecial(Player player, ItemStack stack) {
-        if(victim != null){
-            BlockPos pos = new BlockPos((int) victim.getPersistentData().getDouble("VPDevourerX"),(int)victim.getPersistentData().getDouble("VPDevourerY"),(int)victim.getPersistentData().getDouble("VPDevourerZ"));
-            VPUtil.suckToPos(victim,pos,1);
-            if(victim instanceof ServerPlayer serverPlayer)
-                PacketHandler.sendToClient(new PlayerFlyPacket(301),serverPlayer);
-        }
-        super.whileSpecial(player, stack);
     }
 
     @Override

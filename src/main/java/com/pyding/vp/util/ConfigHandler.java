@@ -39,7 +39,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue devourer;
         public final ForgeConfigSpec.IntValue blackhole;
         public final ForgeConfigSpec.IntValue stellarChanceIncrease;
-        public final ForgeConfigSpec.IntValue armorAbsorbBase;
+        public final ForgeConfigSpec.DoubleValue armorAbsorbBase;
         public final ForgeConfigSpec.DoubleValue armorAbsorbPercent;
         public final ForgeConfigSpec.IntValue anomalyBorder;
         public final ForgeConfigSpec.DoubleValue atlasChance;
@@ -138,8 +138,8 @@ public class ConfigHandler {
 
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
-            armorAbsorbBase = builder.comment("Base Martyr's Habergeon(armor) value").defineInRange("armorAbsorbBase", 40, 0, Integer.MAX_VALUE);
-            armorAbsorbPercent = builder.comment("Martyr's Habergeon absorption increase %. 1 is 100%, 0.1 is 10%.").defineInRange("armorAbsorbPercent", 1d, 0, 1d);
+            armorAbsorbBase = builder.comment("Base Martyr's Habergeon damage absorption from Passive").defineInRange("armorAbsorbBase", 0.1d, 0, 1d);
+            armorAbsorbPercent = builder.comment("Martyr's Habergeon Pain Gauge increase % from Ultimate. 1 is 100%, 0.1 is 10%.").defineInRange("armorAbsorbPercent", 0.1d, 0, 1d);
             anomalyBorder = builder.comment("Borders for Anomaly's Ultimate teleportation. Leave at 0 for world's max border.").defineInRange("anomalyBorder", 0, 0, Integer.MAX_VALUE);
             atlasChance = builder.comment("Chance for Atlas to gain Gravity. 1 is 100%, 0.2 is 20%.").defineInRange("atlasChance", 0.2d, 0, 1d);
             catalystLvlLimit = builder.comment("Level limit for stellar Catalyst").defineInRange("catalystLvlLimit", 255, 0, 255);

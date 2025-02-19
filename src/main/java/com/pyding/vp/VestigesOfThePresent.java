@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.pyding.vp.client.ClientProxy;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.common.CommonProxy;
+import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.ModCreativeModTab;
@@ -63,6 +64,7 @@ public class VestigesOfThePresent
         ModCreativeModTab.register(modEventBus);
         modEventBus.addListener(this::addCreative);
         VPUtil.vzlomatJopu(Float.MAX_VALUE);
+        VPEffects.EFFECTS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init

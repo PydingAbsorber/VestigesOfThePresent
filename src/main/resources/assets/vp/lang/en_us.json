@@ -248,9 +248,9 @@
   "vp.get.10": "Teleport with Ender Pearl in the same place Enderman teleports in the same second %s times.",
   "vp.damagetype.10": "dragon breath",
 
-  "vp.passive.11": "Reduces all incoming damage by 40 + Pain Accumulation. \nPain Accumulation doesn't increase after evasion. \nPain Accumulation nullifies when Over Healing",
-  "vp.special.11": "Applies a random debuff for 1 minute and increases the Pain Accumulation by 100. \nDeals 100% damage and applies 100% Heal Debt for each debuff you have.",
-  "vp.ultimate.11": "Repairs all equipment in the inventory and slots for Pain Accumulation. \nRemaining Pain Accumulation is converted into experience.",
+  "vp.passive.11": "Damage taken is reduced by the percentage of missing health + 10% of the Pain Gauge and cannot be reduced below 1.",
+  "vp.special.11": "Applies 2 random negative effects and Healing Debt equal to 40% of Max HP, while also dealing 30% damage to self. \nThe applied Healing Debt and self-inflicted damage increase with existing debuffs. \nIf the carrier's Healing Debt exceeds 600% of Max HP, the Pain Gauge increases by 40, and Shields equal to 10% of the Pain Gauge are granted.",
+  "vp.ultimate.11": "While active, 10% of the damage taken is converted into the Pain Gauge. \nUpon expiration, the entire Pain Gauge is spent on repairing equipment durability, with any excess converted into experience.",
   "vp.damagetype.11": "cactus",
   "vp.get.11": "Die from each type of damage.",
 
@@ -334,7 +334,7 @@
   "vp.stellar.8": "Passive: If the first evasion fails, damage decreases by % of evasion.",
   "vp.stellar.9": "Ultimate: also gives gold like from Passive \nEach luck attribute increases all damage by 10%.",
   "vp.stellar.10": "Ultimate can also teleport to a random player with a 5% chance.",
-  "vp.stellar.11": "Pain Accumulation does not reset when Over Healing but decreases by 100 for each healing higher then 1.",
+  "vp.stellar.11": "Ultimate: while active, any attacker will also take 300% of damage dealt, Paragon damage too.",
   "vp.stellar.12": "Special: Each damage inflicted on Disappointed creature, which after absorption will be less than 5, accumulates without absorption. \nAfter that, it is added to the next attack that will hurt opponent more then 5 damage, or to the 10th attack.",
   "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance. \nEntities around will have reduced max hp for Heal Debt they have.",
