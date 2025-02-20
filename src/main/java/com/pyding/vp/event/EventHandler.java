@@ -1040,6 +1040,7 @@ public class EventHandler {
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
         VPUtil.addNickname(player.getScoreboardName(),player.getUUID());
+        VPUtil.printVersion(player);
         if(ConfigHandler.COMMON.leaderboard.get()) {
             if (player.isCreative())
                 VPUtil.setCheating(player.getUUID());
