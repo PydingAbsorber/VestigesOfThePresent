@@ -525,11 +525,6 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
     public void deathEventLowest(LivingDeathEvent event){
-        if(event.getEntity() instanceof Player player && player.getMainHandItem().getItem() == ModItems.STELLAR.get()){
-            event.setCanceled(true);
-            player.setHealth(20);
-            VPUtil.teleportRandomly(player,10);
-        }
         Random random = new Random();
         if(event.getEntity().getPersistentData().getLong("VPQueenDeath") <= System.currentTimeMillis()){
             event.getEntity().getPersistentData().putLong("VPQueenDeath",-1);

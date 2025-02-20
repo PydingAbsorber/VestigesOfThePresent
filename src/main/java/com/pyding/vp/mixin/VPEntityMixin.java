@@ -37,8 +37,8 @@ public abstract class VPEntityMixin {
         }
     }
 
-    @Inject(method = "teleportTo(DDD)V",at = @At("RETURN"),cancellable = true, require = 1)
-    protected void teleportMixin(double p_19887_, double p_19888_, double p_19889_, CallbackInfo ci){
+    @Inject(method = "teleportTo*",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void teleportMixin(CallbackInfo ci){
         if(!VPUtil.canTeleport(((Entity)(Object)this))){
             ci.cancel();
         }
