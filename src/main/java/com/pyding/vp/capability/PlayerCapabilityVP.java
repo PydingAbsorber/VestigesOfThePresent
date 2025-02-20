@@ -552,6 +552,7 @@ public class PlayerCapabilityVP {
         templates = "";
         sea = "";
         vip = 0;
+        pearls = 0;
         sync(player);
     }
 

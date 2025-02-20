@@ -76,6 +76,8 @@ public class MaskOfDemon extends Vestige{
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
+                if(VPUtil.isProtectedFromHit(player,entity) || VPUtil.isFriendlyFireBetween(entity,player))
+                    continue;
                 CompoundTag tag = entity.getPersistentData();
                 if (tag == null) {
                     tag = new CompoundTag();

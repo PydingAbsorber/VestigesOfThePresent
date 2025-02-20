@@ -1,8 +1,11 @@
 package com.pyding.vp.mixin;
 
+import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraftforge.common.util.LazyOptional;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Mixin(value = LivingEntity.class)
@@ -84,6 +89,18 @@ public abstract class VPLivingEntityMixin {
                 ci.cancel();
                 return;
             }
+        }
+    }
+
+    @Inject(method = "dropAllDeathLoot", at = @At("HEAD"), cancellable = true)
+    private void onDropAllDeathLoot(DamageSource p_21192_, CallbackInfo cir) {
+        if((Object)this instanceof Player player) {
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if (cap.getVip() > System.currentTimeMillis()) {
+                    VipActivator.saveInventory(player);
+                    cir.cancel();
+                }
+            });
         }
     }
 }

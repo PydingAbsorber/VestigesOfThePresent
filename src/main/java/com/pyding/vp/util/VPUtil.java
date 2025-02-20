@@ -3,6 +3,7 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -94,6 +95,8 @@ import java.util.stream.Collectors;
 
 public class VPUtil {
     public static long coolDown(Player player){
+        if(ConfigHandler.COMMON.leaderboard.get())
+            return 12*60*60*1000;
         double reduce = 1;
         if(getSet(player) == 10)
             reduce = 0.9;
@@ -3437,6 +3440,34 @@ public class VPUtil {
         });
     }
 
+    public static void printVersion(Player player){
+        CompletableFuture.runAsync(() -> {
+            try {
+                String[] currentVersion = VestigesOfThePresent.VERSION.split(":");
+                String request = getVersion();
+                if(!request.isEmpty() && !request.equals(currentVersion[1]))
+                    player.sendSystemMessage(Component.literal("You are running " + currentVersion[1] + " version. Please update to latest " + request + " version."));
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        });
+    }
+
+    public static String getVersion(){
+        try {
+            String[] currentVersion = VestigesOfThePresent.VERSION.split(":");
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getVersion?String=" + currentVersion[0]))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public static boolean hasGoldenName(UUID uuid){
         if(!topPlayers.isEmpty()){
             for(String element: topPlayers){
@@ -3448,16 +3479,15 @@ public class VPUtil {
     }
 
     public static void bindEntity(LivingEntity entity, long time){
+        antiTp(entity,time);
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setAntiTp(System.currentTimeMillis() + time);
                 cap.setBindTime(System.currentTimeMillis() + time);
                 cap.setBindX(entity.getX());
                 cap.setBindY(entity.getY());
                 cap.setBindZ(entity.getZ());
             });
         } else {
-            entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
             entity.getPersistentData().putDouble("VPDevourerX", entity.getX());
             entity.getPersistentData().putDouble("VPDevourerY", entity.getY());
             entity.getPersistentData().putDouble("VPDevourerZ", entity.getZ());
@@ -3465,16 +3495,19 @@ public class VPUtil {
     }
 
     public static void antiTp(LivingEntity entity, long time){
+        entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
+        syncEntity(entity);
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.setAntiTp(System.currentTimeMillis() + time);
             });
-        } else {
-            entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
         }
     }
 
     public static boolean canTeleport(LivingEntity entity){
+        if(entity.getPersistentData().getLong("VPAntiTP") > System.currentTimeMillis() || VPUtil.isEvent(entity)) {
+            return true;
+        }
         AtomicBoolean teleport = new AtomicBoolean(true);
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
@@ -3482,8 +3515,6 @@ public class VPUtil {
                     teleport.set(false);
             });
         }
-        else if(entity.getPersistentData().getLong("VPAntiTP") > System.currentTimeMillis() || VPUtil.isEvent(entity))
-            teleport.set(false);
         return teleport.get();
     }
 

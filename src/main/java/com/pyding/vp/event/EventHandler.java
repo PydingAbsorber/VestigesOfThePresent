@@ -1325,11 +1325,18 @@ public class EventHandler {
         }
         if(entity.tickCount % 2 == 0){
             if(entity instanceof ServerPlayer player && !player.getCommandSenderWorld().isClientSide) {
-                for(LivingEntity target: VPUtil.ray(player,3,50,true)){
-                    player.getPersistentData().putFloat("VPRender1",VPUtil.getShield(target));
-                    player.getPersistentData().putFloat("VPRender2",VPUtil.getOverShield(target));
-                    player.getPersistentData().putFloat("VPRender3",target.getPersistentData().getFloat("VPHealDebt"));
-                    break;
+                List<LivingEntity> list = VPUtil.ray(player,3,50,true);
+                if(list.isEmpty()){
+                    player.getPersistentData().putFloat("VPRender1",0);
+                    player.getPersistentData().putFloat("VPRender2",0);
+                    player.getPersistentData().putFloat("VPRender3",0);
+                } else {
+                    for(LivingEntity target: list){
+                        player.getPersistentData().putFloat("VPRender1",VPUtil.getShield(target));
+                        player.getPersistentData().putFloat("VPRender2",VPUtil.getOverShield(target));
+                        player.getPersistentData().putFloat("VPRender3",target.getPersistentData().getFloat("VPHealDebt"));
+                        break;
+                    }
                 }
                 CompoundTag sendNudes = new CompoundTag();
                 for (String key : player.getPersistentData().getAllKeys()) {
@@ -1353,7 +1360,7 @@ public class EventHandler {
             playerServer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.sync(playerServer);
                 if(cap.getVip() > System.currentTimeMillis()){
-                    playerServer.addEffect(new MobEffectInstance(VPEffects.VIP_EFFECT.get(), (int)((cap.getVip()-System.currentTimeMillis())), 0,false,false));
+                    playerServer.addEffect(new MobEffectInstance(VPEffects.VIP_EFFECT.get(), (int)((cap.getVip()-System.currentTimeMillis())*20/1000), 0,false,false));
                 }
             });
             if(VPUtil.isEvent(playerServer)){
@@ -1361,7 +1368,9 @@ public class EventHandler {
             }
             if(VPUtil.hasStellarVestige(ModItems.CHAOS.get(), playerServer)){
                 for(LivingEntity livingEntity: VPUtil.getEntities(playerServer,20,false)){
-                    float healDebt = livingEntity.getPersistentData().getFloat("VPHealDebt")/10;
+                    if(VPUtil.isProtectedFromHit(playerServer,entity) || VPUtil.isFriendlyFireBetween(entity,playerServer))
+                        continue;
+                    float healDebt = (float) (livingEntity.getPersistentData().getFloat("VPHealDebt")/ConfigHandler.COMMON.chaosCoreStellarHpRes.get());
                     if(healDebt > 0) {
                         if(healDebt > livingEntity.getMaxHealth())
                             VPUtil.deadInside(livingEntity,playerServer);
@@ -1409,7 +1418,7 @@ public class EventHandler {
             VPUtil.setLuck(playerServer);
             VPUtil.sync(playerServer);
         }
-        if(entity.tickCount % 40 == 0)
+        if(entity.tickCount % 1000 == 0)
             Objects.requireNonNull(entity.getAttribute(Attributes.MAX_HEALTH)).removeModifier(UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"));
         if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath") + 100 > System.currentTimeMillis())
             tag.putLong("VPDeath",0);
@@ -1630,7 +1639,11 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event){
+        if (!event.isWasDeath()) {
+            return;
+        }
         event.getOriginal().reviveCaps();
+        VipActivator.loadInventory(event.getOriginal(),event.getEntity());
         event.getOriginal().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(oldStore -> {
             event.getEntity().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(newStore -> {
                 newStore.copyNBT(oldStore);

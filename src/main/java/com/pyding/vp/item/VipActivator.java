@@ -2,12 +2,12 @@ package com.pyding.vp.item;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
-import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -20,8 +20,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import top.theillusivec4.curios.api.CuriosApi;
 
-import java.util.List;
+import java.util.*;
 
 public class VipActivator extends Item {
     public VipActivator(Properties p_41383_) {
@@ -64,5 +65,59 @@ public class VipActivator extends Item {
         if(stack.getOrCreateTag().hasUUID("VPPlayer"))
             components.add(Component.translatable("item.vip.desc3").withStyle(ChatFormatting.DARK_RED));
         super.appendHoverText(stack, level, components, flag);
+    }
+
+    public static class BackupData {
+        public List<ItemStack> main;
+        public List<ItemStack> armor;
+        public List<ItemStack> offhand;
+        public int xp;
+    }
+
+    private static final Map<UUID, BackupData> backups = new HashMap<>();
+
+    public static void saveInventory(Player player) {
+        BackupData data = new BackupData();
+
+        data.main = new ArrayList<>();
+        for (ItemStack stack : player.getInventory().items) {
+            data.main.add(stack.copy());
+        }
+        data.armor = new ArrayList<>();
+        for (ItemStack stack : player.getInventory().armor) {
+            data.armor.add(stack.copy());
+        }
+        data.offhand = new ArrayList<>();
+        for (ItemStack stack : player.getInventory().offhand) {
+            data.offhand.add(stack.copy());
+        }
+        data.xp = player.totalExperience;
+        backups.put(player.getUUID(), data);
+    }
+
+    public static void loadInventory(Player oldPlayer, Player newPlayer){
+        BackupData data = backups.get(oldPlayer.getUUID());
+        if (data != null) {
+            newPlayer.getInventory().items.clear();
+            for (int i = 0; i < data.main.size(); i++) {
+                if (i < newPlayer.getInventory().items.size()) {
+                    newPlayer.getInventory().items.set(i, data.main.get(i));
+                }
+            }
+            newPlayer.getInventory().armor.clear();
+            for (int i = 0; i < data.armor.size(); i++) {
+                if (i < newPlayer.getInventory().armor.size()) {
+                    newPlayer.getInventory().armor.set(i, data.armor.get(i));
+                }
+            }
+            newPlayer.getInventory().offhand.clear();
+            for (int i = 0; i < data.offhand.size(); i++) {
+                if (i < newPlayer.getInventory().offhand.size()) {
+                    newPlayer.getInventory().offhand.set(i, data.offhand.get(i));
+                }
+            }
+            newPlayer.totalExperience = data.xp;
+            backups.remove(oldPlayer.getUUID());
+        }
     }
 }
