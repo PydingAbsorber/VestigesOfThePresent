@@ -71,6 +71,7 @@ public class PlayerCapabilityVP {
     private double bindX = 0;
     private double bindY = 0;
     private double bindZ = 0;
+    private long deathTime = 0;
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
@@ -748,6 +749,7 @@ public class PlayerCapabilityVP {
         bindX = source.bindX;
         bindY = source.bindY;
         bindZ = source.bindZ;
+        deathTime = source.deathTime;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -790,6 +792,7 @@ public class PlayerCapabilityVP {
         nbt.putDouble("VPBindX",bindX);
         nbt.putDouble("VPBindY",bindY);
         nbt.putDouble("VPBindZ",bindZ);
+        nbt.putLong("VPDeathTime",deathTime);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -832,6 +835,7 @@ public class PlayerCapabilityVP {
         bindX = nbt.getDouble("VPBindX");
         bindY = nbt.getDouble("VPBindY");
         bindZ = nbt.getDouble("VPBindZ");
+        deathTime = nbt.getLong("VPDeathTime");
     }
 
     public void sync(Player player){
@@ -1032,5 +1036,13 @@ public class PlayerCapabilityVP {
 
     public void setBindZ(double bindZ) {
         this.bindZ = bindZ;
+    }
+
+    public long getDeathTime() {
+        return deathTime;
+    }
+
+    public void setDeathTime(long deathTime) {
+        this.deathTime = deathTime;
     }
 }

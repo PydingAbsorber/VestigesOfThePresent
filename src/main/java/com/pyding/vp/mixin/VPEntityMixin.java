@@ -1,11 +1,13 @@
 package com.pyding.vp.mixin;
 
+import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Entity.class)
@@ -34,4 +36,18 @@ public abstract class VPEntityMixin {
             cir.setReturnValue(true);
         }
     }
+
+    @Inject(method = "teleportTo(DDD)V",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void teleportMixin(double p_19887_, double p_19888_, double p_19889_, CallbackInfo ci){
+        if(!VPUtil.canTeleport(((Entity)(Object)this))){
+            ci.cancel();
+        }
+    }
+
+    /*@Inject(method = "moveTo*",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void moveMixin(CallbackInfo ci){
+        if(VPUtil.canTeleport(((Entity)(Object)this))){
+            ci.cancel();
+        }
+    }*/
 }

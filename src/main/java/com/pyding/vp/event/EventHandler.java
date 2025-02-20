@@ -218,7 +218,7 @@ public class EventHandler {
                 if (event.getAmount() <= 3) {
                     tag.putBoolean("VPCrownDR", true);
                     double chance = 0.05;
-                    if(entity.getPersistentData().getLong("VPDeath") > 0)
+                    if(!VPUtil.canResurrect(entity))
                         chance = 0.2;
                     if(random.nextDouble() < VPUtil.getChance(chance,player) && VPUtil.hasVestige(ModItems.CROWN.get(), player)){
                         ItemStack stack = VPUtil.getVestigeStack(Crown.class,player);
@@ -244,7 +244,7 @@ public class EventHandler {
                             entity.getPersistentData().putLong("VPWhirlHeal",System.currentTimeMillis()+time);
                         else if(source.is(DamageTypes.MAGIC)) {
                             entity.getPersistentData().putLong("VPAntiShield", System.currentTimeMillis() + time);
-                            entity.getPersistentData().putLong("VPDeath", System.currentTimeMillis() + time);
+                            VPUtil.antiResurrect(entity,time);
                             VPUtil.antiTp(entity,time);
                         }
                         else if(source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
@@ -418,7 +418,7 @@ public class EventHandler {
     @SubscribeEvent
     public void totemUsing(LivingUseTotemEvent event){
         LivingEntity entity = event.getEntity();
-        if(entity.getPersistentData().getLong("VPDeath") > 0)
+        if(!VPUtil.canResurrect(entity))
             event.setCanceled(true);
     }
     @SubscribeEvent
@@ -525,6 +525,11 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
     public void deathEventLowest(LivingDeathEvent event){
+        if(event.getEntity() instanceof Player player && player.getMainHandItem().getItem() == ModItems.STELLAR.get()){
+            event.setCanceled(true);
+            player.setHealth(20);
+            VPUtil.teleportRandomly(player,10);
+        }
         Random random = new Random();
         if(event.getEntity().getPersistentData().getLong("VPQueenDeath") <= System.currentTimeMillis()){
             event.getEntity().getPersistentData().putLong("VPQueenDeath",-1);
@@ -757,7 +762,7 @@ public class EventHandler {
                     ItemStack stack = VPUtil.getVestigeStack(Armor.class,player);
                     stack.getOrCreateTag().putFloat("VPArmor",0);
                 }
-                if(VPUtil.hasVestige(ModItems.KILLER.get(), player) && player.getPersistentData().getLong("VPQueenDeath") >= 0 && player.getPersistentData().getLong("VPDeath") == 0){
+                if(VPUtil.hasVestige(ModItems.KILLER.get(), player) && player.getPersistentData().getLong("VPQueenDeath") >= 0 && VPUtil.canResurrect(entity)){
                     int percent = 800;
                     if(player.getPersistentData().getLong("VPQueenDeath") > 0){
                         percent = 8000;
@@ -794,7 +799,7 @@ public class EventHandler {
                 if (livingEntity instanceof Player bard && VPUtil.hasVestige(ModItems.LYRA.get(), bard)) {
                     ItemStack stack = VPUtil.getVestigeStack(Lyra.class, bard);
                     if (stack != null && stack.getItem() instanceof Vestige vestige) {
-                        if (vestige.isUltimateActive(stack) && bard.getPersistentData().getFloat("VPHealDebt") <= 0 && entity.getPersistentData().getLong("VPDeath") == 0) {
+                        if (vestige.isUltimateActive(stack) && bard.getPersistentData().getFloat("VPHealDebt") <= 0 && VPUtil.canResurrect(entity)) {
                             bard.getPersistentData().putFloat("VPHealDebt", bard.getPersistentData().getFloat("VPHealDebt") + entity.getMaxHealth() * 3);
                             entity.setHealth(entity.getMaxHealth());
                             event.setCanceled(true);
@@ -804,7 +809,7 @@ public class EventHandler {
             }
         } else {
             LivingEntity entity = event.getEntity();
-            if(entity.getPersistentData().getLong("VPDeath") > 0){
+            if(!VPUtil.canResurrect(entity)){
                 entity.setHealth(0);
                 event.setCanceled(false);
             }
@@ -1054,7 +1059,7 @@ public class EventHandler {
         LivingEntity entity = event.getEntity();
         CompoundTag tag = entity.getPersistentData();
         if (tag != null) {
-            if(tag.getLong("VPDeath") > System.currentTimeMillis()) {
+            if(!VPUtil.canResurrect(entity)) {
                 event.setAmount(0);
                 event.setCanceled(true);
                 return;
@@ -1420,8 +1425,6 @@ public class EventHandler {
         }
         if(entity.tickCount % 1000 == 0)
             Objects.requireNonNull(entity.getAttribute(Attributes.MAX_HEALTH)).removeModifier(UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"));
-        if(tag.getLong("VPDeath") != 0 && tag.getLong("VPDeath") + 100 > System.currentTimeMillis())
-            tag.putLong("VPDeath",0);
         if(event.getEntity() instanceof Player player){
             if(entity.tickCount % 4000 == 0 && random.nextDouble() < VPUtil.getChance(0.2+ConfigHandler.COMMON.easterChance.get()/100d,player)){
                 if(VPUtil.isEasterEvent()){

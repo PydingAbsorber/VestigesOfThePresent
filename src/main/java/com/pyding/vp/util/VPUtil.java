@@ -1146,10 +1146,10 @@ public class VPUtil {
         entity.invulnerableTime = 0;
         entity.hurt(player.damageSources().playerAttack(player),0);
         entity.setLastHurtByPlayer(player);
-        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+1000);
+        antiResurrect(entity,10000);
+        entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+10000);
+        antiTp(entity,10000);
         setHealth(entity,0);
-        entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
-        antiTp(entity,1000);
         entity.die(player.damageSources().genericKill());
     }
 
@@ -1164,10 +1164,10 @@ public class VPUtil {
         }
         entity.invulnerableTime = 0;
         entity.hurt(entity.damageSources().genericKill(),0);
-        entity.getPersistentData().putLong("VPDeath",System.currentTimeMillis()+10000);
+        antiResurrect(entity,10000);
+        entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+10000);
+        antiTp(entity,10000);
         entity.setHealth(0);
-        entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+1000);
-        antiTp(entity,1000);
         entity.die(entity.damageSources().genericKill());
     }
 
@@ -3504,9 +3504,33 @@ public class VPUtil {
         }
     }
 
-    public static boolean canTeleport(LivingEntity entity){
+    public static void antiResurrect(LivingEntity entity, long time){
+        entity.getPersistentData().putLong("VPDeath", System.currentTimeMillis()+time);
+        syncEntity(entity);
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.setDeathTime(System.currentTimeMillis() + time);
+            });
+        }
+    }
+
+    public static boolean canResurrect(Entity entity){
+        if(entity.getPersistentData().getLong("VPDeath") > System.currentTimeMillis()) {
+            return false;
+        }
+        AtomicBoolean resurrect = new AtomicBoolean(true);
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                if(cap.getDeathTime() > System.currentTimeMillis())
+                    resurrect.set(false);
+            });
+        }
+        return resurrect.get();
+    }
+
+    public static boolean canTeleport(Entity entity){
         if(entity.getPersistentData().getLong("VPAntiTP") > System.currentTimeMillis() || VPUtil.isEvent(entity)) {
-            return true;
+            return false;
         }
         AtomicBoolean teleport = new AtomicBoolean(true);
         if(entity instanceof Player player){
