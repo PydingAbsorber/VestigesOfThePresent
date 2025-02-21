@@ -37,17 +37,18 @@ public abstract class VPEntityMixin {
         }
     }
 
-    @Inject(method = "teleportTo*",at = @At("RETURN"),cancellable = true, require = 1)
-    protected void teleportMixin(CallbackInfo ci){
-        if(!VPUtil.canTeleport(((Entity)(Object)this))){
+    @Inject(method = "teleportTo*", at = @At("HEAD"), cancellable = true, require = 1)
+    protected void teleportMixin(CallbackInfoReturnable<?> ci) {
+        if (!VPUtil.canTeleport(((Entity) (Object) this))) {
             ci.cancel();
         }
     }
 
-    /*@Inject(method = "moveTo*",at = @At("RETURN"),cancellable = true, require = 1)
-    protected void moveMixin(CallbackInfo ci){
-        if(VPUtil.canTeleport(((Entity)(Object)this))){
+    /*@Inject(method = "moveTo*", at = @At("HEAD"), cancellable = true, require = 1)
+    protected void moveMixin(CallbackInfoReturnable<?> ci) {
+        if (!VPUtil.canTeleport(((Entity) (Object) this))) {
             ci.cancel();
         }
     }*/
+
 }

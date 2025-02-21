@@ -3273,15 +3273,15 @@ public class VPUtil {
 
 
     public static String getHost() {
-        if(ConfigHandler.COMMON_SPEC.isLoaded())
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardHost.get().toString().isEmpty())
             return ConfigHandler.COMMON.leaderboardHost.get().toString();
-        return "";
+        return "95.153.103.118";
     }
 
     public static String getPort() {
-        if(ConfigHandler.COMMON_SPEC.isLoaded())
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardPort.get().toString().isEmpty())
             return ConfigHandler.COMMON.leaderboardPort.get().toString();
-        return "";
+        return "5242";
     }
 
     public static void addNickname(String nickName,UUID uuid){
@@ -3529,14 +3529,20 @@ public class VPUtil {
     }
 
     public static boolean canTeleport(Entity entity){
+        if(entity instanceof Player player)
+            player.sendSystemMessage(Component.literal("tp check is fired")); //deleteF
         if(entity.getPersistentData().getLong("VPAntiTP") > System.currentTimeMillis() || VPUtil.isEvent(entity)) {
+            if(entity instanceof Player player)
+                player.sendSystemMessage(Component.literal("cannot tp")); //deleteF
             return false;
         }
         AtomicBoolean teleport = new AtomicBoolean(true);
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(cap.getAntiTp() > System.currentTimeMillis())
+                if(cap.getAntiTp() > System.currentTimeMillis()) {
+                    player.sendSystemMessage(Component.literal("cannot tp2")); //deleteF
                     teleport.set(false);
+                }
             });
         }
         return teleport.get();

@@ -198,8 +198,8 @@ public class ConfigHandler {
             cloneWhiteList = builder.comment("Defines whitelist for items that can be cloned with Celestial Mirror with highest priority. F.e. chestplate to not be blocked by chest in blacklist: ").define("cloneWhiteList","chestplate,box_eggs,box_saplings,item.vp.box,");
             mirrorUUIDList = builder.comment("List of existing mirrors UUID: ").define("mirrorUUIDList","");
             dupersList = builder.comment("List of dupers: ").define("dupersList","");
-            leaderboardHost = builder.comment("Ip address for leaderboard: ").define("leaderboardHost","95.153.103.118");
-            leaderboardPort = builder.comment("Ip port for leaderboard: ").define("leaderboardPort","5242");
+            leaderboardHost = builder.comment("Ip address for leaderboard: ").define("leaderboardHost","");
+            leaderboardPort = builder.comment("Ip port for leaderboard: ").define("leaderboardPort","");
             leaderboard = builder.comment("Defines if Leaderboard should be enabled: ").define("leaderboard",false);
             chaosCoreStellarHpRes = builder.comment("Reduce modifier for Chaos Core Stellar ability of max hp lowering from Healing Debt").defineInRange("chaosCoreStellarHpRes", 10d, 0, 2100000000);
         }

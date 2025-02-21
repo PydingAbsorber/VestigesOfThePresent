@@ -1154,7 +1154,6 @@ public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void playerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event){
         Player player = event.getEntity();
-        PlayerCapabilityVP.initMaximum(player);
         if(!VPUtil.canTeleport(player))
             event.setCanceled(true);
     }
