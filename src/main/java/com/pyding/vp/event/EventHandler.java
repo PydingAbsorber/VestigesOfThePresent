@@ -10,10 +10,13 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.SillySeashell;
-import com.pyding.vp.item.*;
+import com.pyding.vp.item.CorruptFragment;
+import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.*;
-import com.pyding.vp.mixin.*;
+import com.pyding.vp.mixin.LivingEntityVzlom;
+import com.pyding.vp.mixin.MobEntityVzlom;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
@@ -33,7 +36,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
@@ -41,7 +43,10 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.*;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Bucketable;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
@@ -56,7 +61,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
@@ -66,19 +70,15 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class EventHandler {
@@ -513,13 +513,13 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public void playerSwitching(PlayerEvent.PlayerChangeGameModeEvent event){
-        VPUtil.setCheating(event.getEntity().getUUID());
+        VPUtil.setCheating(event.getEntity());
     }
 
     @SubscribeEvent
     public static void commandEvent(CommandEvent event){
-        if(ConfigHandler.COMMON.leaderboard.get() && event.getParseResults().getContext().getSource().hasPermission(2)){
-            VPUtil.setCheating(Objects.requireNonNull(event.getParseResults().getContext().getSource().getEntity()).getUUID());
+        if(ConfigHandler.COMMON.leaderboard.get() && event.getParseResults().getContext().getSource().getEntity() instanceof Player player && event.getParseResults().getContext().getSource().hasPermission(2)){
+            VPUtil.setCheating(player);
         }
     }
 
@@ -1021,25 +1021,22 @@ public class EventHandler {
             });
         }
     }
+
     @SubscribeEvent
     public static void loginIn(PlayerEvent.PlayerLoggedInEvent event){
         Player player = event.getEntity();
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
-/*        List<ItemStack> vestiges = VPUtil.getVestigeList(player);
-        for(ItemStack stack: vestiges){
-            if(stack.getItem() instanceof Vestige vestige)
-                vestige.init(stack);
-        }*/
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
-        VPUtil.addNickname(player.getScoreboardName(),player.getUUID());
+        VPUtil.addNickname(player,player.getUUID());
         VPUtil.printVersion(player);
-        if(ConfigHandler.COMMON.leaderboard.get()) {
+        if(VPUtil.isLeaderboardsActive(player) && player instanceof ServerPlayer serverPlayer) {
             if (player.isCreative())
-                VPUtil.setCheating(player.getUUID());
+                VPUtil.setCheating(player);
             VPUtil.refreshTopPlayers();
+            PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
         }
     }
 
@@ -1360,7 +1357,9 @@ public class EventHandler {
             playerServer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.sync(playerServer);
                 if(cap.getVip() > System.currentTimeMillis()){
-                    playerServer.addEffect(new MobEffectInstance(VPEffects.VIP_EFFECT.get(), (int)((cap.getVip()-System.currentTimeMillis())*20/1000), 0,false,false));
+                    playerServer.addEffect(new MobEffectInstance(VPEffects.VIP_EFFECT.get(), (int) Math.min((cap.getVip()-System.currentTimeMillis())*20/1000, Integer.MAX_VALUE), 0,false,false));
+                } else {
+                    playerServer.removeEffect(VPEffects.VIP_EFFECT.get());
                 }
             });
             if(VPUtil.isEvent(playerServer)){
@@ -1577,7 +1576,7 @@ public class EventHandler {
                 cap.addBiome(player);
                 cap.addDimension(player,player.getCommandSenderWorld().dimension().location().getPath(),player.getCommandSenderWorld().dimension().location().getNamespace());
                 for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++){
-                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1) > 0){
+                    if(cap.getChallenge(i+1) >= PlayerCapabilityVP.getMaximum(i+1,player) && !cap.hasCoolDown(i+1) && PlayerCapabilityVP.getMaximum(i+1,player) > 0){
                         if(i+1 == 11) {
                             if (player.getPersistentData().getLong("VPGiveVestigeCd") == 0) {
                                 player.getPersistentData().putLong("VPGiveVestigeCd", System.currentTimeMillis() + 10000);
@@ -1689,6 +1688,9 @@ public class EventHandler {
             player.getPersistentData().putLong("VPMirnoeReshenie",0);
             if(((LivingEntityVzlom)player).isDead())
                 ((LivingEntityVzlom)player).setDead(false);
+            if(player.hasEffect(VPEffects.VIP_EFFECT.get())){
+                player.removeEffect(VPEffects.VIP_EFFECT.get());
+            }
         }
     }
 

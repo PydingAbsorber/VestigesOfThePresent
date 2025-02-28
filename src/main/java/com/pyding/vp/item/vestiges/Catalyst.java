@@ -92,14 +92,26 @@ public class Catalyst extends Vestige{
         Player player = (Player) slotContext.entity();
         int debuffDefence = player.getPersistentData().getInt("VPDebuffDefence");
         if(debuffDefence > 0) {
-            debuffDefence--;
+            if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis()) {
+                player.getPersistentData().putLong("VPForbidden",0);
+                debuffDefence--;
+            }
+            if(player.getPersistentData().getLong("VPDeath") > System.currentTimeMillis()) {
+                player.getPersistentData().putLong("VPDeath",0);
+                debuffDefence--;
+            }
+            if(player.getPersistentData().getFloat("VPHealDebt") > 0) {
+                player.getPersistentData().putFloat("VPHealDebt",0);
+                debuffDefence--;
+            }
             for (MobEffectInstance instance : VPUtil.getEffectsHas(player, false)){
                 for(LivingEntity livingEntity: VPUtil.getEntitiesAround(player,15,15,15,false)){
                     livingEntity.addEffect(new MobEffectInstance(instance.getEffect(),instance.getDuration(),instance.getAmplifier()));
                 }
                 player.removeEffect(instance.getEffect());
-                break;
+                debuffDefence--;
             }
+            player.getPersistentData().putInt("VPDebuffDefence",debuffDefence);
         }
         super.curioTick(slotContext, stack);
     }

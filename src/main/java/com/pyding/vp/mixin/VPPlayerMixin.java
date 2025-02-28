@@ -1,6 +1,7 @@
 package com.pyding.vp.mixin;
 
 import com.mojang.authlib.GameProfile;
+import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +22,6 @@ public class VPPlayerMixin {
     @Inject(method = "getName",at = @At("RETURN"),cancellable = true, require = 1)
     private void getNameMixin(CallbackInfoReturnable<Component> cir){
         if(VPUtil.hasGoldenName(((Player)(Object)this).getUUID()))
-            cir.setReturnValue(Component.literal(gameProfile.getName()).withStyle(ChatFormatting.GOLD));
+            cir.setReturnValue(GradientUtil.buildGradientComponent(gameProfile.getName()));
     }
 }

@@ -71,7 +71,6 @@ public class VipActivator extends Item {
         public List<ItemStack> main;
         public List<ItemStack> armor;
         public List<ItemStack> offhand;
-        public int xp;
     }
 
     private static final Map<UUID, BackupData> backups = new HashMap<>();
@@ -91,7 +90,6 @@ public class VipActivator extends Item {
         for (ItemStack stack : player.getInventory().offhand) {
             data.offhand.add(stack.copy());
         }
-        data.xp = player.totalExperience;
         backups.put(player.getUUID(), data);
     }
 
@@ -116,7 +114,6 @@ public class VipActivator extends Item {
                     newPlayer.getInventory().offhand.set(i, data.offhand.get(i));
                 }
             }
-            newPlayer.totalExperience = data.xp;
             backups.remove(oldPlayer.getUUID());
         }
     }

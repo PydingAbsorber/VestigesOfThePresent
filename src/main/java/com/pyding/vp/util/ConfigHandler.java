@@ -144,7 +144,7 @@ public class ConfigHandler {
             anomalyBorder = builder.comment("Borders for Anomaly's Ultimate teleportation. Leave at 0 for world's max border.").defineInRange("anomalyBorder", 0, 0, Integer.MAX_VALUE);
             atlasChance = builder.comment("Chance for Atlas to gain Gravity. 1 is 100%, 0.2 is 20%.").defineInRange("atlasChance", 0.2d, 0, 1d);
             catalystLvlLimit = builder.comment("Level limit for stellar Catalyst").defineInRange("catalystLvlLimit", 255, 0, 255);
-            catalystDeffence = builder.comment("How many debuffs can Catalyst absorb.").defineInRange("catalystDeffence", 5, 0, Integer.MAX_VALUE);
+            catalystDeffence = builder.comment("How many debuffs can Catalyst absorb.").defineInRange("catalystDefence", 20, 0, Integer.MAX_VALUE);
             catSpeed = builder.comment("How many speed will Cat Ears give.").defineInRange("catSpeed", 1d, 0, 10d);
             catEvadeCap = builder.comment("Cap for Cat Ears evasion.").defineInRange("catEvadeCap", 69, 0, 100);
             chaosDamageCap = builder.comment("Damage cap for Chaos Core").defineInRange("chaosDamageCap", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);

@@ -1,6 +1,6 @@
 {
   "vp.key": "§5§lVestiges of the Present",
-  "vp.leaderboard": "§7Playing with internet will automatically update your statistics in leaderboard while completing Challenges. \nIf you are in top 10 list you will get §6Golden name! \n§7To participate in leaderboard you must play only in Survival game mode, switching to any other mode or using commands with OP rights will §cforever block your progress. \n§7With leaderboard active all Vestiges challenges will have fixed 12 hours cooldown. \nIt's recommended to create world with cheats off to prevent being banned.",
+  "vp.leaderboard": "§7Playing with internet will automatically update your statistics in leaderboard while completing Challenges. \nIf you are in top 10 list you will get §6Golden name! \n§7To participate in leaderboard you must play only in Survival game mode, switching to any other mode or using commands with OP rights will §cforever block your progress. \n§7With leaderboard active all Vestiges challenges will have fixed 12 hours cooldown and challenges cannot be lowered for more than 10%. \nAlso blacklist of Bosses and Potions cannot be higher than 3.",
   "vp.activation": "Key: ",
   "vp.key.first": "Special of first Vestige",
   "vp.key.second": "Special of second Vestige",
@@ -341,7 +341,7 @@
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance. \nEntities around will have reduced max hp for Heal Debt they have.",
   "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get Heal and Shields, higher then 50 - clears all buffs. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the wearer exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
   "vp.stellar.16": "Ultimate: Creatures under the shield receive physical damage absorption 90% and breaking shield will hurt breaker with amount of max initiate Shields.",
-  "vp.stellar.17": "Special: redirects next 5 debuffs to all entities in 15 blocks radius. \nUltimate: cancels the level restriction.",
+  "vp.stellar.17": "Special: Gives 15 charges that clears Healing Debt, Silence and redirects debuffs to all entities in 15 blocks radius. \nUltimate: cancels the level restriction.",
   "vp.stellar.18": "Ultimate: every 10% damage bonus adds 1 Paragon damage against wet opponents.",
   "vp.stellar.19": "Ultimate: will also increase maximum HP by 1% for every 2% of missing Over Shield until cd ends. \nOver Shields will regenerate from overhealing until removed.",
   "vp.stellar.20": "Increases the wearer's max HP by 30% of the Stored creature's max HP. \nAll received damage, healing, Shields, Over Shields, and Healing Debt will be transferred to the Summoned creature within a 30-block radius.",
@@ -380,7 +380,7 @@
   "vp.short.24": "Heals the owner when wet, provides protection from hits, and applies debuffs.",
 
 
-  "vp.acs.types": "§5Attribute types:§d \n1)+1-4 to Max HP\n2)+2-8 to Attack attribute\n3)+5-20% to Damage dealt\n4)+3-12% to Healing\n5)+4-16% to Shields.",
+  "vp.acs.types": "§5Attribute types:§d \n1) +1-4 to Max HP\n2) +2-8 to Attack attribute\n3) +5-20% to Damage dealt\n4) +3-12% to Healing\n5) +4-16% to Shields.",
   "vp.acs.sets": "Sets:",
   "vp.acs.set.1": "1) +1 max charge for Ultimate,+20% duration of Ultimate and Special effects. (2 Max HP, 2 Healing)",
   "vp.acs.set.2": "2) +400% Special damage. (2 Attack, 2 Damage)",

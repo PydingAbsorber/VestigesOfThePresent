@@ -72,6 +72,7 @@ public class PlayerCapabilityVP {
     private double bindY = 0;
     private double bindZ = 0;
     private long deathTime = 0;
+    private boolean cheating = false;
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
@@ -247,6 +248,7 @@ public class PlayerCapabilityVP {
             ItemStack stack = vestige(vp, player);
             VPUtil.giveStack(stack,player);
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
+            VPUtil.addChallenge(player, vp);
         }
     }
 
@@ -557,9 +559,12 @@ public class PlayerCapabilityVP {
         sync(player);
     }
 
-    public static int getMaximum(int number){
+    public static int getMaximum(int number,Player player){
+        boolean leaderboard = VPUtil.isLeaderboardsActive(player);
         if(ConfigHandler.COMMON.reduceChallengesPercent.get()){
             float reduce = 1 - ((float)ConfigHandler.COMMON.getChallengeReduceByNumber(number)/100);
+            if(leaderboard && reduce < 0.9)
+                reduce = 0.9f;
             switch (number) {
                 case 1:
                     return (int) ((float) VPUtil.getEntitiesList().size() / 10 * reduce);
@@ -612,6 +617,8 @@ public class PlayerCapabilityVP {
             }
         } else {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number);
+            if(leaderboard && reduce > 3)
+                reduce = 3;
             switch (number) {
                 case 1:
                     return VPUtil.getEntitiesList().size() / 10 - reduce;
@@ -673,7 +680,7 @@ public class PlayerCapabilityVP {
         VPUtil.initBuckets();
         player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
-            player.getPersistentData().putInt("VPMaxChallenge"+i,getMaximum(i));
+            player.getPersistentData().putInt("VPMaxChallenge"+i,getMaximum(i,player));
         }
         VPUtil.sync(player);
     }
@@ -706,7 +713,6 @@ public class PlayerCapabilityVP {
     public void setChallenge(int vp, Player player) {
         if (vp >= 1 && vp <= totalVestiges && !hasCoolDown(vp)) {
             challenges[vp-1] += 1;
-            VPUtil.addChallenge(player.getUUID(), vp);
         }
         sync(player);
     }
@@ -750,6 +756,7 @@ public class PlayerCapabilityVP {
         bindY = source.bindY;
         bindZ = source.bindZ;
         deathTime = source.deathTime;
+        cheating = source.cheating;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -793,6 +800,7 @@ public class PlayerCapabilityVP {
         nbt.putDouble("VPBindY",bindY);
         nbt.putDouble("VPBindZ",bindZ);
         nbt.putLong("VPDeathTime",deathTime);
+        nbt.putBoolean("VPCheating",cheating);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -836,6 +844,7 @@ public class PlayerCapabilityVP {
         bindY = nbt.getDouble("VPBindY");
         bindZ = nbt.getDouble("VPBindZ");
         deathTime = nbt.getLong("VPDeathTime");
+        cheating = nbt.getBoolean("VPCheating");
     }
 
     public void sync(Player player){
@@ -993,7 +1002,7 @@ public class PlayerCapabilityVP {
     }
 
     public void setVip(long vip) {
-        if(this.vip > 0){
+        if(this.vip > 0 && this.vip > System.currentTimeMillis()){
             this.vip += vip-System.currentTimeMillis();
         } else this.vip = vip;
     }
@@ -1044,5 +1053,13 @@ public class PlayerCapabilityVP {
 
     public void setDeathTime(long deathTime) {
         this.deathTime = deathTime;
+    }
+
+    public boolean isCheating() {
+        return cheating;
+    }
+
+    public void setCheating(boolean cheating) {
+        this.cheating = cheating;
     }
 }

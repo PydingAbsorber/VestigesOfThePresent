@@ -36,6 +36,10 @@ public class VPCommands {
                         .then(Commands.literal("enable")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
+                                    if(player.hasPermissions(2)) {
+                                        player.sendSystemMessage(Component.literal("You shouldn't enable Leaderboards in world with cheats on.").withStyle(ChatFormatting.DARK_RED));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
                                     if(ConfigHandler.COMMON.leaderboard.get()) {
                                         ConfigHandler.COMMON.leaderboard.set(false);
                                         player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
@@ -56,10 +60,6 @@ public class VPCommands {
                         )
                         .then(Commands.literal("showAll")
                                 .executes(context -> {
-                                    if(!ConfigHandler.COMMON.leaderboard.get()){
-                                        context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
-                                        return Command.SINGLE_SUCCESS;
-                                    }
                                     VPUtil.printAll(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -69,17 +69,12 @@ public class VPCommands {
                                     if(!ConfigHandler.COMMON.leaderboard.get()){
                                         context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
                                         return Command.SINGLE_SUCCESS;
-                                    }
-                                    VPUtil.printYourself(context.getSource().getPlayerOrException());
+                                    } else VPUtil.printYourself(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("checkConnection")
                                 .executes(context -> {
-                                    if(!ConfigHandler.COMMON.leaderboard.get()){
-                                        context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
-                                        return Command.SINGLE_SUCCESS;
-                                    }
                                     VPUtil.printCheck(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -192,7 +187,7 @@ public class VPCommands {
                                         player.sendSystemMessage(Component.literal("Current progress for Vestige ").append(Component.translatable("vp.name."+i)));
                                         player.sendSystemMessage(Component.translatable("vp.progress").withStyle(ChatFormatting.DARK_GREEN)
                                                 .append(Component.literal(" " + progress))
-                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i))));
+                                                .append(Component.literal(" / " + PlayerCapabilityVP.getMaximum(i,player))));
                                     }
                                     player.sendSystemMessage(Component.literal("Current chance for " + VPUtil.getRainbowString("Stellar:") + " " + cap.getChance()));
                                 });

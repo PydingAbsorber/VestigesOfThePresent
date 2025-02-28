@@ -78,6 +78,9 @@ public class PlayerFlyPacket {
             player.getAbilities().flying = true;
             player.onUpdateAbilities();
         }
+        else if(number == 7){
+            VPUtil.refreshTopPlayers();
+        }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {
                 Set<ResourceKey<Biome>> biomes = Minecraft.getInstance().level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
