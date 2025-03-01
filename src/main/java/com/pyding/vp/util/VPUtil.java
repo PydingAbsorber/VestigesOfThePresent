@@ -3459,8 +3459,8 @@ public class VPUtil {
         CompletableFuture.runAsync(() -> {
             try {
                 String request = getVersion();
-                if(!request.isEmpty() && !request.equals(getCurrentVersion()))
-                    player.sendSystemMessage(Component.literal("You are running " + getCurrentVersion() + " version. Please update to latest " + request + " version."));
+                if(!request.isEmpty() && !request.equals(getCurrentVersion().split(":")[1]))
+                    player.sendSystemMessage(Component.literal("From Vestiges of the Present mod: You are running " + getCurrentVersion().split(":")[1] + " version. Please update to latest " + request + " version."));
             } catch (Exception e){
                 System.out.println(e.getMessage());
             }
