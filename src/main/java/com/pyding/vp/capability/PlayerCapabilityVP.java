@@ -7,6 +7,7 @@ import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.LorePacket;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 @AutoRegisterCapability
@@ -73,6 +73,7 @@ public class PlayerCapabilityVP {
     private double bindZ = 0;
     private long deathTime = 0;
     private boolean cheating = false;
+    private String password = "";
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
@@ -248,7 +249,8 @@ public class PlayerCapabilityVP {
             ItemStack stack = vestige(vp, player);
             VPUtil.giveStack(stack,player);
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
-            VPUtil.addChallenge(player, vp);
+            if(!password.isEmpty())
+                LeaderboardUtil.addChallenge(player, vp, password);
         }
     }
 
@@ -560,7 +562,7 @@ public class PlayerCapabilityVP {
     }
 
     public static int getMaximum(int number,Player player){
-        boolean leaderboard = VPUtil.isLeaderboardsActive(player);
+        boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
         if(ConfigHandler.COMMON.reduceChallengesPercent.get()){
             float reduce = 1 - ((float)ConfigHandler.COMMON.getChallengeReduceByNumber(number)/100);
             if(leaderboard && reduce < 0.9)
@@ -757,6 +759,7 @@ public class PlayerCapabilityVP {
         bindZ = source.bindZ;
         deathTime = source.deathTime;
         cheating = source.cheating;
+        password = source.password;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -801,6 +804,7 @@ public class PlayerCapabilityVP {
         nbt.putDouble("VPBindZ",bindZ);
         nbt.putLong("VPDeathTime",deathTime);
         nbt.putBoolean("VPCheating",cheating);
+        nbt.putString("VPPassword",password);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -845,6 +849,7 @@ public class PlayerCapabilityVP {
         bindZ = nbt.getDouble("VPBindZ");
         deathTime = nbt.getLong("VPDeathTime");
         cheating = nbt.getBoolean("VPCheating");
+        password = nbt.getString("VPPassword");
     }
 
     public void sync(Player player){
@@ -1061,5 +1066,13 @@ public class PlayerCapabilityVP {
 
     public void setCheating(boolean cheating) {
         this.cheating = cheating;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

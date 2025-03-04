@@ -3,7 +3,6 @@ package com.pyding.vp.util;
 import com.pyding.vp.VestigesOfThePresent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.client.event.RenderNameTagEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,7 +15,7 @@ public class GradientUtil {
 
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
-        if(event.getPlayer() != null && VPUtil.hasGoldenName(event.getPlayer().getUUID())) {
+        if(event.getPlayer() != null && LeaderboardUtil.hasGoldenName(event.getPlayer().getUUID())) {
             String originalText = event.getMessage().getString();
             Component gradientMessage = buildGradientComponent(originalText);
             event.setMessage(gradientMessage);

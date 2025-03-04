@@ -221,16 +221,24 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putBoolean("Stellar", true);
     }
 
-    public static void setDoubleStellar(ItemStack stack) {
-        stack.getOrCreateTag().putBoolean("DoubleStellar", true);
-    }
-
     public boolean isStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("Stellar");
     }
 
+    public static void setDoubleStellar(ItemStack stack) {
+        stack.getOrCreateTag().putBoolean("DoubleStellar", true);
+    }
+
     public boolean isDoubleStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("DoubleStellar");
+    }
+
+    public static void setTripleStellar(ItemStack stack) {
+        stack.getOrCreateTag().putBoolean("TripleStellar", true);
+    }
+
+    public boolean isTripleStellar(ItemStack stack) {
+        return stack.getOrCreateTag().getBoolean("TripleStellar");
     }
 
     public void init(ItemStack stack) {
@@ -522,7 +530,9 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.damagetype." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
                 if (isStellar(stack)) {
-                    if(isDoubleStellar(stack))
+                    if(isTripleStellar(stack))
+                        components.add(Component.literal(VPUtil.getRainbowString("Triple Stellar: ")));
+                    else if(isDoubleStellar(stack))
                         components.add(Component.literal(VPUtil.getRainbowString("Double Stellar: ")));
                     else components.add(Component.literal(VPUtil.getRainbowString("Stellar: ")));
                 } else {
@@ -760,6 +770,8 @@ public class Vestige extends Item implements ICurioItem {
                         multiplier = 75;
                     if(isDoubleStellar(stack))
                         multiplier = 45;
+                    if(isTripleStellar(stack))
+                        multiplier = 35;
                 }
                 else if (curse == 2){
                     multiplier = -80;
@@ -767,12 +779,16 @@ public class Vestige extends Item implements ICurioItem {
                         multiplier = -65;
                     if(isDoubleStellar(stack))
                         multiplier = -50;
+                    if(isTripleStellar(stack))
+                        multiplier = -40;
                 }
                 else if(curse == 3){
                     multiplier = 3;
                     if(isStellar(stack))
                         multiplier = 2;
                     if(isDoubleStellar(stack))
+                        multiplier = 1;
+                    if(isTripleStellar(stack))
                         multiplier = 1;
                 }
                 else if(curse == 4){
@@ -781,6 +797,8 @@ public class Vestige extends Item implements ICurioItem {
                         multiplier = 70;
                     if(isDoubleStellar(stack))
                         multiplier = 110;
+                    if(isTripleStellar(stack))
+                        multiplier = 160;
                 }
                 else if(curse == 5){
                     multiplier = 50;
@@ -788,6 +806,8 @@ public class Vestige extends Item implements ICurioItem {
                         multiplier = 125;
                     if(isDoubleStellar(stack))
                         multiplier = 250;
+                    if(isTripleStellar(stack))
+                        multiplier = 350;
                 }
                 components.add(Component.translatable("vp.curse." + curse,multiplier+"%").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
             }

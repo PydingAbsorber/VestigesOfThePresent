@@ -1,6 +1,7 @@
 package com.pyding.vp.network.packets;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -79,7 +80,7 @@ public class PlayerFlyPacket {
             player.onUpdateAbilities();
         }
         else if(number == 7){
-            VPUtil.refreshTopPlayers();
+            LeaderboardUtil.refreshTopPlayers();
         }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {

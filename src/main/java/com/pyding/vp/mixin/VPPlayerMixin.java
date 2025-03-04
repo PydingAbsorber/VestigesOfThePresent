@@ -2,12 +2,9 @@ package com.pyding.vp.mixin;
 
 import com.mojang.authlib.GameProfile;
 import com.pyding.vp.util.GradientUtil;
-import com.pyding.vp.util.VPUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
+import com.pyding.vp.util.LeaderboardUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,7 +18,7 @@ public class VPPlayerMixin {
 
     @Inject(method = "getName",at = @At("RETURN"),cancellable = true, require = 1)
     private void getNameMixin(CallbackInfoReturnable<Component> cir){
-        if(VPUtil.hasGoldenName(((Player)(Object)this).getUUID()))
+        if(LeaderboardUtil.hasGoldenName(((Player)(Object)this).getUUID()))
             cir.setReturnValue(GradientUtil.buildGradientComponent(gameProfile.getName()));
     }
 }

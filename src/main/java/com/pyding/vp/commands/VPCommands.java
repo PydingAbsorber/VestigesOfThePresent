@@ -11,6 +11,8 @@ import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.GradientUtil;
+import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -24,29 +26,61 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("vestiges")
                 .then(Commands.literal("leaderboard")
+                        .then(Commands.literal("register")
+                                .then(Commands.argument("password", StringArgumentType.string())
+                                        .executes(context -> {
+                                            String password = StringArgumentType.getString(context, "password");
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            if(LeaderboardUtil.addNickname(player,player.getUUID(),password).equals("You have been registered")) {
+                                                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                                    cap.setPassword(password);
+                                                    cap.sync(player);
+                                                });
+                                                player.sendSystemMessage(Component.literal("You also logged in, no need to type login.").withStyle(ChatFormatting.GRAY));
+                                                player.sendSystemMessage(Component.literal("Remember your password please! Write it down somewhere.").withStyle(ChatFormatting.RED));
+                                            }
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                                )
+                        )
+                        .then(Commands.literal("login")
+                                .then(Commands.argument("password", StringArgumentType.string())
+                                        .executes(context -> {
+                                            String password = StringArgumentType.getString(context, "password");
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                                if(!cap.getPassword().isEmpty())
+                                                    player.sendSystemMessage(Component.literal("You logged in already. No need to do it every time lol").withStyle(ChatFormatting.GREEN));
+                                                else if(LeaderboardUtil.isPasswordOk(player,player.getUUID(),password)) {
+                                                    player.sendSystemMessage(Component.literal("You logged in successfully.").withStyle(ChatFormatting.GREEN));
+                                                    cap.setPassword(password);
+                                                    cap.sync(player);
+                                                } else player.sendSystemMessage(Component.literal("Login failed. Wrong data or banned").withStyle(ChatFormatting.RED));
+                                            });
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                                )
+                        )
                         .then(Commands.literal("enable")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     if(player.hasPermissions(2)) {
                                         player.sendSystemMessage(Component.literal("You shouldn't enable Leaderboards in world with cheats on.").withStyle(ChatFormatting.DARK_RED));
-                                        return Command.SINGLE_SUCCESS;
-                                    }
-                                    if(ConfigHandler.COMMON.leaderboard.get()) {
-                                        ConfigHandler.COMMON.leaderboard.set(false);
-                                        player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
-                                    }
-                                    else {
-                                        ConfigHandler.COMMON.leaderboard.set(true);
-                                        player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
+                                    } else {
+                                        if (ConfigHandler.COMMON.leaderboard.get()) {
+                                            ConfigHandler.COMMON.leaderboard.set(false);
+                                            player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
+                                        } else {
+                                            ConfigHandler.COMMON.leaderboard.set(true);
+                                            player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
+                                        }
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -54,13 +88,14 @@ public class VPCommands {
                         .then(Commands.literal("info")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    player.sendSystemMessage(Component.translatable("vp.leaderboard"));
+                                    player.sendSystemMessage(Component.translatable("vp.leaderboard1").append(GradientUtil.buildGradientComponent(Component.translatable("vp.leaderboard.gold").getString())));
+                                    player.sendSystemMessage(Component.translatable("vp.leaderboard2"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("showAll")
                                 .executes(context -> {
-                                    VPUtil.printAll(context.getSource().getPlayerOrException());
+                                    LeaderboardUtil.printAll(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -69,13 +104,13 @@ public class VPCommands {
                                     if(!ConfigHandler.COMMON.leaderboard.get()){
                                         context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
                                         return Command.SINGLE_SUCCESS;
-                                    } else VPUtil.printYourself(context.getSource().getPlayerOrException());
+                                    } else LeaderboardUtil.printYourself(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
                         .then(Commands.literal("checkConnection")
                                 .executes(context -> {
-                                    VPUtil.printCheck(context.getSource().getPlayerOrException());
+                                    LeaderboardUtil.printCheck(context.getSource().getPlayerOrException());
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )

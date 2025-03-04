@@ -1,6 +1,9 @@
 {
   "vp.key": "§5§lVestiges of the Present",
-  "vp.leaderboard": "§7Playing with internet will automatically update your statistics in leaderboard while completing Challenges. \nIf you are in top 10 list you will get §6Golden name! \n§7To participate in leaderboard you must play only in Survival game mode, switching to any other mode or using commands with OP rights will §cforever block your progress. \n§7With leaderboard active all Vestiges challenges will have fixed 12 hours cooldown and challenges cannot be lowered for more than 10%. \nAlso blacklist of Bosses and Potions cannot be higher than 3.",
+  "vp.leaderboard.chat": "§7From §5Vestiges of the Present: §7you have disabled leaderboard, why wont you give it a try? For more info type /vestiges leaderboard info ;)",
+  "vp.leaderboard.gold": "Golden Name",
+  "vp.leaderboard1": "§7Playing with internet will automatically update your statistics in leaderboard while completing Challenges if you successfully registered or logged in. \nLeaderboard progress is bound to Player's nickname, UUID and password, that way you can participate and continue to progress in leaderboard from any world and any modpack. \nIf you are in top 10 list you will get ",
+  "vp.leaderboard2": "\n§7To participate in leaderboard you must play only in Survival game mode, switching to any other mode or cheating will §cforever block your progress in current world or overall. \n§7With leaderboard active all Challenges will have fixed 12 hours cooldown and challenges cannot be lowered for more than 10%. \nAlso blacklist of Bosses and Potions cannot be higher than 3.",
   "vp.activation": "Key: ",
   "vp.key.first": "Special of first Vestige",
   "vp.key.second": "Special of second Vestige",

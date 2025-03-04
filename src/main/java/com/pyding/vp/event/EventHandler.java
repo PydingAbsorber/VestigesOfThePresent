@@ -23,6 +23,7 @@ import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.network.packets.SendPlayerNbtToClient;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -513,13 +514,13 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public void playerSwitching(PlayerEvent.PlayerChangeGameModeEvent event){
-        VPUtil.setCheating(event.getEntity());
+        LeaderboardUtil.setCheating(event.getEntity());
     }
 
     @SubscribeEvent
     public static void commandEvent(CommandEvent event){
         if(ConfigHandler.COMMON.leaderboard.get() && event.getParseResults().getContext().getSource().getEntity() instanceof Player player && event.getParseResults().getContext().getSource().hasPermission(2)){
-            VPUtil.setCheating(player);
+            LeaderboardUtil.setCheating(player);
         }
     }
 
@@ -1030,14 +1031,14 @@ public class EventHandler {
         });
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
-        VPUtil.addNickname(player,player.getUUID());
-        VPUtil.printVersion(player);
-        if(VPUtil.isLeaderboardsActive(player) && player instanceof ServerPlayer serverPlayer) {
+        LeaderboardUtil.printVersion(player);
+        if(LeaderboardUtil.isLeaderboardsActive(player) && player instanceof ServerPlayer serverPlayer) {
             if (player.isCreative())
-                VPUtil.setCheating(player);
-            VPUtil.refreshTopPlayers();
+                LeaderboardUtil.setCheating(player);
+            LeaderboardUtil.refreshTopPlayers();
             PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
-        }
+        } else if(Math.random() < 0.1)
+            player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
     }
 
     @SubscribeEvent

@@ -3,7 +3,6 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -82,15 +81,9 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -403,7 +396,7 @@ public class VPUtil {
     }
 
     public static boolean isBlacklistBoss(EntityType<?> type,Player player){
-        if(VPUtil.isLeaderboardsActive(player)){
+        if(LeaderboardUtil.isLeaderboardsActive(player)){
             int count = 0;
             for (String types : ConfigHandler.COMMON.blacklistBosses.get().toString().split(",")) {
                 count++;
@@ -3223,6 +3216,8 @@ public class VPUtil {
                             multiplier = -0.75f;
                         if(vestige.isDoubleStellar(stack))
                             multiplier = -0.45f;
+                        if(vestige.isTripleStellar(stack))
+                            multiplier = -0.35f;
                     }
                     else if (curse == 2){
                         multiplier = 80; //bonus-
@@ -3230,6 +3225,8 @@ public class VPUtil {
                             multiplier = 65;
                         if(vestige.isDoubleStellar(stack))
                             multiplier = 50;
+                        if(vestige.isTripleStellar(stack))
+                            multiplier = 40;
                     }
                     else if(curse == 3){
                         multiplier = 0.03f; //shields-shields*s
@@ -3237,6 +3234,8 @@ public class VPUtil {
                             multiplier = 0.02f;
                         if(vestige.isDoubleStellar(stack))
                             multiplier = 0.01f;
+                        if(vestige.isTripleStellar(stack))
+                            multiplier = 0.005f;
                     }
                     else if(curse == 4){
                         multiplier = 1.4f; //damage*
@@ -3244,6 +3243,8 @@ public class VPUtil {
                             multiplier = 1.7f;
                         if(vestige.isDoubleStellar(stack))
                             multiplier = 2.1f;
+                        if(vestige.isTripleStellar(stack))
+                            multiplier = 2.6f;
                     }
                     else if(curse == 5){
                         multiplier = 1.5f;  //enemy shields - your add shield*
@@ -3251,6 +3252,8 @@ public class VPUtil {
                             multiplier = 2.25f;
                         if(vestige.isDoubleStellar(stack))
                             multiplier = 3.5f;
+                        if(vestige.isTripleStellar(stack))
+                            multiplier = 4.5f;
                     }
                     return multiplier;
                 }
@@ -3282,218 +3285,6 @@ public class VPUtil {
         return cap + Math.log((number - cap) + 1);
     }
 
-
-
-    public static String getHost() {
-        if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardHost.get().toString().isEmpty())
-            return ConfigHandler.COMMON.leaderboardHost.get().toString();
-        return "95.153.103.118";
-    }
-
-    public static String getPort() {
-        if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardPort.get().toString().isEmpty())
-            return ConfigHandler.COMMON.leaderboardPort.get().toString();
-        return "5242";
-    }
-
-    public static void addNickname(Player player,UUID uuid){
-        if(!isLeaderboardsActive(player) && !isCheating(player)){
-            return;
-        }
-        CompletableFuture.runAsync(() -> {
-            try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addNickname?nickName=" + player.getScoreboardName() + "&UUID=" + uuid.toString() + "&version=" + getCurrentVersion()))
-                        .GET()
-                        .build();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public static void addChallenge(Player player, int id){
-        if(!isLeaderboardsActive(player) || isCheating(player)){
-            return;
-        }
-        CompletableFuture.runAsync(() -> {
-            try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addChallenge?UUID=" + player.getUUID().toString() + "&id=" + id + "&version=" + getCurrentVersion()))
-                        .GET()
-                        .build();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public static void setCheating(Player player){
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            cap.setCheating(true);
-            cap.sync(player);
-        });
-    }
-
-    public static boolean isCheating(Player player){
-        AtomicBoolean atomicBoolean = new AtomicBoolean();
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            atomicBoolean.set(cap.isCheating());
-        });
-        return atomicBoolean.get();
-    }
-
-    public static String getInformation(UUID uuid){
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getInformation?UUID=" + uuid.toString() + "&version=" + getCurrentVersion()))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "null";
-    }
-
-    public static String getAll(){
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getAll?version=" + getCurrentVersion()))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "null";
-    }
-
-    public static String check(){
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/check?version=" + getCurrentVersion()))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception e) {
-            return "Something is not ok :(((( Backend may be offline \n"+e.getMessage();
-        }
-    }
-
-    public static void printCheck(Player player){
-        player.sendSystemMessage(Component.literal("This may take some time to check"));
-        CompletableFuture.runAsync(() -> {
-            String response = "";
-            try {
-                response += VPUtil.check();
-            } catch (Exception e){
-                response += e.getMessage();
-            }
-            player.sendSystemMessage(Component.literal(response));
-        });
-    }
-
-    public static void printAll(Player player){
-        CompletableFuture.runAsync(() -> {
-            String response = VPUtil.filterString(VPUtil.getAll());
-            player.sendSystemMessage(Component.literal("Position | Nickname | Challenges | Unique Challenges"));
-            int count = 0;
-            for(String name: response.split(",")){
-                if(count < 10) {
-                    count++;
-                    player.sendSystemMessage(Component.literal(name.replaceAll("^\"|\"$", "")).withStyle(ChatFormatting.GOLD));
-                } else player.sendSystemMessage(Component.literal(name.replaceAll("^\"|\"$", "")));
-            }
-        });
-    }
-
-    public static void printYourself(Player player){
-        CompletableFuture.runAsync(() -> player.sendSystemMessage(Component.literal(VPUtil.getInformation(player.getUUID()))));
-    }
-
-    public static List<String> topPlayers = new ArrayList<>();
-
-    public static String getTopPlayers(){
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getTop?version=" + getCurrentVersion()))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception e) {
-            return "Something is not ok :(((( Backend may be offline \n"+e.getMessage();
-        }
-    }
-
-    public static void refreshTopPlayers(){
-        CompletableFuture.runAsync(() -> {
-            try {
-                topPlayers.clear();
-                for (String element: filterString(getTopPlayers()).split(",")) {
-                    topPlayers.add(element.replaceAll("^\"|\"$", ""));
-                }
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        });
-    }
-
-    public static String getCurrentVersion(){
-        return VestigesOfThePresent.VERSION;
-    }
-
-    public static void printVersion(Player player){
-        CompletableFuture.runAsync(() -> {
-            try {
-                String request = getVersion();
-                if(!request.isEmpty() && !request.equals(getCurrentVersion().split(":")[1]))
-                    player.sendSystemMessage(Component.literal("From Vestiges of the Present mod: You are running " + getCurrentVersion().split(":")[1] + " version. Please update to latest " + request + " version."));
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        });
-    }
-
-    public static String getVersion(){
-        try {
-            String[] currentVersion = VestigesOfThePresent.VERSION.split(":");
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getVersion?version=" + currentVersion[0]))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    public static boolean hasGoldenName(UUID uuid){
-        try {
-            if (!topPlayers.isEmpty()) {
-                for (String element : topPlayers) {
-                    if (UUID.fromString(element).compareTo(uuid) == 0)
-                        return true;
-                }
-            }
-        } catch (Exception e) {
-        }
-        return false;
-    }
 
     public static void bindEntity(LivingEntity entity, long time){
         antiTp(entity,time);
@@ -3580,10 +3371,6 @@ public class VPUtil {
             BlockPos pos = new BlockPos((int) livingEntity.getPersistentData().getDouble("VPDevourerX"),(int)livingEntity.getPersistentData().getDouble("VPDevourerY"),(int)livingEntity.getPersistentData().getDouble("VPDevourerZ"));
             VPUtil.suckToPos(livingEntity,pos,1);
         }
-    }
-
-    public static boolean isLeaderboardsActive(Player player){
-        return ConfigHandler.COMMON.leaderboard.get() && !player.hasPermissions(2);
     }
 
 }
