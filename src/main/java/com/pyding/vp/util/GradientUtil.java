@@ -20,10 +20,6 @@ public class GradientUtil {
         }
     }
 
-    /**
-     * Создаёт текстовый компонент, в котором каждый символ оригинального сообщения
-     * плавно переходит по цвету от COLOR_START к COLOR_END.
-     */
     public static Component goldenGradient(String message) {
         MutableComponent result = Component.empty();
         int length = message.length();
@@ -162,9 +158,6 @@ public class GradientUtil {
     }
 
 
-    /**
-     * Интерполирует (линейно) два цвета по коэффициенту t (0..1).
-     */
     public static int interpolateColor(int start, int end, float t) {
         int r1 = (start >> 16) & 0xFF;
         int g1 = (start >> 8) & 0xFF;
