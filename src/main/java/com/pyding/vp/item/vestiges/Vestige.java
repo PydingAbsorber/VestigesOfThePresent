@@ -218,36 +218,42 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putInt("VPVestigeNumber", number);
     }
 
-    public static void setStellar(ItemStack stack) {
+    public static void setStellar(ItemStack stack, Player player) {
         stack.getOrCreateTag().putBoolean("Stellar", true);
+        if(stack.getItem() instanceof Vestige vestige)
+            vestige.applyBonus(stack,player);
     }
 
     public static boolean isStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("Stellar");
     }
 
-    public static void setDoubleStellar(ItemStack stack) {
+    public static void setDoubleStellar(ItemStack stack, Player player) {
         stack.getOrCreateTag().putBoolean("DoubleStellar", true);
+        if(stack.getItem() instanceof Vestige vestige)
+            vestige.applyBonus(stack,player);
     }
 
     public static boolean isDoubleStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("DoubleStellar");
     }
 
-    public static void setTripleStellar(ItemStack stack) {
+    public static void setTripleStellar(ItemStack stack, Player player) {
         stack.getOrCreateTag().putBoolean("TripleStellar", true);
+        if(stack.getItem() instanceof Vestige vestige)
+            vestige.applyBonus(stack,player);
     }
 
     public static boolean isTripleStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("TripleStellar");
     }
 
-    public static void increaseStars(ItemStack stack){
+    public static void increaseStars(ItemStack stack, Player player){
         if(isDoubleStellar(stack))
-            setTripleStellar(stack);
+            setTripleStellar(stack, player);
         else if(isStellar(stack))
-            setDoubleStellar(stack);
-        else setStellar(stack);
+            setDoubleStellar(stack,player);
+        else setStellar(stack,player);
     }
 
     public static void decreaseStars(ItemStack stack){
@@ -432,7 +438,7 @@ public class Vestige extends Item implements ICurioItem {
         }
         ServerPlayer playerServer = (ServerPlayer) slotContext.entity();
         if(!isStellar(stack) && playerServer.isCreative())
-            setStellar(stack);
+            setStellar(stack,playerServer);
         if(playerServer != null) {
             if (isSpecialActive(stack))
                 whileSpecial(playerServer, stack);
@@ -467,8 +473,17 @@ public class Vestige extends Item implements ICurioItem {
                     ultimateRecharges(playerServer, stack);
             }
         }
-        if((currentChargeUltimate(stack) == 0 && cdUltimateActive(stack) == 0) || (currentChargeSpecial(stack) == 0 && cdSpecialActive(stack) == 0))
-            curioSucks(playerServer,stack);
+        if((currentChargeUltimate(stack) == 0 && cdUltimateActive(stack) == 0) || (currentChargeSpecial(stack) == 0 && cdSpecialActive(stack) == 0) || specialCdBase == 0) {
+            setTime(0, stack);
+            setTimeUlt(0, stack);
+            setSpecialActive(false, stack);
+            setUltimateActive(false, stack);
+            setCurrentChargeSpecial(0, stack);
+            setCurrentChargeUltimate(0, stack);
+            setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
+            setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
+            curioSucks(playerServer, stack);
+        }
         ICurioItem.super.curioTick(slotContext, stack);
     }
     @OnlyIn(Dist.CLIENT)

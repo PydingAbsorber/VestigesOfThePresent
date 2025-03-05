@@ -68,7 +68,7 @@ public class CorruptItem extends Item{
                 player.getPersistentData().putBoolean("VPBlockHand",true);
             }
             if(player.getOffhandItem().getItem() instanceof Vestige){
-                if(VPUtil.curseVestige(player.getOffhandItem(),new Random().nextInt(Vestige.maxCurses)+1))
+                if(VPUtil.curseVestige(player.getOffhandItem(),new Random().nextInt(Vestige.maxCurses)+1,player))
                     player.getMainHandItem().split(1);
             }
         }

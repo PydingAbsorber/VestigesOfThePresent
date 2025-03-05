@@ -986,9 +986,9 @@ public class PlayerCapabilityVP {
             stellarChance += 10;
         if(random.nextDouble() < VPUtil.getChance(stellarChance/100,player)){
             if(stellarChance >= 200){
-                Vestige.setDoubleStellar(stack);
+                Vestige.setDoubleStellar(stack,player);
             }
-            Vestige.setStellar(stack);
+            Vestige.setStellar(stack,player);
             setChance(ConfigHandler.COMMON.stellarChanceIncrease.get());
             addStellarChallenge(player,vp);
             if(random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.refresherChance.get(),player))

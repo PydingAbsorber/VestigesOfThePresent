@@ -19,7 +19,7 @@ public abstract class VPItemStackMixin {
     @Inject(method = "getHoverName",at = @At("HEAD"),cancellable = true, require = 1)
     private void descMixin(CallbackInfoReturnable<Component> cir){
         ItemStack stack = (ItemStack)(Object)this;
-        if(Vestige.isStellar(stack)){
+        if(stack.getItem() instanceof Vestige && Vestige.isStellar(stack)){
             cir.setReturnValue(GradientUtil.stellarGradient(stack.getItem().getName(stack).getString().substring(2)));
         }
         if(stack.getItem() instanceof StellarFragment)

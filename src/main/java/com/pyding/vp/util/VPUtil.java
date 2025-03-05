@@ -3149,11 +3149,11 @@ public class VPUtil {
         return (livingEntity.getPersistentData().getBoolean("VPEmpowered"));
     }
 
-    public static boolean curseVestige(ItemStack stack, int curse){
+    public static boolean curseVestige(ItemStack stack, int curse,Player player){
         if(stack.getOrCreateTag().getInt("VPCursed") <= 0){
             if(Math.random() < 0.05) {
                 curse = 6;
-                Vestige.increaseStars(stack);
+                Vestige.increaseStars(stack,player);
             }
             stack.getOrCreateTag().putInt("VPCursed",curse);
             return true;

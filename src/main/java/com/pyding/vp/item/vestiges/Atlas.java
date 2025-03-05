@@ -40,7 +40,6 @@ public class Atlas extends Vestige{
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,30,0,-1,0,5,false);
         super.doSpecial(seconds, player, level, stack);
     }
-    public ItemStack stackLocal = null;
     int distance = 30;
     int gravityBonus = 0;
     @Override
@@ -71,13 +70,6 @@ public class Atlas extends Vestige{
         if(isStellar(stack))
             player.getPersistentData().putInt("VPGravity", Math.min(30, gravityBonus));
         super.doUltimate(seconds, player, level, stack);
-    }
-
-    @Override
-    public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if(stackLocal == null)
-            stackLocal = stack;
-        super.curioTick(slotContext, stack);
     }
 
 }

@@ -154,7 +154,7 @@ public class ChaosOrb extends Item{
             if(VPUtil.getVestigeCurse(stack) == 6)
                 Vestige.decreaseStars(stack);
             if(Math.random() < 0.05) {
-                Vestige.increaseStars(stack);
+                Vestige.increaseStars(stack,player);
                 stack.getOrCreateTag().putInt("VPCursed",6);
             } else stack.getOrCreateTag().putInt("VPCursed",new Random().nextInt(Vestige.maxCurses)+1);
         } else if(stack.getItem() instanceof Accessory accessory){
