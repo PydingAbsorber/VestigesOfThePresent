@@ -4,6 +4,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
+import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -60,8 +61,10 @@ public class VipActivator extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
-        components.add(Component.translatable("item.vip.desc1",stack.getOrCreateTag().getInt("VPDays")).withStyle(ChatFormatting.GOLD));
-        components.add(Component.translatable("item.vip.desc2").withStyle(ChatFormatting.GOLD));
+        stack.setHoverName(GradientUtil.goldenGradient(stack.getHoverName().getString()));
+        components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc1",stack.getOrCreateTag().getInt("VPDays")).getString()));
+        components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc2").getString()).copy().append(GradientUtil.stellarGradient("Stellar")));
+        components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc2.2").getString()));
         if(stack.getOrCreateTag().hasUUID("VPPlayer"))
             components.add(Component.translatable("item.vip.desc3").withStyle(ChatFormatting.DARK_RED));
         super.appendHoverText(stack, level, components, flag);

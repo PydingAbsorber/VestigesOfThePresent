@@ -1,6 +1,7 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -35,7 +36,7 @@ public class StellarFragment extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
-        components.add(Component.translatable("vp.frag", 1+"%").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar"))));
+        components.add(Component.translatable("vp.frag", 1+"%").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient("Stellar")));
         components.add(Component.translatable("vp.frag.get").withStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack, level, components, flag);
     }

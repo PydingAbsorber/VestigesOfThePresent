@@ -58,11 +58,7 @@ public class VPCommands {
                                             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                                                 if(!cap.getPassword().isEmpty())
                                                     player.sendSystemMessage(Component.literal("You logged in already. No need to do it every time lol").withStyle(ChatFormatting.GREEN));
-                                                else if(LeaderboardUtil.isPasswordOk(player,player.getUUID(),password)) {
-                                                    player.sendSystemMessage(Component.literal("You logged in successfully.").withStyle(ChatFormatting.GREEN));
-                                                    cap.setPassword(password);
-                                                    cap.sync(player);
-                                                } else player.sendSystemMessage(Component.literal("Login failed. Wrong data or banned").withStyle(ChatFormatting.RED));
+                                                else LeaderboardUtil.checkPassword(player,player.getUUID(),password);
                                             });
                                             return Command.SINGLE_SUCCESS;
                                         })
@@ -88,7 +84,7 @@ public class VPCommands {
                         .then(Commands.literal("info")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    player.sendSystemMessage(Component.translatable("vp.leaderboard1").append(GradientUtil.buildGradientComponent(Component.translatable("vp.leaderboard.gold").getString())));
+                                    player.sendSystemMessage(Component.translatable("vp.leaderboard1").append(GradientUtil.goldenGradient(Component.translatable("vp.leaderboard.gold").getString())));
                                     player.sendSystemMessage(Component.translatable("vp.leaderboard2"));
                                     return Command.SINGLE_SUCCESS;
                                 })

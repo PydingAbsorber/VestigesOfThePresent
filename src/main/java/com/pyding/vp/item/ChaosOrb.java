@@ -1,6 +1,7 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -30,6 +31,7 @@ public class ChaosOrb extends Item{
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if(player.getCommandSenderWorld().isClientSide() || hand == InteractionHand.OFF_HAND)
             return super.use(level, player, hand);
+        ItemStack stack = player.getOffhandItem();
         if(VPUtil.isEnchantable(player.getOffhandItem()) && !player.getOffhandItem().getAllEnchantments().isEmpty()){
             Random random = new Random();
             ItemStack itemStack = player.getOffhandItem();
@@ -148,6 +150,33 @@ public class ChaosOrb extends Item{
             EnchantmentHelper.setEnchantments(enchantments, itemStack);
             player.getMainHandItem().split(1);
             player.getPersistentData().putBoolean("VPBlockHand",true);
+        } else if(stack.getItem() instanceof Vestige vestige && VPUtil.getVestigeCurse(stack) != 0){
+            if(VPUtil.getVestigeCurse(stack) == 6)
+                Vestige.decreaseStars(stack);
+            if(Math.random() < 0.05) {
+                Vestige.increaseStars(stack);
+                stack.getOrCreateTag().putInt("VPCursed",6);
+            } else stack.getOrCreateTag().putInt("VPCursed",new Random().nextInt(Vestige.maxCurses)+1);
+        } else if(stack.getItem() instanceof Accessory accessory){
+            Random random = new Random();
+            int lvl = accessory.getLvl(stack);
+            if(new Random().nextDouble() < VPUtil.getChance(0.03,player)){
+                stack.getOrCreateTag().putInt("VPType",random.nextInt(5)+1);
+            }
+            int type = stack.getOrCreateTag().getInt("VPType");
+            stack.getOrCreateTag().putFloat("VPStat",0);
+            for(int i = 0; i < lvl+1; i++){
+                switch (type) {
+                    case 1 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1)+stack.getOrCreateTag().getFloat("VPStat"));
+                    case 2 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2)+stack.getOrCreateTag().getFloat("VPStat"));
+                    case 3 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5)+stack.getOrCreateTag().getFloat("VPStat"));
+                    case 4 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3)+stack.getOrCreateTag().getFloat("VPStat"));
+                    case 5 -> stack.getOrCreateTag().putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4)+stack.getOrCreateTag().getFloat("VPStat"));
+                    default -> {
+                    }
+                }
+            }
+            player.sendSystemMessage(Component.literal(""+stack.getOrCreateTag().getFloat("VPStat")));
         }
         return super.use(level, player, hand);
     }
@@ -158,9 +187,11 @@ public class ChaosOrb extends Item{
         if(Screen.hasShiftDown()) {
             components.add(Component.translatable("vp.chaos_orb.desc1").withStyle(ChatFormatting.GRAY));
             components.add(Component.translatable("vp.chaos_orb.desc2").withStyle(ChatFormatting.GRAY));
-        }
+        } else if(Screen.hasAltDown())
+            components.add(Component.translatable("vp.chaos_orb.desc3").withStyle(ChatFormatting.GRAY));
         else {
             components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.YELLOW).append(Component.translatable("vp.shift"))));
+            components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(ChatFormatting.YELLOW).append(Component.translatable("vp.shift"))));
         }
         super.appendHoverText(stack, level, components, flag);
     }

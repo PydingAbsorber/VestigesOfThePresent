@@ -2,6 +2,7 @@ package com.pyding.vp.util;
 
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
@@ -32,7 +33,7 @@ public class LeaderboardUtil {
     }
 
     public static String addNickname(Player player, UUID uuid, String password){
-        if(!isLeaderboardsActive(player) && !isCheating(player)){
+        if(!isLeaderboardsActive(player) || isCheating(player)){
             return "Leaderboards disabled.";
         }
         AtomicReference<String> message = new AtomicReference<>("");
@@ -46,32 +47,36 @@ public class LeaderboardUtil {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 message.set(response.body());
             } catch (Exception e) {
-                message.set("Something went wrong. Try to check connection. " + e.getMessage());
+                player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.DARK_RED));
             }
         });
         return message.get();
     }
 
-    public static boolean isPasswordOk(Player player, UUID uuid, String password){
-        if(!isLeaderboardsActive(player) && !isCheating(player)){
-            return false;
+    public static void checkPassword(Player player, UUID uuid, String password){
+        if(!isLeaderboardsActive(player) || isCheating(player)){
+            player.sendSystemMessage(Component.literal("Leaderboard is disabled or you are cheating").withStyle(ChatFormatting.RED));
+            return;
         }
-        AtomicReference<Boolean> message = new AtomicReference<>();
         CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addNickname?nickName=" + player.getScoreboardName() + "&UUID=" + uuid.toString() + "&version=" + getCurrentVersion() + "&password=" +password))
+                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/login?nickName=" + player.getScoreboardName() + "&UUID=" + uuid.toString() + "&version=" + getCurrentVersion() + "&password=" +password))
                         .GET()
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if(response.body().equals("ok"))
-                    message.set(true);
+                if(response.body().equals("ok")) {
+                        player.sendSystemMessage(Component.literal("You logged in successfully.").withStyle(ChatFormatting.GREEN));
+                        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                            cap.setPassword(password);
+                            cap.sync(player);
+                        });
+                } else player.sendSystemMessage(Component.literal(response.body()).withStyle(ChatFormatting.RED));
             } catch (Exception e) {
-                e.printStackTrace();
+                player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.RED));
             }
         });
-        return message.get();
     }
 
     public static void addChallenge(Player player, int id, String password){
@@ -172,7 +177,7 @@ public class LeaderboardUtil {
             for(String name: response.split(",")){
                 if(count < 10) {
                     count++;
-                    player.sendSystemMessage(GradientUtil.buildGradientComponent(name.replaceAll("^\"|\"$", "")));
+                    player.sendSystemMessage(GradientUtil.goldenGradient(name.replaceAll("^\"|\"$", "")));
                 } else player.sendSystemMessage(Component.literal(name.replaceAll("^\"|\"$", "")));
             }
         });

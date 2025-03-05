@@ -6,6 +6,7 @@ import com.pyding.vp.mixin.BucketMixin;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.KeyBinding;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -221,7 +222,7 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putBoolean("Stellar", true);
     }
 
-    public boolean isStellar(ItemStack stack) {
+    public static boolean isStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("Stellar");
     }
 
@@ -229,7 +230,7 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putBoolean("DoubleStellar", true);
     }
 
-    public boolean isDoubleStellar(ItemStack stack) {
+    public static boolean isDoubleStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("DoubleStellar");
     }
 
@@ -237,8 +238,25 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putBoolean("TripleStellar", true);
     }
 
-    public boolean isTripleStellar(ItemStack stack) {
+    public static boolean isTripleStellar(ItemStack stack) {
         return stack.getOrCreateTag().getBoolean("TripleStellar");
+    }
+
+    public static void increaseStars(ItemStack stack){
+        if(isDoubleStellar(stack))
+            setTripleStellar(stack);
+        else if(isStellar(stack))
+            setDoubleStellar(stack);
+        else setStellar(stack);
+    }
+
+    public static void decreaseStars(ItemStack stack){
+        if(isTripleStellar(stack))
+            stack.getOrCreateTag().putBoolean("TripleStellar", false);
+        else if(isDoubleStellar(stack))
+            stack.getOrCreateTag().putBoolean("DoubleStellar", false);
+        else if(isStellar(stack))
+            stack.getOrCreateTag().putBoolean("Stellar", false);
     }
 
     public void init(ItemStack stack) {
@@ -356,6 +374,11 @@ public class Vestige extends Item implements ICurioItem {
         float specialCdBonus = 1;
         float ultimateCdBonus = 1;
         int set = VPUtil.getSet(player);
+        float curse = VPUtil.getCurseMultiplier(player,6);
+        if(curse > 0){
+            specialCdBonus += curse;
+            ultimateCdBonus += curse;
+        }
         if(set == 1){
             spAcsBonus += 1;
             specialTimeBonus += 0.2f;
@@ -455,6 +478,7 @@ public class Vestige extends Item implements ICurioItem {
             this.init(stack);
         }
         Player player = Minecraft.getInstance().player;
+        boolean stellar = isStellar(stack);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             if (Screen.hasShiftDown()) {
                 components.add(Component.translatable("vp.passive").withStyle(color));
@@ -529,12 +553,12 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.damage").withStyle(color));
                     components.add(Component.translatable("vp.damagetype." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
-                if (isStellar(stack)) {
+                if (stellar) {
                     if(isTripleStellar(stack))
-                        components.add(Component.literal(VPUtil.getRainbowString("Triple Stellar: ")));
+                        components.add(GradientUtil.stellarGradient("Triple Stellar: "));
                     else if(isDoubleStellar(stack))
-                        components.add(Component.literal(VPUtil.getRainbowString("Double Stellar: ")));
-                    else components.add(Component.literal(VPUtil.getRainbowString("Stellar: ")));
+                        components.add(GradientUtil.stellarGradient("Double Stellar: "));
+                    else components.add(GradientUtil.stellarGradient("Stellar: "));
                 } else {
                     components.add(Component.translatable(("Stellar")).withStyle(color));
                 }
@@ -547,19 +571,13 @@ public class Vestige extends Item implements ICurioItem {
                 while (visualSpecial > this.specialCd(stack)) {
                     visualSpecial -= this.specialCd(stack);
                 }
-                /*if(cap.getDebug()){
-                    components.add(Component.literal("Special Charges: " + this.currentChargeSpecial(stack)).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("Special Cd: " + visualSpecial).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("Ultimate Charges: " + this.currentChargeUltimate(stack)).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("Ultimate Cd: " + visualUlt).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("IsSpecialActive: " + isSpecialActive(stack)).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("IsUltimateActive: " + isUltimateActive(stack)).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("TimeSpecial: " + (time(stack) - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.literal("TimeUltimate: " + (timeUlt(stack) - System.currentTimeMillis())).withStyle(ChatFormatting.GRAY));
-                }*/
+                if(isDoubleStellar(stack))
+                    components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
+                if(isTripleStellar(stack))
+                    components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
                 components.add(Component.translatable("config").withStyle(ChatFormatting.GRAY));
             } else if (Screen.hasControlDown()) {
-                components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString(VPUtil.generateRandomString(7)) + " :")));
+                components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient(VPUtil.generateRandomString(7) + " :")));
                 if(vestigeNumber == 9)
                     components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getGoldenChance()+"%").withStyle(ChatFormatting.GRAY)));
                 else if(vestigeNumber == 14){
@@ -637,7 +655,7 @@ public class Vestige extends Item implements ICurioItem {
                     stellarChance += 5;
                 if(cap.getVip() > System.currentTimeMillis())
                     stellarChance += 10;
-                components.add(Component.literal((int)stellarChance+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.getRainbowString("Stellar")))));
+                components.add(Component.literal((int)stellarChance+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient("Stellar"))));
                 components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY).append(Component.literal(ConfigHandler.COMMON.stellarChanceIncrease.get() + "%")));
                 components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown(player))+" ").withStyle(ChatFormatting.GRAY)));
                 if (cap.hasCoolDown(vestigeNumber))
@@ -738,7 +756,7 @@ public class Vestige extends Item implements ICurioItem {
                     }
                 }
             } else {
-                if(isStellar(stack) && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
+                if(stellar && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
                     components.add(Component.translatable("vp.meme."+vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
@@ -766,7 +784,7 @@ public class Vestige extends Item implements ICurioItem {
                 int multiplier = 0;
                 if(curse == 1) {
                     multiplier = 90;
-                    if(isStellar(stack))
+                    if(stellar)
                         multiplier = 75;
                     if(isDoubleStellar(stack))
                         multiplier = 45;
@@ -775,7 +793,7 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 else if (curse == 2){
                     multiplier = -80;
-                    if(isStellar(stack))
+                    if(stellar)
                         multiplier = -65;
                     if(isDoubleStellar(stack))
                         multiplier = -50;
@@ -784,7 +802,7 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 else if(curse == 3){
                     multiplier = 3;
-                    if(isStellar(stack))
+                    if(stellar)
                         multiplier = 2;
                     if(isDoubleStellar(stack))
                         multiplier = 1;
@@ -793,7 +811,7 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 else if(curse == 4){
                     multiplier = 40;
-                    if(isStellar(stack))
+                    if(stellar)
                         multiplier = 70;
                     if(isDoubleStellar(stack))
                         multiplier = 110;
@@ -802,22 +820,28 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 else if(curse == 5){
                     multiplier = 50;
-                    if(isStellar(stack))
+                    if(stellar)
                         multiplier = 125;
                     if(isDoubleStellar(stack))
                         multiplier = 250;
                     if(isTripleStellar(stack))
                         multiplier = 350;
                 }
+                else if(curse == 6){
+                    multiplier = 60;
+                    if(isDoubleStellar(stack))
+                        multiplier = 50;
+                    if(isTripleStellar(stack))
+                        multiplier = 40;
+                }
                 components.add(Component.translatable("vp.curse." + curse,multiplier+"%").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
             }
 
             components.add(Component.translatable("vp.info").withStyle(ChatFormatting.GRAY));
-            if (isStellar(stack)) {
-                String name = symbolsRandom(stack);
-                Component component = Component.nullToEmpty(VPUtil.getRainbowString(name));
+            /*if (stellar && player.level().isClientSide()) {
+                Component component = GradientUtil.stellarGradient(I18n.get("vp.name."+vestigeNumber).substring(2));
                 stack.setHoverName(component);
-            }
+            }*/
         });
         super.appendHoverText(stack, level, components, flag);
     }
@@ -882,17 +906,24 @@ public class Vestige extends Item implements ICurioItem {
         }*/
     }
 
+    @Override
+    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
+        return isTripleStellar(stack);
+    }
+
     public void curioSucks(Player player, ItemStack stack){
         if(player.getCommandSenderWorld().isClientSide)
             return;
-        setTime(0,stack);
-        setTimeUlt(0,stack);
-        setSpecialActive(false,stack);
-        setUltimateActive(false,stack);
-        setCurrentChargeSpecial(0,stack);
-        setCurrentChargeUltimate(0,stack);
-        setCdSpecialActive(specialCd(stack)*specialCharges(stack),stack);
-        setCdUltimateActive(ultimateCd(stack)*ultimateCharges(stack),stack);
+        if(!isTripleStellar(stack)){
+            setTime(0, stack);
+            setTimeUlt(0, stack);
+            setSpecialActive(false, stack);
+            setUltimateActive(false, stack);
+            setCurrentChargeSpecial(0, stack);
+            setCurrentChargeUltimate(0, stack);
+            setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
+            setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
+        }
         VPUtil.vestigeNullify(player);
         applyBonus(stack,player);
     }

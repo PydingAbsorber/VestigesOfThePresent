@@ -22,6 +22,7 @@
     "LootTableVzlom",
     "MaxDurabilityMixin",
     "MinEnchLvlMixin",
+    "MobEffectMixin",
     "MobEntityVzlom",
     "MobMixin",
     "MovementMixin",
@@ -31,6 +32,7 @@
     "SmitingMenuVzlom",
     "SmitingMixing",
     "VPEntityMixin",
+    "VPItemStackMixin",
     "VPLivingEntityMixin",
     "VPPlayerMixin",
     "VzlomJopiMixin"

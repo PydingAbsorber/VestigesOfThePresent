@@ -3151,6 +3151,10 @@ public class VPUtil {
 
     public static boolean curseVestige(ItemStack stack, int curse){
         if(stack.getOrCreateTag().getInt("VPCursed") <= 0){
+            if(Math.random() < 0.05) {
+                curse = 6;
+                Vestige.increaseStars(stack);
+            }
             stack.getOrCreateTag().putInt("VPCursed",curse);
             return true;
         }
@@ -3254,6 +3258,13 @@ public class VPUtil {
                             multiplier = 3.5f;
                         if(vestige.isTripleStellar(stack))
                             multiplier = 4.5f;
+                    }
+                    else if(curse == 6) {
+                        multiplier = 0.6f;
+                        if (vestige.isDoubleStellar(stack))
+                            multiplier = 0.5f;
+                        if (vestige.isTripleStellar(stack))
+                            multiplier = 0.4f;
                     }
                     return multiplier;
                 }
