@@ -11,9 +11,6 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class GradientUtil {
 
-    private static final int GOLDEN = 0xffd700;
-    private static final int WHITE = 0xffffff;
-
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
         if(event.getPlayer() != null && LeaderboardUtil.hasGoldenName(event.getPlayer().getUUID())) {
@@ -75,7 +72,31 @@ public class GradientUtil {
         return result;
     }
 
-    private static final int[] RAINBOW_COLORS = {
+    public static Component customGradient(String message, int[] colors) {
+        MutableComponent result = Component.empty();
+        int length = message.length();
+        if (length == 0) {
+            return result;
+        }
+
+        long time = System.currentTimeMillis();
+        float progress = (float) (time % 1000L) / 1000L;
+
+        for (int i = 0; i < length; i++) {
+            char c = message.charAt(i);
+            float t = (float) i / (length - 1);
+            float animatedT = (t + progress) % 1.0f;
+            int color = getRainbowColor(animatedT,colors);
+            result.append(
+                    Component.literal(String.valueOf(c))
+                            .withStyle(Style.EMPTY.withColor(color))
+            );
+        }
+
+        return result;
+    }
+
+    public static final int[] RAINBOW_COLORS = {
             0xf5a478,  // Оранжевый
             0xf5bd93,  // Светло-оранжевый
             0xffe4c4,  // Персиковый (переход к холодным тонам)
@@ -93,7 +114,7 @@ public class GradientUtil {
             0xf5a478,  // Оранжевый
     };
 
-    private static final int[] GOLD_TO_WHITE = {
+    public static final int[] GOLD_TO_WHITE = {
             0xFFFAE6,  // Почти белый с золотистым оттенком
             0xFFF8D6,  // Очень светлый золотой
             0xFFF3B0,  // Кремово-золотой
@@ -106,6 +127,26 @@ public class GradientUtil {
             0xFFF8D6,  // Очень светлый золотой
             0xFFFAE6,  // Почти белый с золотистым оттенком
             0xFFFFFF   // Чистый белый (White)
+    };
+
+    public static final int[] PURPLE_DARK_PURPLE = {
+            0x4B1B6D, // Интенсивный фиолетовый
+            0x5A267A, // Яркий королевский фиолетовый
+            0x6A3588, // Сочно-фиолетовый
+            0x7B4495, // Малиново-фиолетовый
+            0x8D55A3, // Нежно-сиреневый с фиолетовым оттенком
+            0x9F67B0, // Пастельно-фиолетовый
+            0xB27ABD, // Лавандово-молочный
+            0xC58ECA, // Светло-лавандовый
+            0xD8A3D6, // Очень светлый перламутровый фиолетовый
+            0xC58ECA, // Возврат к светло-лавандовому
+            0xB27ABD, // Лавандово-молочный
+            0x9F67B0, // Пастельно-фиолетовый
+            0x8D55A3, // Нежно-сиреневый
+            0x7B4495, // Малиново-фиолетовый
+            0x6A3588, // Сочно-фиолетовый
+            0x5A267A, // Яркий королевский фиолетовый
+            0x4B1B6D, // Интенсивный фиолетовый
     };
 
     private static int getRainbowColor(float t, int[] colors) {
