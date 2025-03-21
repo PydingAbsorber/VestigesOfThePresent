@@ -717,6 +717,7 @@ public class PlayerCapabilityVP {
             challenges[vp-1] += 1;
         }
         sync(player);
+        VPUtil.resync(this,player);
     }
 
     public void copyNBT(PlayerCapabilityVP source){
@@ -857,7 +858,6 @@ public class PlayerCapabilityVP {
             return;
         if(getVip() < System.currentTimeMillis())
             setVip(0);
-        VPUtil.resync(this,player);
         ServerPlayer serverPlayer = (ServerPlayer) player;
         CompoundTag nbt = new CompoundTag();
         saveNBT(nbt);

@@ -99,8 +99,10 @@ public class LeaderboardUtil {
 
     public static void setCheating(Player player){
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            cap.setCheating(true);
-            cap.sync(player);
+            if(!cap.isCheating()) {
+                cap.setCheating(true);
+                cap.sync(player);
+            }
         });
     }
 

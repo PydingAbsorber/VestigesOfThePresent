@@ -1028,6 +1028,7 @@ public class EventHandler {
         Player player = event.getEntity();
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
+            VPUtil.resync(cap,player);
         });
         PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
@@ -1537,7 +1538,7 @@ public class EventHandler {
                     Level level = player.getCommandSenderWorld();
                     String biome = VPUtil.getCurrentBiome(player).getPath();
                     if(biome.contains("ocean") && !biome.contains("frozen") && !biome.contains("cold")){
-                        double chance = 0.05;
+                        double chance = ConfigHandler.COMMON.oysterChance.get();
                         if(biome.contains("warm"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
@@ -1561,7 +1562,7 @@ public class EventHandler {
                         }
                     }
                     else if(biome.contains("ocean") && biome.contains("deep") && !biome.contains("warm")){
-                        double chance = 0.05;
+                        double chance = ConfigHandler.COMMON.seashellChance.get();
                         if(biome.contains("cold") || biome.contains("frozen"))
                             chance *= 3;
                         if(random.nextDouble() < VPUtil.getChance(chance,player)){
@@ -1646,6 +1647,7 @@ public class EventHandler {
             event.getEntity().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(newStore -> {
                 newStore.copyNBT(oldStore);
                 newStore.sync(event.getEntity());
+                VPUtil.resync(newStore,event.getEntity());
             });
         });
         PlayerCapabilityVP.initMaximum(event.getEntity());

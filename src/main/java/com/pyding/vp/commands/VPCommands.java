@@ -40,11 +40,15 @@ public class VPCommands {
                                             ServerPlayer player = context.getSource().getPlayerOrException();
                                             if(LeaderboardUtil.addNickname(player,player.getUUID(),password).equals("You have been registered")) {
                                                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                                                    cap.setPassword(password);
-                                                    cap.sync(player);
+                                                    if(cap.getPassword().isEmpty()) {
+                                                        cap.setPassword(password);
+                                                        cap.sync(player);
+                                                        player.sendSystemMessage(Component.literal("You also logged in, no need to type login.").withStyle(ChatFormatting.GRAY));
+                                                        player.sendSystemMessage(Component.literal("Remember your password please! Write it down somewhere.").withStyle(ChatFormatting.RED));
+                                                    } else {
+                                                        player.sendSystemMessage(Component.literal("You already logged in.").withStyle(ChatFormatting.GRAY));
+                                                    }
                                                 });
-                                                player.sendSystemMessage(Component.literal("You also logged in, no need to type login.").withStyle(ChatFormatting.GRAY));
-                                                player.sendSystemMessage(Component.literal("Remember your password please! Write it down somewhere.").withStyle(ChatFormatting.RED));
                                             }
                                             return Command.SINGLE_SUCCESS;
                                         })
@@ -64,19 +68,15 @@ public class VPCommands {
                                         })
                                 )
                         )
-                        .then(Commands.literal("enable")
+                        .then(Commands.literal("enable").requires(sender -> sender.hasPermission(2))
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    if(player.hasPermissions(2)) {
-                                        player.sendSystemMessage(Component.literal("You shouldn't enable Leaderboards in world with cheats on.").withStyle(ChatFormatting.DARK_RED));
+                                    if (ConfigHandler.COMMON.leaderboard.get()) {
+                                        ConfigHandler.COMMON.leaderboard.set(false);
+                                        player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
                                     } else {
-                                        if (ConfigHandler.COMMON.leaderboard.get()) {
-                                            ConfigHandler.COMMON.leaderboard.set(false);
-                                            player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
-                                        } else {
-                                            ConfigHandler.COMMON.leaderboard.set(true);
-                                            player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
-                                        }
+                                        ConfigHandler.COMMON.leaderboard.set(true);
+                                        player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
