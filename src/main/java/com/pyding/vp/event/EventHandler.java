@@ -12,6 +12,7 @@ import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.SillySeashell;
 import com.pyding.vp.item.CorruptFragment;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.MysteryBox;
 import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.*;
@@ -1695,6 +1696,7 @@ public class EventHandler {
                 player.removeEffect(VPEffects.VIP_EFFECT.get());
             }
         }
+        MysteryBox.init();
     }
 
     @SubscribeEvent

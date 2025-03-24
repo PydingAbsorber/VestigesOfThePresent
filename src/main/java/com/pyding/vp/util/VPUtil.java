@@ -2519,18 +2519,20 @@ public class VPUtil {
         return builder.toString();
     }
 
-    public static Component translateString(String string, ChatFormatting color){
+    public static Component translateString(String string, ChatFormatting color) {
         List<String> list = new ArrayList<>(List.of(string.split(",")));
         StringBuilder translatedText = new StringBuilder();
         for (String name : list) {
             Component translatedComponent = Component.translatable(name.trim());
-            translatedText.append(translatedComponent.getString()).append(", ");
+            String plain = translatedComponent.getString().replaceAll("§.", "");
+            translatedText.append(plain).append(", ");
         }
         if (translatedText.length() > 2) {
             translatedText.setLength(translatedText.length() - 2);
         }
         return Component.literal(translatedText.toString()).withStyle(color);
     }
+
 
     public static Component filterAndTranslate(String string, ChatFormatting color){
         return translateString(filterString(string),color);

@@ -145,6 +145,26 @@ public class GradientUtil {
             0x4B1B6D, // Интенсивный фиолетовый
     };
 
+    public static final int[] MYSTERY = {
+            // Фиолетовая гамма (15 шагов: светлый → тёмный)
+            0xE0B0FF, 0xD19BEE, 0xC287DD, 0xB373CC, 0xA45FBB,
+            0x954BAA, 0x863799, 0x772388, 0x680F77, 0x590066,
+            0x4A0055, 0x3B0044, 0x2C0033, 0x1D0022, 0x1A0030,
+
+            // Зелёная гамма (15 шагов: тёмный → обычный)
+            0x002000, 0x003000, 0x004000, 0x005000, 0x006000,
+            0x007000, 0x008000, 0x009000, 0x00A000, 0x00B000,
+            0x00C000, 0x00D000, 0x00E000, 0x00F000, 0x00FF00,
+
+            // Обратный путь для циклического эффекта
+            0x00F000, 0x00E000, 0x00D000, 0x00C000, 0x00B000,
+            0x00A000, 0x009000, 0x008000, 0x007000, 0x006000,
+            0x005000, 0x004000, 0x003000, 0x002000, 0x1A0030,
+            0x2C0033, 0x3B0044, 0x4A0055, 0x590066, 0x680F77,
+            0x772388, 0x863799, 0x954BAA, 0xA45FBB, 0xB373CC,
+            0xC287DD, 0xD19BEE, 0xE0B0FF
+    };
+
     private static int getRainbowColor(float t, int[] colors) {
         int colorCount = colors.length;
         float segment = 1.0f / (colorCount - 1);

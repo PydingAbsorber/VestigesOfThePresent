@@ -42,7 +42,7 @@ public class VestigesOfThePresent
 {
     public static final String MODID = "vp";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final String VERSION = "1.20.1:1.3.4";
+    public static final String VERSION = "1.20.1:1.3.5";
 
     public static EventHandler eventHandler;
 
@@ -151,6 +151,7 @@ public class VestigesOfThePresent
             event.accept(ModItems.NECKLACE_OF_TORTURED_DREAMS);
             event.accept(ModItems.BOX);
             event.accept(ModItems.BOX_SAPLINGS);
+            event.accept(ModItems.BOX_MYSTERY);
             event.accept(ModItems.SHARD);
             event.accept(ModItems.NIGHTMARESHARD);
             event.accept(ModItems.VORTEX);

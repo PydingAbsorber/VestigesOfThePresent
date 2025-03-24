@@ -48,6 +48,9 @@ public class ModItems {
     public static final RegistryObject<Item> BELT_OF_BROKEN_MEMORIES = ITEMS.register("belt_of_broken_memories", () -> new BeltOfBrokenMemories());
     public static final RegistryObject<Item> RING_OF_WIBEST = ITEMS.register("ring_of_wibest", () -> new RingOfWibest());
     public static final RegistryObject<Item> BOX = ITEMS.register("box", () -> new Box());
+    public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
+    public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
+    public static final RegistryObject<Item> BOX_MYSTERY = ITEMS.register("box_mystery", () -> new MysteryBox());
     public static final RegistryObject<Item> VORTEX = ITEMS.register("vortex", () -> new Vortex());
     public static final RegistryObject<Item> EASTER_EGG = ITEMS.register("easter_egg", () -> new EaterEgg());
     public static final RegistryObject<Item> SHARD = ITEMS.register("shard", () -> new Shard());
@@ -55,8 +58,6 @@ public class ModItems {
     public static final RegistryObject<Item> HEARTY_PEARL = ITEMS.register("hearty_pearl", () -> new HeartyPearl());
     public static final RegistryObject<Item> PINKY_PEARL = ITEMS.register("pinky_pearl", () -> new PinkyPearl());
     public static final RegistryObject<Item> SEASHELL = ITEMS.register("seashell", () -> new Seashell());
-    public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
-    public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
     public static final RegistryObject<Item> BLACKHOLE_ITEM = ITEMS.register("blackhole_item", () -> new Item(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> CORRUPT_FRAGMENT = ITEMS.register("corrupted_fragment", () -> new CorruptFragment());
     public static final RegistryObject<Item> CORRUPT_ITEM = ITEMS.register("corrupted_item", () -> new CorruptItem());
@@ -67,8 +68,6 @@ public class ModItems {
 
     @ObjectHolder(value = MODID + ":seashell", registryName = "item")
     public static final Seashell SEASHELL_HOLDER = null;
-
-
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

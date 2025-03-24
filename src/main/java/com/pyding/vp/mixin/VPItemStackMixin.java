@@ -1,6 +1,7 @@
 package com.pyding.vp.mixin;
 
 import com.pyding.vp.effects.VipEffect;
+import com.pyding.vp.item.MysteryBox;
 import com.pyding.vp.item.StellarFragment;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.GradientUtil;
@@ -24,5 +25,7 @@ public abstract class VPItemStackMixin {
         }
         if(stack.getItem() instanceof StellarFragment)
             cir.setReturnValue(GradientUtil.stellarGradient(stack.getItem().getName(stack).getString()));
+        if(stack.getItem() instanceof MysteryBox)
+            cir.setReturnValue(GradientUtil.customGradient(stack.getItem().getName(stack).getString(),GradientUtil.MYSTERY));
     }
 }
