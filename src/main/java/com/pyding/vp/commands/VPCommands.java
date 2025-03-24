@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
+import com.pyding.vp.item.MysteryBox;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.GradientUtil;
@@ -418,6 +419,44 @@ public class VPCommands {
                             }
                             return Command.SINGLE_SUCCESS;
                         })
+                )
+                .then(Commands.literal("mysteryChest").requires(sender -> sender.hasPermission(2))
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("common/rare/mythic/legendary", StringArgumentType.string())
+                                        .then(Commands.argument("stackSize", IntegerArgumentType.integer())
+                                                .executes(context -> {
+                                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                                    String arg = StringArgumentType.getString(context,"common/rare/mythic/legendary");
+                                                    int size = IntegerArgumentType.getInteger(context, "stackSize");
+                                                    String element = player.getMainHandItem().getDescriptionId();
+                                                    if(size > 1)
+                                                        element += size;
+                                                    ConfigHandler.COMMON.lootDrops.set(VPUtil.addMysteryLoot(ConfigHandler.COMMON.lootDrops.get().toString(),element,arg));
+                                                    MysteryBox.init();
+                                                    player.sendSystemMessage(Component.literal("Item in main hand added to " + arg));
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                        )
+                                )
+                        )
+                        .then(Commands.literal("remove")
+                                .then(Commands.argument("common/rare/mythic/legendary", StringArgumentType.string())
+                                        .then(Commands.argument("stackSize", IntegerArgumentType.integer())
+                                                .executes(context -> {
+                                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                                    String arg = StringArgumentType.getString(context,"common/rare/mythic/legendary");
+                                                    int size = IntegerArgumentType.getInteger(context, "stackSize");
+                                                    String element = player.getMainHandItem().getDescriptionId();
+                                                    if(size > 1)
+                                                        element += size;
+                                                    ConfigHandler.COMMON.lootDrops.set(VPUtil.removeMysteryLoot(ConfigHandler.COMMON.lootDrops.get().toString(),element,arg));
+                                                    MysteryBox.init();
+                                                    player.sendSystemMessage(Component.literal("Item in main hand removed from " + arg));
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                        )
+                                )
+                        )
                 )
         );
     }

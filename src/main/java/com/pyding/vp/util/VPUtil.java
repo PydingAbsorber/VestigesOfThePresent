@@ -3386,4 +3386,75 @@ public class VPUtil {
         }
     }
 
+    public static String addMysteryLoot(String base, String id, String rarity) {
+        int index = rarityToIndex(rarity);
+        String[] segments = base.split(">");
+        if (segments.length != 4) {
+            throw new IllegalArgumentException("Invalid base string format");
+        }
+        String[] parts = segments[index].split("<", 2);
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid segment format at index " + index);
+        }
+        String chance = parts[0];
+        String dropList = parts[1].trim();
+        String[] drops = dropList.split(",");
+        for (String drop : drops) {
+            if (drop.trim().equals(id)) {
+                return base;
+            }
+        }
+        if (dropList.isEmpty()) {
+            dropList = id;
+        } else {
+            dropList = dropList + "," + id;
+        }
+        segments[index] = chance + "<" + dropList;
+        StringBuilder sb = new StringBuilder();
+        for (String seg : segments) {
+            sb.append(seg).append(">");
+        }
+        return sb.toString();
+    }
+
+    public static String removeMysteryLoot(String base, String id, String rarity) {
+        int index = rarityToIndex(rarity);
+        String[] segments = base.split(">");
+        if (segments.length != 4) {
+            throw new IllegalArgumentException("Invalid base string format");
+        }
+        String[] parts = segments[index].split("<", 2);
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid segment format at index " + index);
+        }
+        String chance = parts[0];
+        String dropList = parts[1].trim();
+        String[] drops = dropList.split(",");
+        StringBuilder newDropList = new StringBuilder();
+        for (String drop : drops) {
+            String trimmed = drop.trim();
+            if (!trimmed.equals(id)) {
+                if (newDropList.length() > 0) {
+                    newDropList.append(",");
+                }
+                newDropList.append(trimmed);
+            }
+        }
+        segments[index] = chance + "<" + newDropList.toString();
+        StringBuilder sb = new StringBuilder();
+        for (String seg : segments) {
+            sb.append(seg).append(">");
+        }
+        return sb.toString();
+    }
+
+    private static int rarityToIndex(String rarity) {
+        switch (rarity.toLowerCase()) {
+            case "common": return 0;
+            case "rare": return 1;
+            case "mythic": return 2;
+            case "legendary": return 3;
+            default: throw new IllegalArgumentException("Unknown rarity: " + rarity);
+        }
+    }
 }

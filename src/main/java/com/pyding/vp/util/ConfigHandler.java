@@ -207,7 +207,7 @@ public class ConfigHandler {
             chaosCoreStellarHpRes = builder.comment("Reduce modifier for Chaos Core Stellar ability of max hp lowering from Healing Debt").defineInRange("chaosCoreStellarHpRes", 10d, 0, 2100000000);
             oysterChance = builder.comment("Base chance for spawning Hungry Oyster per 8000 ticks").defineInRange("oysterChance", 0.05d, 0, 1);
             seashellChance = builder.comment("Base chance for spawning Silly Seashell per 8000 ticks").defineInRange("seashellChance", 0.05d, 0, 1);
-            lootDrops = builder.comment("Loot tables for Mystery Chest common(values < 1 cause to get nothing)/rare/mystic/legendary: ").define("lootDrops","1<item.vp.box_saplings>0.24<item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment>0.059<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item>0.001<item.vp.chaos_orb,item.vp.celestial_mirror,item.vp.pinky_pearl>");
+            lootDrops = builder.comment("Loot tables for Mystery Chest common/rare/mystic/legendary. All chances are independent so 0.7(70% chance) on common cause dropping air in 30% cases.").define("lootDrops","1<item.vp.box_saplings>0.24<item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment>0.059<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item>0.001<item.vp.chaos_orb,item.vp.celestial_mirror,item.vp.pinky_pearl>");
         }
 
         public int getChallengeReduceByNumber(int number) {
