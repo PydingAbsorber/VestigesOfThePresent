@@ -9,7 +9,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
-import com.pyding.vp.item.MysteryBox;
+import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.GradientUtil;
@@ -432,7 +432,7 @@ public class VPCommands {
                                                     if(size > 1)
                                                         element += size;
                                                     ConfigHandler.COMMON.lootDrops.set(VPUtil.addMysteryLoot(ConfigHandler.COMMON.lootDrops.get().toString(),element,arg));
-                                                    MysteryBox.init();
+                                                    MysteryChest.init();
                                                     player.sendSystemMessage(Component.literal("Item in main hand added to " + arg));
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -450,7 +450,7 @@ public class VPCommands {
                                                     if(size > 1)
                                                         element += size;
                                                     ConfigHandler.COMMON.lootDrops.set(VPUtil.removeMysteryLoot(ConfigHandler.COMMON.lootDrops.get().toString(),element,arg));
-                                                    MysteryBox.init();
+                                                    MysteryChest.init();
                                                     player.sendSystemMessage(Component.literal("Item in main hand removed from " + arg));
                                                     return Command.SINGLE_SUCCESS;
                                                 })

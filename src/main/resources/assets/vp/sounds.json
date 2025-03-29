@@ -349,9 +349,29 @@
       "vp:drop_chaos"
     ]
   },
-  "drop_mirror": {
+  "chest_fall": {
     "sounds": [
-      "vp:drop_mirror"
+      "vp:chest_fall"
+    ]
+  },
+  "chest_common": {
+    "sounds": [
+      "vp:chest_common"
+    ]
+  },
+  "chest_rare": {
+    "sounds": [
+      "vp:chest_rare"
+    ]
+  },
+  "chest_mythic": {
+    "sounds": [
+      "vp:chest_mythic"
+    ]
+  },
+  "chest_legendary": {
+    "sounds": [
+      "vp:chest_legendary"
     ]
   }
 }

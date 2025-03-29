@@ -30,11 +30,6 @@ public class PacketHandler {
 
         net.registerMessage(id(),SendPlayerNbtToClient.class, SendPlayerNbtToClient::encode, SendPlayerNbtToClient::decode, SendPlayerNbtToClient::handle);
         net.registerMessage(id(),SendPlayerCapaToClient.class, SendPlayerCapaToClient::encode, SendPlayerCapaToClient::decode, SendPlayerCapaToClient::handle);
-        net.messageBuilder(ClientToServerPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(ClientToServerPacket::new)
-                .encoder(ClientToServerPacket::toBytes)
-                .consumerMainThread(ClientToServerPacket::handle)
-                .add();
         net.registerMessage(id(),PlayerFlyPacket.class, PlayerFlyPacket::encode, PlayerFlyPacket::decode, PlayerFlyPacket::handle);
         net.registerMessage(id(),SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
         net.registerMessage(id(),SoundPacket.class, SoundPacket::encode, SoundPacket::decode, SoundPacket::handle);
@@ -42,13 +37,13 @@ public class PacketHandler {
         net.registerMessage(id(),ButtonPressPacket.class, ButtonPressPacket::encode, ButtonPressPacket::decode, ButtonPressPacket::handle);
         net.registerMessage(id(),LorePacket.class, LorePacket::encode, LorePacket::decode, LorePacket::handle);
         net.registerMessage(id(),SuckPacket.class, SuckPacket::encode, SuckPacket::decode, SuckPacket::handle);
-        //net.registerMessage(id(),ItemAnimationPacket.class, ItemAnimationPacket::encode, ItemAnimationPacket::decode, ItemAnimationPacket::handle);
         net.messageBuilder(ItemAnimationPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ItemAnimationPacket::new)
                 .encoder(ItemAnimationPacket::toBytes)
                 .consumerMainThread(ItemAnimationPacket::handle)
                 .add();
         net.registerMessage(id(),StackNbtSync.class, StackNbtSync::encode, StackNbtSync::decode, StackNbtSync::handle);
+        net.registerMessage(id(),SendStackToClient.class, SendStackToClient::encode, SendStackToClient::decode, SendStackToClient::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

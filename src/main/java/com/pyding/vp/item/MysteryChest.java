@@ -1,15 +1,12 @@
 package com.pyding.vp.item;
 
-import com.pyding.vp.VestigesOfThePresent;
-import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.client.MysteryChestScreen;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -26,12 +23,12 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MysteryBox extends Item {
-    public MysteryBox(Properties p_41383_) {
+public class MysteryChest extends Item {
+    public MysteryChest(Properties p_41383_) {
         super(p_41383_);
     }
 
-    public MysteryBox() {
+    public MysteryChest() {
         super(new Properties().stacksTo(64));
     }
 
@@ -96,27 +93,29 @@ public class MysteryBox extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
-        VPUtil.play(player, SoundRegistry.OPEN.get());
         if(commonItems.isEmpty() && rareItems.isEmpty() && mythicItems.isEmpty() && legendaryItems.isEmpty())
             init();
-        ItemStack stack = player.getItemInHand(p_41434_);
-        stack.split(1);
-        if(!level.isClientSide()) {
-            Random random = new Random();
-            ItemStack randomDrop;
-            double randomNumber = random.nextDouble();
-            if(randomNumber <= legendaryChance)
-                randomDrop = legendaryItems.get(random.nextInt(legendaryItems.size()));
-            else if(randomNumber <= mythicChance)
-                randomDrop = mythicItems.get(random.nextInt(mythicItems.size()));
-            else if(randomNumber <= rareChance)
-                randomDrop = rareItems.get(random.nextInt(rareItems.size()));
-            else if(randomNumber <= commonChance)
-                randomDrop = commonItems.get(random.nextInt(commonItems.size()));
-            else randomDrop = new ItemStack(Items.AIR);
-            player.addItem(randomDrop);
-        }
+        if(p_41434_ != InteractionHand.MAIN_HAND)
+            return super.use(level, player, p_41434_);
+        if(level.isClientSide)
+            Minecraft.getInstance().setScreen(new MysteryChestScreen());
         return super.use(level, player, p_41434_);
+    }
+
+    public static Map<ItemStack,String> getRandomDrop(){
+        Map<ItemStack,String> map = new HashMap<>();
+        Random random = new Random();
+        double randomNumber = random.nextDouble();
+        if(randomNumber <= legendaryChance)
+            map.put(legendaryItems.get(random.nextInt(legendaryItems.size())),"legendary");
+        else if(randomNumber <= mythicChance)
+            map.put(mythicItems.get(random.nextInt(mythicItems.size())),"mythic");
+        else if(randomNumber <= rareChance)
+            map.put(rareItems.get(random.nextInt(rareItems.size())),"rare");
+        else if(randomNumber <= commonChance)
+            map.put(commonItems.get(random.nextInt(commonItems.size())),"common");
+        else map.put(new ItemStack(Items.AIR),"common");
+        return map;
     }
 
     public static HashMap<Integer,List<String>> cacheLists = new HashMap<>();

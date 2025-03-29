@@ -151,7 +151,7 @@ public class VestigesOfThePresent
             event.accept(ModItems.NECKLACE_OF_TORTURED_DREAMS);
             event.accept(ModItems.BOX);
             event.accept(ModItems.BOX_SAPLINGS);
-            event.accept(ModItems.BOX_MYSTERY);
+            event.accept(ModItems.MYSTERY_CHEST);
             event.accept(ModItems.SHARD);
             event.accept(ModItems.NIGHTMARESHARD);
             event.accept(ModItems.VORTEX);

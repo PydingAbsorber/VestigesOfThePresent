@@ -1,9 +1,16 @@
 package com.pyding.vp.network.packets;
 
+import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.MysteryChest;
+import com.pyding.vp.network.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class ButtonPressPacket {
@@ -23,7 +30,21 @@ public class ButtonPressPacket {
     public static boolean handle(ButtonPressPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            player.getPersistentData().putBoolean("VPButton"+msg.id,true);
+            if(msg.id == 6665242){
+                if(player.getMainHandItem().is(ModItems.MYSTERY_CHEST.get())) {
+                    player.getMainHandItem().shrink(1);
+                    Map<ItemStack,String> map = MysteryChest.getRandomDrop();
+                    ItemStack drop = null;
+                    for(ItemStack stack: map.keySet())
+                        drop = stack;
+                    PacketHandler.sendToClient(new SendStackToClient(player.getUUID(),drop,map.get(drop)),player);
+                    ItemStack finalDrop = drop;
+                    CompletableFuture.runAsync(() -> {
+                        player.addItem(finalDrop);
+                    }, CompletableFuture.delayedExecutor(4, TimeUnit.SECONDS));
+                }
+            }
+            else player.getPersistentData().putBoolean("VPButton"+msg.id,true);
         });
         return true;
     }

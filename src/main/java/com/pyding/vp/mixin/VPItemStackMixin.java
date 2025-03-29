@@ -1,12 +1,10 @@
 package com.pyding.vp.mixin;
 
-import com.pyding.vp.effects.VipEffect;
-import com.pyding.vp.item.MysteryBox;
+import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.StellarFragment;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.GradientUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +23,7 @@ public abstract class VPItemStackMixin {
         }
         if(stack.getItem() instanceof StellarFragment)
             cir.setReturnValue(GradientUtil.stellarGradient(stack.getItem().getName(stack).getString()));
-        if(stack.getItem() instanceof MysteryBox)
+        if(stack.getItem() instanceof MysteryChest)
             cir.setReturnValue(GradientUtil.customGradient(stack.getItem().getName(stack).getString(),GradientUtil.MYSTERY));
     }
 }

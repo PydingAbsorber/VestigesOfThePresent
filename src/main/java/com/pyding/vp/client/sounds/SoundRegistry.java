@@ -86,6 +86,11 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> DROP_CORRUPT2 = registerSoundEvent("drop_corrupt2");
     public static RegistryObject<SoundEvent> DROP_CHAOS = registerSoundEvent("drop_chaos");
     public static RegistryObject<SoundEvent> DROP_MIRROR = registerSoundEvent("drop_mirror");
+    public static RegistryObject<SoundEvent> CHEST_FALL = registerSoundEvent("chest_fall");
+    public static RegistryObject<SoundEvent> CHEST_COMMON = registerSoundEvent("chest_common");
+    public static RegistryObject<SoundEvent> CHEST_RARE = registerSoundEvent("chest_rare");
+    public static RegistryObject<SoundEvent> CHEST_MYTHIC = registerSoundEvent("chest_mythic");
+    public static RegistryObject<SoundEvent> CHEST_LEGENDARY = registerSoundEvent("chest_legendary");
 
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {

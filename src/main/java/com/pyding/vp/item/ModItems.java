@@ -50,7 +50,7 @@ public class ModItems {
     public static final RegistryObject<Item> BOX = ITEMS.register("box", () -> new Box());
     public static final RegistryObject<Item> BOX_SAPLINGS = ITEMS.register("box_saplings", () -> new BoxSaplings());
     public static final RegistryObject<Item> BOX_EGGS = ITEMS.register("box_eggs", () -> new BoxEggs());
-    public static final RegistryObject<Item> BOX_MYSTERY = ITEMS.register("box_mystery", () -> new MysteryBox());
+    public static final RegistryObject<Item> MYSTERY_CHEST = ITEMS.register("mystery_chest", () -> new MysteryChest());
     public static final RegistryObject<Item> VORTEX = ITEMS.register("vortex", () -> new Vortex());
     public static final RegistryObject<Item> EASTER_EGG = ITEMS.register("easter_egg", () -> new EaterEgg());
     public static final RegistryObject<Item> SHARD = ITEMS.register("shard", () -> new Shard());
@@ -64,6 +64,11 @@ public class ModItems {
     public static final RegistryObject<Item> CHAOS_ORB = ITEMS.register("chaos_orb", () -> new ChaosOrb());
     public static final RegistryObject<Item> CELESTIAL_MIRROR = ITEMS.register("celestial_mirror", () -> new CelestialMirror());
     public static final RegistryObject<Item> VIPACTIVATOR = ITEMS.register("vip", () -> new VipActivator(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> LEGENDARY = ITEMS.register("legendary", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> MYTHIC = ITEMS.register("mythic", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> RARE = ITEMS.register("rare", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> COMMON = ITEMS.register("common", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> MYSTERY_CHEST_OPEN = ITEMS.register("mystery_chest_open", () -> new Item(new Item.Properties().stacksTo(1)));
 
 
     @ObjectHolder(value = MODID + ":seashell", registryName = "item")
