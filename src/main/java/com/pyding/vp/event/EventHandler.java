@@ -427,7 +427,7 @@ public class EventHandler {
     public void attackEvent(LivingAttackEvent event){
         LivingEntity victim = event.getEntity();
         Random random = new Random();
-        if(VPUtil.isNpc(victim.getType())) {
+        if(!VPUtil.strictOptimization() && VPUtil.isNpc(victim.getType())) {
             event.setCanceled(true);
             return;
         }
