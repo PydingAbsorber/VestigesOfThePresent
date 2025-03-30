@@ -3457,4 +3457,10 @@ public class VPUtil {
             default: throw new IllegalArgumentException("Unknown rarity: " + rarity);
         }
     }
+
+    public static boolean strictOptimization(){
+        if(ConfigHandler.COMMON_SPEC.isLoaded())
+            return ConfigHandler.COMMON.strictOptimization.get();
+        return false;
+    }
 }

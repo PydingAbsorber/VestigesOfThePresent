@@ -1041,6 +1041,7 @@ public class EventHandler {
             PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
         } else if(Math.random() < 0.1)
             player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
+        MysteryChest.init();
     }
 
     @SubscribeEvent
@@ -1696,7 +1697,6 @@ public class EventHandler {
                 player.removeEffect(VPEffects.VIP_EFFECT.get());
             }
         }
-        MysteryChest.init();
     }
 
     @SubscribeEvent

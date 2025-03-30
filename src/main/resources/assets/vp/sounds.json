@@ -373,5 +373,10 @@
     "sounds": [
       "vp:chest_legendary"
     ]
+  },
+  "ambient": {
+    "sounds": [
+      "vp:ambient"
+    ]
   }
 }

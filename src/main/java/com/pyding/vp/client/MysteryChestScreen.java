@@ -14,6 +14,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Random;
+
 public class MysteryChestScreen extends Screen {
 
     private float chestY;
@@ -45,6 +47,7 @@ public class MysteryChestScreen extends Screen {
         tick = 0;
         LocalPlayer player = Minecraft.getInstance().player;
         player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
+        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.AMBIENT.get(), SoundSource.RECORDS, 0.2f, 1, false);
     }
 
     @Override
@@ -60,8 +63,11 @@ public class MysteryChestScreen extends Screen {
                 velocityY = 0f;
             }
         }
-        if(chestY == groundY)
+        if(chestY == groundY && drop == null) {
             firstDrop = true;
+            if(new Random().nextDouble() < 0.02)
+                this.velocityY = -24f;
+        }
     }
 
 
@@ -90,14 +96,10 @@ public class MysteryChestScreen extends Screen {
                 tick = player.tickCount;
             float localTick = player.tickCount - tick;
             scale = Math.min(10,3+localTick/2);
-            /*if (localTick <= 3)
-                scale += localTick*2;
-            else if(localTick > 3 && localTick <= 6)
-                scale = scale+(6-localTick*2);*/
             poseStack.pushPose();
-            poseStack.translate(-20 - Math.min(60,localTick*2), -130 - Math.min(80,localTick*2) + chestY, 2000);
-            /*if(localTick < 40)
-                poseStack.mulPose(Axis.ZN.rotationDegrees(tick));*/
+            float x = -20 - Math.min(80,localTick*2);
+            float y = -60 - Math.min(160,localTick*4) + chestY;
+            poseStack.translate(x, y, 2000);
             poseStack.scale(scale, scale, scale);
             guiGraphics.renderItem(drop, (int) (centerX/scale), (int) (centerY/scale));
             poseStack.popPose();
@@ -109,7 +111,7 @@ public class MysteryChestScreen extends Screen {
                 default -> new ItemStack(ModItems.COMMON.get());
             };
             poseStack.pushPose();
-            poseStack.translate(-20 - Math.min(60,localTick*2), -130 - Math.min(80,localTick*2) + chestY, 1800);
+            poseStack.translate(x, y, 1800);
             poseStack.scale(scale, scale, scale);
             guiGraphics.renderItem(stack, (int) (centerX/scale), (int) (centerY/scale));
             poseStack.popPose();
@@ -157,5 +159,11 @@ public class MysteryChestScreen extends Screen {
             return true;
         }
         return true;
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        Minecraft.getInstance().getSoundManager().stop(SoundRegistry.AMBIENT.getId(), SoundSource.RECORDS);
     }
 }

@@ -40,6 +40,7 @@ public class MysteryChest extends Item {
     public static double rareChance = 0;
     public static double mythicChance = 0;
     public static double legendaryChance = 0;
+    public static HashMap<Integer,List<String>> cacheLists = new HashMap<>();
 
     public static void init(){
         String list = ConfigHandler.COMMON.lootDrops.get().toString();
@@ -53,25 +54,44 @@ public class MysteryChest extends Item {
         mythicItems.clear();
         legendaryItems.clear();
         for(Item item: VPUtil.getItems()){
+            boolean stop = false;
+            boolean strictOptimization = VPUtil.strictOptimization();
             for(String id: segments[0].split("<")[1].split(",")){
                 List<String> cringe = processString(id);
-                if(item.getDescriptionId().equals(cringe.get(0)))
-                    commonItems.add(new ItemStack(item, Integer.parseInt(cringe.get(1))));
+                if(item.getDescriptionId().equals(cringe.get(0))) {
+                    commonItems.add(new ItemStack(item, Math.max(1,Integer.parseInt(cringe.get(1)))));
+                    stop = true;
+                    break;
+                }
             }
+            if(stop && strictOptimization)
+                continue;
             for(String id: segments[1].split("<")[1].split(",")){
                 List<String> cringe = processString(id);
-                if(item.getDescriptionId().equals(cringe.get(0)))
-                    rareItems.add(new ItemStack(item, Integer.parseInt(cringe.get(1))));
+                if(item.getDescriptionId().equals(cringe.get(0))) {
+                    rareItems.add(new ItemStack(item, Math.max(1,Integer.parseInt(cringe.get(1)))));
+                    stop = true;
+                    break;
+                }
             }
+            if(stop && strictOptimization)
+                continue;
             for(String id: segments[2].split("<")[1].split(",")){
                 List<String> cringe = processString(id);
-                if(item.getDescriptionId().equals(cringe.get(0)))
-                    mythicItems.add(new ItemStack(item, Integer.parseInt(cringe.get(1))));
+                if(item.getDescriptionId().equals(cringe.get(0))) {
+                    mythicItems.add(new ItemStack(item, Math.max(1,Integer.parseInt(cringe.get(1)))));
+                    stop = true;
+                    break;
+                }
             }
+            if(stop && strictOptimization)
+                continue;
             for(String id: segments[3].split("<")[1].split(",")){
                 List<String> cringe = processString(id);
-                if(item.getDescriptionId().equals(cringe.get(0)))
-                    legendaryItems.add(new ItemStack(item, Integer.parseInt(cringe.get(1))));
+                if(item.getDescriptionId().equals(cringe.get(0))) {
+                    legendaryItems.add(new ItemStack(item, Math.max(1,Integer.parseInt(cringe.get(1)))));
+                    break;
+                }
             }
         }
         cacheLists.clear();
@@ -93,8 +113,6 @@ public class MysteryChest extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
-        if(commonItems.isEmpty() && rareItems.isEmpty() && mythicItems.isEmpty() && legendaryItems.isEmpty())
-            init();
         if(p_41434_ != InteractionHand.MAIN_HAND)
             return super.use(level, player, p_41434_);
         if(level.isClientSide)
@@ -103,6 +121,12 @@ public class MysteryChest extends Item {
     }
 
     public static Map<ItemStack,String> getRandomDrop(){
+        for(ItemStack stack: commonItems){
+            if(stack.getCount() == 0 || stack.is(Items.AIR)) {
+                init();
+                break;
+            }
+        }
         Map<ItemStack,String> map = new HashMap<>();
         Random random = new Random();
         double randomNumber = random.nextDouble();
@@ -118,12 +142,16 @@ public class MysteryChest extends Item {
         return map;
     }
 
-    public static HashMap<Integer,List<String>> cacheLists = new HashMap<>();
-
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         if (Screen.hasShiftDown()){
+            for(ItemStack itemStack: commonItems){
+                if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                    init();
+                    break;
+                }
+            }
             if(cacheLists.isEmpty()){
                 List<String> list = new ArrayList<>();
                 for(ItemStack stacks: commonItems)

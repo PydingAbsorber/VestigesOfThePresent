@@ -91,7 +91,7 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> CHEST_RARE = registerSoundEvent("chest_rare");
     public static RegistryObject<SoundEvent> CHEST_MYTHIC = registerSoundEvent("chest_mythic");
     public static RegistryObject<SoundEvent> CHEST_LEGENDARY = registerSoundEvent("chest_legendary");
-
+    public static RegistryObject<SoundEvent> AMBIENT = registerSoundEvent("ambient");
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(VestigesOfThePresent.MODID, name)));
