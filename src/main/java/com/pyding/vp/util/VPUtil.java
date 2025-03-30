@@ -3421,7 +3421,7 @@ public class VPUtil {
         int index = rarityToIndex(rarity);
         String[] segments = base.split(">");
         if (segments.length != 4) {
-            throw new IllegalArgumentException("Invalid base string format");
+            throw new IllegalArgumentException("Invalid base string format ");
         }
         String[] parts = segments[index].split("<", 2);
         if (parts.length != 2) {
