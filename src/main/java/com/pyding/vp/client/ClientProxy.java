@@ -33,6 +33,7 @@ public class ClientProxy extends CommonProxy {
         CuriosRendererRegistry.register(ModItems.MASK.get(), HornsRender::new);
         CuriosRendererRegistry.register(ModItems.CROWN.get(), CrownRender::new);
         ModItems.SEASHELL_HOLDER.registerChick();
+        ModItems.MYSTERY_CHEST_HOLDER.registerChick();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -2,6 +2,7 @@ package com.pyding.vp.client;
 
 import com.mojang.math.Axis;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.client.sounds.VPSoundUtil;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
@@ -9,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +26,6 @@ public class MysteryChestScreen extends Screen {
     private final float groundY = 0F;
     private final float bounceDamping = 0.41f;
     private final ItemStack mysteryChestItem;
-    private final ItemStack mysteryChestOpenItem;
     public static ItemStack drop;
     public static String rarity = "";
     public boolean firstDrop = false;
@@ -33,8 +34,7 @@ public class MysteryChestScreen extends Screen {
 
     public MysteryChestScreen() {
         super(Component.literal("Feeling lucky today?!"));
-        this.mysteryChestItem = new ItemStack(ModItems.MYSTERY_CHEST.get());
-        this.mysteryChestOpenItem = new ItemStack(ModItems.MYSTERY_CHEST_OPEN.get());
+        this.mysteryChestItem = Minecraft.getInstance().player.getMainHandItem();
     }
 
     @Override
@@ -47,7 +47,11 @@ public class MysteryChestScreen extends Screen {
         tick = 0;
         LocalPlayer player = Minecraft.getInstance().player;
         player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
-        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.AMBIENT.get(), SoundSource.RECORDS, 0.2f, 1, false);
+        if(VPSoundUtil.bufferVolume == -1)
+            player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.AMBIENT.get(), SoundSource.RECORDS, 0.2f, 1, false);
+        player.getMainHandItem().getOrCreateTag().putInt("VPOpen",0);
+        player.getPersistentData().putInt("VPSound",0);
+        player.getPersistentData().putInt("VPSoundInc",10);
     }
 
     @Override
@@ -75,6 +79,8 @@ public class MysteryChestScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
+        LocalPlayer player = Minecraft.getInstance().player;
+        ItemStack chest = player.getMainHandItem();
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         float scale = SIZE;
@@ -86,15 +92,13 @@ public class MysteryChestScreen extends Screen {
             poseStack.mulPose(Axis.ZN.rotationDegrees(2));
         }
         poseStack.scale(scale, scale, scale);
-        if(drop != null)
-            guiGraphics.renderItem(mysteryChestOpenItem, 0, 0);
-        else guiGraphics.renderItem(mysteryChestItem, 0, 0);
+        guiGraphics.renderItem(chest, 0, 0);
         poseStack.popPose();
         if(drop != null && Minecraft.getInstance().player != null){
-            LocalPlayer player = Minecraft.getInstance().player;
             if(tick == 0)
                 tick = player.tickCount;
             float localTick = player.tickCount - tick;
+            chest.getOrCreateTag().putInt("VPOpen",(int) Math.min(3,localTick));
             scale = Math.min(10,3+localTick/2);
             poseStack.pushPose();
             float x = -20 - Math.min(80,localTick*2);
@@ -164,6 +168,8 @@ public class MysteryChestScreen extends Screen {
     @Override
     public void onClose() {
         super.onClose();
-        Minecraft.getInstance().getSoundManager().stop(SoundRegistry.AMBIENT.getId(), SoundSource.RECORDS);
+        LocalPlayer player = Minecraft.getInstance().player;
+        player.getMainHandItem().getOrCreateTag().putInt("VPOpen",0);
+        player.getPersistentData().putInt("VPSound",10);
     }
 }

@@ -4,6 +4,7 @@ import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.client.sounds.VPSoundUtil;
 import com.pyding.vp.commands.VPCommands;
 import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.EasterEggEntity;
@@ -27,6 +28,7 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -35,6 +37,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -1206,6 +1209,18 @@ public class EventHandler {
             return;
         if(entity.getHealth() > entity.getMaxHealth())
             entity.setHealth(entity.getMaxHealth());
+        if(entity.tickCount % 4 == 0 && entity instanceof LocalPlayer player){
+            double scalePercent = 0.84;
+            double scale = 0.02;
+            if(player.getPersistentData().getInt("VPSound") > 0) {
+                VPSoundUtil.reduceRecordsVolume(SoundSource.RECORDS, SoundRegistry.AMBIENT.getId(), scalePercent, scale);
+                player.getPersistentData().putInt("VPSound", player.getPersistentData().getInt("VPSound") - 1);
+            }
+            if(player.getPersistentData().getInt("VPSoundInc") > 0) {
+                VPSoundUtil.increaseRecordsVolume(SoundSource.RECORDS, 1-scalePercent, scale);
+                player.getPersistentData().putInt("VPSoundInc", player.getPersistentData().getInt("VPSoundInc") - 1);
+            }
+        }
         if(entity.tickCount % 20 == 0 && (VPUtil.getShield(entity) > 0 || VPUtil.getOverShield(entity) > 0))
             VPUtil.syncEntity(entity);
         if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.hardcore.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47")))){

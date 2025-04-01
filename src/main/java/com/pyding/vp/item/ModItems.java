@@ -68,11 +68,12 @@ public class ModItems {
     public static final RegistryObject<Item> MYTHIC = ITEMS.register("mythic", () -> new Item(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> RARE = ITEMS.register("rare", () -> new Item(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> COMMON = ITEMS.register("common", () -> new Item(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> MYSTERY_CHEST_OPEN = ITEMS.register("mystery_chest_open", () -> new Item(new Item.Properties().stacksTo(1)));
-
 
     @ObjectHolder(value = MODID + ":seashell", registryName = "item")
     public static final Seashell SEASHELL_HOLDER = null;
+
+    @ObjectHolder(value = MODID + ":mystery_chest", registryName = "item")
+    public static final MysteryChest MYSTERY_CHEST_HOLDER = null;
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

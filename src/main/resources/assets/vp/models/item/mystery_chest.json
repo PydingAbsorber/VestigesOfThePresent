@@ -4,6 +4,11 @@
 		"0": "vp:item/box_mystery_pallete",
 		"particle": "vp:item/box_mystery_pallete"
 	},
+	"overrides": [
+		{"predicate": {"vp:open": 1}, "model": "vp:overrides/mystery_chest1"},
+		{"predicate": {"vp:open": 2}, "model": "vp:overrides/mystery_chest2"},
+		{"predicate": {"vp:open": 3}, "model": "vp:overrides/mystery_chest3"}
+	],
 	"elements": [
 		{
 			"name": "voxel",

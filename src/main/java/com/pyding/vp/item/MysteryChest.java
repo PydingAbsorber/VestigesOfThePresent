@@ -1,12 +1,15 @@
 package com.pyding.vp.item;
 
+import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.client.MysteryChestScreen;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -180,5 +183,11 @@ public class MysteryChest extends Item {
             components.add(Component.translatable("vp.mystery.desc").withStyle(ChatFormatting.GRAY));
             components.add(Component.translatable("vp.mystery.desc2").withStyle(ChatFormatting.GRAY));
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void registerChick() {
+        ItemProperties.register(this, new ResourceLocation(VestigesOfThePresent.MODID, "open"),
+                (stack, world, entity, number) -> stack.getOrCreateTag().getInt("VPOpen"));
     }
 }
