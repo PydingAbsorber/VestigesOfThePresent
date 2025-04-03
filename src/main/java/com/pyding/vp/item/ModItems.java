@@ -64,10 +64,6 @@ public class ModItems {
     public static final RegistryObject<Item> CHAOS_ORB = ITEMS.register("chaos_orb", () -> new ChaosOrb());
     public static final RegistryObject<Item> CELESTIAL_MIRROR = ITEMS.register("celestial_mirror", () -> new CelestialMirror());
     public static final RegistryObject<Item> VIPACTIVATOR = ITEMS.register("vip", () -> new VipActivator(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> LEGENDARY = ITEMS.register("legendary", () -> new Item(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> MYTHIC = ITEMS.register("mythic", () -> new Item(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> RARE = ITEMS.register("rare", () -> new Item(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> COMMON = ITEMS.register("common", () -> new Item(new Item.Properties().stacksTo(1)));
 
     @ObjectHolder(value = MODID + ":seashell", registryName = "item")
     public static final Seashell SEASHELL_HOLDER = null;

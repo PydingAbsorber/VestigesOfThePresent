@@ -77,6 +77,7 @@ public class PlayerCapabilityVP {
 
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
+    private int advancements = 0;
 
     public void setSleep(boolean slept){
         sleep = slept;
@@ -251,7 +252,7 @@ public class PlayerCapabilityVP {
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
             if(!password.isEmpty())
                 LeaderboardUtil.addChallenge(player, vp, password);
-            if(new Random().nextDouble() < VPUtil.getChance(0.33,player)){
+            if(new Random().nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.mysteryChestChallengeChance.get(),player)){
                 VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(9)),player);
             }
         }
@@ -764,6 +765,7 @@ public class PlayerCapabilityVP {
         deathTime = source.deathTime;
         cheating = source.cheating;
         password = source.password;
+        advancements = source.advancements;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -809,6 +811,7 @@ public class PlayerCapabilityVP {
         nbt.putLong("VPDeathTime",deathTime);
         nbt.putBoolean("VPCheating",cheating);
         nbt.putString("VPPassword",password);
+        nbt.putInt("VPAdv",advancements);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -854,6 +857,7 @@ public class PlayerCapabilityVP {
         deathTime = nbt.getLong("VPDeathTime");
         cheating = nbt.getBoolean("VPCheating");
         password = nbt.getString("VPPassword");
+        advancements = nbt.getInt("VPAdv");
     }
 
     public void sync(Player player){
@@ -1077,5 +1081,14 @@ public class PlayerCapabilityVP {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getAdvancements() {
+        return advancements;
+    }
+
+    public void addAdvancement(Player player) {
+        this.advancements += 1;
+        sync(player);
     }
 }

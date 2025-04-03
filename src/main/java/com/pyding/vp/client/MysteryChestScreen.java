@@ -35,6 +35,7 @@ public class MysteryChestScreen extends Screen {
     public static Map<ItemStack,String> randomItems = new HashMap<>();
     private float time;
     public boolean levitato = false;
+    public long block = 0;
 
     public MysteryChestScreen() {
         super(Component.literal("Feeling lucky today?!"));
@@ -116,8 +117,8 @@ public class MysteryChestScreen extends Screen {
             Random random = new Random((long)tick);
             float xMove = Math.min(jumpDuration+fallDuration+3,localTick)/10;
             if(random.nextDouble() < 0.5)
-                xVelocity = Mth.lerp(Mth.sqrt(xMove), x, x - random.nextInt(this.width/3));
-            else xVelocity = Mth.lerp(Mth.sqrt(xMove), x, x + random.nextInt(this.width/3));
+                xVelocity = Mth.lerp(Mth.sqrt(xMove), x, x - random.nextInt(this.width/4));
+            else xVelocity = Mth.lerp(Mth.sqrt(xMove), x, x + random.nextInt(this.width/4));
             if(levitato)
                 yVelocity = y + Mth.sin(time * Mth.TWO_PI) * 10;
             else if (localTick <= jumpDuration) {
@@ -179,7 +180,7 @@ public class MysteryChestScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (chestY == groundY && drop == null) {
+        if (chestY == groundY && drop == null && block < System.currentTimeMillis()) {
             int chestSize = SIZE*15;
             int centerX = this.width / 2;
             int centerY = this.height / 2;
@@ -188,6 +189,7 @@ public class MysteryChestScreen extends Screen {
             int right = left + chestSize;
             int bottom = top + chestSize;
             if (mouseX >= left && mouseX <= right && mouseY >= top && mouseY <= bottom) {
+                block = System.currentTimeMillis()+3000;
                 this.velocityY = -24f;
                 PacketHandler.sendToServer(new ButtonPressPacket(6665242));
                 return true;

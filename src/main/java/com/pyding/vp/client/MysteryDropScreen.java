@@ -41,6 +41,8 @@ public class MysteryDropScreen extends Screen {
         super(Component.empty());
     }
 
+    int startY = 0;
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
@@ -48,24 +50,24 @@ public class MysteryDropScreen extends Screen {
         float scale = 1.5f;
         int scaledItemSize = (int)(16 * scale);
         int itemSpacing = (int)((scaledItemSize+2) * scale);
-        int lineSpacing = (int)((scaledItemSize+2) * scale);
+        int lineSpacing = (int)((scaledItemSize*2+2) * scale);
         int textOffsetY = (int)(20 * scale);
         int startX = scaledItemSize;
-        int startY = scaledItemSize;
+        startY = scaledItemSize;
         int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 
         renderCategory(guiGraphics, "Common " + MysteryChest.commonChance*100 + "%", ChatFormatting.GRAY,
                 MysteryChest.commonItems, startX, startY, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"common");
-        startY += (int) (lineSpacing*1.5);
+        startY += 15;
         renderCategory(guiGraphics, "Rare " + MysteryChest.rareChance*100 + "%", ChatFormatting.BLUE,
                 MysteryChest.rareItems, startX, startY + lineSpacing, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"rare");
-        startY += (int) (lineSpacing*1.5);
+        startY += 15;
         renderCategory(guiGraphics, "Mythic " + MysteryChest.mythicChance*100 + "%", ChatFormatting.LIGHT_PURPLE,
-                MysteryChest.mythicItems, startX, startY + lineSpacing*2, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"mythic");
-        startY += (int) (lineSpacing*1.5);
+                MysteryChest.mythicItems, startX, startY + lineSpacing, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"mythic");
+        startY += 15;
         renderCategory(guiGraphics, "Legendary " + MysteryChest.legendaryChance*100 + "%", ChatFormatting.RED,
-                MysteryChest.legendaryItems, startX, startY + lineSpacing*3, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"legendary");
-
+                MysteryChest.legendaryItems, startX, startY + lineSpacing, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"legendary");
+        guiGraphics.drawCenteredString(this.font, Component.translatable("vp.mystery.desc4").withStyle(ChatFormatting.GRAY), this.width / 2, 10, 0xFFFFFF);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
@@ -107,6 +109,7 @@ public class MysteryDropScreen extends Screen {
             guiGraphics.drawString(font, count, countX, textY, color.getColor());
             currentX += itemSize + itemSpacing;
         }
+        this.startY = currentY;
     }
 
     @Override

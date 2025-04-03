@@ -1199,8 +1199,14 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void advancementEvent(AdvancementEvent.AdvancementEarnEvent event){
-        if(new Random().nextDouble() < 0.1)
-            VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()),event.getEntity());
+        Player player = event.getEntity();
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            if(new Random().nextDouble() < ConfigHandler.COMMON.mysteryChestAdvancementChance.get()+(0.005*cap.getAdvancements())) {
+                VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()), event.getEntity());
+                cap.addAdvancement(player);
+            }
+        });
+
     }
 
     @SubscribeEvent

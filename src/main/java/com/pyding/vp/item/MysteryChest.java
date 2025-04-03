@@ -166,6 +166,8 @@ public class MysteryChest extends Item {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
+        if(!stack.hasTag())
+            stack.getOrCreateTag().putInt("VPOpen",0);
         if (Screen.hasShiftDown()){
             for(ItemStack itemStack: MysteryChest.commonItems){
                 if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
