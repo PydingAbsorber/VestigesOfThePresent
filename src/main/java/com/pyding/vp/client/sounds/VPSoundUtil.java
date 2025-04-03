@@ -41,6 +41,7 @@ public class VPSoundUtil {
             Minecraft.getInstance().options.getSoundSourceOptionInstance(source).set(bufferVolume);
             bufferVolume = -1;
             Minecraft.getInstance().getSoundManager().stop(sound, source);
+            Minecraft.getInstance().player.getPersistentData().putInt("VPSound", 0);
             return;
         }
         Minecraft.getInstance().options.getSoundSourceOptionInstance(source).set(Math.max(0,(volume*scalePercent)-scale));
@@ -50,6 +51,9 @@ public class VPSoundUtil {
         float volume = getRecordsVolume(source);
         if(volume < bufferVolume) {
             Minecraft.getInstance().options.getSoundSourceOptionInstance(source).set(Math.min(bufferVolume, (volume + volume*scalePercent) + scale));
-        } else bufferVolume = -1;
+        } else {
+            bufferVolume = -1;
+            Minecraft.getInstance().player.getPersistentData().putInt("VPSoundInc", 0);
+        }
     }
 }

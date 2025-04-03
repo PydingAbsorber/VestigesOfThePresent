@@ -251,6 +251,9 @@ public class PlayerCapabilityVP {
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
             if(!password.isEmpty())
                 LeaderboardUtil.addChallenge(player, vp, password);
+            if(new Random().nextDouble() < VPUtil.getChance(0.33,player)){
+                VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(9)),player);
+            }
         }
     }
 

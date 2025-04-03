@@ -2,6 +2,7 @@ package com.pyding.vp.network.packets;
 
 import com.pyding.vp.client.MysteryChestScreen;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class SendStackToClient {
@@ -61,6 +62,12 @@ public class SendStackToClient {
                             case "rare" -> SoundRegistry.CHEST_RARE.get();
                             default -> SoundRegistry.CHEST_COMMON.get();
                         };
+                        Map<ItemStack,String> mapList = new HashMap<>();
+                        for(int i = 0; i < new Random().nextInt(10)+15; i++) {
+                            mapList.putAll(MysteryChest.getRandomDrop());
+                        }
+                        MysteryChestScreen.randomItems.clear();
+                        MysteryChestScreen.randomItems.putAll(mapList);
                         player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), sound, SoundSource.MASTER, 1, 1, false);
                     }
             });

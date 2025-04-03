@@ -28,6 +28,7 @@ import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -1197,6 +1198,12 @@ public class EventHandler {
     }
 
     @SubscribeEvent
+    public static void advancementEvent(AdvancementEvent.AdvancementEarnEvent event){
+        if(new Random().nextDouble() < 0.1)
+            VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()),event.getEntity());
+    }
+
+    @SubscribeEvent
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
         if(Float.isNaN(entity.getHealth())) {
@@ -1210,8 +1217,8 @@ public class EventHandler {
         if(entity.getHealth() > entity.getMaxHealth())
             entity.setHealth(entity.getMaxHealth());
         if(entity.tickCount % 4 == 0 && entity instanceof LocalPlayer player){
-            double scalePercent = 0.84;
-            double scale = 0.02;
+            double scalePercent = 0.7;
+            double scale = 0.03;
             if(player.getPersistentData().getInt("VPSound") > 0) {
                 VPSoundUtil.reduceRecordsVolume(SoundSource.RECORDS, SoundRegistry.AMBIENT.getId(), scalePercent, scale);
                 player.getPersistentData().putInt("VPSound", player.getPersistentData().getInt("VPSound") - 1);
@@ -1219,6 +1226,15 @@ public class EventHandler {
             if(player.getPersistentData().getInt("VPSoundInc") > 0) {
                 VPSoundUtil.increaseRecordsVolume(SoundSource.RECORDS, 1-scalePercent, scale);
                 player.getPersistentData().putInt("VPSoundInc", player.getPersistentData().getInt("VPSoundInc") - 1);
+            }
+            if(VPSoundUtil.bufferVolume != -1){
+                if(player.getPersistentData().getInt("VPSoundBreak") < 13)
+                    player.getPersistentData().putInt("VPSoundBreak",player.getPersistentData().getInt("VPSoundBreak")+1);
+                else {
+                    player.getPersistentData().putInt("VPSoundBreak",0);
+                    VPSoundUtil.bufferVolume = -1;
+                    Minecraft.getInstance().options.getSoundSourceOptionInstance(SoundSource.RECORDS).set(1d);
+                }
             }
         }
         if(entity.tickCount % 20 == 0 && (VPUtil.getShield(entity) > 0 || VPUtil.getOverShield(entity) > 0))

@@ -2,6 +2,7 @@ package com.pyding.vp.item;
 
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.client.MysteryChestScreen;
+import com.pyding.vp.client.MysteryDropScreen;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -97,7 +98,6 @@ public class MysteryChest extends Item {
                 }
             }
         }
-        cacheLists.clear();
     }
 
     public static List<String> processString(String input) {
@@ -124,8 +124,26 @@ public class MysteryChest extends Item {
     }
 
     public static Map<ItemStack,String> getRandomDrop(){
-        for(ItemStack stack: commonItems){
-            if(stack.getCount() == 0 || stack.is(Items.AIR)) {
+        for(ItemStack itemStack: MysteryChest.commonItems){
+            if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                init();
+                break;
+            }
+        }
+        for(ItemStack itemStack: MysteryChest.rareItems){
+            if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                init();
+                break;
+            }
+        }
+        for(ItemStack itemStack: MysteryChest.mythicItems){
+            if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                init();
+                break;
+            }
+        }
+        for(ItemStack itemStack: MysteryChest.legendaryItems){
+            if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
                 init();
                 break;
             }
@@ -149,36 +167,33 @@ public class MysteryChest extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         if (Screen.hasShiftDown()){
-            for(ItemStack itemStack: commonItems){
+            for(ItemStack itemStack: MysteryChest.commonItems){
                 if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
                     init();
                     break;
                 }
             }
-            if(cacheLists.isEmpty()){
-                List<String> list = new ArrayList<>();
-                for(ItemStack stacks: commonItems)
-                    list.add(stacks.getDescriptionId());
-                cacheLists.put(0,list);
-                list = new ArrayList<>();
-                for(ItemStack stacks: rareItems)
-                    list.add(stacks.getDescriptionId());
-                cacheLists.put(1,list);
-                list = new ArrayList<>();
-                for(ItemStack stacks: mythicItems)
-                    list.add(stacks.getDescriptionId());
-                cacheLists.put(2,list);
-                list = new ArrayList<>();
-                for(ItemStack stacks: legendaryItems)
-                    list.add(stacks.getDescriptionId());
-                cacheLists.put(3,list);
+            for(ItemStack itemStack: MysteryChest.rareItems){
+                if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                    init();
+                    break;
+                }
             }
-            components.add((VPUtil.filterAndTranslate(cacheLists.get(0).toString(),ChatFormatting.GRAY)));
-            components.add((VPUtil.filterAndTranslate(cacheLists.get(1).toString(),ChatFormatting.BLUE)));
-            components.add((VPUtil.filterAndTranslate(cacheLists.get(2).toString(),ChatFormatting.LIGHT_PURPLE)));
-            components.add((VPUtil.filterAndTranslate(cacheLists.get(3).toString(),ChatFormatting.RED)));
+            for(ItemStack itemStack: MysteryChest.mythicItems){
+                if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                    init();
+                    break;
+                }
+            }
+            for(ItemStack itemStack: MysteryChest.legendaryItems){
+                if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
+                    init();
+                    break;
+                }
+            }
+            Minecraft.getInstance().setScreen(new MysteryDropScreen());
         } else if (Screen.hasControlDown()) {
-            components.add(Component.translatable("vp.mystery.desc2").withStyle(ChatFormatting.GRAY));
+            components.add(Component.translatable("vp.mystery.desc3",ConfigHandler.COMMON.mysteryChestAdvancementChance.get()*100+"%",ConfigHandler.COMMON.mysteryChestChallengeChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
         } else {
             components.add(Component.translatable("vp.mystery.desc").withStyle(ChatFormatting.GRAY));
             components.add(Component.translatable("vp.mystery.desc2").withStyle(ChatFormatting.GRAY));

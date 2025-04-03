@@ -3,6 +3,7 @@ package com.pyding.vp.network.packets;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.util.VPUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -40,8 +41,8 @@ public class ButtonPressPacket {
                     PacketHandler.sendToClient(new SendStackToClient(player.getUUID(),drop,map.get(drop)),player);
                     ItemStack finalDrop = drop;
                     CompletableFuture.runAsync(() -> {
-                        player.addItem(finalDrop);
-                    }, CompletableFuture.delayedExecutor(4, TimeUnit.SECONDS));
+                        VPUtil.giveStack(finalDrop,player);
+                    }, CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS));
                 }
             }
             else player.getPersistentData().putBoolean("VPButton"+msg.id,true);

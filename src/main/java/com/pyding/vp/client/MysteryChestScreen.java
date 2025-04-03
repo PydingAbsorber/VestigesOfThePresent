@@ -10,12 +10,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class MysteryChestScreen extends Screen {
@@ -25,16 +27,17 @@ public class MysteryChestScreen extends Screen {
     private final float gravity = 6.0F;
     private final float groundY = 0F;
     private final float bounceDamping = 0.41f;
-    private final ItemStack mysteryChestItem;
     public static ItemStack drop;
     public static String rarity = "";
     public boolean firstDrop = false;
     float tick = 0;
     public static final int SIZE = 20;
+    public static Map<ItemStack,String> randomItems = new HashMap<>();
+    private float time;
+    public boolean levitato = false;
 
     public MysteryChestScreen() {
         super(Component.literal("Feeling lucky today?!"));
-        this.mysteryChestItem = Minecraft.getInstance().player.getMainHandItem();
     }
 
     @Override
@@ -45,6 +48,7 @@ public class MysteryChestScreen extends Screen {
         firstDrop = false;
         drop = null;
         tick = 0;
+        levitato = false;
         LocalPlayer player = Minecraft.getInstance().player;
         player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
         if(VPSoundUtil.bufferVolume == -1)
@@ -79,6 +83,7 @@ public class MysteryChestScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
+        time += partialTick * 0.05f;
         LocalPlayer player = Minecraft.getInstance().player;
         ItemStack chest = player.getMainHandItem();
         int centerX = this.width / 2;
@@ -98,27 +103,73 @@ public class MysteryChestScreen extends Screen {
             if(tick == 0)
                 tick = player.tickCount;
             float localTick = player.tickCount - tick;
-            chest.getOrCreateTag().putInt("VPOpen",(int) Math.min(3,localTick));
-            scale = Math.min(10,3+localTick/2);
+            if(localTick % 2 == 0)
+                chest.getOrCreateTag().putInt("VPOpen",(int) Math.min(3,localTick/2));
+            scale = 5;
             poseStack.pushPose();
-            float x = -20 - Math.min(80,localTick*2);
-            float y = -60 - Math.min(160,localTick*4) + chestY;
-            poseStack.translate(x, y, 2000);
+            float x = -80;
+            float y = -120 + chestY;
+            float jumpDuration = 9.0f;
+            float fallDuration = 6.0f;
+            float yVelocity;
+            float xVelocity;
+            Random random = new Random((long)tick);
+            float xMove = Math.min(jumpDuration+fallDuration+3,localTick)/10;
+            if(random.nextDouble() < 0.5)
+                xVelocity = Mth.lerp(Mth.sqrt(xMove), x, x - random.nextInt(this.width/3));
+            else xVelocity = Mth.lerp(Mth.sqrt(xMove), x, x + random.nextInt(this.width/3));
+            if(levitato)
+                yVelocity = y + Mth.sin(time * Mth.TWO_PI) * 10;
+            else if (localTick <= jumpDuration) {
+                float progress = localTick / jumpDuration;
+                yVelocity = Mth.lerp(Mth.sqrt(progress), y, y - 120);
+            }
+            else{ //if (localTick <= jumpDuration + fallDuration) {
+                float progress = (localTick - jumpDuration) / fallDuration;
+                float bottom = (float) this.height/2;
+                yVelocity = Mth.lerp(progress * progress, y - 120, bottom);
+                if(yVelocity >= bottom) {
+                    progress = (localTick-(jumpDuration+fallDuration)) / jumpDuration;
+                    yVelocity = Mth.lerp(Mth.sqrt(progress), bottom, y);
+                    if(yVelocity >= (y - 120) && yVelocity <= y - 60){
+                        levitato = true;
+                        yVelocity = Mth.lerp(Mth.sqrt(progress), bottom,  y + Mth.sin(time * Mth.TWO_PI) * 10);
+                    }
+                }
+            }
+            poseStack.translate(xVelocity, yVelocity, 5000);
             poseStack.scale(scale, scale, scale);
             guiGraphics.renderItem(drop, (int) (centerX/scale), (int) (centerY/scale));
             poseStack.popPose();
+            int size = 16;
+            MysteryDropScreen.renderBack(guiGraphics,centerX+xVelocity+(size*scale)/2,centerY+yVelocity+(size*scale)/2,3200, rarity, time, scale, size);
 
-            ItemStack stack = switch (rarity) {
-                case "legendary" -> new ItemStack(ModItems.LEGENDARY.get());
-                case "mythic" -> new ItemStack(ModItems.MYTHIC.get());
-                case "rare" -> new ItemStack(ModItems.RARE.get());
-                default -> new ItemStack(ModItems.COMMON.get());
-            };
-            poseStack.pushPose();
-            poseStack.translate(x, y, 1800);
-            poseStack.scale(scale, scale, scale);
-            guiGraphics.renderItem(stack, (int) (centerX/scale), (int) (centerY/scale));
-            poseStack.popPose();
+            /// ////////////
+            for(ItemStack stack: randomItems.keySet()){
+                poseStack.pushPose();
+                random = new Random(stack.getDescriptionId().hashCode());
+                if(random.nextDouble() < 0.5)
+                    xVelocity = Mth.lerp(Mth.sqrt(localTick/10), x, x - random.nextInt(this.width/3));
+                else xVelocity = Mth.lerp(Mth.sqrt(localTick/10), x, x + random.nextInt(this.width/3));
+                String rarity = randomItems.get(stack);
+                if(tick == 0)
+                    tick = player.tickCount;
+                if (localTick <= jumpDuration) {
+                    float progress = localTick / jumpDuration;
+                    yVelocity = Mth.lerp(Mth.sqrt(progress), y, y - 120);
+                }
+                else {
+                    float progress = (localTick - jumpDuration) / fallDuration;
+                    yVelocity = Mth.lerp(progress * progress, y - 120, this.height);
+                }
+                yVelocity *= 1 + random.nextFloat(0.2f);
+                poseStack.translate(xVelocity, yVelocity, 5000);
+                poseStack.scale(scale, scale, scale);
+                guiGraphics.renderItem(stack, (int) (centerX/scale), (int) (centerY/scale));
+                poseStack.popPose();
+                MysteryDropScreen.renderBack(guiGraphics,centerX+xVelocity+(size*scale)/2,centerY+yVelocity+(size*scale)/2,3200, rarity, time, scale, size);
+            }
+
             if (localTick >= 80)
                 this.onClose();
         }
@@ -171,5 +222,6 @@ public class MysteryChestScreen extends Screen {
         LocalPlayer player = Minecraft.getInstance().player;
         player.getMainHandItem().getOrCreateTag().putInt("VPOpen",0);
         player.getPersistentData().putInt("VPSound",10);
+        player.getPersistentData().putInt("VPSoundInc",0);
     }
 }
