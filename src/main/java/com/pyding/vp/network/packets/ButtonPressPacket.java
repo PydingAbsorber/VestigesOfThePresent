@@ -5,6 +5,7 @@ import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,6 +56,11 @@ public class ButtonPressPacket {
                         }
                         else VPUtil.giveStack(finalDrop,player);
                     }, CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS));
+                }
+            } else if(msg.id == 42){
+                if(player.hasPermissions(2)){
+                    ConfigHandler.COMMON.lootDrops.set(ConfigHandler.Common.DEFAULT_LOOT);
+                    MysteryChest.init();
                 }
             }
             else player.getPersistentData().putBoolean("VPButton"+msg.id,true);

@@ -1200,13 +1200,15 @@ public class EventHandler {
     @SubscribeEvent
     public static void advancementEvent(AdvancementEvent.AdvancementEarnEvent event){
         Player player = event.getEntity();
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            if(new Random().nextDouble() < ConfigHandler.COMMON.mysteryChestAdvancementChance.get()+(0.005*cap.getAdvancements())) {
-                VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()), event.getEntity());
+        if(player.tickCount > 20 && !player.level().isClientSide && !event.getAdvancement().getId().getPath().startsWith("recipes/")) {
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                player.sendSystemMessage(Component.literal("advancements: " + cap.getAdvancements()));
                 cap.addAdvancement(player);
-            }
-        });
-
+                if (new Random().nextDouble() < (ConfigHandler.COMMON.mysteryChestAdvancementChance.get() + (0.005 * cap.getAdvancements()))) {
+                    VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()), event.getEntity());
+                }
+            });
+        }
     }
 
     @SubscribeEvent

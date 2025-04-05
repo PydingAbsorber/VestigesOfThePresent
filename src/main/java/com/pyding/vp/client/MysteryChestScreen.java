@@ -6,11 +6,15 @@ import com.pyding.vp.client.sounds.VPSoundUtil;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
+import com.pyding.vp.util.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +40,8 @@ public class MysteryChestScreen extends Screen {
     private float time;
     public boolean levitato = false;
     public long block = 0;
+    private Button zoomInButton;
+    private Button zoomOutButton;
 
     public MysteryChestScreen() {
         super(Component.literal("Feeling lucky today?!"));
@@ -57,6 +63,28 @@ public class MysteryChestScreen extends Screen {
         player.getMainHandItem().getOrCreateTag().putInt("VPOpen",0);
         player.getPersistentData().putInt("VPSound",0);
         player.getPersistentData().putInt("VPSoundInc",10);
+        int buttonSize = 32;
+        int padding = 5;
+        int right = this.width - padding - buttonSize;
+        int top = this.height - padding - buttonSize;
+        zoomInButton = new ImageButton(
+                right - buttonSize - padding, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/zoom-in.png"),
+                buttonSize, buttonSize,
+                button -> ClientConfig.COMMON.guiScaleChest.set(Math.min(2.0, ClientConfig.COMMON.guiScaleChest.get() + 0.1))
+        );
+        zoomOutButton = new ImageButton(
+                right, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/zoom-out.png"),
+                buttonSize, buttonSize,
+                button -> ClientConfig.COMMON.guiScaleChest.set(Math.max(0.1, ClientConfig.COMMON.guiScaleChest.get() - 0.1))
+        );
+        this.addRenderableWidget(zoomInButton);
+        this.addRenderableWidget(zoomOutButton);
     }
 
     @Override
@@ -87,16 +115,13 @@ public class MysteryChestScreen extends Screen {
         time += partialTick * 0.05f;
         LocalPlayer player = Minecraft.getInstance().player;
         ItemStack chest = player.getMainHandItem();
+        float scaleMultiplier = (float) (ClientConfig.COMMON.guiScaleChest.get()+0f);
         int centerX = this.width / 2;
         int centerY = this.height / 2;
-        float scale = SIZE;
+        float scale = SIZE*scaleMultiplier;
         var poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        poseStack.translate(-140, -180 + chestY, 100);
-        poseStack.translate(centerX, centerY, 0);
-        if(!firstDrop) {
-            poseStack.mulPose(Axis.ZN.rotationDegrees(2));
-        }
+        poseStack.translate(centerX - 8*scale, centerY - 8*scale + chestY, 100);
         poseStack.scale(scale, scale, scale);
         guiGraphics.renderItem(chest, 0, 0);
         poseStack.popPose();
@@ -106,7 +131,7 @@ public class MysteryChestScreen extends Screen {
             float localTick = player.tickCount - tick;
             if(localTick % 2 == 0)
                 chest.getOrCreateTag().putInt("VPOpen",(int) Math.min(3,localTick/2));
-            scale = 5;
+            scale = 5*scaleMultiplier;
             poseStack.pushPose();
             float x = -80;
             float y = -120 + chestY;
@@ -181,7 +206,7 @@ public class MysteryChestScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (chestY == groundY && drop == null && block < System.currentTimeMillis()) {
-            int chestSize = SIZE*15;
+            int chestSize = (int) (SIZE*ClientConfig.COMMON.guiScaleChest.get()*15);
             int centerX = this.width / 2;
             int centerY = this.height / 2;
             int left = centerX - chestSize / 2;

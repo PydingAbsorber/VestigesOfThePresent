@@ -9,7 +9,7 @@
   "vp.mystery.desc": "Используется для получения разных предметов, нажми SHIFT для их просмотра.",
   "vp.mystery.desc2": "Нажми CTRL чтобы увидеть способы получения.",
   "vp.mystery.desc3": "Имеет %s шанс выпадения х1 при получении любого достижения. \nИмеет %s шанс выпадения х1-10 при выполнеии любого Испытания.",
-  "vp.mystery.desc4": "Может быть конфигурирован командами /vestiges mysteryChest add/remove common/rare/mythic/legendary <quantity>, держа в руках необходимый предмет.",
+  "vp.mystery.desc4": "Может быть конфигурирован командами /vestiges mysteryChest add/remove common/rare/mythic/legendary <quantity>, держа в руках необходимый предмет. \nНажми внизу кнопку reset, чтобы вернуть таблицу лута в значение по умолчанию.",
   "entity.vp.oyster": "Голодная Устрица",
   "entity.vp.seashell": "Глупая Ракушка",
   "item.vp.anemoculus": "§3Воздушная Эссенция",

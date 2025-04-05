@@ -562,6 +562,7 @@ public class PlayerCapabilityVP {
         sea = "";
         vip = 0;
         pearls = 0;
+        advancements = 0;
         sync(player);
     }
 

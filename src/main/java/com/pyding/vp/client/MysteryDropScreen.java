@@ -9,11 +9,15 @@ import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
+import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -36,18 +40,58 @@ public class MysteryDropScreen extends Screen {
     private static final ResourceLocation RARE_TEXTURE = new ResourceLocation("vp", "textures/item/rare.png");
     private static final ResourceLocation MYTHIC_TEXTURE = new ResourceLocation("vp", "textures/item/mythic.png");
     private static final ResourceLocation LEGENDARY_TEXTURE = new ResourceLocation("vp", "textures/item/legendary.png");
+    int startY = 0;
+    private Button zoomInButton;
+    private Button zoomOutButton;
+    private Button resetButton;
 
     public MysteryDropScreen() {
         super(Component.empty());
     }
 
-    int startY = 0;
+    @Override
+    protected void init() {
+        super.init();
+        int buttonSize = 32;
+        int padding = 5;
+        int right = this.width - padding - buttonSize;
+        int top = this.height - padding - buttonSize;
+        resetButton = new ImageButton(
+                right - buttonSize*2 - padding*2, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/reset.png"),
+                buttonSize, buttonSize,
+                button -> PacketHandler.sendToServer(new ButtonPressPacket(42))
+        );
+        zoomInButton = new ImageButton(
+                right - buttonSize - padding, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/zoom-in.png"),
+                buttonSize, buttonSize,
+                button -> ClientConfig.COMMON.guiScaleLoot.set(Math.min(2.0, ClientConfig.COMMON.guiScaleLoot.get() + 0.1))
+        );
+        zoomOutButton = new ImageButton(
+                right, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/zoom-out.png"),
+                buttonSize, buttonSize,
+                button -> ClientConfig.COMMON.guiScaleLoot.set(Math.max(0.1, ClientConfig.COMMON.guiScaleLoot.get() - 0.1))
+        );
+        if(Minecraft.getInstance().player.hasPermissions(2))
+            this.addRenderableWidget(resetButton);
+        this.addRenderableWidget(zoomInButton);
+        this.addRenderableWidget(zoomOutButton);
+    }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
         time += partialTicks * 0.05f;
-        float scale = 1.5f;
+        float scaleMultiplier = (float) (ClientConfig.COMMON.guiScaleLoot.get()+0f);
+        float scale = 1.5f*scaleMultiplier;
         int scaledItemSize = (int)(16 * scale);
         int itemSpacing = (int)((scaledItemSize+2) * scale);
         int lineSpacing = (int)((scaledItemSize*2+2) * scale);
