@@ -8,7 +8,7 @@
   "item.vp.mystery_chest": "Mystery Chest",
   "vp.mystery.desc": "Used to drop different items, press SHIFT to watch them.",
   "vp.mystery.desc2": "Press CTRL to see obtaining information.",
-  "vp.mystery.desc3": "Has %s chance to drop x1 when you achieve any advancement. \nHas %s chance to drop x1-10 when completing any Challenge.",
+  "vp.mystery.desc3": "Has %s chance to drop x1 when you achieve any advancement. (+%s for each advancement) \nHas %s chance to drop x1-10 when completing any Challenge.",
   "vp.mystery.desc4": "Can be configured with /vestiges mysteryChest add/remove common/rare/mythic/legendary <quantity>, holding required item in main hand. \nPress reset button in the bottom to reset all loot drops to default.",
   "vp.key.first": "Special of first Vestige",
   "vp.key.second": "Special of second Vestige",

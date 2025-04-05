@@ -1,6 +1,7 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.VestigesOfThePresent;
+import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.MysteryChestScreen;
 import com.pyding.vp.client.MysteryDropScreen;
 import com.pyding.vp.util.ConfigHandler;
@@ -195,7 +196,9 @@ public class MysteryChest extends Item {
             }
             Minecraft.getInstance().setScreen(new MysteryDropScreen());
         } else if (Screen.hasControlDown()) {
-            components.add(Component.translatable("vp.mystery.desc3",ConfigHandler.COMMON.mysteryChestAdvancementChance.get()*100+"%",ConfigHandler.COMMON.mysteryChestChallengeChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
+            Minecraft.getInstance().player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                components.add(Component.translatable("vp.mystery.desc3",(ConfigHandler.COMMON.mysteryChestAdvancementChance.get()+ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*cap.getAdvancements())*100+"%",ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*100+"%",ConfigHandler.COMMON.mysteryChestChallengeChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
+            });
         } else {
             components.add(Component.translatable("vp.mystery.desc").withStyle(ChatFormatting.GRAY));
             components.add(Component.translatable("vp.mystery.desc2").withStyle(ChatFormatting.GRAY));
