@@ -1203,7 +1203,6 @@ public class EventHandler {
         if(player.tickCount > 20 && !player.level().isClientSide && !event.getAdvancement().getId().getPath().startsWith("recipes/")) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addAdvancement(player);
-                player.sendSystemMessage(Component.literal("ach " + event.getAdvancement().getId() + " " + cap.getAdvancements()));
                 if (new Random().nextDouble() < (ConfigHandler.COMMON.mysteryChestAdvancementChance.get() + (ConfigHandler.COMMON.mysteryChestAdvancementBoost.get() * cap.getAdvancements()))) {
                     VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()), event.getEntity());
                 }
