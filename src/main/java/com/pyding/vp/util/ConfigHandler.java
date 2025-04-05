@@ -214,7 +214,7 @@ public class ConfigHandler {
             lootDrops = builder.comment("Loot tables for Mystery Chest common/rare/mystic/legendary. All chances are independent so 0.7(70% chance) on common cause dropping air in 30% cases.").define("lootDrops",DEFAULT_LOOT);
             strictOptimization = builder.comment("Enables strict optimization that may increase performance but break a lot of mechanics. WIP ").define("strictOptimization",false);
             mysteryChestAdvancementChance = builder.comment("Chance to obtain Mystery Chest from advancement").defineInRange("mysteryChestAdvancementChance", 0.01d, 0, 1);
-            mysteryChestAdvancementBoost = builder.comment("Chance increase per each advancement").defineInRange("mysteryChestAdvancementBoost", 0.0005d, 0, 1);
+            mysteryChestAdvancementBoost = builder.comment("Chance increase per each advancement").defineInRange("mysteryChestAdvancementBoost", 0.0001d, 0, 1);
             mysteryChestChallengeChance = builder.comment("Chance to obtain Mystery Chest from challenge").defineInRange("mysteryChestChallengeChance", 0.33d, 0, 1);
         }
 
