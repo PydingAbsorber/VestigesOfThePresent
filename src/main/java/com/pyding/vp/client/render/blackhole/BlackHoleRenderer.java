@@ -23,12 +23,11 @@ import java.io.IOException;
 
 public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(VestigesOfThePresent.MODID,"textures/item/models/blackholepallet.png");
-    //private final BlackHoleModel<BlackHole> model;
+
     private final ItemRenderer itemRenderer;
     public BlackHoleRenderer(EntityRendererProvider.Context context) {
         super(context);
         itemRenderer = context.getItemRenderer();
-        //model = new BlackHoleModel<>(context.bakeLayer(BlackHoleModel.LAYER_LOCATION));
     }
 
     @Override
@@ -67,6 +66,4 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }
-
-
 }

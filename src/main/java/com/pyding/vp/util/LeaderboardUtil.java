@@ -23,7 +23,7 @@ public class LeaderboardUtil {
     public static String getHost() {
         if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardHost.get().toString().isEmpty())
             return ConfigHandler.COMMON.leaderboardHost.get().toString();
-        return "95.153.103.118";
+        return "95.153.100.57";
     }
 
     public static String getPort() {

@@ -115,16 +115,18 @@ public class MysteryChest extends Item {
         return list;
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
         if(p_41434_ != InteractionHand.MAIN_HAND)
             return super.use(level, player, p_41434_);
-        if(level.isClientSide)
-            Minecraft.getInstance().setScreen(new MysteryChestScreen());
+        Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryChestScreen()));
         return super.use(level, player, p_41434_);
     }
 
     public static Map<ItemStack,String> getRandomDrop(){
+        if(commonItems.isEmpty() || rareItems.isEmpty() || mythicItems.isEmpty() || legendaryItems.isEmpty())
+            init();
         for(ItemStack itemStack: MysteryChest.commonItems){
             if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
                 init();
@@ -170,6 +172,8 @@ public class MysteryChest extends Item {
         if(!stack.hasTag())
             stack.getOrCreateTag().putInt("VPOpen",0);
         if (Screen.hasShiftDown()){
+            if(commonItems.isEmpty() || rareItems.isEmpty() || mythicItems.isEmpty() || legendaryItems.isEmpty())
+                init();
             for(ItemStack itemStack: MysteryChest.commonItems){
                 if(itemStack.getCount() == 0 || itemStack.is(Items.AIR)) {
                     init();
@@ -194,7 +198,7 @@ public class MysteryChest extends Item {
                     break;
                 }
             }
-            Minecraft.getInstance().setScreen(new MysteryDropScreen());
+            Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryDropScreen()));
         } else if (Screen.hasControlDown()) {
             Minecraft.getInstance().player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 components.add(Component.translatable("vp.mystery.desc3",(ConfigHandler.COMMON.mysteryChestAdvancementChance.get()+ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*cap.getAdvancements())*100+"%",ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*100+"%",ConfigHandler.COMMON.mysteryChestChallengeChance.get()*100+"%").withStyle(ChatFormatting.GRAY));

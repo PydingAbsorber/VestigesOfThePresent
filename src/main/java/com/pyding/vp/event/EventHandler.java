@@ -1223,7 +1223,7 @@ public class EventHandler {
             return;
         if(entity.getHealth() > entity.getMaxHealth())
             entity.setHealth(entity.getMaxHealth());
-        if(entity.tickCount % 4 == 0 && entity instanceof LocalPlayer player){
+        if(entity.tickCount % 4 == 0  && entity.level().isClientSide && entity instanceof LocalPlayer player){
             double scalePercent = 0.7;
             double scale = 0.03;
             if(player.getPersistentData().getInt("VPSound") > 0) {

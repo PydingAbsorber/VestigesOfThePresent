@@ -28,10 +28,13 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
+@OnlyIn(Dist.CLIENT)
 public class MysteryDropScreen extends Screen {
 
     public static List<ItemStack> list = new ArrayList<>();
