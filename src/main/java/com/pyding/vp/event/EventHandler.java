@@ -44,6 +44,8 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -57,6 +59,8 @@ import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -64,15 +68,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CoralBlock;
 import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.*;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.level.BlockEvent;
@@ -85,6 +88,20 @@ import java.util.*;
 
 @Mod.EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class EventHandler {
+
+    public static List<UUID> archUUIDs = Arrays.asList(
+            UUID.fromString("d2850e71-4de0-46b4-baeb-0ba28fdc54a5"),
+            UUID.fromString("f0a7a122-3f55-4d8f-a18c-31520f849f63"),
+            UUID.fromString("9dcf47de-6a44-4dd7-a1b7-7cd9a7f42114"),
+            UUID.fromString("4ec6182d-4af2-4b67-bd0e-c3a60a826cb2"),
+            UUID.fromString("f6e8c51e-68d9-4e0b-b8d9-b05f7b1c9b9b"),
+            UUID.fromString("c41b8a9b-23f0-4e08-b7e2-64f5178beff8"),
+            UUID.fromString("0a1f0d5e-7ff4-4c64-99cd-9acda29416d6"),
+            UUID.fromString("35727d98-1b21-453e-9e75-fcae1173e0b7"),
+            UUID.fromString("6d96373c-02e7-4933-9734-7b5b1d35df10"),
+            UUID.fromString("e7032e0f-f9aa-409b-a28a-6318e358964a")
+    );
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void damageEventLowest(LivingDamageEvent event){
         if(!event.isCanceled()) {
@@ -340,6 +357,19 @@ public class EventHandler {
                     return;
                 }
                 VPUtil.printDamage(player,event);
+            }
+            if(event.getSource().getEntity() instanceof Player player){
+                if(VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)){
+                    if(player.getPersistentData().getBoolean("VPHeadshot")){
+                        player.getPersistentData().putBoolean("VPHeadshot",false);
+                        event.setAmount(event.getAmount()*8);
+                    }
+                    ItemStack stack = VPUtil.getVestigeStack(Archlinx.class,player);
+                    if(stack.getItem() instanceof Archlinx archlinx && archlinx.isUltimateActive(stack)){
+                        player.getPersistentData().putFloat("VPArchdamage",player.getPersistentData().getFloat("VPArchdamage")+event.getAmount()*0.99f);
+                        event.setAmount(event.getAmount()*0.01f);
+                    }
+                }
             }
             if (event.getSource().getEntity() instanceof Player player) {
                 if (VPUtil.hasStellarVestige(ModItems.BOOK.get(), player)) {
@@ -736,7 +766,20 @@ public class EventHandler {
                     VPUtil.addShield(player,20,true);
                     VPUtil.addOverShield(player,20,true);
                 }
-
+                if(VPUtil.hasStellarVestige(ModItems.ARCHLINX.get(),player) && player.getPersistentData().getBoolean("VPWasHeadshot")){
+                    player.getPersistentData().putBoolean("VPWasHeadshot",false);
+                    player.getPersistentData().putLong("VPArchBuff",System.currentTimeMillis()+60*60*1000);
+                    AttributeMap map = player.getAttributes();
+                    AttributeMap map2 = entity.getAttributes();
+                    List<Attribute> list = VPUtil.attributeList();
+                    for(int i = 0; i < list.size(); i++){
+                        if(map.hasAttribute(list.get(i)) && map2.hasAttribute(list.get(i))) {
+                            double amount = map2.getValue(list.get(i)) * 0.3;
+                            if (map.getModifierValue(list.get(i),archUUIDs.get(i)) < amount)
+                                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player,list.get(i),archUUIDs.get(i),(float)amount, AttributeModifier.Operation.ADDITION, "vp:arch"+list.get(i).getDescriptionId()));
+                        }
+                    }
+                }
             }
             if (event.getEntity() instanceof Player player){
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
@@ -1471,6 +1514,9 @@ public class EventHandler {
             if(player.tickCount % 1000 == 0){
                 player.getPersistentData().putInt("VPDevourerShow",0);
             }
+            if(player.tickCount % 1200 == 0){
+                player.getPersistentData().putInt("VPHeadBonus",0);
+            }
             if(playerTag.getBoolean("VPButton1") || playerTag.getBoolean("VPButton3")){
                 List<ItemStack> stackList = VPUtil.getFirstVestige(player);
                 ItemStack stackInSlot = null;
@@ -1505,42 +1551,15 @@ public class EventHandler {
                 player.getPersistentData().putBoolean("VPButton4",false);
             }
             if(player.tickCount % 20 == 0){
-                for(ItemStack stack: player.getInventory().items){
-                    if(stack.getItem() instanceof Accessory accessory){
-                        if(accessory.getType(stack) == 0 && !player.getCommandSenderWorld().isClientSide)
-                            accessory.init(stack,player);
+                for(ItemStack stack: player.getInventory().items) {
+                    if (stack.getItem() instanceof Accessory accessory) {
+                        if (accessory.getType(stack) == 0 && !player.getCommandSenderWorld().isClientSide)
+                            accessory.init(stack, player);
                     }
                 }
-                /*List<ItemStack> accessories = VPUtil.getAccessoryList(player);
-                if(!accessories.isEmpty()){
-                    float health = 0;
-                    float attack = 0;
-                    float damage = 0;
-                    float heal = 0;
-                    float shields = 0;
-                    for(ItemStack stack: accessories){
-                        if(stack.getItem() instanceof Accessory accessory){
-                            if(accessory.getType(stack) == 1)
-                                health += accessory.getStatAmount(stack);
-                            if(accessory.getType(stack) == 2)
-                                attack += accessory.getStatAmount(stack);
-                            if(accessory.getType(stack) == 3)
-                                damage += accessory.getStatAmount(stack);
-                            if(accessory.getType(stack) == 4)
-                                heal += accessory.getStatAmount(stack);
-                            if(accessory.getType(stack) == 5)
-                                shields += accessory.getStatAmount(stack);
-                        }
-                    }
-                    player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), health, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
-                    player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), attack, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
-                    player.getPersistentData().putFloat("VPAcsDamage",damage);
-                    player.getPersistentData().putFloat("VPAcsHeal",heal);
-                    player.getPersistentData().putFloat("VPAcsShields",shields);
-                } else {
-                    player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("d05228bf-b23d-4091-8e9c-4954688989fd"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:health"));
-                    player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ATTACK_DAMAGE, UUID.fromString("91595e31-3c5a-4f7d-8097-60a96e37a51c"), 0, AttributeModifier.Operation.ADDITION, "vp_accessory:attack"));
-                }*/
+                if(player.getPersistentData().getLong("VPArchBuff") < System.currentTimeMillis()){
+                    Archlinx.removeModifiers(player);
+                }
             }
             if(!slotResultList.isEmpty()){
                 if(slotResultList.get(0).getItem() instanceof Vestige vestige) {
@@ -1800,16 +1819,29 @@ public class EventHandler {
         }
     }
 
-    /*@SubscribeEvent
-    public static void onPlayerClonedClient(ClientPlayerNetworkEvent.Clone event){
-        event.getOldPlayer().reviveCaps();
-        event.getOldPlayer().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(oldStore -> {
-            event.getNewPlayer().getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(newStore -> {
-                newStore.copyNBT(oldStore);
-            });
-        });
-        event.getOldPlayer().invalidateCaps();
-    }*/
+    @SubscribeEvent
+    public void onProjectileImpact(ProjectileImpactEvent event) {
+        Projectile proj = event.getProjectile();
+        if (!(proj instanceof Arrow arrow)) return;
+        HitResult ray = event.getRayTraceResult();
+        if (!(ray instanceof EntityHitResult ehr)) return;
+        if (!(ehr.getEntity() instanceof LivingEntity target)) return;
+        if (!(arrow.getOwner() instanceof Player player)) return;
+        if(VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)) {
+            double hitY = proj.getY();
+            double eyeY = target.getY() + target.getEyeHeight();
+            if (hitY >= eyeY) {
+                player.getPersistentData().putBoolean("VPHeadshot",true);
+                player.getPersistentData().putBoolean("VPWasHeadshot",false);
+                player.getPersistentData().putInt("VPHeadBonus",player.getPersistentData().getInt("VPHeadBonus")+1);
+                VPUtil.dealDamage(target,player,player.damageSources().freeze(),440,2);
+                if(VPUtil.getOs(player).contains("linux"))
+                    VPUtil.stealShields(target,player,5,false);
+                VPUtil.spawnSphere(target,ParticleTypes.ENCHANTED_HIT,25,1.5f,0.2f);
+            } else VPUtil.dealDamage(target,player,player.damageSources().freeze(),70,2);
+        }
+    }
+
     @SubscribeEvent
     public static void enchantEvent(EnchantmentLevelSetEvent event){
     }

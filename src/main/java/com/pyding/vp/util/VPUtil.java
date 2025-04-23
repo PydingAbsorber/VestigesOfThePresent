@@ -9,6 +9,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
+import com.pyding.vp.item.vestiges.Archlinx;
 import com.pyding.vp.item.vestiges.Armor;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.item.vestiges.Whirlpool;
@@ -2133,6 +2134,7 @@ public class VPUtil {
     }
 
     public static void vestigeNullify(Player player){
+        Archlinx.removeModifiers(player);
         player.getPersistentData().putFloat("VPShield", 0);
         player.getPersistentData().putFloat("VPOverShield", 0);
         player.getPersistentData().putInt("VPDevourerHits",0);

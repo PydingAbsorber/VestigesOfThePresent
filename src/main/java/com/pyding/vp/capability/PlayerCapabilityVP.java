@@ -633,7 +633,7 @@ public class PlayerCapabilityVP {
                 case 24:
                     return (int) (VPUtil.getSeaSize() * reduce);
                 case 25:
-                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 15)) * reduce);
+                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) * reduce);
             }
         } else {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number);
@@ -689,7 +689,7 @@ public class PlayerCapabilityVP {
                 case 24:
                     return VPUtil.getSeaSize() - reduce;
                 case 25:
-                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 15)) - reduce);
+                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) - reduce);
             }
         }
         return  0;

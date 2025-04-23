@@ -339,11 +339,11 @@
   "vp.get.24": "Collect all types of coral, fish, and axolotl (with matching bucket).",
   "vp.damagetype.24": "drowning",
 
-  "vp.passive.25": "Headshots with arrows deal x8 damage and have a 20% chance to inflict 10% of the damage dealt to all targets in the area.\nEach arrow fired within one minute increases projectile damage and fire rate by 10%.",
-  "vp.special.25": "The next 5 projectiles deal an additional 70% ice damage.",
+  "vp.passive.25": "Headshots with arrows deal x8 damage and have a 20% chance to inflict 10% of the damage dealt to all targets in the area.\nEach headshot within one minute increases projectile damage and fire rate by 10%.",
+  "vp.special.25": "The next 5 projectiles deal an additional 70% freeze damage and 440% if its headshot.",
   "vp.ultimate.25": "Toggleable.\nUpon activation, 99% of projectile damage dealt is stored instead of applied.\nUpon deactivation, fires an arrow that passes through blocks and entities, dealing all stored damage at once.",
   "vp.get.25": "Get headshot kills on %s different modpack monsters.",
-  "vp.damagetype.25": "ice, projectile",
+  "vp.damagetype.25": "freeze, projectile",
 
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
   "vp.stellar.2": "For enemies under the effect of the Ultimate, consumes 10% of Shields to enhance the Special, dealing an additional 1 Paragon damage for every 1000 Shields spent (up to a maximum of 1000).",

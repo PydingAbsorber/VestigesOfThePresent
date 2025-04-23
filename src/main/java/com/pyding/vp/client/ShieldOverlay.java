@@ -161,6 +161,9 @@ public class ShieldOverlay {
                     if(vestigeNumber == 24){
                         info = (player.getPersistentData().getInt("VPWhirlpool") + "");
                     }
+                    if(vestigeNumber == 25){
+                        info = (player.getPersistentData().getInt("VPArchdamage") + "");
+                    }
                     String durationUlt = "";
                     String durationSpecial = "";
                     if(vestigeNumber == 8){

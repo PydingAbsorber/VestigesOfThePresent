@@ -378,5 +378,25 @@
     "sounds": [
       "vp:ambient"
     ]
+  },
+  "arrow_ready_1": {
+    "sounds": [
+      "vp:arrow_ready_1"
+    ]
+  },
+  "arrow_ready_2": {
+    "sounds": [
+      "vp:arrow_ready_2"
+    ]
+  },
+  "magic_arrow_1": {
+    "sounds": [
+      "vp:magic_arrow_1"
+    ]
+  },
+  "magic_arrow_2": {
+    "sounds": [
+      "vp:magic_arrow_2"
+    ]
   }
 }
