@@ -1,5 +1,5 @@
 {
   "replace": false,
   "values": ["vp:anemoculus","vp:crown","vp:atlas","vp:killer","vp:mask","vp:donut","vp:mark","vp:ears","vp:midas","vp:anomaly","vp:armor","vp:book","vp:prism","vp:chaos","vp:devourer","vp:flower",
-  "vp:catalyst", "vp:ball", "vp:trigon", "vp:soulblighter", "vp:rune", "vp:lyra" , "vp:pearl", "vp:whirlpool"]
+  "vp:catalyst", "vp:ball", "vp:trigon", "vp:soulblighter", "vp:rune", "vp:lyra" , "vp:pearl", "vp:whirlpool", "vp.archlinx"]
 }

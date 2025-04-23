@@ -35,6 +35,7 @@ public class PacketHandler {
         net.registerMessage(id(),SoundPacket.class, SoundPacket::encode, SoundPacket::decode, SoundPacket::handle);
         net.registerMessage(id(),ParticlePacket.class, ParticlePacket::encode, ParticlePacket::decode, ParticlePacket::handle);
         net.registerMessage(id(),ButtonPressPacket.class, ButtonPressPacket::encode, ButtonPressPacket::decode, ButtonPressPacket::handle);
+        net.registerMessage(id(),SendClientDataToServerPacket.class, SendClientDataToServerPacket::encode, SendClientDataToServerPacket::decode, SendClientDataToServerPacket::handle);
         net.registerMessage(id(),LorePacket.class, LorePacket::encode, LorePacket::decode, LorePacket::handle);
         net.registerMessage(id(),SuckPacket.class, SuckPacket::encode, SuckPacket::decode, SuckPacket::handle);
         net.messageBuilder(ItemAnimationPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)

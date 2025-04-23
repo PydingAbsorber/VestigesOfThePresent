@@ -20,10 +20,7 @@ import com.pyding.vp.item.vestiges.*;
 import com.pyding.vp.mixin.LivingEntityVzlom;
 import com.pyding.vp.mixin.MobEntityVzlom;
 import com.pyding.vp.network.PacketHandler;
-import com.pyding.vp.network.packets.ItemAnimationPacket;
-import com.pyding.vp.network.packets.PlayerFlyPacket;
-import com.pyding.vp.network.packets.SendEntityNbtToClient;
-import com.pyding.vp.network.packets.SendPlayerNbtToClient;
+import com.pyding.vp.network.packets.*;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
@@ -1733,6 +1730,9 @@ public class EventHandler {
                 ((LivingEntityVzlom)player).setDead(false);
             if(player.hasEffect(VPEffects.VIP_EFFECT.get())){
                 player.removeEffect(VPEffects.VIP_EFFECT.get());
+            }
+            if(player.level().isClientSide){
+                PacketHandler.sendToServer(new SendClientDataToServerPacket(1,System.getProperty("os.name").toLowerCase(Locale.ROOT)));
             }
         }
     }

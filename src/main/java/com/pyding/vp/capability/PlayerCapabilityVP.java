@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 @AutoRegisterCapability
 public class PlayerCapabilityVP {
-    public static int totalVestiges = 24;
+    public static int totalVestiges = 25;
     private int[] challenges = new int[this.totalVestiges];
     private String coolDowned = "";
     private String biomesFound = "";
@@ -78,6 +78,7 @@ public class PlayerCapabilityVP {
     private static final Pattern PATTERN = Pattern.compile("minecraft:(\\w+)");
     private int pearls = 0;
     private int advancements = 0;
+    private String headshots = "";
 
     public void setSleep(boolean slept){
         sleep = slept;
@@ -118,6 +119,16 @@ public class PlayerCapabilityVP {
         }
     }
 
+    public void addHeadshot(String entity, Player player){
+        if(VPUtil.notContains(headshots,entity) && !hasCoolDown(25)) {
+            this.headshots += entity + ",";
+            setChallenge(25,player);
+        }
+    }
+
+    public String getHeadshots(){
+        return headshots;
+    }
 
     public void addSea(String seaElement, Player player){
         if(VPUtil.notContains(sea,seaElement) && !hasCoolDown(24)) {
@@ -621,6 +632,8 @@ public class PlayerCapabilityVP {
                     return (int) (8 * reduce);
                 case 24:
                     return (int) (VPUtil.getSeaSize() * reduce);
+                case 25:
+                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 15)) * reduce);
             }
         } else {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number);
@@ -675,6 +688,8 @@ public class PlayerCapabilityVP {
                     return 8 - reduce;
                 case 24:
                     return VPUtil.getSeaSize() - reduce;
+                case 25:
+                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 15)) - reduce);
             }
         }
         return  0;
@@ -767,6 +782,7 @@ public class PlayerCapabilityVP {
         cheating = source.cheating;
         password = source.password;
         advancements = source.advancements;
+        headshots = source.headshots;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -813,6 +829,7 @@ public class PlayerCapabilityVP {
         nbt.putBoolean("VPCheating",cheating);
         nbt.putString("VPPassword",password);
         nbt.putInt("VPAdv",advancements);
+        nbt.putString("VPHeadshots",headshots);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -859,6 +876,7 @@ public class PlayerCapabilityVP {
         cheating = nbt.getBoolean("VPCheating");
         password = nbt.getString("VPPassword");
         advancements = nbt.getInt("VPAdv");
+        headshots = nbt.getString("VPHeadshots");
     }
 
     public void sync(Player player){
@@ -870,11 +888,6 @@ public class PlayerCapabilityVP {
         CompoundTag nbt = new CompoundTag();
         saveNBT(nbt);
         PacketHandler.sendToClient(new SendPlayerCapaToClient(nbt),serverPlayer);
-        /*
-        /*
-        if(player.getPersistentData() != null){
-            PacketHandler.sendToAllAround(new SendPlayerNbtToClient(player.getUUID(),nbt),player);
-        }*/
     }
 
     public void sendLore(Player player, int number){

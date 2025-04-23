@@ -16,6 +16,7 @@ import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
@@ -3462,5 +3463,11 @@ public class VPUtil {
         if(ConfigHandler.COMMON_SPEC.isLoaded())
             return ConfigHandler.COMMON.strictOptimization.get();
         return false;
+    }
+
+    public static HashMap<UUID,String> osMap = new HashMap<>();
+
+    public static String getOs(Player player){
+        return osMap.get(player.getUUID());
     }
 }

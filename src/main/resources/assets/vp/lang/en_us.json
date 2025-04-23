@@ -33,6 +33,7 @@
   "item.vp.devourer": "§4Soul Devourer",
   "item.vp.flower": "§2Seven-coloured Flower",
   "item.vp.catalyst": "§aInfested Catalyst",
+  "item.vp.archlinx": "§9Archlinx",
   "item.vp.easter_egg": "§cEaster Egg",
   "item.vp.shard": "§dCrystallized §5Despair",
   "item.vp.vip": "VIP Activator",
@@ -338,6 +339,12 @@
   "vp.get.24": "Collect all types of coral, fish, and axolotl (with matching bucket).",
   "vp.damagetype.24": "drowning",
 
+  "vp.passive.25": "Headshots with arrows deal x8 damage and have a 20% chance to inflict 10% of the damage dealt to all targets in the area.\nEach arrow fired within one minute increases projectile damage and fire rate by 10%.",
+  "vp.special.25": "The next 5 projectiles deal an additional 70% ice damage.",
+  "vp.ultimate.25": "Toggleable.\nUpon activation, 99% of projectile damage dealt is stored instead of applied.\nUpon deactivation, fires an arrow that passes through blocks and entities, dealing all stored damage at once.",
+  "vp.get.25": "Get headshot kills on %s different modpack monsters.",
+  "vp.damagetype.25": "ice, projectile",
+
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
   "vp.stellar.2": "For enemies under the effect of the Ultimate, consumes 10% of Shields to enhance the Special, dealing an additional 1 Paragon damage for every 1000 Shields spent (up to a maximum of 1000).",
   "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10% and give Gravitation stack.",
@@ -362,7 +369,9 @@
   "vp.stellar.22": "The Ultimate will also restore 1 Special charge to itself and all surrounding players.",
   "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
   "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nMagic - forbids resurrection, Shields and OverShields obtaining, teleportation. \nWither - lowers regeneration by 50.\nVoid - reduces Max HP by 80%.\nParagon - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%.",
+  "vp.stellar.25": "Headshot kills steal 30% of all a creature’s attributes for 1 hour.\nAttributes are replaced if the current ones are worse and refreshed if the current ones are better.",
 
+  "vp.archlinx.easter": "Unleashed power: Steal 5% of Shields and Overshields on Headshots.",
 
   "vp.info": "If you have any questions about mechanics, type /vestiges info",
   "vp.info.mechanics": "§5Healing Debt§7 - prohibits healing until the debt is paid off. Each healing reduces the debt by a 1:1 ratio. \nFor example: \nPlayer with 20 max HP has a Healing Debt of 10% of their max HP (so debt = 2). After healing for 4 HP, the player would only receive 2 HP.\n\n§5Healing Bonus and Healing Reduction§7 - increases and decreases the amount of healing received, respectively. All bonuses are applied simultaneously. \nFor example:  \nIf a player has a 60% healing bonus and a 40% healing reduction, the effective bonus would be 20%, resulting in a healing of 12 HP instead of 10.\n\n§5Over Healing§7 - the amount of healing a player or creature receives when already at full HP. \nNote: vanilla health regeneration potion effect can't Over Heal and can't heal above 20 HP. \n\n§5Shield§7 - protects against damage less than the shield value and activates after absorption or amplification effects from other mods. \nFor example: \nIf a player has 10 Shields and receives 8 damage, player will take 0 damage and have 2 Shields remaining. \nIf 12 damage is dealt, the player takes 2 damage, depleting the Shields.\n\n§5Overshield§7 - provides complete protection against damage, even if the damage exceeds the overshield value. It activates before regular Shields. \nFor example: \nPlayer with 80 overShields and 10 Shields takes 99999 damage, resulting in 0 damage taken and 0 overShields, but 10 Shields remaining. \nOverShields are also 90% more effective against magical and void damage.\n\n§5Adaptive Damage§7 - damage that changes its damage type to the next in the list if it fails to penetrate the target.\n\n§5Paragon Damage§7 - guaranteed damage that ignores evasion, absorption, damage negation, and Shields but does not bypass overShields. \n\n§5Damage Type§7 - refers to its characteristic, what it does, and the properties it possesses. \nFor example:\nDamage type damageHelmet deals additional damage to the helm, while bypassInvul penetrates through invulnerability seconds between hits, enchantments, effects, armor, etc. \nSome Vestiges feature mechanics that change the damage type, altering such characteristics of the inflicted damage.\n\n§5Damage Kind§7 - is a set of characteristics with specific name. \nFor example:\nDamage types \"Fall\" and \"Stalagmite\" include bypassArmor and isFall, meaning they will penetrate armor and be further reduced by enchantments against falling on armor. \nThen there's the damage type \"Falling Stalagmite,\" which only includes damageHelmet.",
@@ -391,7 +400,7 @@
   "vp.short.22": "Grants numerous unique buffs to everyone around.",
   "vp.short.23": "Speeds up fishing and provides additional unique loot from it.",
   "vp.short.24": "Heals the owner when wet, provides protection from hits, and applies debuffs.",
-
+  "vp.short.25" : "Increases projectile damage, stores dealt damage and deals it in one shot.",
 
   "vp.acs.types": "§5Attribute types:§d \n1) +1-4 to Max HP\n2) +2-8 to Attack attribute\n3) +5-20% to Damage dealt\n4) +3-12% to Healing\n5) +4-16% to Shields.",
   "vp.acs.sets": "Sets:",

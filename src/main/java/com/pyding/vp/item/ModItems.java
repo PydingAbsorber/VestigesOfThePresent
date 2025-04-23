@@ -39,6 +39,7 @@ public class ModItems {
     public static final RegistryObject<Item> LYRA = ITEMS.register("lyra", () -> new Lyra());
     public static final RegistryObject<Item> PEARL = ITEMS.register("pearl", () -> new Pearl());
     public static final RegistryObject<Item> WHIRLPOOL = ITEMS.register("whirlpool", () -> new Whirlpool());
+    public static final RegistryObject<Item> ARCHLINX = ITEMS.register("archlinx", () -> new Archlinx());
     public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64)));
     public static final RegistryObject<Item> REFRESHER = ITEMS.register("refresher", () -> new Refresher(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> INFINITE_REFRESHER = ITEMS.register("infinite_refresher", () -> new InfiniteRefresher(new Item.Properties().stacksTo(1)));

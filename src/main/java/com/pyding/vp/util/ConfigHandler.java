@@ -21,7 +21,6 @@ public class ConfigHandler {
     }
 
     public static class Common {
-        //public final ForgeConfigSpec.ConfigValue<String> challengeReduction;
         public final ForgeConfigSpec.BooleanValue hardcore;
         public final ForgeConfigSpec.BooleanValue easter;
         public final ForgeConfigSpec.IntValue armorHardcore;
@@ -120,7 +119,7 @@ public class ConfigHandler {
             List<Integer> reduceList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
                 reduceList.add(0);
-            reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallenges",reduceList);
+            reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallengesList",reduceList);
             reduceChallengesPercent = builder.comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum").define("reduceChallengesPercent", false);
 
             hardcore = builder.comment("Enables hardcore mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);

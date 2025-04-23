@@ -542,7 +542,9 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.special." + vestigeNumber,ConfigHandler.COMMON.crownShield.get()+"%").withStyle(ChatFormatting.GRAY));
                 }
                 else components.add(Component.translatable("vp.special." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-
+                if(vestigeNumber == 25 && System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("linux")){
+                    components.add(GradientUtil.customGradient(Component.translatable("vp.archlinx.easter").getString(),GradientUtil.BLUE_LIGHT_BLUE));
+                }
                 components.add(Component.translatable("vp.ultimate").withStyle(color)
                         .append(Component.translatable("vp.charges").withStyle(color))
                         .append(Component.literal(" " + ultCharges ).withStyle(color))
@@ -606,7 +608,7 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
                 }
                 else {
-                    int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23};
+                    int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23,25};
                     boolean yesHorsing = false;
                     for (int horse : hobbyHorsing) {
                         if (horse == vestigeNumber) {
