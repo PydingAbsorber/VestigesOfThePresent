@@ -60,7 +60,6 @@ public class MysteryChestScreen extends Screen {
         tick = 0;
         levitato = false;
         LocalPlayer player = Minecraft.getInstance().player;
-        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
         if(VPSoundUtil.bufferVolume == -1)
             player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.AMBIENT.get(), SoundSource.RECORDS, 0.2f, 1, false);
         player.getMainHandItem().getOrCreateTag().putInt("VPOpen",0);

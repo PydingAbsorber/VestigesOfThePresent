@@ -4,6 +4,7 @@ import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.MysteryChestScreen;
 import com.pyding.vp.client.MysteryDropScreen;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -121,6 +123,7 @@ public class MysteryChest extends Item {
         if(p_41434_ != InteractionHand.MAIN_HAND)
             return super.use(level, player, p_41434_);
         Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryChestScreen()));
+        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
         return super.use(level, player, p_41434_);
     }
 

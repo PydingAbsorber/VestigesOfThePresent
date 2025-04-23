@@ -15,12 +15,15 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class Archlinx extends Vestige{
     public Archlinx(){
@@ -37,18 +40,24 @@ public class Archlinx extends Vestige{
         if(new Random().nextDouble() < 0.5)
             VPUtil.play(player,SoundRegistry.ARROW_READY_1.get());
         else VPUtil.play(player,SoundRegistry.ARROW_READY_2.get());
-        VPUtil.spawnParticles(player, ParticleTypes.SNOWFLAKE,3,1,0,0.1,0,1,false);
+        VPUtil.spawnParticles(player, ParticleTypes.SNOWFLAKE,3,1,0,0.1,0,0.4, 0.7, 1.0);
         player.getPersistentData().putInt("VPArchShots",5);
         super.doSpecial(seconds, player, level, stack);
     }
 
     @Override
+    public int setUltimateActive(long seconds, Player player, ItemStack stack) {
+        if(isUltimateActive(stack) && !player.getCommandSenderWorld().isClientSide){
+            setTimeUlt(1,stack);
+            return 0;
+        }
+        return super.setUltimateActive(seconds, player, stack);
+    }
+
+    @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC_ARROW_1.get());
-        VPUtil.spawnParticles(player, ParticleTypes.ENCHANTED_HIT,3,1,0,0.1,0,1,false);
-        if(isUltimateActive(stack) && !player.getCommandSenderWorld().isClientSide){
-            setTime(1,stack);
-        }
+        VPUtil.spawnParticles(player, ParticleTypes.ENCHANTED_HIT,3,1,0,0.1,0,0.7, 0.5, 1.0);
         super.doUltimate(seconds, player, level, stack);
     }
 
@@ -57,6 +66,7 @@ public class Archlinx extends Vestige{
         VPUtil.play(player,SoundRegistry.MAGIC_ARROW_2.get());
         float damage = player.getPersistentData().getInt("VPArchdamage");
         player.getPersistentData().putFloat("VPArchdamage",0);
+
         super.ultimateEnds(player, stack);
     }
 
@@ -71,8 +81,22 @@ public class Archlinx extends Vestige{
         List<Attribute> list = VPUtil.attributeList();
         for(int i = 0; i < list.size(); i++){
             if(map.hasAttribute(list.get(i))) {
-                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player,list.get(i), EventHandler.archUUIDs.get(i),0, AttributeModifier.Operation.ADDITION, "vp:arch"+list.get(i).getDescriptionId()));
+                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player,list.get(i), archUUIDs.get(i),0, AttributeModifier.Operation.ADDITION, "vp:arch"+list.get(i).getDescriptionId()));
             }
         }
     }
+
+    public static List<UUID> archUUIDs = Arrays.asList(
+            UUID.fromString("d2850e71-4de0-46b4-baeb-0ba28fdc54a5"),
+            UUID.fromString("f0a7a122-3f55-4d8f-a18c-31520f849f63"),
+            UUID.fromString("9dcf47de-6a44-4dd7-a1b7-7cd9a7f42114"),
+            UUID.fromString("4ec6182d-4af2-4b67-bd0e-c3a60a826cb2"),
+            UUID.fromString("f6e8c51e-68d9-4e0b-b8d9-b05f7b1c9b9b"),
+            UUID.fromString("c41b8a9b-23f0-4e08-b7e2-64f5178beff8"),
+            UUID.fromString("0a1f0d5e-7ff4-4c64-99cd-9acda29416d6"),
+            UUID.fromString("35727d98-1b21-453e-9e75-fcae1173e0b7"),
+            UUID.fromString("6d96373c-02e7-4933-9734-7b5b1d35df10"),
+            UUID.fromString("e7032e0f-f9aa-409b-a28a-6318e358964a"),
+            UUID.fromString("02491729-4d26-4f7b-bd90-cdd2b1c3d4ea")
+    );
 }

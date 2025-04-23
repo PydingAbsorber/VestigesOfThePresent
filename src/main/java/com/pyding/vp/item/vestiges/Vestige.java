@@ -622,8 +622,7 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(Component.translatable("vp.get." + vestigeNumber,player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber),ConfigHandler.COMMON.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
                     else components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
-                int progress = 0;
-                progress = cap.getChallenge(vestigeNumber);
+                int progress = cap.getChallenge(vestigeNumber);
                 if(vestigeNumber == 12)
                     progress = VPUtil.getCurseAmount(player);
                 if(vestigeNumber == 24){

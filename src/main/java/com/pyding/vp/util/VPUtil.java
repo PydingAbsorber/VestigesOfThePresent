@@ -1603,6 +1603,28 @@ public class VPUtil {
         }
     }
 
+    public static void spawnParticles(Player player, ParticleOptions particle,double radius, int count, double deltaX, double deltaY, double deltaZ, double color1, double color2,double color3) {
+        double startX = player.getX() - radius;
+        double startY = player.getY() - radius;
+        double startZ = player.getZ() - radius;
+        double endX = player.getX() + radius;
+        double endY = player.getY() + radius;
+        double endZ = player.getZ() + radius;
+        Random random = new Random();
+        if(count == 1)
+            count = random.nextInt(10)+20;
+        for (int i = 0; i < count; i++) {
+            double x = startX + (endX - startX) * random.nextDouble();
+            double y = startY + (endY - startY) * random.nextDouble();
+            double z = startZ + (endZ - startZ) * random.nextDouble();
+            for (LivingEntity entity: getEntitiesAround(player,20,20,20,true)){
+                if(entity instanceof ServerPlayer serverPlayer){
+                    PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ,color1,color2,color3),serverPlayer);
+                }
+            }
+        }
+    }
+
     public static List<LivingEntity> getCreaturesAndPlayersAround(Player player, double x, double y, double z){
         List<LivingEntity> list = new ArrayList<>();
         for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){

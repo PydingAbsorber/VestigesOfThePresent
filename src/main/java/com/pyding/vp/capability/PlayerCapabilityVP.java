@@ -530,6 +530,10 @@ public class PlayerCapabilityVP {
                 sea = "";
                 break;
             }
+            case 25:{
+                headshots = "";
+                break;
+            }
             default: break;
         }
         setChallenge(vp,0,player);
@@ -574,6 +578,7 @@ public class PlayerCapabilityVP {
         vip = 0;
         pearls = 0;
         advancements = 0;
+        headshots = "";
         sync(player);
     }
 
