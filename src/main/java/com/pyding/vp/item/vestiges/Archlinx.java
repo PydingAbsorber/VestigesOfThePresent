@@ -38,6 +38,7 @@ public class Archlinx extends Vestige{
             VPUtil.play(player,SoundRegistry.ARROW_READY_1.get());
         else VPUtil.play(player,SoundRegistry.ARROW_READY_2.get());
         VPUtil.spawnParticles(player, ParticleTypes.SNOWFLAKE,3,1,0,0.1,0,1,false);
+        player.getPersistentData().putInt("VPArchShots",5);
         super.doSpecial(seconds, player, level, stack);
     }
 

@@ -1834,11 +1834,18 @@ public class EventHandler {
                 player.getPersistentData().putBoolean("VPHeadshot",true);
                 player.getPersistentData().putBoolean("VPWasHeadshot",false);
                 player.getPersistentData().putInt("VPHeadBonus",player.getPersistentData().getInt("VPHeadBonus")+1);
-                VPUtil.dealDamage(target,player,player.damageSources().freeze(),440,2);
-                if(VPUtil.getOs(player).contains("linux"))
+                if(VPUtil.getOs(player).contains("linux")) {
                     VPUtil.stealShields(target,player,5,false);
+                }
                 VPUtil.spawnSphere(target,ParticleTypes.ENCHANTED_HIT,25,1.5f,0.2f);
-            } else VPUtil.dealDamage(target,player,player.damageSources().freeze(),70,2);
+                if(player.getPersistentData().getInt("VPArchShots") > 0) {
+                    VPUtil.dealDamage(target, player, player.damageSources().freeze(), 440, 2);
+                    player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
+                }
+            } else if(player.getPersistentData().getInt("VPArchShots") > 0){
+                VPUtil.dealDamage(target,player,player.damageSources().freeze(),70,2);
+                player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
+            }
         }
     }
 
