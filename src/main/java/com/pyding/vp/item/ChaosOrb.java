@@ -157,6 +157,7 @@ public class ChaosOrb extends Item{
                 Vestige.increaseStars(stack,player);
                 stack.getOrCreateTag().putInt("VPCursed",6);
             } else stack.getOrCreateTag().putInt("VPCursed",new Random().nextInt(Vestige.maxCurses)+1);
+            player.getMainHandItem().split(1);
         } else if(stack.getItem() instanceof Accessory accessory){
             Random random = new Random();
             int lvl = accessory.getLvl(stack);
@@ -177,6 +178,7 @@ public class ChaosOrb extends Item{
                 }
             }
             player.sendSystemMessage(Component.literal(""+stack.getOrCreateTag().getFloat("VPStat")));
+            player.getMainHandItem().split(1);
         }
         return super.use(level, player, hand);
     }

@@ -562,6 +562,7 @@ public class VPUtil {
             });
         }
         DamageSource damageSource = new DamageSource(source.typeHolder(),player);
+        player.getPersistentData().putBoolean("VPAttacked",true);
         entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
     }
 
@@ -2000,6 +2001,7 @@ public class VPUtil {
     public static void dealParagonDamage(LivingEntity entity,Player player,float damage, int type, boolean hurt){
         if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity) || entity.isDeadOrDying())
             return;
+        player.getPersistentData().putBoolean("VPAttacked",true);
         entity.setLastHurtByPlayer(player);
         float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
@@ -2063,6 +2065,7 @@ public class VPUtil {
     public static void dealParagonDamage(LivingEntity entity,LivingEntity player,float damage, int type, boolean hurt){
         if(entity.isDeadOrDying())
             return;
+        player.getPersistentData().putBoolean("VPAttacked",true);
         float health = damage;
         float overShields = getOverShield(entity);
         if(overShields > 0) {
@@ -2073,6 +2076,11 @@ public class VPUtil {
                 entity.getPersistentData().putFloat("VPOverShield", 0);
                 health -= overShields;
             }
+        }
+        if(player instanceof Player playerEntity){
+            float curseMultiplier = getCurseMultiplier(playerEntity,4);
+            if(curseMultiplier > 0)
+                health *= curseMultiplier;
         }
         if(entity.getHealth()-health > 0) {
             if(hurt)
