@@ -5,8 +5,11 @@ import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.Vector3;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -18,12 +21,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.EntityPositionSource;
+import net.minecraft.world.level.gameevent.PositionSource;
+import net.minecraft.world.phys.AABB;
 import top.theillusivec4.curios.api.SlotContext;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class Archlinx extends Vestige{
     public Archlinx(){
@@ -32,7 +35,7 @@ public class Archlinx extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(25, ChatFormatting.BLUE, 2, 25, 1, 1200, 99999, 99999, true, stack);
+        super.dataInit(25, ChatFormatting.BLUE, 2, 25, 1, 120, 120, 9999, true, stack);
     }
 
     @Override
@@ -65,8 +68,23 @@ public class Archlinx extends Vestige{
     public void ultimateEnds(Player player, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC_ARROW_2.get());
         float damage = player.getPersistentData().getInt("VPArchdamage");
+        double range = 6;
+        Vector3 target = Vector3.fromEntityCenter(player);
+        List<LivingEntity> entities = new ArrayList<>();
+        for (int distance = 1; distance < 50; ++distance) {
+            target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
+            VPUtil.spawnParticles(player,ParticleTypes.GLOW_SQUID_INK,target.x,target.y,target.z,10,0,0,0);
+            List<LivingEntity> list = player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));
+            list.removeIf(entity -> entity == player || !player.hasLineOfSight(entity));
+            for(LivingEntity entity: list){
+                if(!entities.contains(entity)) {
+                    entities.add(entity);
+                    VPUtil.spawnSphere(entity, ParticleTypes.GLOW_SQUID_INK,20,2,0.4f);
+                    VPUtil.dealDamage(entity,player,player.damageSources().indirectMagic(player,player),damage,3,true);
+                }
+            }
+        }
         player.getPersistentData().putFloat("VPArchdamage",0);
-
         super.ultimateEnds(player, stack);
     }
 

@@ -1,22 +1,15 @@
 package com.pyding.vp.network.packets;
 
-import com.pyding.vp.client.particles.ColoredOrbParticleOptions;
 import com.pyding.vp.util.VPUtilParticles;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 public class ParticlePacket {
@@ -87,9 +80,10 @@ public class ParticlePacket {
         if (options != null) {
             Player player = Minecraft.getInstance().player;
             if (player != null) {
-                if(color1 != 0 || color2 != 0 || color3 != 0)
+                /*if(color1 != 0 || color2 != 0 || color3 != 0)
                     player.getCommandSenderWorld().addParticle(new ColoredOrbParticleOptions(new Vec3(color1,color2,color3)), x, y, z, deltaX, deltaY, deltaZ);
-                else player.getCommandSenderWorld().addParticle(options, x, y, z, deltaX, deltaY, deltaZ);
+                else */
+                player.getCommandSenderWorld().addParticle(options, x, y, z, deltaX, deltaY, deltaZ);
             }
         }
     }

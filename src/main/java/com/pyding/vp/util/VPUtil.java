@@ -580,7 +580,7 @@ public class VPUtil {
         float curseMultiplier = getCurseMultiplier(player,4);
         if(curseMultiplier > 0)
             damage *= curseMultiplier;
-        entity.hurt(source,damage*(damagePercentBonus(player,type))/100);
+        entity.hurt(source,damage*(1 + damagePercentBonus(player,type)/100));
     }
 
     public static void spawnLightning(ServerLevel world, double x, double y, double z) {
@@ -3067,7 +3067,7 @@ public class VPUtil {
         }
     }
 
-    public static void spawnSphere(Entity entity,SimpleParticleType type, int count, float radius, float speed) {
+    public static void spawnSphere(Entity entity,ParticleOptions type, int count, float radius, float speed) {
         Vec3 entityPos = entity.position();
         Random random = new Random();
         for (int i = 0; i < count; i++) {
