@@ -332,8 +332,6 @@ public class Vestige extends Item implements ICurioItem {
                     setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
                 if(damageType == null)
                     init(stack);
-                if(damageType)
-                    player.getPersistentData().putBoolean("VPAttacked",true);
                 this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
                 if(VPUtil.hasCurse(player,3))
                     player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
@@ -359,8 +357,6 @@ public class Vestige extends Item implements ICurioItem {
                 long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
                 if(damageType == null)
                     init(stack);
-                if(damageType)
-                    player.getPersistentData().putBoolean("VPAttacked",true);
                 this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld(), stack);
             } else this.localSpecial(player);
         }

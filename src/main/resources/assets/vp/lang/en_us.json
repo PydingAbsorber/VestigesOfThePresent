@@ -307,7 +307,7 @@
   "vp.get.18": "Be struck by lightning along with a creeper nearby %s times, receiving explosive damage or death will fail the challenge.",
   "vp.damagetype.18": "lightning",
 
-  "vp.passive.19": "When Shields are present, gives a damage bonus for Specials of 1% for every 1% of missing Over Shield.",
+  "vp.passive.19": "When Shields are present, gives a damage bonus for Specials of 2% for every 1% of missing Over Shield.",
   "vp.special.19": "Deals 10% from wearer's maximum hp damage to hostile creatures in the line of sight.",
   "vp.ultimate.19": "Sacrifices 30% of the Shields of the wearer and all creatures in the area and turns them into Over Shields. \nOver Shields will return to a random creature in the area or the wearer. \n(The chance of Over Shields returning to the player depends on the number of participating creatures)",
   "vp.get.19": "Deal a total of %s damage to enemy Shields or Over Shields.",
@@ -369,7 +369,7 @@
   "vp.stellar.22": "The Ultimate will also restore 1 Special charge to itself and all surrounding players.",
   "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
   "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nMagic - forbids resurrection, Shields and OverShields obtaining, teleportation. \nWither - lowers regeneration by 50.\nVoid - reduces Max HP by 80%.\nParagon - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%.",
-  "vp.stellar.25": "Headshot kills steal 30% of all a creature’s attributes for 1 hour.\nAttributes are replaced if the current ones are worse and refreshed if the current ones are better.",
+  "vp.stellar.25": "Headshot kills steal 30% of all a creature’s attributes for 15 minutes.\nAttributes are replaced if the current ones are worse and refreshed if the current ones are better.",
 
   "vp.archlinx.easter": "Unleashed power: Steal 5% of Shields and Overshields on Headshots.",
 

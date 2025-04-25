@@ -60,8 +60,8 @@ public class Trigon extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
         if(VPUtil.getOverShield(player1) > 0)
-            player1.getPersistentData().putFloat("VPTrigonBonus",(1-(VPUtil.getOverShield(player1)/player1.getPersistentData().getFloat("VPOverShieldMax"))));
-        else player1.getPersistentData().putFloat("VPTrigonBonus",1);
+            player1.getPersistentData().putFloat("VPTrigonBonus",(100-VPUtil.getOverShield(player1)/(player1.getPersistentData().getFloat("VPOverShieldMax")/100))*2);
+        else player1.getPersistentData().putFloat("VPTrigonBonus",0);
         super.curioTick(slotContext, stack);
     }
 

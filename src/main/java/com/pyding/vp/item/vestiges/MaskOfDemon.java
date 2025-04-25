@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class MaskOfDemon extends Vestige{
@@ -102,7 +103,21 @@ public class MaskOfDemon extends Vestige{
     @Override
     public int setSpecialActive(long seconds, Player player, ItemStack stack) {
         if(isSpecialActive(stack) && !player.getCommandSenderWorld().isClientSide) {
-            setTime(1,stack);
+            if(currentChargeSpecial(stack) > 0) {
+                if(!player.getCommandSenderWorld().isClientSide) {
+                    setTime(1,stack);
+                    setSpecialActive(true,stack);
+                    setCdSpecialActive(cdSpecialActive(stack)+specialCd(stack),stack);     //time until cd recharges in seconds*tps
+                    Random random = new Random();
+                    if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
+                        setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
+                    if(damageType == null)
+                        init(stack);
+                    this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
+                    if(VPUtil.hasCurse(player,3))
+                        player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
+                } else this.localSpecial(player);
+            }
             return 0;
         }
         return super.setSpecialActive(seconds, player, stack);

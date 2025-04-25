@@ -43,7 +43,7 @@ public class Archlinx extends Vestige{
         if(new Random().nextDouble() < 0.5)
             VPUtil.play(player,SoundRegistry.ARROW_READY_1.get());
         else VPUtil.play(player,SoundRegistry.ARROW_READY_2.get());
-        VPUtil.spawnParticles(player, ParticleTypes.SNOWFLAKE,3,1,0,0.1,0,0.4, 0.7, 1.0);
+        VPUtil.spawnSphere(player,ParticleTypes.SNOWFLAKE,35,1.5f,0.2f);
         player.getPersistentData().putInt("VPArchShots",5);
         super.doSpecial(seconds, player, level, stack);
     }
@@ -51,7 +51,20 @@ public class Archlinx extends Vestige{
     @Override
     public int setUltimateActive(long seconds, Player player, ItemStack stack) {
         if(isUltimateActive(stack) && !player.getCommandSenderWorld().isClientSide){
-            setTimeUlt(1,stack);
+            if(currentChargeUltimate(stack) > 0) {
+                if(!player.getCommandSenderWorld().isClientSide) {
+                    setTimeUlt(1,stack);
+                    setUltimateActive(true,stack);
+                    setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
+                    Random random = new Random();
+                    if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
+                        setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
+                    long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
+                    if(damageType == null)
+                        init(stack);
+                    this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld(), stack);
+                } else this.localSpecial(player);
+            }
             return 0;
         }
         return super.setUltimateActive(seconds, player, stack);

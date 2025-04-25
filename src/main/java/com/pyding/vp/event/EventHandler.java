@@ -357,7 +357,7 @@ public class EventHandler {
                         player.getPersistentData().putFloat("VPArchdamage",player.getPersistentData().getFloat("VPArchdamage")+event.getAmount()*0.9f);
                         event.setAmount(event.getAmount()*0.1f);
                     }
-                    if(new Random().nextDouble() < 0.2 && event.getSource().is(DamageTypeTags.IS_PROJECTILE)){
+                    if(new Random().nextDouble() < VPUtil.getChance(0.2,player) && event.getSource().is(DamageTypeTags.IS_PROJECTILE)){
                         for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,10,10,10,true)){
                             if(livingEntity != player){
                                 VPUtil.dealDamage(livingEntity,player,player.damageSources().freeze(),event.getAmount()*0.3f,1,true);
@@ -401,6 +401,7 @@ public class EventHandler {
                     VPUtil.play(entity, SoundRegistry.OVERSHIELD_BREAK.get());
                     if(entity.getPersistentData().getInt("VPBossType") == 4 && VPUtil.isNightmareBoss(entity) && attacker != null)
                         attacker.hurt(entity.damageSources().freeze(),attacker.getMaxHealth()*20);
+                    tag.putFloat("VPOverShieldMax", 0);
                 }
             }
             float shield = entity.getPersistentData().getFloat("VPShield");
@@ -769,7 +770,7 @@ public class EventHandler {
                 }
                 if(VPUtil.hasStellarVestige(ModItems.ARCHLINX.get(),player) && player.getPersistentData().getBoolean("VPWasHeadshot")){
                     player.getPersistentData().putBoolean("VPWasHeadshot",false);
-                    player.getPersistentData().putLong("VPArchBuff",System.currentTimeMillis()+60*60*1000);
+                    player.getPersistentData().putLong("VPArchBuff",System.currentTimeMillis()+15*60*1000);
                     AttributeMap map = player.getAttributes();
                     AttributeMap map2 = entity.getAttributes();
                     List<Attribute> list = VPUtil.attributeList();
@@ -1823,11 +1824,10 @@ public class EventHandler {
     @SubscribeEvent
     public void onProjectileImpact(ProjectileImpactEvent event) {
         Projectile proj = event.getProjectile();
-        if (!(proj instanceof Arrow arrow)) return;
         HitResult ray = event.getRayTraceResult();
         if (!(ray instanceof EntityHitResult ehr)) return;
         if (!(ehr.getEntity() instanceof LivingEntity target)) return;
-        if (!(arrow.getOwner() instanceof Player player)) return;
+        if (!(proj.getOwner() instanceof Player player)) return;
         if(VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)) {
             double hitY = proj.getY();
             double eyeY = target.getY() + target.getEyeHeight();

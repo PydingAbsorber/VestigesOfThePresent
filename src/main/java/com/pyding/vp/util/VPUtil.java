@@ -580,6 +580,7 @@ public class VPUtil {
         float curseMultiplier = getCurseMultiplier(player,4);
         if(curseMultiplier > 0)
             damage *= curseMultiplier;
+        player.getPersistentData().putBoolean("VPAttacked",true);
         entity.hurt(source,damage*(1 + damagePercentBonus(player,type)/100));
     }
 
@@ -1693,8 +1694,10 @@ public class VPUtil {
         if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
             return;
         CompoundTag tag = entity.getPersistentData();
-        if(tag.getFloat("VPOverShield") <= 0)
-            play(entity,SoundRegistry.OVERSHIELD.get());
+        if(tag.getFloat("VPOverShield") <= 0) {
+            play(entity, SoundRegistry.OVERSHIELD.get());
+            tag.putFloat("VPOverShieldMax", 0);
+        }
         float shieldBonus = getShieldBonus(entity);
         if(!applyBonus)
             shieldBonus = 0;
