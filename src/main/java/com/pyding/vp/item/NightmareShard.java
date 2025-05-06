@@ -35,9 +35,6 @@ public class NightmareShard extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level p_41432_, Player player, InteractionHand p_41434_) {
         ItemStack stack = player.getItemInHand(p_41434_);
-        if(player.isCrouching() && player.isCreative()) {
-            VPUtil.despawn(player);
-        }
         LivingEntity entity = null;
         for(LivingEntity livingEntity: VPUtil.ray(player,2,2,true)){
             entity = livingEntity;
@@ -45,25 +42,11 @@ public class NightmareShard extends Item {
         }
         if(entity instanceof HungryOyster){
             entity.getPersistentData().putBoolean("VPCool",true);
-        } else if(entity != null && player.isCreative()) {
-            VPUtil.deadInside(entity, player);
-        }
-        return super.use(p_41432_, player, p_41434_);
-    }
+        } else {
 
-    @Override
-    public boolean onEntitySwing(ItemStack stack, LivingEntity swinger) {
-        if(swinger instanceof Player player && player.isCreative()) {
-            LivingEntity entity = null;
-            for (LivingEntity livingEntity : VPUtil.ray(player, 2, 40, true)) {
-                entity = livingEntity;
-                break;
-            }
-            if(entity != null){
-                VPUtil.dealDamage(entity,player,VPUtil.randomizeDamageType(player), Integer.MAX_VALUE,0,true);
-            }
         }
-        return super.onEntitySwing(stack, swinger);
+        stack.shrink(1);
+        return super.use(p_41432_, player, p_41434_);
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -41,6 +41,8 @@
   "item.vip.desc2": "VIP status gives you keep inventory and exp, x4 experience and +10% permanent chance for ",
   "item.vip.desc2.2": "If used while VIP is already activated it will increase current VIP.",
   "item.vip.desc3": "This activator is bound with you, nobody else can use it.",
+  "item.vp.event_horizon": "Event Horizon",
+  "vp.event_horizon.desc": "Creative only. \nSwing forces the creature to die instantly upon sight. \nOn use forces instant death of all loaded creatures in the world or yourself if crouching.",
   "item.vp.corrupted_fragment": "§4Corrupted Wish",
   "item.vp.corrupted_item": "§cCorrupted Fate",
   "item.vp.chaos_orb": "§eOrb of Chaos",

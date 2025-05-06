@@ -1,5 +1,6 @@
 package com.pyding.vp.mixin;
 
+import com.pyding.vp.item.EventHorizon;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.StellarFragment;
 import com.pyding.vp.item.vestiges.Vestige;
@@ -21,7 +22,7 @@ public abstract class VPItemStackMixin {
         if(stack.getItem() instanceof Vestige && Vestige.isStellar(stack)){
             cir.setReturnValue(GradientUtil.stellarGradient(stack.getItem().getName(stack).getString().substring(2)));
         }
-        if(stack.getItem() instanceof StellarFragment)
+        if(stack.getItem() instanceof StellarFragment || stack.getItem() instanceof EventHorizon)
             cir.setReturnValue(GradientUtil.stellarGradient(stack.getItem().getName(stack).getString()));
         if(stack.getItem() instanceof MysteryChest)
             cir.setReturnValue(GradientUtil.customGradient(stack.getItem().getName(stack).getString(),GradientUtil.MYSTERY));

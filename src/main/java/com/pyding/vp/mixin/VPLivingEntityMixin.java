@@ -1,12 +1,16 @@
 package com.pyding.vp.mixin;
 
+import com.ibm.icu.impl.CollectionSet;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -16,6 +20,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Mixin(value = LivingEntity.class)
 public abstract class VPLivingEntityMixin {
@@ -88,5 +96,29 @@ public abstract class VPLivingEntityMixin {
                 }
             });
         }
+    }
+
+    @Inject(method = "hasEffect",at = @At("RETURN"),cancellable = true, require = 1)
+    private void hasEffect(MobEffect p_21024_, CallbackInfoReturnable<Boolean> cir){
+        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+            cir.setReturnValue(false);
+    }
+
+    @Inject(method = "getEffect",at = @At("RETURN"),cancellable = true, require = 1)
+    private void getEffect(MobEffect p_21024_, CallbackInfoReturnable<MobEffectInstance> cir){
+        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+            cir.setReturnValue(null);
+    }
+
+    @Inject(method = "getActiveEffects",at = @At("RETURN"),cancellable = true, require = 1)
+    private void getEffects(CallbackInfoReturnable<Collection<MobEffectInstance>> cir){
+        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+            cir.setReturnValue(new CollectionSet<>(null));
+    }
+
+    @Inject(method = "getActiveEffectsMap",at = @At("RETURN"),cancellable = true, require = 1)
+    private void getEffectsMap(CallbackInfoReturnable<Map<MobEffect, MobEffectInstance>> cir){
+        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+            cir.setReturnValue(new HashMap<>());
     }
 }
