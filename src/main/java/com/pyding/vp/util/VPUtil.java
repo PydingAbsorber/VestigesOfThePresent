@@ -1064,6 +1064,8 @@ public class VPUtil {
                 +entity.getPersistentData().getFloat("VPRuneBonus")
                 -entity.getPersistentData().getFloat("VPIgnis")
                 -curseMultiplier);
+        if(entity.getPersistentData().getLong("VPBallDebuff") > System.currentTimeMillis())
+            shieldBonus -= ConfigHandler.COMMON.ballDebuff.get();
         if(hasLyra(entity,6))
             shieldBonus += 70;
         return shieldBonus;

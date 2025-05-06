@@ -264,7 +264,9 @@ public class PlayerCapabilityVP {
             if(!password.isEmpty())
                 LeaderboardUtil.addChallenge(player, vp, password);
             if(new Random().nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.mysteryChestChallengeChance.get(),player)){
-                VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(9)),player);
+                ItemStack chest = new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(9));
+                stack.getOrCreateTag().putInt("VPOpen",0);
+                VPUtil.giveStack(chest,player);
             }
         }
     }
@@ -997,6 +999,10 @@ public class PlayerCapabilityVP {
             }
             case 24:{
                 stack = new ItemStack(ModItems.WHIRLPOOL.get());
+                break;
+            }
+            case 25:{
+                stack = new ItemStack(ModItems.ARCHLINX.get());
                 break;
             }
             default: {

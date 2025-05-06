@@ -214,10 +214,11 @@ public class EventHandler {
                     if(event.getSource().is(DamageTypes.LIGHTNING_BOLT)){
                         float shield = VPUtil.getShield(entity);
                         if(shield > 0)
-                            entity.getPersistentData().putFloat("VPShield", shield - (float)(shield*ConfigHandler.COMMON.ballShield.get()));
+                            entity.getPersistentData().putFloat("VPShield", Math.max(0,shield - (float)(entity.getPersistentData().getFloat("VPShieldInit")*ConfigHandler.COMMON.ballShield.get()+100)));
                         float overShield = VPUtil.getOverShield(entity);
                         if(overShield > 0)
-                            entity.getPersistentData().putFloat("VPOverShield", overShield - (float)(overShield*ConfigHandler.COMMON.ballOverShield.get()));
+                            entity.getPersistentData().putFloat("VPOverShield", Math.max(0,overShield - (float)(entity.getPersistentData().getFloat("VPShieldInit")*ConfigHandler.COMMON.ballOverShield.get()+100)));
+                        entity.getPersistentData().putLong("VPBallDebuff",System.currentTimeMillis()+10000);
                     }
                 }
                 if (event.getAmount() <= 3) {
@@ -748,7 +749,7 @@ public class EventHandler {
                     VPUtil.addShield(player,20,true);
                     VPUtil.addOverShield(player,20,true);
                 }
-                if(VPUtil.hasVestige(ModItems.ARCHLINX.get(),player) && player.getPersistentData().getBoolean("VPWasHeadshot") && entity instanceof Monster){
+                if(player.getPersistentData().getBoolean("VPWasHeadshot") && entity instanceof Monster){
                     player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                         cap.addHeadshot(entity.getType().getDescriptionId(),player);
                     });
@@ -1227,11 +1228,13 @@ public class EventHandler {
     @SubscribeEvent
     public static void advancementEvent(AdvancementEvent.AdvancementEarnEvent event){
         Player player = event.getEntity();
-        if(player.tickCount > 20 && !player.level().isClientSide && !event.getAdvancement().getId().getPath().startsWith("recipes/")) {
+        if(player.tickCount > 20 && !player.level().isClientSide && !event.getAdvancement().getId().getPath().startsWith("recipes/") && event.getAdvancement().getDisplay() != null) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.addAdvancement(player);
                 if (new Random().nextDouble() < (ConfigHandler.COMMON.mysteryChestAdvancementChance.get() + (ConfigHandler.COMMON.mysteryChestAdvancementBoost.get() * cap.getAdvancements()))) {
-                    VPUtil.giveStack(new ItemStack(ModItems.MYSTERY_CHEST.get()), event.getEntity());
+                    ItemStack stack = new ItemStack(ModItems.MYSTERY_CHEST.get());
+                    stack.getOrCreateTag().putInt("VPOpen",0);
+                    VPUtil.giveStack(stack, event.getEntity());
                 }
             });
         }
@@ -1810,17 +1813,17 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onProjectileImpact(ProjectileImpactEvent event) {
-        Projectile proj = event.getProjectile();
-        HitResult ray = event.getRayTraceResult();
-        if (!(ray instanceof EntityHitResult ehr)) return;
-        if (!(ehr.getEntity() instanceof LivingEntity target)) return;
-        if (!(proj.getOwner() instanceof Player player)) return;
-        if(VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)) {
-            double hitY = proj.getY();
-            double eyeY = target.getY() + target.getEyeHeight();
-            if (hitY >= eyeY) {
-                player.getPersistentData().putBoolean("VPHeadshot",true);
-                player.getPersistentData().putBoolean("VPWasHeadshot",true);
+    Projectile proj = event.getProjectile();
+    HitResult ray = event.getRayTraceResult();
+    if (!(ray instanceof EntityHitResult ehr)) return;
+    if (!(ehr.getEntity() instanceof LivingEntity target)) return;
+    if (!(proj.getOwner() instanceof Player player)) return;
+        double hitY = proj.getY();
+        double eyeY = target.getY() + target.getEyeHeight();
+        if (hitY >= eyeY) {
+            player.getPersistentData().putBoolean("VPHeadshot",true);
+            player.getPersistentData().putBoolean("VPWasHeadshot",true);
+            if(VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)) {
                 player.getPersistentData().putFloat("VPHeadBonus",player.getPersistentData().getFloat("VPHeadBonus")+1);
                 if(VPUtil.getOs(player).contains("linux")) {
                     VPUtil.stealShields(target,player,5,false);
@@ -1831,11 +1834,11 @@ public class EventHandler {
                     player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
                     VPUtil.spawnSphere(target,ParticleTypes.SNOWFLAKE,25,1.5f,0.2f);
                 }
-            } else if(player.getPersistentData().getInt("VPArchShots") > 0){
-                VPUtil.dealDamage(target,player,player.damageSources().freeze(),30,2);
-                player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
-                VPUtil.spawnSphere(target,ParticleTypes.SNOWFLAKE,25,1.5f,0.2f);
             }
+        } else if(player.getPersistentData().getInt("VPArchShots") > 0 && VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)){
+            VPUtil.dealDamage(target,player,player.damageSources().freeze(),30,2);
+            player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
+            VPUtil.spawnSphere(target,ParticleTypes.SNOWFLAKE,25,1.5f,0.2f);
         }
     }
 

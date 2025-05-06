@@ -30,6 +30,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue easter;
         public final ForgeConfigSpec.DoubleValue ballShield;
         public final ForgeConfigSpec.DoubleValue ballOverShield;
+        public final ForgeConfigSpec.DoubleValue ballDebuff;
         public final ForgeConfigSpec.DoubleValue healPercent;
         public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
@@ -170,6 +171,7 @@ public class ConfigHandler {
             donutMaxSaturation = builder.comment("Sweet Donut max Saturation stacks.").defineInRange("donutMaxSaturation", 400, 0, Integer.MAX_VALUE);
             donutHealBonus = builder.comment("Base heal bonus of Sweet Donut.").defineInRange("donutHealBonus", 40, 0, Integer.MAX_VALUE);
             ballShield = builder.comment("How many Shield % will Ball Lightning reduce").defineInRange("ballShield", 0.1d, 0.01, 1);
+            ballDebuff = builder.comment("How much Shield Bonus will Ball Lightning reduce in percent").defineInRange("ballDebuff", 75d, 0, Integer.MAX_VALUE);
             ballOverShield = builder.comment("How many OverShield % will Ball Lightning reduce").defineInRange("ballOverShield", 0.2d, 0.01, 1);
             chaosCharges = builder.comment("Amount of Chaos Core reflection hits from Special").defineInRange("chaosCharges", 20, 1, Integer.MAX_VALUE);
             devourerCdTime = builder.comment("Devourer cooldown time between rotting hits. 1000 is 1 sec").defineInRange("devourerCdTime", 200, 1, Long.MAX_VALUE);

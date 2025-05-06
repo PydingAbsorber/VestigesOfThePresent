@@ -117,12 +117,11 @@ public class MysteryChest extends Item {
         return list;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
-        if(p_41434_ != InteractionHand.MAIN_HAND)
+        if(p_41434_ != InteractionHand.MAIN_HAND || !level.isClientSide)
             return super.use(level, player, p_41434_);
-        Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryChestScreen()));
+        Minecraft.getInstance().setScreen(new MysteryChestScreen());
         player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
         return super.use(level, player, p_41434_);
     }

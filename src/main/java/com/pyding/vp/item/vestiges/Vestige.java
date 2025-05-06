@@ -493,7 +493,9 @@ public class Vestige extends Item implements ICurioItem {
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             if (Screen.hasShiftDown()) {
                 components.add(Component.translatable("vp.passive").withStyle(color));
-                components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                if(vestigeNumber == 18)
+                    components.add(Component.translatable("vp.passive." + vestigeNumber,(int)(ConfigHandler.COMMON.ballShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballOverShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballDebuff.get()+0)+"%").withStyle(ChatFormatting.GRAY));
+                else components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 int spCharges;
                 int ultCharges;
                 int spCd;
@@ -1022,8 +1024,10 @@ public class Vestige extends Item implements ICurioItem {
         setCdUltimateActive(0,stack);
         setCurrentChargeSpecial(specialCharges(stack),stack);
         setCurrentChargeUltimate(ultimateCharges(stack),stack);
-        ultimateEnds(player, stack);
-        specialEnds(player, stack);
+        if(!(stack.getItem() instanceof Archlinx))
+            ultimateEnds(player, stack);
+        if(!(stack.getItem() instanceof MaskOfDemon))
+            specialEnds(player, stack);
         specialRecharges(player, stack);
         ultimateRecharges(player, stack);
     }

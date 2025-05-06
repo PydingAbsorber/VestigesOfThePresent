@@ -112,7 +112,7 @@ public class Archlinx extends Vestige{
         List<Attribute> list = VPUtil.attributeList();
         for(int i = 0; i < list.size(); i++){
             if(map.hasAttribute(list.get(i))) {
-                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player,list.get(i), archUUIDs.get(i),0, AttributeModifier.Operation.ADDITION, "vp:arch"+list.get(i).getDescriptionId()));
+                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,list.get(i), archUUIDs.get(i),0, AttributeModifier.Operation.ADDITION, "vp:arch"+list.get(i).getDescriptionId()));
             }
         }
     }

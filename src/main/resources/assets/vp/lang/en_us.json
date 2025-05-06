@@ -302,7 +302,7 @@
   "vp.ultimate.17": "Steals all buffs from all nearby creatures whose level does not exceed 4. \nEach stolen buff from a creature applies a random debuff of level 1-4 to it for 10 seconds and gives +10% duration to all wearer buffs.",
   "vp.get.17": "Get every effect of modpack.",
 
-  "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area. \nDealing lightning damage will reduce Shields by 10% and OverShields by 20%.",
+  "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area. \nDealing lightning damage will reduce Shields by %s and OverShields by %s from their maximum also applying -%s Shield Bonus debuff.",
   "vp.special.18": "Teleports the wearer to a random point nearby, leaving behind a powerful lightning bolt. \nThe lightning deals 500% damage to everyone (including the wearer) within a 5-block radius and slows down the speed, attack speed of enemies.",
   "vp.ultimate.18": "Calls down a hail of lightning on all creatures (including the wearer) within a 30-block radius that have a Shield or whose current HP is lower than the owner's, or whose have armor, or whose are wet, dealing 1000% damage. \nAffected creatures (except the wearer) take 50% more damage for each piece of armor worn, 10% for each point of armor, and 0.1% for each existing Shield.",
   "vp.get.18": "Be struck by lightning along with a creeper nearby %s times, receiving explosive damage or death will fail the challenge.",
