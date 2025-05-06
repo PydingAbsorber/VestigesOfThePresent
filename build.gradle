@@ -157,8 +157,8 @@ repositories {
 dependencies {
     //1.20.1
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.44'
-    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1")
-    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.14.1+1.20.1")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.14.1+1.20.1:api")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     //implementation name: 'noxus_rghelper-1.0.2'

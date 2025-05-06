@@ -13,26 +13,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = Entity.class)
 public abstract class VPEntityMixin {
 
-
-    @Shadow public abstract CompoundTag getPersistentData();
-
     @Inject(method = "isInBubbleColumn",at = @At("RETURN"),cancellable = true, require = 1)
     protected void isInBubbleColumn(CallbackInfoReturnable<Boolean> cir){
-        if(this.getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
+        if(((Entity) (Object) this).getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "isInRain",at = @At("RETURN"),cancellable = true, require = 1)
     protected void isInRain(CallbackInfoReturnable<Boolean> cir){
-        if(this.getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
+        if(((Entity) (Object) this).getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "isInWater",at = @At("RETURN"),cancellable = true, require = 1)
     protected void isInWater(CallbackInfoReturnable<Boolean> cir){
-        if(this.getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
+        if(((Entity) (Object) this).getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
             cir.setReturnValue(true);
         }
     }
@@ -43,12 +40,5 @@ public abstract class VPEntityMixin {
             ci.cancel();
         }
     }
-
-    /*@Inject(method = "moveTo*", at = @At("HEAD"), cancellable = true, require = 1)
-    protected void moveMixin(CallbackInfoReturnable<?> ci) {
-        if (!VPUtil.canTeleport(((Entity) (Object) this))) {
-            ci.cancel();
-        }
-    }*/
 
 }

@@ -35,6 +35,9 @@ public class NightmareShard extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level p_41432_, Player player, InteractionHand p_41434_) {
         ItemStack stack = player.getItemInHand(p_41434_);
+        if(player.isCrouching() && player.isCreative()) {
+            VPUtil.despawn(player);
+        }
         LivingEntity entity = null;
         for(LivingEntity livingEntity: VPUtil.ray(player,2,2,true)){
             entity = livingEntity;
@@ -42,8 +45,9 @@ public class NightmareShard extends Item {
         }
         if(entity instanceof HungryOyster){
             entity.getPersistentData().putBoolean("VPCool",true);
-        } else if(entity != null && player.isCreative())
+        } else if(entity != null && player.isCreative()) {
             VPUtil.deadInside(entity, player);
+        }
         return super.use(p_41432_, player, p_41434_);
     }
 

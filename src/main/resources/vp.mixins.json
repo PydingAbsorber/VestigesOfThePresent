@@ -8,6 +8,7 @@
   "mixins": [
     "AttributesUnlock",
     "BucketMixin",
+    "CuriosMixin",
     "DeadInsideMixin",
     "EnchantmentsMixin",
     "EntityVzlom",
@@ -27,6 +28,8 @@
     "MobMixin",
     "MovementMixin",
     "NearestAttackebleTargetMixinVzlom",
+    "PlayerListMixin",
+    "PlayerListVzlom",
     "SmithingMenuMixin",
     "SmithingVzlomMixing",
     "SmitingMenuVzlom",

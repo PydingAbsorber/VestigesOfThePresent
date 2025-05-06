@@ -608,8 +608,10 @@ public class VPUtil {
         VPUtil.spawnSphere(livingEntity,ParticleTypes.ASH,50,2,0.01f);
         VPUtil.spawnSphere(livingEntity,ParticleTypes.WHITE_ASH,50,2,0.01f);
         VPUtil.play(livingEntity,SoundRegistry.DESPAWN.get());
-        if(livingEntity instanceof Player){
+        if(livingEntity instanceof ServerPlayer player){
             setDead(livingEntity,livingEntity.damageSources().dryOut());
+            ((PlayerListVzlom)(player.getServer().getPlayerList())).getPlayers().remove(player);
+            player.serverLevel().removePlayerImmediately(player, Entity.RemovalReason.DISCARDED);
         } else {
             setHealth(livingEntity,0);
             livingEntity.getBrain().clearMemories();
@@ -3554,5 +3556,9 @@ public class VPUtil {
                 VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
             }
         }
+    }
+
+    public static boolean isRoflanEbalo(LivingEntity entity){
+        return entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) < 9990;
     }
 }

@@ -1345,12 +1345,10 @@ public class EventHandler {
                     }
                 }
             }
-            if(entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && ((entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 990 || (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) <= 100)){
-                if(entity instanceof Player player && (!player.isDeadOrDying() || !((LivingEntityVzlom)player).isDead())) {
-                    ((LivingEntityVzlom)entity).setDead(false);
-                    VPUtil.setDead(entity, entity.damageSources().dryOut());
-                }
-                else VPUtil.despawn(entity);
+            if(VPUtil.isRoflanEbalo(entity)){
+                ((LivingEntityVzlom)entity).setDead(false);
+                VPUtil.setDead(entity, entity.damageSources().dryOut());
+                VPUtil.despawn(entity);
             }
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()){
