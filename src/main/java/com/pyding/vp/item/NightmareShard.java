@@ -47,6 +47,21 @@ public class NightmareShard extends Item {
         return super.use(p_41432_, player, p_41434_);
     }
 
+    @Override
+    public boolean onEntitySwing(ItemStack stack, LivingEntity swinger) {
+        if(swinger instanceof Player player && player.isCreative()) {
+            LivingEntity entity = null;
+            for (LivingEntity livingEntity : VPUtil.ray(player, 2, 40, true)) {
+                entity = livingEntity;
+                break;
+            }
+            if(entity != null){
+                VPUtil.dealDamage(entity,player,VPUtil.randomizeDamageType(player), Integer.MAX_VALUE,0,true);
+            }
+        }
+        return super.onEntitySwing(stack, swinger);
+    }
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {

@@ -21,14 +21,15 @@ public class ConfigHandler {
     }
 
     public static class Common {
-        public final ForgeConfigSpec.BooleanValue hardcore;
+        public final ForgeConfigSpec.BooleanValue cruelMode;
+        public final ForgeConfigSpec.IntValue armorCruel;
+        public final ForgeConfigSpec.DoubleValue damageCruel;
+        public final ForgeConfigSpec.DoubleValue absorbCruel;
+        public final ForgeConfigSpec.DoubleValue shieldCruel;
+        public final ForgeConfigSpec.DoubleValue overShieldCruel;
         public final ForgeConfigSpec.BooleanValue easter;
-        public final ForgeConfigSpec.IntValue armorHardcore;
         public final ForgeConfigSpec.DoubleValue ballShield;
         public final ForgeConfigSpec.DoubleValue ballOverShield;
-        public final ForgeConfigSpec.DoubleValue absorbHardcore;
-        public final ForgeConfigSpec.DoubleValue shieldHardcore;
-        public final ForgeConfigSpec.DoubleValue overShieldHardcore;
         public final ForgeConfigSpec.DoubleValue healPercent;
         public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
@@ -90,8 +91,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue<List<Integer>> reduceChallenges;
         public final ForgeConfigSpec.BooleanValue reduceChallengesPercent;
         public final ForgeConfigSpec.ConfigValue fishObjects;
-        public final ForgeConfigSpec.DoubleValue hardcoreDamage;
-        public final ForgeConfigSpec.DoubleValue nightmareDamageCap;
+        public final ForgeConfigSpec.DoubleValue nightmareDpsCap;
         public final ForgeConfigSpec.BooleanValue unlockHp;
         public final ForgeConfigSpec.BooleanValue eventMode;
         public final ForgeConfigSpec.DoubleValue rareItemChance;
@@ -122,15 +122,15 @@ public class ConfigHandler {
             reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallengesList",reduceList);
             reduceChallengesPercent = builder.comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum").define("reduceChallengesPercent", false);
 
-            hardcore = builder.comment("Enables hardcore mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("hardcore", false);
-            bossHP = builder.comment("Hardcore mode Hp scale").defineInRange("bossHP", 4, 1, 2100000000);
-            bossAttack = builder.comment("Hardcore mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
-            armorHardcore = builder.comment("Hardcore mode armor and armor toughness").defineInRange("armorHardcore", 100, 1, 2100000000);
-            absorbHardcore = builder.comment("Hardcore mode damage absorb percent").defineInRange("absorbHardcore", 0.9, 0, 1);
-            shieldHardcore = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("shieldHardcore", 1.5d, 0.1, 2100000000);
-            overShieldHardcore = builder.comment("Hardcore mode Over Shield from hp percent").defineInRange("overShieldHardcore", 0.5, 0.1, 2100000000);
-            healPercent = builder.comment("Hardcore mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
-            hardcoreDamage = builder.comment("Hardcore mode damage percent from maximum hp when starving, drowning. Set 0 to disable.").defineInRange("hardcoreDamage", 0.15d, 0, 2100000000);
+            cruelMode = builder.comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("cruelMode", false);
+            bossHP = builder.comment("Cruel mode Hp scale").defineInRange("bossHP", 4, 1, 2100000000);
+            bossAttack = builder.comment("Cruel mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
+            armorCruel = builder.comment("Cruel mode armor and armor toughness").defineInRange("armorCruel", 100, 1, 2100000000);
+            damageCruel = builder.comment("Cruel mode damage percent from maximum hp when starving, drowning. Set 0 to disable.").defineInRange("damageCruel", 0.15d, 0, 2100000000);
+            absorbCruel = builder.comment("Cruel mode damage absorb percent").defineInRange("absorbCruel", 0.9, 0, 1);
+            shieldCruel = builder.comment("Cruel mode Shield from hp percent 1 is 100%").defineInRange("shieldCruel", 1.5d, 0.1, 2100000000);
+            overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.5, 0.1, 2100000000);
+            healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
 
 
             nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareBoxChance", 0.5, 0, 1);
@@ -170,7 +170,7 @@ public class ConfigHandler {
             donutMaxSaturation = builder.comment("Sweet Donut max Saturation stacks.").defineInRange("donutMaxSaturation", 400, 0, Integer.MAX_VALUE);
             donutHealBonus = builder.comment("Base heal bonus of Sweet Donut.").defineInRange("donutHealBonus", 40, 0, Integer.MAX_VALUE);
             ballShield = builder.comment("How many Shield % will Ball Lightning reduce").defineInRange("ballShield", 0.1d, 0.01, 1);
-            ballOverShield = builder.comment("Hardcore mode Shield from hp percent 1 is 100%").defineInRange("ballOverShield", 0.2d, 0.01, 1);
+            ballOverShield = builder.comment("How many OverShield % will Ball Lightning reduce").defineInRange("ballOverShield", 0.2d, 0.01, 1);
             chaosCharges = builder.comment("Amount of Chaos Core reflection hits from Special").defineInRange("chaosCharges", 20, 1, Integer.MAX_VALUE);
             devourerCdTime = builder.comment("Devourer cooldown time between rotting hits. 1000 is 1 sec").defineInRange("devourerCdTime", 200, 1, Long.MAX_VALUE);
             markBonus = builder.comment("Amount of stats per Curse for Mark's Overdrive").defineInRange("markBonus", 10, 1, Integer.MAX_VALUE);
@@ -194,7 +194,7 @@ public class ConfigHandler {
             fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","item.vp.pearl");
             rareFishingDropChance = builder.comment("Chance of rare drop in current biome from Fishing with Pearl or by defending Silly Seashell.").defineInRange("rareFishingDropChance", 0.001, 0, 1);
             failFlowers = builder.comment("Fails flowers Challenge when they are being placed.").define("failFlowers", false);
-            nightmareDamageCap = builder.comment("Damage cap for Nightmare Bosses").defineInRange("nightmareDamageCap", 1000,0,Float.MAX_VALUE);
+            nightmareDpsCap = builder.comment("Damage per second cap for Nightmare Bosses in max hp % -> 0.01 is 1%").defineInRange("nightmareDpsCap", 0.01,0,Float.MAX_VALUE);
             unlockHp = builder.comment("For servers with maxed out desync and hp lock to 2048 or if you just have problems with MaxHp.").define("unlockHp", false);
             eventMode = builder.comment("Event mode that disables all teleportations and fly.").define("eventMode", false);
             rareItemChance = builder.comment("Chance for Item to define as rare for Prism challenge. For example carrot has 0.025 chance to drop from zobmie").defineInRange("rareItemChance", 0.025d, 0.0001, 1);

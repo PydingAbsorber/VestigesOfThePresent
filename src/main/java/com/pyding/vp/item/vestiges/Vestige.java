@@ -849,7 +849,7 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.curse." + curse,multiplier+"%").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
             }
 
-            components.add(Component.translatable("vp.info").withStyle(ChatFormatting.GRAY));
+            //components.add(Component.translatable("vp.info").withStyle(ChatFormatting.GRAY));
             /*if (stellar && player.level().isClientSide()) {
                 Component component = GradientUtil.stellarGradient(I18n.get("vp.name."+vestigeNumber).substring(2));
                 stack.setHoverName(component);

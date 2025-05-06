@@ -168,6 +168,7 @@ public class VestigesOfThePresent
             event.accept(ModItems.CORRUPT_ITEM);
             event.accept(ModItems.CHAOS_ORB);
             event.accept(ModItems.CELESTIAL_MIRROR);
+            event.accept(ModItems.GUIDE_BOOK);
         }
     }
 }

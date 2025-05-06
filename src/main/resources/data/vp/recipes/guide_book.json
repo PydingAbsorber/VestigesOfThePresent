@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    "CBD",
+    " E "
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:book"
+    },
+    "C": {
+      "item": "minecraft:magenta_dye"
+    },
+    "D": {
+      "item": "minecraft:purple_dye"
+    },
+    "E": {
+      "item": "minecraft:orange_dye"
+    }
+  },
+  "result": {
+    "item": "vp:guide_book"
+  }
+}

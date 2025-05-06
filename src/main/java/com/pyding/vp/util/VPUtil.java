@@ -17,7 +17,6 @@ import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
@@ -582,6 +581,7 @@ public class VPUtil {
         if(curseMultiplier > 0)
             damage *= curseMultiplier;
         player.getPersistentData().putBoolean("VPAttacked",true);
+        entity.hurt(source,damage*(1 + damagePercentBonus(player,type)/100));
         entity.hurt(source,damage*(1 + damagePercentBonus(player,type)/100));
     }
 
@@ -1159,7 +1159,8 @@ public class VPUtil {
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+10000);
         antiTp(entity,10000);
         setHealth(entity,0);
-        entity.die(player.damageSources().genericKill());
+        setDead(entity,player.damageSources().genericKill());
+        //entity.die(player.damageSources().genericKill());
     }
 
     public static void deadInside(LivingEntity entity){
@@ -1177,7 +1178,8 @@ public class VPUtil {
         entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+10000);
         antiTp(entity,10000);
         entity.setHealth(0);
-        entity.die(entity.damageSources().genericKill());
+        setDead(entity,entity.damageSources().genericKill());
+        //entity.die(entity.damageSources().genericKill());
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -2005,10 +2007,10 @@ public class VPUtil {
         entity.setLastHurtByPlayer(player);
         float health = damage*(1+damagePercentBonus(player,type)/100);
         float overShields = getOverShield(entity);
-        if(entity instanceof Player playerTarget && hasStellarVestige(ModItems.ARMOR.get(),player)){
+        if(type != 5 && entity instanceof Player && hasStellarVestige(ModItems.ARMOR.get(),player)){
             ItemStack stack = getVestigeStack(Armor.class,player);
             if(stack.getItem() instanceof Armor armor && armor.isUltimateActive(stack))
-                dealParagonDamage(player,entity,damage*3,3,true);
+                dealParagonDamage(player,entity,damage*3,5,true);
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
             VPUtil.play(player, SoundRegistry.BUBBLE1.get());
@@ -2034,8 +2036,8 @@ public class VPUtil {
             if(entity.getPersistentData().getLong("VPWhirlParagon") > System.currentTimeMillis()) {
                 health *= 8;
             }
-            if(isNightmareBoss(entity))
-                health *= 0.1f;
+            /*if(isNightmareBoss(entity))
+                health *= 0.1f;*/
             if (overShields > health) {
                 entity.getPersistentData().putFloat("VPOverShield", overShields - health);
                 return;
@@ -2062,7 +2064,7 @@ public class VPUtil {
         }
     }
 
-    public static void dealParagonDamage(LivingEntity entity,LivingEntity player,float damage, int type, boolean hurt){
+    public static void dealParagonDamage(LivingEntity entity,LivingEntity player,float damage, int type, boolean hurt){ //only boss
         if(entity.isDeadOrDying())
             return;
         player.getPersistentData().putBoolean("VPAttacked",true);
@@ -2397,7 +2399,7 @@ public class VPUtil {
     }
 
     public static float dreadAbsorbtion(float number,float capAbsorb) {
-        float maxCap = (float) (ConfigHandler.COMMON.nightmareDamageCap.get() + 0);
+        float maxCap = (float) (ConfigHandler.COMMON.nightmareDpsCap.get() + 0);
         float baseAbsorb = 0.05f;
         float cap = Math.max(1,(maxCap-capAbsorb));
         float damage;
@@ -2407,6 +2409,17 @@ public class VPUtil {
             damage = baseAbsorb*100 + 10f * (float) Math.log10(number);
         }
         return damage*maxCap/(maxCap+cap*baseAbsorb*100);
+    }
+
+    public static float nightmareAbsorption(LivingEntity entity, float damage) {
+        if(damage < 0)
+            return damage;
+        float buffer = entity.getPersistentData().getFloat("VPNightmareAbsorb");
+        if(damage > buffer) {
+            damage = buffer*0.75f;
+        }
+        entity.getPersistentData().putFloat("VPNightmareAbsorb",buffer-damage);
+        return damage;
     }
 
     public static boolean hasLyra(LivingEntity entity, int number){
@@ -2598,17 +2611,17 @@ public class VPUtil {
     public static void spawnBoss(LivingEntity entity){
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorHardcore.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
-        VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
+        VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()),false);
         VPUtil.setHealth(entity,entity.getMaxHealth()); //test
-        entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
+        entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldCruel.get()));
         if(VPUtil.isNightmareBoss(entity)){
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
             entity.setHealth(entity.getMaxHealth());
-            VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldHardcore.get()),false);
-            entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldHardcore.get()));
+            VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()),false);
+            entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldCruel.get()));
             AABB boundingBox = entity.getBoundingBox();
             AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
             entity.setBoundingBox(scaledBoundingBox);
@@ -2654,9 +2667,11 @@ public class VPUtil {
         }
         if(type == 1){
             player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt") + player.getMaxHealth() * 2);
-            if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < getChance(0.2,player))
-                deadInside(player);
             float stack = player.getPersistentData().getFloat("VPIgnis");
+            if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < getChance(0.2,player)) {
+                deadInside(player);
+                return;
+            }
             player.getPersistentData().putFloat("VPIgnis",Math.min(99,stack+5));
             player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),1, AttributeModifier.Operation.ADDITION,"vp:ignis_hp"));
             player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),1, AttributeModifier.Operation.ADDITION,"vp:ignis_armor"));
@@ -2782,9 +2797,9 @@ public class VPUtil {
             entity.getPersistentData().putInt("VPReach",0);
             entity.getPersistentData().putLong("VPGhost",System.currentTimeMillis()+13000);
         }
-        if(entity.tickCount % (2*20*slow) == 0) {
+        /*if(entity.tickCount % (2*20*slow) == 0) {
             entity.getPersistentData().putFloat("VPDreadAbsorb", Math.min((float)(ConfigHandler.COMMON.nightmareDamageCap.get()+0),entity.getPersistentData().getFloat("VPDreadAbsorb")+(float)(ConfigHandler.COMMON.nightmareDamageCap.get()*0.01)));
-        }
+        }*/
         if (entity.getHealth() < entity.getMaxHealth() * 0.5) {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 255, 255));
             entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 255, 255));
@@ -2793,7 +2808,7 @@ public class VPUtil {
             clearEffects(entity,false);
         if(!entity.isCurrentlyGlowing())
             entity.setGlowingTag(true);
-        float attack = (float)(100*ConfigHandler.COMMON.hardcoreDamage.get());
+        float attack = (float)(100*ConfigHandler.COMMON.damageCruel.get());
         if(entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
             attack = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = entity.getPersistentData().getInt("VPBossType");
