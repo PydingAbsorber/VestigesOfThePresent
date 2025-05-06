@@ -624,9 +624,6 @@ public class VPUtil {
             if (corpse.isSleeping()) {
                 corpse.stopSleeping();
             }
-            if (!corpse.level().isClientSide && corpse instanceof Player player) {
-                player.sendSystemMessage(Component.literal("§cSome fool tried to cancel legal death from Paragon Damage, you died forcefully!"));
-            }
             setHealth(corpse,0);
             ((LivingEntityVzlom)corpse).setDead(true);
             corpse.getCombatTracker().recheckStatus();
@@ -1160,6 +1157,8 @@ public class VPUtil {
         antiTp(entity,10000);
         setHealth(entity,0);
         setDead(entity,player.damageSources().genericKill());
+        if(isNightmareBoss(entity))
+            giveNightmareDrop(entity,player);
         //entity.die(player.damageSources().genericKill());
     }
 
@@ -3519,5 +3518,39 @@ public class VPUtil {
 
     public static String getOs(Player player){
         return osMap.get(player.getUUID());
+    }
+
+    public static void giveNightmareDrop(LivingEntity entity, Player player){
+        if(entity.getPersistentData().getBoolean("VPNDrop"))
+            return;
+        entity.getPersistentData().putBoolean("VPNDrop",true);
+        Random random = new Random();
+        for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,20,20,20,false)){
+            if(livingEntity instanceof Player killer){
+                int min = ConfigHandler.COMMON.nightmareLootMin.get();
+                int max = ConfigHandler.COMMON.nightmareLoot.get();
+                int amount = random.nextInt(Math.max(1,max-min))+min;
+                for(int i = 0;i < amount;i++) {
+                    VPUtil.dropEntityLoot(entity, killer,false);
+                }
+                min = ConfigHandler.COMMON.nightmareFragsMin.get();
+                max = ConfigHandler.COMMON.nightmareFrags.get();
+                amount = random.nextInt(Math.max(1,max-min))+min;
+                VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),amount),killer);
+                if(random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.nightmareRefresherChance.get(),player))
+                    VPUtil.giveStack(new ItemStack(ModItems.REFRESHER.get()),killer);
+                if(random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.nightmareBoxChance.get(),player)) {
+                    min = ConfigHandler.COMMON.nightmareBoxesMin.get();
+                    max = ConfigHandler.COMMON.nightmareBoxes.get();
+                    amount = random.nextInt(Math.max(1,max-min))+min;
+                    if(random.nextDouble() < 0.5){
+                        if(random.nextDouble() < 0.5)
+                            VPUtil.giveStack(new ItemStack(ModItems.BOX_EGGS.get(),amount),killer);
+                        else VPUtil.giveStack(new ItemStack(ModItems.BOX.get(),amount),killer);
+                    } else VPUtil.giveStack(new ItemStack(ModItems.BOX_SAPLINGS.get(),amount),killer);
+                }
+                VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
+            }
+        }
     }
 }
