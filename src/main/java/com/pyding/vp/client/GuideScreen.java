@@ -67,7 +67,7 @@ public class GuideScreen extends Screen {
                 center + (buttonSize + padding)*3, top-this.height/8,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/zoom-in.png"),
+                new ResourceLocation("vp", "textures/gui/point_r.png"),
                 buttonSize, buttonSize,
                 button -> {
                     page = Math.min(maxPages, page + 1);
@@ -78,7 +78,7 @@ public class GuideScreen extends Screen {
                 center - (buttonSize - padding)*3, top-this.height/8,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/zoom-out.png"),
+                new ResourceLocation("vp", "textures/gui/point_l.png"),
                 buttonSize, buttonSize,
                 button -> {
                     page = Math.max(1, page - 1);
@@ -89,7 +89,7 @@ public class GuideScreen extends Screen {
                 center + padding*3, top-this.height/8,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/reset.png"),
+                new ResourceLocation("vp", "textures/gui/button_all.png"),
                 buttonSize, buttonSize,
                 button -> showEverything = !showEverything
         );

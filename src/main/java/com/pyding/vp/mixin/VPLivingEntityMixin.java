@@ -100,25 +100,25 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "hasEffect",at = @At("RETURN"),cancellable = true, require = 1)
     private void hasEffect(MobEffect p_21024_, CallbackInfoReturnable<Boolean> cir){
-        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this)))
             cir.setReturnValue(false);
     }
 
     @Inject(method = "getEffect",at = @At("RETURN"),cancellable = true, require = 1)
     private void getEffect(MobEffect p_21024_, CallbackInfoReturnable<MobEffectInstance> cir){
-        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this)))
             cir.setReturnValue(null);
     }
 
     @Inject(method = "getActiveEffects",at = @At("RETURN"),cancellable = true, require = 1)
     private void getEffects(CallbackInfoReturnable<Collection<MobEffectInstance>> cir){
-        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this)))
             cir.setReturnValue(new CollectionSet<>(null));
     }
 
     @Inject(method = "getActiveEffectsMap",at = @At("RETURN"),cancellable = true, require = 1)
     private void getEffectsMap(CallbackInfoReturnable<Map<MobEffect, MobEffectInstance>> cir){
-        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this)))
             cir.setReturnValue(new HashMap<>());
     }
 }
