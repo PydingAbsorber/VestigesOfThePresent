@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F ",
+    "CBD",
+    " E "
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:book"
+    },
+    "C": {
+      "item": "minecraft:magenta_dye"
+    },
+    "D": {
+      "item": "minecraft:purple_dye"
+    },
+    "E": {
+      "item": "minecraft:orange_dye"
+    },
+    "F": {
+      "item": "vp:shard"
+    }
+  },
+  "result": {
+    "item": "vp:nightmare_book"
+  }
+}

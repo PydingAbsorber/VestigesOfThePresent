@@ -43,8 +43,6 @@ public class MysteryChestScreen extends Screen {
     private float time;
     public boolean levitato = false;
     public long block = 0;
-    private Button zoomInButton;
-    private Button zoomOutButton;
 
     public MysteryChestScreen() {
         super(Component.literal("Feeling lucky today?!"));
@@ -69,7 +67,7 @@ public class MysteryChestScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
-        zoomInButton = new ImageButton(
+        Button zoomInButton = new ImageButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -77,7 +75,7 @@ public class MysteryChestScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleChest.set(Math.min(2.0, ClientConfig.COMMON.guiScaleChest.get() + 0.1))
         );
-        zoomOutButton = new ImageButton(
+        Button zoomOutButton = new ImageButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,

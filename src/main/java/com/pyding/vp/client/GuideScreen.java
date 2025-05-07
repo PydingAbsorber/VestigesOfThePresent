@@ -26,7 +26,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class GuideScreen extends Screen {
@@ -45,12 +47,10 @@ public class GuideScreen extends Screen {
             "textures/gui/heal3.png");
     private static final ResourceLocation FRAME = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/frame.png");
-    int page = 0;
+    int page = 1;
     boolean showEverything = false;
     int maxPages = 8;
-    private Button nextPage;
-    private Button prevPage;
-    private Button showAll;
+    long time = 0;
 
     public GuideScreen() {
         super(Component.empty());
@@ -61,10 +61,10 @@ public class GuideScreen extends Screen {
         super.init();
         int buttonSize = 32;
         int padding = 5;
-        int center = this.width/2 - buttonSize;
+        int center = this.width/2 - buttonSize/2;
         int top = this.height - padding - buttonSize;
-        nextPage = new ImageButton(
-                center + (buttonSize + padding)*3, top-this.height/8,
+        Button nextPage = new ImageButton(
+                center + (buttonSize - padding) * 3, top - this.height / 8,
                 buttonSize, buttonSize,
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/point_r.png"),
@@ -74,8 +74,8 @@ public class GuideScreen extends Screen {
                     showEverything = false;
                 }
         );
-        prevPage = new ImageButton(
-                center - (buttonSize - padding)*3, top-this.height/8,
+        Button prevPage = new ImageButton(
+                center - (buttonSize - padding) * 3, top - this.height / 8,
                 buttonSize, buttonSize,
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/point_l.png"),
@@ -85,8 +85,8 @@ public class GuideScreen extends Screen {
                     showEverything = false;
                 }
         );
-        showAll = new ImageButton(
-                center + padding*3, top-this.height/8,
+        Button showAll = new ImageButton(
+                center, top - this.height / 8,
                 buttonSize, buttonSize,
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/button_all.png"),
@@ -96,43 +96,123 @@ public class GuideScreen extends Screen {
         this.addRenderableWidget(nextPage);
         this.addRenderableWidget(prevPage);
         this.addRenderableWidget(showAll);
+        time = System.currentTimeMillis();
+        int right = this.width - padding - buttonSize;
+        Button zoomInButton = new ImageButton(
+                right - buttonSize - padding, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/zoom-in.png"),
+                buttonSize, buttonSize,
+                button -> ClientConfig.COMMON.guiScaleGuide.set(Math.min(2.0, ClientConfig.COMMON.guiScaleGuide.get() + 0.1))
+        );
+        Button zoomOutButton = new ImageButton(
+                right, top,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/zoom-out.png"),
+                buttonSize, buttonSize,
+                button -> ClientConfig.COMMON.guiScaleGuide.set(Math.max(0.1, ClientConfig.COMMON.guiScaleGuide.get() - 0.1))
+        );
+        this.addRenderableWidget(zoomInButton);
+        this.addRenderableWidget(zoomOutButton);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
-        int infoWidth = 240;
-        int infoHeight = 220;
-        int infoPadding = 20;
-        if(page == 0)
-            showEverything = true;
+        double scale = ClientConfig.COMMON.guiScaleGuide.get();
+        if(!showEverything)
+            scale *= 1.5f;
+        int infoWidth = (int) (256*scale);
+        int infoHeight = (int) (256*scale);
+        int infoPadding = (int) (30*scale);
         if(showEverything){
-            int marginX = infoPadding + 20;
+            int marginX = infoPadding;
             int marginY = infoPadding;
             int availableWidth = this.width - marginX * 2;
             int perRow = Math.max(1, availableWidth / (infoWidth + infoPadding));
-
-            int start = showEverything ? 1 : page;
-            int end = showEverything ? maxPages : page;
-
             Font font = this.font;
-            for (int i = start; i <= end; i++) {
-                int index = i - start;
+            for (int i = 1; i <= maxPages; i++) {
+                int index = i - 1;
                 int col = index % perRow;
                 int row = index / perRow;
-                int x = marginX + col * (infoWidth + infoPadding);
+                int x = marginX + col * (infoWidth + infoPadding) + infoWidth/5;
                 int y = marginY + row * (infoHeight + infoPadding);
-                guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight);
+                guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight,infoWidth,infoHeight);
                 Component comp = Component.translatable("vp.info." + i);
                 List<net.minecraft.util.FormattedCharSequence> lines = font.split(comp, infoWidth - 2 * infoPadding);
                 for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
-                    int textX = x + infoPadding;
-                    int textY = y + infoPadding + lineIndex * font.lineHeight + infoWidth/4;
+                    int textX = x + infoPadding + infoWidth/25;
+                    int textY = y + infoPadding + lineIndex * font.lineHeight + infoHeight/6;
                     guiGraphics.drawString(font, lines.get(lineIndex), textX, textY, ChatFormatting.GRAY.getColor());
                 }
             }
         } else {
-
+            Font font = this.font;
+            int x = this.width/2 - infoWidth/2;
+            int y = this.height/2 - infoHeight/2;
+            guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight,infoWidth,infoHeight);
+            Component comp = Component.translatable("vp.info." + page);
+            List<net.minecraft.util.FormattedCharSequence> lines = font.split(comp, infoWidth - 2 * infoPadding);
+            for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
+                int textX = x + infoPadding + infoWidth/25;
+                int textY = y + infoPadding + lineIndex * font.lineHeight + infoHeight/6;
+                guiGraphics.drawString(font, lines.get(lineIndex), textX, textY, ChatFormatting.GRAY.getColor());
+            }
+            List<ResourceLocation> pic = new ArrayList<>();
+            if(page == 1) {
+                pic.add(HEALDEBT);
+                pic.add(HEALDEBT);
+                pic.add(HEALDEBT);
+            }
+            if (page == 2) {
+                pic.add(HEAL1);
+                pic.add(HEAL2);
+                pic.add(HEAL3);
+            }
+            if (page == 3) {
+                pic.add(ShieldOverlay.getTexture(6));
+                pic.add(ShieldOverlay.getTexture(5));
+                pic.add(ShieldOverlay.getTexture(7));
+            }
+            if(page == 4){
+                pic.add(SHIELD);
+            }
+            if(page == 5){
+                pic.add(OVER_SHIELD);
+            }
+            if (page == 6) {
+                pic.add(ShieldOverlay.getTexture(19));
+                pic.add(ShieldOverlay.getTexture(5));
+                pic.add(ShieldOverlay.getTexture(18));
+                pic.add(ShieldOverlay.getTexture(3));
+                pic.add(ShieldOverlay.getTexture(2));
+                pic.add(ShieldOverlay.getTexture(21));
+                pic.add(ShieldOverlay.getTexture(11));
+            }
+            if(page == 7){
+                pic.add(ShieldOverlay.getTexture(11));
+            }
+            if(!pic.isEmpty()){
+                Random random = new Random(time+page);
+                for(int i = 0; i < pic.size();i++) {
+                    int xPos, yPos;
+                    int size = (int) (64*scale);
+                    xPos = this.width/2 - size/2;
+                    yPos = this.height/2 - size/2 + infoHeight/4;
+                    if(i != 0) {
+                        int bound = 200;
+                        if (random.nextDouble() < 0.5)
+                            xPos += infoWidth / 3 + random.nextInt(bound/2)+bound/4;
+                        else xPos -= infoWidth / 3 - random.nextInt(bound/2)+bound/4;
+                        if (random.nextDouble() < 0.5)
+                            yPos += infoHeight / 3 + random.nextInt(bound/2)+bound/4;
+                        else yPos -= infoHeight - random.nextInt(bound/2)+bound/4;
+                    }
+                    guiGraphics.blit(pic.get(i), xPos, yPos, 0, 0, size, size, size, size);
+                }
+            }
         }
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }

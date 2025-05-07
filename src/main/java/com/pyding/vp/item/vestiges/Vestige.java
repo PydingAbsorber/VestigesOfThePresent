@@ -317,7 +317,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setSpecialActive(long seconds, Player player, ItemStack stack){
-        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis()){
+        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis() && (vestigeNumber != 17 || !isStellar(stack))){
             if(player instanceof ServerPlayer serverPlayer)
                 PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
             return 0;

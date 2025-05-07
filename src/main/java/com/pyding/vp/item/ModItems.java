@@ -67,6 +67,7 @@ public class ModItems {
     public static final RegistryObject<Item> CELESTIAL_MIRROR = ITEMS.register("celestial_mirror", () -> new CelestialMirror());
     public static final RegistryObject<Item> VIPACTIVATOR = ITEMS.register("vip", () -> new VipActivator(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> GUIDE_BOOK = ITEMS.register("guide_book", () -> new GuideBook(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> NIGHTMARE_BOOK = ITEMS.register("nightmare_book", () -> new NightmareBook(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> EVENT_HORIZON = ITEMS.register("event_horizon", () -> new EventHorizon(new Item.Properties().stacksTo(1)));
 
     @ObjectHolder(value = MODID + ":seashell", registryName = "item")

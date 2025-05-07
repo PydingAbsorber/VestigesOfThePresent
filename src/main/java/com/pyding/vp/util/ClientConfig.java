@@ -23,10 +23,12 @@ public class ClientConfig {
     public static class Common {
         public final ForgeConfigSpec.DoubleValue guiScaleChest;
         public final ForgeConfigSpec.DoubleValue guiScaleLoot;
+        public final ForgeConfigSpec.DoubleValue guiScaleGuide;
 
         public Common(ForgeConfigSpec.Builder builder) {
             guiScaleChest = builder.comment("Gui scale").defineInRange("guiScaleChest", 1, 0.01, 10);
             guiScaleLoot = builder.comment("Gui scale").defineInRange("guiScaleLoot", 1, 0.01, 10);
+            guiScaleGuide = builder.comment("Gui scale").defineInRange("guiScaleGuide", 1, 0.01, 10);
         }
     }
 }

@@ -2767,8 +2767,10 @@ public class VPUtil {
             entity.getPersistentData().putLong("VPTick",System.currentTimeMillis()+1000);
             entity.tick();
         }
-/*        if(entity.tickCount > (10*60*20*slow))
-            entity.discard();*/
+        if(getOverShield(entity) > 0)
+            setHealth(entity,entity.getMaxHealth());
+        if(entity.tickCount > (20*60*20))
+            despawn(entity);
         if(entity instanceof Monster monster){
             if(monster.getTarget() == null || !(monster.getTarget() instanceof Player))
                 ((MobEntityVzlom)monster).setTarget(monster.getCommandSenderWorld().getNearestPlayer(monster,45));
@@ -2789,7 +2791,6 @@ public class VPUtil {
                         if (entity.getPersistentData().getLong("VPGhost") > 0) {
                             monster.doHurtTarget(target);
                             entity.noPhysics = false;
-                            //((Monster) entity).setNoAi(false);
                             entity.getPersistentData().putLong("VPGhost", 0);
                         }
                     }

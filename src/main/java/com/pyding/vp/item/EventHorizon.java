@@ -1,6 +1,5 @@
 package com.pyding.vp.item;
 
-import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -18,12 +17,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class EventHorizon extends Item {
     public EventHorizon(Properties p_41383_) {
@@ -42,16 +40,22 @@ public class EventHorizon extends Item {
             VPUtil.deadInside(player,player);
         }
         else if(player instanceof ServerPlayer serverPlayer) {
+            ExecutorService temp = Executors.newSingleThreadExecutor();
             CompletableFuture.runAsync(() -> {
                 try {
-                    for (Entity entity : serverPlayer.serverLevel().getAllEntities()) {
-                        if (entity instanceof LivingEntity livingEntity && livingEntity != player)
+                    Iterable<Entity> entities = serverPlayer.serverLevel().getAllEntities();
+                    for (Entity entity : entities) {
+                        if(entity == null || entity == player)
+                            continue;
+                        if (entity instanceof LivingEntity livingEntity)
                             VPUtil.deadInside(livingEntity, player);
+                        else entity.kill();
                     }
                 } catch (Exception e) {
                     player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.DARK_RED));
                 }
-            });
+            }, temp).whenComplete((r, ex) -> temp.shutdown());
+
         }
         return super.use(p_41432_, player, p_41434_);
     }
@@ -60,7 +64,7 @@ public class EventHorizon extends Item {
     public boolean onEntitySwing(ItemStack stack, LivingEntity swinger) {
         if(swinger instanceof Player player && player.isCreative()) {
             LivingEntity entity = null;
-            for (LivingEntity livingEntity : VPUtil.ray(player, 2, 40, true)) {
+            for (LivingEntity livingEntity : VPUtil.ray(player, 2, 60, true)) {
                 entity = livingEntity;
                 break;
             }
