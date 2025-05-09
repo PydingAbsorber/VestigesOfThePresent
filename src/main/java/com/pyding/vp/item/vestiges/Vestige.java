@@ -572,41 +572,37 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.damage").withStyle(color));
                     components.add(Component.translatable("vp.damagetype." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
-                if (stellar) {
-                    if(vestigeNumber == 666){
-                        if(isDoubleStellar(stack)){
-                            components.add(GradientUtil.stellarGradient("Double Stellar: "));
-                            components.add(Component.translatable("vp.double_stellar." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                        }
-                        if (isTripleStellar(stack)) {
-                            components.add(GradientUtil.stellarGradient("Triple Stellar: "));
-                            components.add(Component.translatable("vp.triple_stellar." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                        }
+                if(vestigeNumber == 666){
+                    if(stellar) {
+                        components.add(GradientUtil.stellarGradient("Stellar: "));
+                        components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
                     }
-                    else {
+                    if(isDoubleStellar(stack)){
+                        components.add(GradientUtil.stellarGradient("Double Stellar: "));
+                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar." + vestigeNumber).getString()));
+                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
+                    }
+                    if (isTripleStellar(stack)) {
+                        components.add(GradientUtil.stellarGradient("Triple Stellar: "));
+                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar." + vestigeNumber).getString()));
+                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
+                    }
+                }
+                else {
+                    if (stellar) {
                         if (isTripleStellar(stack))
                             components.add(GradientUtil.stellarGradient("Triple Stellar: "));
                         else if (isDoubleStellar(stack))
                             components.add(GradientUtil.stellarGradient("Double Stellar: "));
                         else components.add(GradientUtil.stellarGradient("Stellar: "));
-                    }
-                } else {
-                    components.add(Component.translatable(("Stellar")).withStyle(color));
+                    } else components.add(Component.translatable(("Stellar")).withStyle(color));
+                    components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
+                    if(isDoubleStellar(stack))
+                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
+                    if(isTripleStellar(stack))
+                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
+                    components.add(Component.translatable("config").withStyle(ChatFormatting.GRAY));
                 }
-                components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
-                int visualUlt = this.cdUltimateActive(stack);
-                while (visualUlt > this.ultimateCd(stack)) {
-                    visualUlt -= this.ultimateCd(stack);
-                }
-                int visualSpecial = this.cdSpecialActive(stack);
-                while (visualSpecial > this.specialCd(stack)) {
-                    visualSpecial -= this.specialCd(stack);
-                }
-                if(isDoubleStellar(stack))
-                    components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
-                if(isTripleStellar(stack))
-                    components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
-                components.add(Component.translatable("config").withStyle(ChatFormatting.GRAY));
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient(VPUtil.generateRandomString(7) + " :")));
                 if(vestigeNumber == 9)

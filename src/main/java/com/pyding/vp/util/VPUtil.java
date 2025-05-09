@@ -3598,7 +3598,7 @@ public class VPUtil {
                     maxSoul.addAndGet((int)Math.log10((stack.getOrCreateTag().getFloat("VPMaxHealth"))*100));
             }
             if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player)){
-                maxSoul.addAndGet(100);
+                maxSoul.set((int) (maxSoul.get()*1.4));
             }
         }
         return maxSoul.get();

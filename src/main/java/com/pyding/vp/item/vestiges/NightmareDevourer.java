@@ -18,21 +18,12 @@ public class NightmareDevourer extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(666, ChatFormatting.DARK_RED, 1, 30, 1, 130, 5, 130, hasDamage, stack);
+        super.dataInit(666, ChatFormatting.DARK_RED, 4, 1, 2, 1, 60, 10, hasDamage, stack);
     }
-
-    int souls = 0;
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        souls = stack.getOrCreateTag().getInt("VPDevoured");
         super.curioTick(slotContext, stack);
-    }
-
-    @Override
-    public int setSpecialActive(long seconds, Player player, ItemStack stack) {
-        seconds += 100L *(Math.min(150,souls));
-        return super.setSpecialActive(seconds, player, stack);
     }
 
     @Override

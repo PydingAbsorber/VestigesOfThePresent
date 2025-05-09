@@ -112,7 +112,7 @@ public class EventHandler {
                 return;
             boolean astralAttacker = (event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPAstral") > System.currentTimeMillis());
             if(entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis() || astralAttacker){
-                if(!event.getSource().is(DamageTypes.MAGIC)) {
+                if(!event.getSource().is(DamageTypes.MAGIC) && !event.getSource().is(DamageTypes.INDIRECT_MAGIC)) {
                     event.setAmount(0);
                 } else event.setAmount(event.getAmount()*10);
             }
