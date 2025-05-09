@@ -110,7 +110,8 @@ public class EventHandler {
             }
             if (event.getSource() == null)
                 return;
-            if(entity.getPersistentData().getLong("VPAstral") > 0 || (event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPAstral") > 0)){
+            boolean astralAttacker = (event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPAstral") > System.currentTimeMillis());
+            if(entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis() || astralAttacker){
                 if(!event.getSource().is(DamageTypes.MAGIC)) {
                     event.setAmount(0);
                 } else event.setAmount(event.getAmount()*10);
@@ -180,14 +181,11 @@ public class EventHandler {
                         if (VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
                             attributesBetter = VPUtil.compareStats(player, entity, true);
                         double chance = ConfigHandler.COMMON.devourerChance.get() * souls;
-                        if(VPUtil.isNightmareBoss(entity) && chance > 0.1)
-                            chance = 0.1;
                         if (random.nextDouble() < VPUtil.getChance(chance,player))
-                            entity.getPersistentData().putInt("VPSoulRotting", entity.getPersistentData().getInt("VPSoulRotting") + 1 + attributesBetter);
+                            VPUtil.modifySoulIntegrity(entity,player,(1 + attributesBetter)*-1);
                         if (VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
-                            entity.getPersistentData().putInt("VPSoulRottingStellar", entity.getPersistentData().getInt("VPSoulRotting"));
+                            entity.getPersistentData().putLong("VPSoulRottingStellar", System.currentTimeMillis()+600000);
                         player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
-                        player.getPersistentData().putInt("VPDevourerShow",entity.getPersistentData().getInt("VPSoulRotting"));
                     }
                 }
                 int cap = 100;
@@ -291,6 +289,8 @@ public class EventHandler {
                 if(attacker != null && VPUtil.isNightmareBoss(attacker)){
                     VPUtil.nightmareDamageEvent(attacker,player,event);
                 }
+                if(astralAttacker && VPUtil.hasStellarVestige(ModItems.SOULBLIGHTER.get(),player))
+                    VPUtil.modifySoulIntegrity(event.getEntity(),10);
                 if(ConfigHandler.COMMON.cruelMode.get() && ConfigHandler.COMMON.damageCruel.get() > 0 && ((event.getSource().is(DamageTypes.STARVE) && player.getFoodData().getFoodLevel() <= 1)
                 || (event.getSource().is(DamageTypes.DROWN) && player.getAirSupply() <= 1))){
                     VPUtil.dealParagonDamage(player,player,(float)(player.getMaxHealth()*ConfigHandler.COMMON.damageCruel.get()),0,false);
@@ -603,6 +603,10 @@ public class EventHandler {
             if (event.getSource().getEntity() instanceof Player player) {
                 if(VPUtil.isProtectedFromHit(player,entity))
                     event.setCanceled(true);
+                if(entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis() && VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
+                    ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
+                    stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") + entity.getMaxHealth()*0.1f);
+                }
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                     CompoundTag tag = entity.getPersistentData();
                     if (player.getCommandSenderWorld().dimension() == Level.NETHER && player.getHealth() <= 1.5) {
@@ -1365,8 +1369,11 @@ public class EventHandler {
         }
         if (entity.getPersistentData().getInt("VPGravity") > 30)
             entity.getPersistentData().putInt("VPGravity", 30);
-        if(entity.getPersistentData().getInt("VPSoulRottingStellar") >= 50)
+        if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.5))
             VPUtil.clearEffects(entity,true);
+        if(entity.tickCount % 1200 == 0){
+            VPUtil.modifySoulIntegrity(entity,1);
+        }
         if (entity.tickCount % 20 == 0) {
             if(tag.getFloat("VPHealResMask") != 0) {
                 tag.putFloat("VPHealResMask", 0);
@@ -1382,8 +1389,6 @@ public class EventHandler {
             entity.getPersistentData().putLong("VPDonutSpecial",0);
         if(entity.getPersistentData().getLong("VPFlowerStellar") != 0 && entity.getPersistentData().getLong("VPFlowerStellar") <= System.currentTimeMillis())
             entity.getPersistentData().putLong("VPFlowerStellar",0);
-        if(entity.getPersistentData().getLong("VPAstral") != 0 && entity.getPersistentData().getLong("VPAstral") <= System.currentTimeMillis())
-            entity.getPersistentData().putLong("VPAstral",0);
         if(entity.getPersistentData().getLong("VPPrismBuff") != 0 && entity.getPersistentData().getLong("VPPrismBuff") <= System.currentTimeMillis()) {
             entity.getPersistentData().putLong("VPPrismBuff", 0);
             entity.getPersistentData().putInt("VPPrismDamage",0);
@@ -1724,14 +1729,9 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onMobSpawn(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof LivingEntity entity && ConfigHandler.COMMON.cruelMode.get()) {
-            RandomSource random = entity.getRandom();
-            if(VPUtil.isBoss(entity))
-                VPUtil.spawnBoss(entity);
-            else if(entity instanceof Monster && random.nextDouble() < ConfigHandler.COMMON.empoweredChance.get())
-                VPUtil.boostEntity(entity,5,entity.getHealth()*3*(float)(0.5+4*random.nextDouble()),entity.getHealth()*(float)(0.5+4*random.nextDouble()));
-        }
         if(event.getEntity() instanceof Player player){
+            if(VPUtil.getSoulIntegrity(player) <= 0)
+                VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
             VPUtil.updateStats(player);
             player.getPersistentData().putLong("VPDeath",0);
             player.getPersistentData().putLong("VPMirnoeReshenie",0);
@@ -1742,6 +1742,16 @@ public class EventHandler {
             }
             if(player.level().isClientSide){
                 PacketHandler.sendToServer(new SendClientDataToServerPacket(1,System.getProperty("os.name").toLowerCase(Locale.ROOT)));
+            }
+        }
+        else if(event.getEntity() instanceof LivingEntity entity) {
+            VPUtil.modifySoulIntegrity(entity, 99999);
+            if (ConfigHandler.COMMON.cruelMode.get()) {
+                RandomSource random = entity.getRandom();
+                if (VPUtil.isBoss(entity))
+                    VPUtil.spawnBoss(entity);
+                else if (entity instanceof Monster && random.nextDouble() < ConfigHandler.COMMON.empoweredChance.get())
+                    VPUtil.boostEntity(entity, 5, entity.getHealth() * 3 * (float) (0.5 + 4 * random.nextDouble()), entity.getHealth() * (float) (0.5 + 4 * random.nextDouble()));
             }
         }
     }

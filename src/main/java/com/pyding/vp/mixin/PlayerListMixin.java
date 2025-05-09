@@ -31,5 +31,6 @@ public class PlayerListMixin {
     private void respawn(ServerPlayer player, boolean p_11238_, CallbackInfoReturnable<ServerPlayer> cir){
         if(VPUtil.isRoflanEbalo(player))
             player.getPersistentData().putLong("VPMirnoeReshenie",0);
+        VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
     }
 }

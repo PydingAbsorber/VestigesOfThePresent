@@ -48,7 +48,7 @@ public class EventHorizon extends Item {
                         if(entity == null || entity == player)
                             continue;
                         if (entity instanceof LivingEntity livingEntity)
-                            VPUtil.deadInside(livingEntity, player);
+                            VPUtil.despawn(livingEntity);
                         else entity.kill();
                     }
                 } catch (Exception e) {

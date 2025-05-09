@@ -40,20 +40,25 @@ public class SoulBlighter extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 300, 15, 300, hasDamage, stack);
+        super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 300, 15, 300, true, stack);
     }
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC4.get());
-        if(player.getHealth() < player.getMaxHealth()*0.5f)
-            player.getPersistentData().putLong("VPAstral",System.currentTimeMillis()+specialMaxTime(stack));
-        else {
-            for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
-                entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime(stack));
-                VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
-                break;
+        for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
+            if (entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis()){
+                float souls = stack.getOrCreateTag().getFloat("VPSoulPool");
+                float price = souls*0.1f+10;
+                if(souls > price) {
+                    VPUtil.dealDamage(entity, player, player.damageSources().magic(), 125 + price, 2);
+                    stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") - price);
+                    VPUtil.modifySoulIntegrity(entity, player, (int) -price);
+                }
             }
+            entity.getPersistentData().putLong("VPAstral", System.currentTimeMillis() + specialMaxTime(stack));
+            VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
+            break;
         }
         super.doSpecial(seconds, player, level, stack);
     }

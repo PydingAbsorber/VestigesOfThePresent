@@ -495,6 +495,10 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.passive").withStyle(color));
                 if(vestigeNumber == 18)
                     components.add(Component.translatable("vp.passive." + vestigeNumber,(int)(ConfigHandler.COMMON.ballShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballOverShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballDebuff.get()+0)+"%").withStyle(ChatFormatting.GRAY));
+                else if (vestigeNumber == 20) {
+                    components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                    components.add(Component.translatable("vp.dop." + vestigeNumber, (int) stack.getOrCreateTag().getFloat("VPSoulPool")).withStyle(ChatFormatting.GRAY));
+                }
                 else components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 int spCharges;
                 int ultCharges;
@@ -569,11 +573,23 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.damagetype." + vestigeNumber).withStyle(ChatFormatting.GRAY));
                 }
                 if (stellar) {
-                    if(isTripleStellar(stack))
-                        components.add(GradientUtil.stellarGradient("Triple Stellar: "));
-                    else if(isDoubleStellar(stack))
-                        components.add(GradientUtil.stellarGradient("Double Stellar: "));
-                    else components.add(GradientUtil.stellarGradient("Stellar: "));
+                    if(vestigeNumber == 666){
+                        if(isDoubleStellar(stack)){
+                            components.add(GradientUtil.stellarGradient("Double Stellar: "));
+                            components.add(Component.translatable("vp.double_stellar." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                        }
+                        if (isTripleStellar(stack)) {
+                            components.add(GradientUtil.stellarGradient("Triple Stellar: "));
+                            components.add(Component.translatable("vp.triple_stellar." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                        }
+                    }
+                    else {
+                        if (isTripleStellar(stack))
+                            components.add(GradientUtil.stellarGradient("Triple Stellar: "));
+                        else if (isDoubleStellar(stack))
+                            components.add(GradientUtil.stellarGradient("Double Stellar: "));
+                        else components.add(GradientUtil.stellarGradient("Stellar: "));
+                    }
                 } else {
                     components.add(Component.translatable(("Stellar")).withStyle(color));
                 }
@@ -659,7 +675,13 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.fish").withStyle(color)
                             .append(Component.literal(" " + progress))
                             .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber))));
-                } else {
+                }
+                else if(vestigeNumber == 666){
+                    components.add(Component.translatable("vp.progress").withStyle(color)
+                            .append(Component.literal(" " + cap.getNightmareChallenge().split(",").length))
+                            .append(Component.literal(" / " + 7)));
+                }
+                else {
                     components.add(Component.translatable("vp.progress").withStyle(color)
                             .append(Component.literal(" " + progress))
                             .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber))));

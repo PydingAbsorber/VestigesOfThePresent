@@ -178,7 +178,7 @@ public class ConfigHandler {
             markBonus = builder.comment("Amount of stats per Curse for Mark's Overdrive").defineInRange("markBonus", 10, 1, Integer.MAX_VALUE);
 
 
-            devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
+            devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 100, 0, 2100000000);
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
             anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
             chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);

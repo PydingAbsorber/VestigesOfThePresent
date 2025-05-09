@@ -192,6 +192,10 @@ public class GuideScreen extends Screen {
                 pic.add(ShieldOverlay.getTexture(11));
             }
             if(page == 7){
+                pic.add(ShieldOverlay.getTexture(15));
+                pic.add(ShieldOverlay.getTexture(20));
+            }
+            if(page == 8){
                 pic.add(ShieldOverlay.getTexture(11));
             }
             if(!pic.isEmpty()){

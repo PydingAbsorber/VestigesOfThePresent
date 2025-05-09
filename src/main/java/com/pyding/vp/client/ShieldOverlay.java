@@ -488,6 +488,8 @@ public class ShieldOverlay {
         locations.add(new ResourceLocation(MODID, "textures/item/pearl_static.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/whirlpool_static.png"));
         locations.add(new ResourceLocation(MODID, "textures/item/archlinx.png"));
+        if(vp == 666)
+            return new ResourceLocation(MODID, "textures/item/n_devourer.png");
         return locations.get(vp-1);
     }
 }

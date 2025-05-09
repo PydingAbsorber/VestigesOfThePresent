@@ -79,6 +79,8 @@ public class PlayerCapabilityVP {
     private int pearls = 0;
     private int advancements = 0;
     private String headshots = "";
+    private int soulIntegrity = 0;
+    private String nightmareChallenge = "";
 
     public void setSleep(boolean slept){
         sleep = slept;
@@ -243,6 +245,11 @@ public class PlayerCapabilityVP {
             return true;
         return false;
     }
+
+    public String getAllLore(){
+        return loreComplete;
+    }
+
     public void setRandomEntity(EntityType type,Player player){
         randomEntity = type.getDescriptionId();
         sync(player);
@@ -581,6 +588,7 @@ public class PlayerCapabilityVP {
         pearls = 0;
         advancements = 0;
         headshots = "";
+        nightmareChallenge = "";
         sync(player);
     }
 
@@ -790,6 +798,8 @@ public class PlayerCapabilityVP {
         password = source.password;
         advancements = source.advancements;
         headshots = source.headshots;
+        soulIntegrity = source.soulIntegrity;
+        nightmareChallenge = source.nightmareChallenge;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -837,6 +847,8 @@ public class PlayerCapabilityVP {
         nbt.putString("VPPassword",password);
         nbt.putInt("VPAdv",advancements);
         nbt.putString("VPHeadshots",headshots);
+        nbt.putInt("VPSI",soulIntegrity);
+        nbt.putString("VPNChall",nightmareChallenge);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -884,6 +896,8 @@ public class PlayerCapabilityVP {
         password = nbt.getString("VPPassword");
         advancements = nbt.getInt("VPAdv");
         headshots = nbt.getString("VPHeadshots");
+        soulIntegrity = nbt.getInt("VPSI");
+        nightmareChallenge = nbt.getString("VPNChall");
     }
 
     public void sync(Player player){
@@ -1005,6 +1019,10 @@ public class PlayerCapabilityVP {
                 stack = new ItemStack(ModItems.ARCHLINX.get());
                 break;
             }
+            case 666:{
+                stack = new ItemStack(ModItems.NIGHTMARE_DEVOURER.get());
+                break;
+            }
             default: {
                 stack = new ItemStack(ModItems.STELLAR.get());
                 break;
@@ -1115,5 +1133,37 @@ public class PlayerCapabilityVP {
     public void addAdvancement(Player player) {
         this.advancements += 1;
         sync(player);
+    }
+
+    public int getSoulIntegrity() {
+        return soulIntegrity;
+    }
+
+    public void setSoulIntegrity(int soulIntegrity) {
+        this.soulIntegrity = soulIntegrity;
+    }
+
+    public String getNightmareChallenge() {
+        return nightmareChallenge;
+    }
+
+    public void addNightmareChallenge(int numb, Player player) {
+        if(!VPUtil.notContains(nightmareChallenge,numb+"")) {
+            this.nightmareChallenge += numb + ",";
+            if(nightmareChallenge.split(",").length >= 7 && !player.level().isClientSide){
+                nightmareChallenge = "";
+                ItemStack stack = vestige(666, player);
+                VPUtil.giveStack(stack,player);
+                VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
+                if(!password.isEmpty())
+                    LeaderboardUtil.addChallenge(player, 666, password);
+                if(new Random().nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.mysteryChestChallengeChance.get(),player)){
+                    ItemStack chest = new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(63));
+                    stack.getOrCreateTag().putInt("VPOpen",0);
+                    VPUtil.giveStack(chest,player);
+                }
+            }
+            sync(player);
+        }
     }
 }

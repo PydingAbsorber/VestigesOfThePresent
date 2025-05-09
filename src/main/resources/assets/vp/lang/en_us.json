@@ -34,6 +34,7 @@
   "item.vp.flower": "§2Seven-coloured Flower",
   "item.vp.catalyst": "§aInfested Catalyst",
   "item.vp.archlinx": "§9Archlinx",
+  "item.vp.nightmare_devourer": "§4Nightmare Devourer",
   "item.vp.easter_egg": "§cEaster Egg",
   "item.vp.shard": "§dCrystallized §5Despair",
   "item.vp.vip": "VIP Activator",
@@ -42,7 +43,7 @@
   "item.vip.desc2.2": "If used while VIP is already activated it will increase current VIP.",
   "item.vip.desc3": "This activator is bound with you, nobody else can use it.",
   "item.vp.event_horizon": "Event Horizon",
-  "vp.event_horizon.desc": "Creative only. \nSwing forces the creature to Die Guaranteed upon sight. \nOn use forces Guaranteed Death of all loaded entities in the world or yourself if crouching.",
+  "vp.event_horizon.desc": "Creative only. \nSwing forces the creature to Die Guaranteed upon sight. \nOn use forces Despawn of all loaded entities in the world or yourself if crouching.",
   "item.vp.corrupted_fragment": "§4Corrupted Wish",
   "item.vp.corrupted_item": "§cCorrupted Fate",
   "item.vp.chaos_orb": "§eOrb of Chaos",
@@ -122,6 +123,7 @@
   "vp.name.22": "§2Bard's Lyre",
   "vp.name.23": "§1Abyssal Pearl",
   "vp.name.24": "§9Whirlpool",
+  "vp.name.25": "§4Nightmare Devourer",
   "item.vp.stellar": "Stellar Fragment",
   "item.vp.box": "§5Box of Wonders",
   "box.info.1": "Use to get random Accessory.",
@@ -290,7 +292,7 @@
 
   "vp.passive.15": "Every slain boss yields a Soul.",
   "vp.special.15": "Binds the soul of the nearest creature or a creature you're looking at for 5 seconds. \n(Each Soul from Passive adds +0.1 second, up to a maximum of 15 seconds). \nThe bound creature cannot move between worlds, teleport and cannot leave a 3x3x3 area.",
-  "vp.ultimate.15": "For the next %s hits, with a certain chance, it will increase Soul Corruption of the affected creature. \n(Chance depends on accumulated Souls from Passive, +%s chance for each soul). \nCreatures with Soul Corruption of 100 and above Guaranteed Dies, for Bosses or Players amount increases by their max hp/10.",
+  "vp.ultimate.15": "For the next %s hits, with a certain chance, it will decrease Soul Integrity of the affected creature. \n(Chance depends on accumulated Souls from Passive, +%s chance for each soul).",
   "vp.get.15": "Kill all bosses of modpack",
 
   "vp.passive.16": "Each peaceful creature around reduces the healing received by the wearer by 0.1% for every 1% of HP they are missing.(99% cap)",
@@ -316,10 +318,12 @@
   "vp.get.19": "Deal a total of %s damage to enemy Shields or Over Shields.",
   "vp.damagetype.19": "Paragon (can be reduced only by Over Shields).",
 
-  "vp.passive.20": "Over Shields regenerates up to 10% of the max HP of the stored creature (from Ultimate) per second. Upon receiving Shields, there's a 20% chance to convert 5% into Over Shields.",
-  "vp.special.20": "The creature the wearer is looking at enters an Astral form for 15 seconds. \nIn this form, the creature cannot deal or receive damage, except for magical types and through invulnerability, with received damage increased tenfold. \nPressing with hp lower then  50% will apply the effect to wearer.",
+  "vp.passive.20": "OverShield regenerates up to 10% of the max HP of the stored creature (from Ultimate) per second. \nUpon receiving Shields, there's a 20% chance to convert 5% into Over Shields. \nKilling creatures in Astral form will reap its souls into Soul Repository.",
+  "vp.special.20": "The creature the wearer is looking at enters an Astral form for 15 seconds. \nIn this form, the creature cannot deal or receive damage, except for magical types and through invulnerability, with received damage increased tenfold. \nIf target is already in Astral form and there is enough price(10+10% from Soul Repository), then deals 125%+price damage and Soul Integrity reduces by 20, consuming price.",
   "vp.ultimate.20": "Applies a Healing Debt of 2000% of max HP. \nThe soul of the creature upon gaze will be encapsulated in a Vestige with a chance dependent on the HP difference between the wearer and the creature, as well as the creature's current HP.\nThe exact chance can be found using the command /vestiges captureChance <player's max HP> <creature's max HP> <creature's current HP>\nIf the creature is in Astral form, the chance will be doubled.\nUpon successful capture of the soul, the physical form of the creature will disintegrate, and no loot will drop.\nIf there is a Preserved Soul:\nMaterializes the Preserved Soul and summons a creature that will fight on the side of the wearer.\nThis creature can be returned to the Storage by activating the Ultimate near it again.",
   "vp.get.20": "Tame or kill all peaceful creatures in the modpack.",
+  "vp.damagetype.20": "magic",
+  "vp.dop.20": "Current Soul Repository: %s",
 
   "vp.passive.21": "After receiving Paragon damage or Boss damage, grants Shields and Over Shields equal to 50% of the damage taken if the wearer has no Shields or Over Shields.",
   "vp.special.21": "Consumes 20% of equipment durability, each durability consumed + knockback resistance will give a Shield Bonus at a ratio of 10 to 1 for 10 seconds.",
@@ -348,6 +352,15 @@
   "vp.get.25": "Get headshot kills on %s different modpack monsters.",
   "vp.damagetype.25": "freeze, magic",
 
+  "vp.passive.666": "Ability charges do not recharge on their own.\nKilling a Nightmare Boss or using Crystallized Despair will restore all charges of every Nightmare Devourer in the inventory.\nCharges are retained when swapping.\nKills by Guaranteed Death restore 10% Soul Integrity.",
+  "vp.special.666": "Sacrifices 30% of the bearer’s maximum Soul Integrity, as well as that of all surrounding creatures.\nEach point of collected Soul Integrity increases Healing Bonus and Shields, as well as Passive, Special, and Ultimate damage by 1% for 10 minutes.",
+  "vp.ultimate.666": "For the next 10 seconds releases a powerful laser that reduces Soul Integrity by 1 each tick.",
+  "vp.get.666": "?????)(*&!@#%_&!@*&%?????",
+  "vp.stellar.666": "The amount of Soul Integrity reduced by the Ultimate is increased by 1 for every 40% of Ultimate Damage Bonus.\nIncreases maximum Soul Integrity by 40%.",
+  "vp.double_stellar.666": "Ultimate duration is increased by 1 second for every 100 maximum Soul Integrity.",
+  "vp.triple_stellar.666": "At full charges, creates an aura that gradually drains the Soul Integrity of nearby creatures.\nWhen not fully charged, restores 1 charge per hour if 16 Crystallized Horrors are present.",
+
+
   "vp.stellar.1": "Passive: Gains 10% durability vampirism. \n(Each reduced point of durability will restore durability for your equipment.). \nIf your equipment is fully repaired, rest of reduced durability will become healing.",
   "vp.stellar.2": "For enemies under the effect of the Ultimate, consumes 10% of Shields to enhance the Special, dealing an additional 1 Paragon damage for every 1000 Shields spent (up to a maximum of 1000).",
   "vp.stellar.3": "Ultimate: Each creature affected by the Black Hole will increase its duration by 10% and give Gravitation stack.",
@@ -362,12 +375,12 @@
   "vp.stellar.12": "Special: Each damage inflicted on Disappointed creature, which after absorption will be less than 5, accumulates without absorption. \nAfter that, it is added to the next attack that will hurt opponent more then 5 damage, or to the 10th attack.",
   "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance. \nEntities around will have reduced max hp for Heal Debt they have and when hp is not enough they will Die Guaranteed.",
-  "vp.stellar.15": "Ultimate: Creatures with Soul Corruption higher then 10 wont be able to get Heal and Shields, higher then 50 - clears all buffs. \nThe Soul Corruption multiplier on strikes also increases by 1 for each attribute of the wearer exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
+  "vp.stellar.15": "Ultimate: Creatures with Soul Integrity lower then 90% from maximum wont be able to get Heal and Shields and OverShields, lower then 50% - clears all buffs. \nThe Soul Integrity reduction on strikes also increases by 1 for each attribute of the wearer exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
   "vp.stellar.16": "Ultimate: Creatures under the shield receive physical damage absorption 90% and breaking shield will hurt breaker with amount of max initiate Shields.",
   "vp.stellar.17": "Special now can be used with Silence and it gives 15 charges that clears Healing Debt, Silence and redirects debuffs to all entities in 15 blocks radius. \nUltimate: cancels the level restriction.",
   "vp.stellar.18": "Ultimate: every 10% damage bonus adds 1 Paragon damage against wet opponents.",
   "vp.stellar.19": "Ultimate: will also increase maximum HP by 1% for every 2% of missing Over Shield until cd ends. \nOver Shields will regenerate from overhealing until removed.",
-  "vp.stellar.20": "Increases the wearer's max HP by 30% of the Stored creature's max HP. \nAll received damage, healing, Shields, Over Shields, and Healing Debt will be transferred to the Summoned creature within a 30-block radius.",
+  "vp.stellar.20": "Increases the wearer's max HP by 30% of the Stored creature's max HP and Soul Integrity by log10 of max hp. \nCreatures in Astral Form get Soul Integrity reduced by 10 when dealing damage to wearer.",
   "vp.stellar.21": "While the Ultimate is not active, Shields and Over Shields will be consumed instead of equipment durability.\nWhile the Ultimate is active, prevented durability damage will restore Over Shields.",
   "vp.stellar.22": "The Ultimate will also restore 1 Special charge to itself and all surrounding players.",
   "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
@@ -385,12 +398,12 @@
   "vp.info.4": "§5Shield§7 - protects against damage less than the Shield value and activates after absorption or amplification effects from other mods. \nFor example: \nIf a player has 10 Shields and receives 8 damage, player will take 0 damage and have 2 Shields remaining. \nIf 12 damage is dealt, the player takes 2 damage, depleting the Shields.",
   "vp.info.5": "§5Overshield§7 - provides complete protection against damage, even if the damage exceeds the overshield value. It activates before regular Shields. \nFor example: \nPlayer with 80 overShields and 10 Shields takes 99999 damage, resulting in 0 damage taken and 0 overShields, but 10 Shields remaining. \nOverShields are also 90% more effective against magical and void damage. \nNote: If damage is unregistered, like sethealth, OverShields will cancel it.",
   "vp.info.6": "§5Paragon Damage§7 - guaranteed damage that ignores evasion, absorption, damage negation, and Shields but does not bypass OverShields.\n§5Guaranteed Death§7 - called by default on death by §5Paragon Damage§7 or with /vestiges deadInside or by other Vestiges and kills through any invincibility.",
-  "vp.info.7": "§5Damage Type§7 - refers to its characteristic, what it does, and the properties it possesses. \nFor example:\nDamage type damageHelmet deals additional damage to the helm, while bypassInvul penetrates through invulnerability seconds between hits, enchantments, effects, armor, etc. \nSome Vestiges feature mechanics that change the damage type, altering such characteristics of the inflicted damage.,",
-  "vp.info.8": "§5Damage Kind§7 - is a set of characteristics with specific name. \nFor example:\nDamage types \"Fall\" and \"Stalagmite\" include bypassArmor and isFall, meaning they will penetrate armor and be further reduced by enchantments against falling on armor. \nThen there's the damage type \"Falling Stalagmite,\" which only includes damageHelmet.",
+  "vp.info.7": "§5Soul Integrity§7-is a characteristic that all creatures possess. The amount of §5Soul Integrity§7 depends on every attribute of the creature as well as its achievements (advancements, game milestones, kills). When §5Soul Integrity§7 is lost, it restores by 1 point after one minute and by 25% on death. If Soul Integrity reaches 0, the creature is guaranteed to die.",
+  "vp.info.8": "§5Damage Type§7 - refers to its characteristic, what it does, and the properties it possesses. \nFor example:\nDamage type damageHelmet deals additional damage to the helm, while bypassInvul penetrates through invulnerability seconds between hits, enchantments, effects, armor, etc. \nSome Vestiges feature mechanics that change the damage type, altering such characteristics of the inflicted damage.,",
 
   "item.vp.nightmare_book": "Nightmare Book",
   "vp.nightmare_book.desc": "Describes Nightmare Bosses in all 50 shades",
-  "vp.nightmare.0": "All §5Nightmare Bosses §7share the following characteristics:\n\n§51)§7 Upon death, they each grant ×10–20 loot, 13–26 Star Fragments, 4–8 Boxes of Accessories/Seeds/Eggs with a 50% chance, and a Refresher with a 10% chance to every player in the area.\n\n§52)§7 They have ×10 damage, maximum HP, Shields, and Ultra Shields of the boss used for enhancement.\n§53)§7 They have a cap on how much damage per second can be dealt to them.\n§54)§7 The Soul Devourer has only up to a 10% chance to increase Soul Corruption for Nightmare bosses.\n§55)§7 When below 50% HP, Nightmare bosses enter a berserk state: their speed doubles, and their attacks deal an additional 10% Paragon Damage.\n§56)§7 They are cleansed of negative effects every 15 seconds.\n§57)§7 If they cannot reach their target within 13 seconds, they enter a Phantasmal Form, allowing them to fly through blocks until they reach the target.\n§58)§7 They are immune to any HP modifications while OverShields are active.\n§59)§7 They vanish 20 minutes after being summoned.\n§510)§7 Each Nightmare boss spawns with a random type.",
+  "vp.nightmare.0": "All §5Nightmare Bosses §7share the following characteristics:\n\n§51)§7 Upon death, they each grant ×10–20 loot, 13–26 Star Fragments, 4–8 Boxes of Accessories/Seeds/Eggs with a 50% chance, and a Refresher with a 10% chance to every player in the area.\n\n§52)§7 They have ×10 damage, maximum HP, Shields, and Ultra Shields of the boss used for enhancement.\n§53)§7 They have a cap on how much damage per second can be dealt to them.\n§54)§7 Has 4 times more Soul Integrity.\n§55)§7 When below 50% HP, Nightmare bosses enter a berserk state: their speed doubles, and their attacks deal an additional 10% Paragon Damage.\n§56)§7 They are cleansed of negative effects every 15 seconds.\n§57)§7 If they cannot reach their target within 13 seconds, they enter a Phantasmal Form, allowing them to fly through blocks until they reach the target.\n§58)§7 They are immune to any HP modifications while OverShields are active.\n§59)§7 They vanish 20 minutes after being summoned.\n§510)§7 Each Nightmare boss spawns with a random type.",
   "vp.nightmare.1": "§c1.Fire Type:\n\n§7-Ignites all players in radius, dealing 60% lava damage per zone every 4 seconds, reducing armor, max HP, Healing Bonus, and Shields by 5%, stacking up to 90% over one minute.\n\nBurning enemies nearby take 10× more damage.\n\nEach attack applies a Healing Over Time equal to 200% of the target’s max HP, can consume Remnant charges, or has a 10% chance to force Guaranteed Death on players below 30% HP.",
   "vp.nightmare.2": "§a2.Poison Type:\n\n§7-On hit, inflicts a random debuff and Poison, spawns toxic fields that corrode gear and apply Strong Poison.\n\nAll nearby players take ×20 poison damage and are Guaranteed to Die from poisoning if their HP is insufficient.\n\nPoisoned players suffer –150% Healing Bonus and –50% duration.\n\nEach poisoned enemy nearby increases the boss’s regeneration by 30%.",
   "vp.nightmare.3": "§63.Earth Type:\n\n§7-Restores 10% of current OverShields every 10 seconds and reflects 10% of incoming damage.\n\nCan trigger an earthquake, dealing 1000% inWall damage to grounded creatures.\n\nSuccessful hits steal positive effects.\n\nEvery 5 seconds gains immunity to all damage that can only be broken by attacking with Vestige abilities.\n\nUsing combat Vestiges deals random damage to players.",
@@ -424,6 +437,7 @@
   "vp.short.23": "Speeds up fishing and provides additional unique loot from it.",
   "vp.short.24": "Heals the owner when wet, provides protection from hits, and applies debuffs.",
   "vp.short.25" : "Increases projectile damage, stores dealt damage and deals it in one shot.",
+  "vp.short.666" : "Razes all existence to atoms, the mightiest Vestige.",
 
   "vp.acs.types": "§5Attribute types:§d \n1) +1-4 to Max HP\n2) +2-8 to Attack attribute\n3) +5-20% to Damage dealt\n4) +3-12% to Healing\n5) +4-16% to Shields.",
   "vp.acs.sets": "Sets:",
@@ -479,5 +493,6 @@
   "vp.meme.22": "",
   "vp.meme.23": "",
   "vp.meme.24": "",
-  "vp.meme.25": "I'm playing on Linux btw!"
+  "vp.meme.25": "I'm playing on Linux btw!",
+  "vp.meme.666": "My power is so great that I am able to reduce to atoms with a single glance."
 }

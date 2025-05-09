@@ -6,13 +6,11 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
-import com.pyding.vp.item.vestiges.Archlinx;
-import com.pyding.vp.item.vestiges.Armor;
-import com.pyding.vp.item.vestiges.Vestige;
-import com.pyding.vp.item.vestiges.Whirlpool;
+import com.pyding.vp.item.vestiges.*;
 import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
@@ -85,6 +83,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -1074,7 +1073,7 @@ public class VPUtil {
     }
 
     public static void addShield(LivingEntity entity,float amount,boolean add){
-        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
+        if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9))
             return;
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = getShieldBonus(entity);
@@ -1110,7 +1109,7 @@ public class VPUtil {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
                 if(random.nextDouble() < getChance(0.2,player))
                     addOverShield(player,shield*0.05f,false);
-                if(hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)) {
+                /*if(hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)) {
                     boolean found = false;
                     for (LivingEntity entityTarget : VPUtil.getEntities(player, 30, false)) {
                         if (entityTarget.getPersistentData().hasUUID("VPPlayer")) {
@@ -1122,7 +1121,7 @@ public class VPUtil {
                     }
                     if (!found)
                         tag.putFloat("VPShield", shield);
-                }
+                }*/
             }
             else tag.putFloat("VPShield", shield);
         }
@@ -1163,7 +1162,10 @@ public class VPUtil {
         setDead(entity,player.damageSources().genericKill());
         if(isNightmareBoss(entity))
             giveNightmareDrop(entity,player);
-        //entity.die(player.damageSources().genericKill());
+        if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
+            ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
+            stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") + entity.getMaxHealth());
+        }
     }
 
     public static void deadInside(LivingEntity entity){
@@ -1182,7 +1184,6 @@ public class VPUtil {
         antiTp(entity,10000);
         entity.setHealth(0);
         setDead(entity,entity.damageSources().genericKill());
-        //entity.die(entity.damageSources().genericKill());
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -1697,7 +1698,7 @@ public class VPUtil {
     }
 
     public static void addOverShield(LivingEntity entity,float amount, boolean applyBonus){
-        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10)
+        if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9))
             return;
         CompoundTag tag = entity.getPersistentData();
         if(tag.getFloat("VPOverShield") <= 0) {
@@ -1728,7 +1729,7 @@ public class VPUtil {
                     return;
                 }
             }
-            if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
+            /*if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
                 boolean found = false;
                 for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
                     if (entityTarget.getPersistentData().hasUUID("VPPlayer")){
@@ -1740,7 +1741,7 @@ public class VPUtil {
                 }
                 if(!found)
                     tag.putFloat("VPOverShield", shield);
-            } else tag.putFloat("VPOverShield", shield);
+            } else tag.putFloat("VPOverShield", shield);*/
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1754,7 +1755,7 @@ public class VPUtil {
     }
 
     public static void regenOverShield(LivingEntity entity,float amount){
-        if(entity.getPersistentData().getInt("VPSoulRotting") >= 10 || (entity instanceof Player player && hasCurse(player,5)))
+        if((entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9)) || (entity instanceof Player player && hasCurse(player,5)))
             return;
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
@@ -1793,7 +1794,7 @@ public class VPUtil {
         if(stealer.getPersistentData().getFloat("VPShield") <= 0 && shield > 0)
             play(entity,SoundRegistry.SHIELD.get());
         if(stealer.getPersistentData().getLong("VPAntiShield") < System.currentTimeMillis()) {
-            if(stealer instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
+            /*if(stealer instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
                 boolean found = false;
                 for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
                     if (entityTarget.getPersistentData().hasUUID("VPPlayer")){
@@ -1812,12 +1813,11 @@ public class VPUtil {
                     tag.putFloat("VPOverShield", Math.max(0,tag.getFloat("VPOverShield")-stolenOverShield));
                     stealer.getPersistentData().putFloat("VPOverShield", overShield);
                 }
-            } else {
-                tag.putFloat("VPShield", Math.max(0,tag.getFloat("VPShield")-stolenShield));
-                stealer.getPersistentData().putFloat("VPShield", shield);
-                tag.putFloat("VPOverShield", Math.max(0,tag.getFloat("VPOverShield")-stolenOverShield));
-                stealer.getPersistentData().putFloat("VPOverShield", overShield);
-            }
+            } */
+            tag.putFloat("VPShield", Math.max(0,tag.getFloat("VPShield")-stolenShield));
+            stealer.getPersistentData().putFloat("VPShield", shield);
+            tag.putFloat("VPOverShield", Math.max(0,tag.getFloat("VPOverShield")-stolenOverShield));
+            stealer.getPersistentData().putFloat("VPOverShield", overShield);
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -3557,9 +3557,75 @@ public class VPUtil {
                 VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
             }
         }
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            cap.addNightmareChallenge(entity.getPersistentData().getInt("VPBossType"),player);
+        });
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){
         return entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) < 9990;
     }
+
+    public static int getSoulIntegrity(LivingEntity entity){
+        if(entity instanceof Player player){
+            AtomicInteger soul = new AtomicInteger();
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                soul.set(cap.getSoulIntegrity());
+            });
+            return soul.get();
+        } else return entity.getPersistentData().getInt("VPSoulIntegrity");
+    }
+
+    public static int getMaxSoulIntegrity(LivingEntity entity){
+        if(!isBoss(entity) && !(entity instanceof Player))
+            return 100;
+        AtomicInteger maxSoul = new AtomicInteger(100);
+        maxSoul.addAndGet((int) (entity.getMaxHealth()*0.01));
+        if(isBoss(entity)) {
+            maxSoul.set(maxSoul.get() * 2);
+            if (isNightmareBoss(entity))
+                maxSoul.set(maxSoul.get() * 4);
+        }
+        else if(entity instanceof Player player){
+            maxSoul.set(maxSoul.get()*4);
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                maxSoul.addAndGet((int) (cap.getAdvancements()*0.1));
+                maxSoul.addAndGet(cap.getAllLore().split(",").length*25);
+            });
+            if(hasStellarVestige(ModItems.SOULBLIGHTER.get(),player)){
+                ItemStack stack = getVestigeStack(SoulBlighter.class,player);
+                if(stack.getOrCreateTag().contains("entityData"))
+                    maxSoul.addAndGet((int)Math.log10((stack.getOrCreateTag().getFloat("VPMaxHealth"))*100));
+            }
+            if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player)){
+                maxSoul.addAndGet(100);
+            }
+        }
+        return maxSoul.get();
+    }
+
+    public static void modifySoulIntegrity(LivingEntity entity, int number){
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+            });
+        } else {
+            entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
+            if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)
+                deadInside(entity);
+        }
+    }
+
+    public static void modifySoulIntegrity(LivingEntity entity,Player modifier, int number){
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+            });
+        } else {
+            entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
+            if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)
+                deadInside(entity,modifier);
+        }
+    }
+
 }
