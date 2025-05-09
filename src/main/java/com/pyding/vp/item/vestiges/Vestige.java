@@ -333,8 +333,10 @@ public class Vestige extends Item implements ICurioItem {
                 if(damageType == null)
                     init(stack);
                 this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
-                if(VPUtil.hasCurse(player,3))
+                player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+ConfigHandler.COMMON.vestigesCooldown.get());
+                if(VPUtil.hasCurse(player,3)) {
                     player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
+                }
             } else this.localSpecial(player);
         }
         return 0;
@@ -357,11 +359,16 @@ public class Vestige extends Item implements ICurioItem {
                 long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
                 if(damageType == null)
                     init(stack);
+                player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+ConfigHandler.COMMON.vestigesCooldown.get());
+                if(VPUtil.hasCurse(player,3)) {
+                    player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
+                }
                 this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld(), stack);
             } else this.localSpecial(player);
         }
         return 0;
     }
+
     public float specialTimeBonus = 1;
     public float ultimateTimeBonus = 1;
     public void applyBonus(ItemStack stack,Player player){

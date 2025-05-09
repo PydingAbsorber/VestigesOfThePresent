@@ -3587,7 +3587,6 @@ public class VPUtil {
                 maxSoul.set(maxSoul.get() * 4);
         }
         else if(entity instanceof Player player){
-            maxSoul.set(maxSoul.get()*4);
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 maxSoul.addAndGet((int) (cap.getAdvancements()*0.1));
                 maxSoul.addAndGet(cap.getAllLore().split(",").length*25);
@@ -3597,8 +3596,9 @@ public class VPUtil {
                 if(stack.getOrCreateTag().contains("entityData"))
                     maxSoul.addAndGet((int)Math.log10((stack.getOrCreateTag().getFloat("VPMaxHealth"))*100));
             }
+            maxSoul.set(maxSoul.get()*4);
             if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player)){
-                maxSoul.set((int) (maxSoul.get()*1.4));
+                maxSoul.set((int) (maxSoul.get()*2));
             }
         }
         return maxSoul.get();

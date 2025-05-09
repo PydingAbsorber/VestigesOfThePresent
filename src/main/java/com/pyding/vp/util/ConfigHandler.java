@@ -21,6 +21,7 @@ public class ConfigHandler {
     }
 
     public static class Common {
+        public final ForgeConfigSpec.LongValue vestigesCooldown;
         public final ForgeConfigSpec.BooleanValue cruelMode;
         public final ForgeConfigSpec.IntValue armorCruel;
         public final ForgeConfigSpec.DoubleValue damageCruel;
@@ -116,7 +117,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue mysteryChestChallengeChance;
 
         public Common(ForgeConfigSpec.Builder builder) {
-            refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
+            vestigesCooldown = builder.comment("Cooldown in milliseconds for any Vestiges abilities. 200 is 0.2 sec.").defineInRange("vestigesCooldown", 200, 0, Long.MAX_VALUE);
             List<Integer> reduceList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
                 reduceList.add(0);
@@ -142,7 +143,7 @@ public class ConfigHandler {
             nightmareLootMin = builder.comment("Nightmare Bosses min loot multiplier").defineInRange("nightmareLootMin", 10, 1, 2100000000);
             nightmareBoxes = builder.comment("Nightmare Bosses max boxes").defineInRange("nightmareBoxes", 8, 1, 2100000000);
             nightmareBoxesMin = builder.comment("Nightmare Bosses min boxes").defineInRange("nightmareBoxesMin", 4, 1, 2100000000);
-
+            refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
 
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);
