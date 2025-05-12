@@ -117,6 +117,7 @@ public class MysteryChest extends Item {
         return list;
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
         if(p_41434_ != InteractionHand.MAIN_HAND || !level.isClientSide)

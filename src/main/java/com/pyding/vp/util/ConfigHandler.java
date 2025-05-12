@@ -135,7 +135,7 @@ public class ConfigHandler {
             healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
 
 
-            nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareBoxChance", 0.5, 0, 1);
+            nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareAllBoxChance", 1d, 0, 1);
             nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
             nightmareFrags = builder.comment("Nightmare Bosses max fragments").defineInRange("nightmareFrags", 26, 1, 2100000000);
             nightmareFragsMin = builder.comment("Nightmare Bosses min fragments").defineInRange("nightmareFragsMin", 13, 1, 2100000000);

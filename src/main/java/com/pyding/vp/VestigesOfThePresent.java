@@ -121,6 +121,7 @@ public class VestigesOfThePresent
 
     private void addCreative(BuildCreativeModeTabContentsEvent event){
         if(event.getTab() == ModCreativeModTab.VP_TAB.get()){
+            event.accept(ModItems.EVENT_HORIZON);
             event.accept(ModItems.ANEMOCULUS);
             event.accept(ModItems.CROWN);
             event.accept(ModItems.ATLAS);
@@ -170,7 +171,6 @@ public class VestigesOfThePresent
             event.accept(ModItems.CELESTIAL_MIRROR);
             event.accept(ModItems.GUIDE_BOOK);
             event.accept(ModItems.NIGHTMARE_BOOK);
-            event.accept(ModItems.EVENT_HORIZON);
         }
     }
 }

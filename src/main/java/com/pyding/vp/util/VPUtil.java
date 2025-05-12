@@ -3547,12 +3547,9 @@ public class VPUtil {
                 if(random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.nightmareBoxChance.get(),player)) {
                     min = ConfigHandler.COMMON.nightmareBoxesMin.get();
                     max = ConfigHandler.COMMON.nightmareBoxes.get();
-                    amount = random.nextInt(Math.max(1,max-min))+min;
-                    if(random.nextDouble() < 0.5){
-                        if(random.nextDouble() < 0.5)
-                            VPUtil.giveStack(new ItemStack(ModItems.BOX_EGGS.get(),amount),killer);
-                        else VPUtil.giveStack(new ItemStack(ModItems.BOX.get(),amount),killer);
-                    } else VPUtil.giveStack(new ItemStack(ModItems.BOX_SAPLINGS.get(),amount),killer);
+                    VPUtil.giveStack(new ItemStack(ModItems.BOX_EGGS.get(),random.nextInt(Math.max(1,max-min))+min),killer);
+                    VPUtil.giveStack(new ItemStack(ModItems.BOX.get(),random.nextInt(Math.max(1,max-min))+min),killer);
+                    VPUtil.giveStack(new ItemStack(ModItems.BOX_SAPLINGS.get(),random.nextInt(Math.max(1,max-min))+min),killer);
                 }
                 VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
             }
