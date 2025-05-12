@@ -9,7 +9,6 @@
     "AttributesUnlock",
     "BucketMixin",
     "CuriosMixin",
-    "DeadInsideMixin",
     "EnchantmentsMixin",
     "EntityVzlom",
     "FishingMixin",

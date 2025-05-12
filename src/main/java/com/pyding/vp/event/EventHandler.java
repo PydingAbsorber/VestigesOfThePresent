@@ -1078,6 +1078,8 @@ public class EventHandler {
         } else if(Math.random() < 0.1)
             player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
         MysteryChest.init();
+        if(VPUtil.isRoflanEbalo(player))
+            VPUtil.setRoflanEbalo(player,-1);
     }
 
     @SubscribeEvent
@@ -1352,7 +1354,6 @@ public class EventHandler {
             if(VPUtil.isRoflanEbalo(entity)){
                 ((LivingEntityVzlom)entity).setDead(false);
                 VPUtil.setDead(entity, entity.damageSources().dryOut());
-                VPUtil.despawn(entity);
             }
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()){
@@ -1734,7 +1735,6 @@ public class EventHandler {
                 VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
             VPUtil.updateStats(player);
             player.getPersistentData().putLong("VPDeath",0);
-            player.getPersistentData().putLong("VPMirnoeReshenie",0);
             if(((LivingEntityVzlom)player).isDead())
                 ((LivingEntityVzlom)player).setDead(false);
             if(player.hasEffect(VPEffects.VIP_EFFECT.get())){

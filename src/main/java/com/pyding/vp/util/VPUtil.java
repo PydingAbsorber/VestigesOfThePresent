@@ -639,6 +639,7 @@ public class VPUtil {
                 corpse.level().broadcastEntityEvent(corpse, (byte)3);
             }
             corpse.setPose(Pose.DYING);
+            despawn(corpse);
         }
     }
 
@@ -1156,7 +1157,7 @@ public class VPUtil {
         entity.hurt(player.damageSources().playerAttack(player),0);
         entity.setLastHurtByPlayer(player);
         antiResurrect(entity,10000);
-        entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+10000);
+        setRoflanEbalo(entity,10000);
         antiTp(entity,10000);
         setHealth(entity,0);
         setDead(entity,player.damageSources().genericKill());
@@ -1180,7 +1181,7 @@ public class VPUtil {
         entity.invulnerableTime = 0;
         entity.hurt(entity.damageSources().genericKill(),0);
         antiResurrect(entity,10000);
-        entity.getPersistentData().putLong("VPMirnoeReshenie", System.currentTimeMillis()+10000);
+        setRoflanEbalo(entity,10000);
         antiTp(entity,10000);
         entity.setHealth(0);
         setDead(entity,entity.damageSources().genericKill());
@@ -3371,6 +3372,10 @@ public class VPUtil {
     }
 
     public static void antiTp(LivingEntity entity, long time){
+        if(time == -1){
+            entity.getPersistentData().putLong("VPAntiTP", 0);
+            return;
+        }
         entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
         syncEntity(entity);
         if(entity instanceof Player player){
@@ -3557,6 +3562,14 @@ public class VPUtil {
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.addNightmareChallenge(entity.getPersistentData().getInt("VPBossType"),player);
         });
+    }
+
+    public static void setRoflanEbalo(LivingEntity entity, long time){
+        if(time == -1){
+            entity.getPersistentData().putLong("VPMirnoeReshenie",0);
+            return;
+        }
+        entity.getPersistentData().putLong("VPMirnoeReshenie",System.currentTimeMillis()+time);
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){

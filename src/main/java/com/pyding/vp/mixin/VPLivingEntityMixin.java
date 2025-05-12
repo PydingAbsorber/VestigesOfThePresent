@@ -44,9 +44,13 @@ public abstract class VPLivingEntityMixin {
     @Inject(method = "setHealth",at = @At("HEAD"),cancellable = true, require = 1)
     protected void setHealthMix(float amount, CallbackInfo ci){
         LivingEntity entity = (LivingEntity)(Object)this;
+        if(VPUtil.isRoflanEbalo(entity)) {
+            ci.cancel();
+            return;
+        }
         if(entity.getHealth() < amount)
             return;
-        if(VPUtil.isNpc(entity.getType()) || VPUtil.isRoflanEbalo(entity) || VPUtil.getOverShield(entity) > 0){
+        if(VPUtil.isNpc(entity.getType()) || VPUtil.getOverShield(entity) > 0){
             ci.cancel();
             return;
         }
