@@ -40,7 +40,9 @@ public class Rune extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.RUNE2.get());
-        for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20,true)){
+        for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,20,20,20)){
+            if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
+                continue;
             VPUtil.spawnSphere(entity,ParticleTypes.FLAME,30,5,1);
             entity.getPersistentData().putLong("VPRuneUlt",seconds);
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR, UUID.fromString("4cfa176b-4d5b-43bf-bd9b-9d717ffd7689"),20*(1 + VPUtil.getShieldBonus(entity)), AttributeModifier.Operation.ADDITION,"vp:rune"));

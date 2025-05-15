@@ -54,8 +54,10 @@ public class Flower extends Vestige{
         }
         damage *= ConfigHandler.COMMON.flowerShield.get();
         for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,30,30,30)){
-            VPUtil.addShield(entity,damage,false);
-            VPUtil.spawnParticles(player, ParticleTypes.FALLING_HONEY,entity.getX(),entity.getY()+2,entity.getZ(),8,0,0.5,0);
+            if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
+                continue;
+            VPUtil.addShield(entity, damage, false);
+            VPUtil.spawnParticles(player, ParticleTypes.FALLING_HONEY, entity.getX(), entity.getY() + 2, entity.getZ(), 8, 0, 0.5, 0);
         }
         super.doUltimate(seconds, player, level, stack);
     }

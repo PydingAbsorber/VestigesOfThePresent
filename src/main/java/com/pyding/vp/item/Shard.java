@@ -67,6 +67,7 @@ public class Shard extends Item {
                 VPUtil.setHealth(entity,entity.getMaxHealth());
                 if(player.getName().getString().equals("Pyding"))
                     player.sendSystemMessage(Component.literal(entity.getMaxHealth() + " curent" + entity.getHealth()));
+                VPUtil.modifySoulIntegrity(entity, 99999);
             }
         }
         else if(entity instanceof TropicalFish){

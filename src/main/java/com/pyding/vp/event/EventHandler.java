@@ -605,7 +605,7 @@ public class EventHandler {
                     event.setCanceled(true);
                 if(entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis() && VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
                     ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
-                    stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") + entity.getMaxHealth()*0.1f);
+                    stack.getOrCreateTag().putFloat("VPSoulPool", (float) (stack.getOrCreateTag().getFloat("VPSoulPool") + Math.min(Integer.MAX_VALUE,Math.log10(entity.getMaxHealth())*10)));
                 }
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                     CompoundTag tag = entity.getPersistentData();
@@ -843,7 +843,7 @@ public class EventHandler {
         } else {
             LivingEntity entity = event.getEntity();
             if(!VPUtil.canResurrect(entity)){
-                entity.setHealth(0);
+                VPUtil.setHealth(entity,0);
                 event.setCanceled(false);
             }
         }
@@ -1078,8 +1078,9 @@ public class EventHandler {
         } else if(Math.random() < 0.1)
             player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
         MysteryChest.init();
-        if(VPUtil.isRoflanEbalo(player))
-            VPUtil.setRoflanEbalo(player,-1);
+        VPUtil.setRoflanEbalo(player,-1);
+        VPUtil.antiResurrect(player,-1);
+        VPUtil.antiTp(player,-1);
     }
 
     @SubscribeEvent
@@ -1405,11 +1406,13 @@ public class EventHandler {
                     player.getPersistentData().putFloat("VPRender1",0);
                     player.getPersistentData().putFloat("VPRender2",0);
                     player.getPersistentData().putFloat("VPRender3",0);
+                    player.getPersistentData().putString("VPRender4","");
                 } else {
                     for(LivingEntity target: list){
                         player.getPersistentData().putFloat("VPRender1",VPUtil.getShield(target));
                         player.getPersistentData().putFloat("VPRender2",VPUtil.getOverShield(target));
                         player.getPersistentData().putFloat("VPRender3",target.getPersistentData().getFloat("VPHealDebt"));
+                        player.getPersistentData().putString("VPRender4",VPUtil.getSoulIntegrity(target)+"/"+VPUtil.getMaxSoulIntegrity(target));
                         break;
                     }
                 }
@@ -1445,7 +1448,7 @@ public class EventHandler {
             }
             if(VPUtil.hasStellarVestige(ModItems.CHAOS.get(), playerServer)){
                 for(LivingEntity livingEntity: VPUtil.getEntities(playerServer,20,false)){
-                    if(VPUtil.isProtectedFromHit(playerServer,entity) || VPUtil.isFriendlyFireBetween(entity,playerServer))
+                    if(VPUtil.isProtectedFromHit(playerServer,entity))
                         continue;
                     float healDebt = (float) (livingEntity.getPersistentData().getFloat("VPHealDebt")/ConfigHandler.COMMON.chaosCoreStellarHpRes.get());
                     if(healDebt > 0) {
@@ -1679,6 +1682,8 @@ public class EventHandler {
                     cap.addEffect(effect.getDescriptionId(),player);
                 }
             });
+        } else if(entity.tickCount < 20){
+            VPUtil.modifySoulIntegrity(entity, 99999);
         }
     }
     @SubscribeEvent
@@ -1734,7 +1739,7 @@ public class EventHandler {
             if(VPUtil.getSoulIntegrity(player) <= 0)
                 VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
             VPUtil.updateStats(player);
-            player.getPersistentData().putLong("VPDeath",0);
+            VPUtil.antiResurrect(player,-1);
             if(((LivingEntityVzlom)player).isDead())
                 ((LivingEntityVzlom)player).setDead(false);
             if(player.hasEffect(VPEffects.VIP_EFFECT.get())){

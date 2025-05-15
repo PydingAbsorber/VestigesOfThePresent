@@ -549,7 +549,7 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
-        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
+        if(isProtectedFromHit(player,entity))
             return;
         entity.invulnerableTime = 0;
         ItemStack stack = player.getMainHandItem();
@@ -565,7 +565,7 @@ public class VPUtil {
     }
 
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
-        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity))
+        if(isProtectedFromHit(player,entity))
             return;
         if(invulPierce)
             entity.invulnerableTime = 0;
@@ -603,6 +603,8 @@ public class VPUtil {
     }
 
     public static void despawn(LivingEntity livingEntity){
+        if(isNpc(livingEntity.getType()))
+            return;
         livingEntity.invalidateCaps();
         VPUtil.spawnSphere(livingEntity,ParticleTypes.ASH,50,2,0.01f);
         VPUtil.spawnSphere(livingEntity,ParticleTypes.WHITE_ASH,50,2,0.01f);
@@ -610,13 +612,12 @@ public class VPUtil {
         if(livingEntity instanceof ServerPlayer player){
             setDead(livingEntity,livingEntity.damageSources().dryOut());
             ((PlayerListVzlom)(player.getServer().getPlayerList())).getPlayers().remove(player);
-            player.serverLevel().removePlayerImmediately(player, Entity.RemovalReason.DISCARDED);
         } else {
             setHealth(livingEntity,0);
             livingEntity.getBrain().clearMemories();
             ((EntityVzlom) livingEntity).setPersistentData(null);
-            ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
         }
+        ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
     }
 
     public static void setDead(LivingEntity corpse, DamageSource source){
@@ -639,7 +640,6 @@ public class VPUtil {
                 corpse.level().broadcastEntityEvent(corpse, (byte)3);
             }
             corpse.setPose(Pose.DYING);
-            despawn(corpse);
         }
     }
 
@@ -1085,23 +1085,10 @@ public class VPUtil {
             else return;
         }
         else shield = tag.getFloat("VPShield") + amount*(1 + shieldBonus/100);
-        if(entity instanceof Player player){
-            float curseShield = getCurseMultiplier(player,5);
-            if(curseShield != 0){
-                for(LivingEntity livingEntity: getEntities(player,30,false)){
-                    if(!isFriendlyFireBetween(player,livingEntity) && !isProtectedFromHit(player,livingEntity)){
-                        float entityShield = getShield(livingEntity);
-                        float entityOverShield = getOverShield(livingEntity);
-                        if(entityShield > shield*curseShield){
-                            livingEntity.getPersistentData().putFloat("VPShield", entityShield-shield*curseShield);
-                        } else livingEntity.getPersistentData().putFloat("VPShield", 0);
-                        if(entityOverShield > shield*curseShield){
-                            livingEntity.getPersistentData().putFloat("VPOverShield", entityOverShield-shield*curseShield);
-                        } else livingEntity.getPersistentData().putFloat("VPOverShield", 0);
-                        VPUtil.syncEntity(livingEntity);
-                    }
-                }
-                sync(player);
+        if(entity instanceof Player player) {
+            float curseShield = getCurseMultiplier(player, 5);
+            if (curseShield != 0) {
+                cursedShield(player, curseShield, shield);
                 return;
             }
         }
@@ -1110,21 +1097,8 @@ public class VPUtil {
             if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
                 if(random.nextDouble() < getChance(0.2,player))
                     addOverShield(player,shield*0.05f,false);
-                /*if(hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)) {
-                    boolean found = false;
-                    for (LivingEntity entityTarget : VPUtil.getEntities(player, 30, false)) {
-                        if (entityTarget.getPersistentData().hasUUID("VPPlayer")) {
-                            if (entityTarget.getPersistentData().getUUID("VPPlayer").equals(player.getUUID())) {
-                                found = true;
-                                entityTarget.getPersistentData().putFloat("VPShield", entityTarget.getPersistentData().getFloat("VPShield") + amount * (1 + shieldBonus / 100));
-                            }
-                        }
-                    }
-                    if (!found)
-                        tag.putFloat("VPShield", shield);
-                }*/
             }
-            else tag.putFloat("VPShield", shield);
+            tag.putFloat("VPShield", shield);
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1147,6 +1121,8 @@ public class VPUtil {
     }
 
     public static void deadInside(LivingEntity entity,Player player){
+        if(isNpc(entity.getType()))
+            return;
         Random random = new Random();
         if(entity instanceof Player || isBoss(entity) || isEmpoweredMob(entity)) {
             if (random.nextDouble() < 0.5)
@@ -1160,17 +1136,17 @@ public class VPUtil {
         setRoflanEbalo(entity,10000);
         antiTp(entity,10000);
         setHealth(entity,0);
-        setDead(entity,player.damageSources().genericKill());
+        despawn(entity);
         if(isNightmareBoss(entity))
             giveNightmareDrop(entity,player);
         if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
             ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
-            stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") + entity.getMaxHealth());
+            stack.getOrCreateTag().putFloat("VPSoulPool", (float) (stack.getOrCreateTag().getFloat("VPSoulPool") + Math.min(Integer.MAX_VALUE,Math.log10(entity.getMaxHealth())*100)));
         }
     }
 
     public static void deadInside(LivingEntity entity){
-        if(entity.isRemoved())
+        if(isNpc(entity.getType()) || entity.isRemoved())
             return;
         Random random = new Random();
         if(entity instanceof Player || isBoss(entity) || isEmpoweredMob(entity)) {
@@ -1184,7 +1160,7 @@ public class VPUtil {
         setRoflanEbalo(entity,10000);
         antiTp(entity,10000);
         entity.setHealth(0);
-        setDead(entity,entity.damageSources().genericKill());
+        despawn(entity);
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
@@ -1549,6 +1525,8 @@ public class VPUtil {
         if(target.getPersistentData().hasUUID("VPPlayer") && target.getPersistentData().getUUID("VPPlayer").compareTo(attacker.getUUID()) == 0)
             return true;
         final boolean[] friend = {false};
+        if(isFriendlyFireBetween(attacker,target))
+            return true;
         attacker.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             for(String name: cap.getFriends().split(",")){
                 if(!name.isEmpty() && (target.getDisplayName().equals(name)
@@ -1698,6 +1676,23 @@ public class VPUtil {
         }
     }
 
+    public static void cursedShield(Player player, float curseMultiplier, float shield){
+        for(LivingEntity livingEntity: getEntities(player,30,false)){
+            if(!isProtectedFromHit(player,livingEntity)){
+                CompoundTag tag = livingEntity.getPersistentData();
+                float entityShield = getShield(livingEntity);
+                float entityOverShield = getOverShield(livingEntity);
+                if(entityShield > shield*curseMultiplier){
+                    tag.putFloat("VPShield", entityShield-shield*curseMultiplier);
+                } else tag.putFloat("VPShield", 0);
+                if(entityOverShield > shield*curseMultiplier){
+                    tag.putFloat("VPOverShield", entityOverShield-shield*curseMultiplier);
+                } else tag.putFloat("VPOverShield", 0);
+            }
+        }
+        sync(player);
+    }
+
     public static void addOverShield(LivingEntity entity,float amount, boolean applyBonus){
         if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9))
             return;
@@ -1714,35 +1709,10 @@ public class VPUtil {
             if(entity instanceof Player player){
                 float curseShield = getCurseMultiplier(player,5);
                 if(curseShield != 0){
-                    for(LivingEntity livingEntity: getEntities(player,30,false)){
-                        if(!isFriendlyFireBetween(player,livingEntity) && !isProtectedFromHit(player,livingEntity)){
-                            float entityShield = getShield(livingEntity);
-                            float entityOverShield = getOverShield(livingEntity);
-                            if(entityShield > shield*curseShield){
-                                tag.putFloat("VPShield", entityShield-shield*curseShield);
-                            } else tag.putFloat("VPShield", 0);
-                            if(entityOverShield > shield*curseShield){
-                                tag.putFloat("VPOverShield", entityOverShield-shield*curseShield);
-                            } else tag.putFloat("VPOverShield", 0);
-                        }
-                    }
-                    sync(player);
+                    cursedShield(player,curseShield,shield);
                     return;
-                }
+                } else tag.putFloat("VPOverShield", shield);
             }
-            /*if(entity instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
-                boolean found = false;
-                for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
-                    if (entityTarget.getPersistentData().hasUUID("VPPlayer")){
-                        if(entityTarget.getPersistentData().getUUID("VPPlayer").equals(player.getUUID())){
-                            found = true;
-                            entityTarget.getPersistentData().putFloat("VPOverShield", entityTarget.getPersistentData().getFloat("VPOverShield")+amount*(1 + shieldBonus/100));
-                        }
-                    }
-                }
-                if(!found)
-                    tag.putFloat("VPOverShield", shield);
-            } else tag.putFloat("VPOverShield", shield);*/
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1765,11 +1735,18 @@ public class VPUtil {
             return;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
         if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
-            if (tag.getFloat("VPOverShieldMax") <= 0){
-                tag.putFloat("VPOverShield", shield);
-                tag.putFloat("VPOverShieldMax", shield);
+            if(entity instanceof Player player) {
+                float curseShield = getCurseMultiplier(player, 5);
+                if (curseShield != 0) {
+                    cursedShield(player, curseShield, shield);
+                    return;
+                }
+            } else {
+                if (tag.getFloat("VPOverShieldMax") <= 0) {
+                    tag.putFloat("VPOverShield", shield);
+                    tag.putFloat("VPOverShieldMax", shield);
+                } else tag.putFloat("VPOverShield", Math.min(tag.getFloat("VPOverShieldMax"), shield));
             }
-            else tag.putFloat("VPOverShield", Math.min(tag.getFloat("VPOverShieldMax"), shield));
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1795,29 +1772,17 @@ public class VPUtil {
         if(stealer.getPersistentData().getFloat("VPShield") <= 0 && shield > 0)
             play(entity,SoundRegistry.SHIELD.get());
         if(stealer.getPersistentData().getLong("VPAntiShield") < System.currentTimeMillis()) {
-            /*if(stealer instanceof Player player && hasStellarVestige(ModItems.SOULBLIGHTER.get(), player)){
-                boolean found = false;
-                for (LivingEntity entityTarget: VPUtil.getEntities(player,30,false)) {
-                    if (entityTarget.getPersistentData().hasUUID("VPPlayer")){
-                        if(entityTarget.getPersistentData().getUUID("VPPlayer").equals(player.getUUID())){
-                            found = true;
-                            tag.putFloat("VPShield", Math.max(0,tag.getFloat("VPShield")-stolenShield));
-                            entityTarget.getPersistentData().putFloat("VPShield", getShield(entityTarget)+stolenShield);
-                            tag.putFloat("VPOverShield", Math.max(0,tag.getFloat("VPOverShield")-stolenOverShield));
-                            entityTarget.getPersistentData().putFloat("VPOverShield", getOverShield(entityTarget)+stolenOverShield);
-                        }
-                    }
-                }
-                if(!found) {
-                    tag.putFloat("VPShield", Math.max(0,tag.getFloat("VPShield")-stolenShield));
-                    stealer.getPersistentData().putFloat("VPShield", shield);
-                    tag.putFloat("VPOverShield", Math.max(0,tag.getFloat("VPOverShield")-stolenOverShield));
-                    stealer.getPersistentData().putFloat("VPOverShield", overShield);
-                }
-            } */
             tag.putFloat("VPShield", Math.max(0,tag.getFloat("VPShield")-stolenShield));
-            stealer.getPersistentData().putFloat("VPShield", shield);
             tag.putFloat("VPOverShield", Math.max(0,tag.getFloat("VPOverShield")-stolenOverShield));
+            if(stealer instanceof Player player) {
+                float curseShield = getCurseMultiplier(player, 5);
+                if (curseShield != 0) {
+                    cursedShield(player, curseShield, shield);
+                    cursedShield(player, curseShield, overShield);
+                    return;
+                }
+            }
+            stealer.getPersistentData().putFloat("VPShield", shield);
             stealer.getPersistentData().putFloat("VPOverShield", overShield);
         }
         if(entity instanceof ServerPlayer player) {
@@ -2005,7 +1970,7 @@ public class VPUtil {
     }
 
     public static void dealParagonDamage(LivingEntity entity,Player player,float damage, int type, boolean hurt){
-        if(isFriendlyFireBetween(entity,player) || isProtectedFromHit(player,entity) || entity.isDeadOrDying())
+        if(isProtectedFromHit(player,entity) || entity.isDeadOrDying())
             return;
         player.getPersistentData().putBoolean("VPAttacked",true);
         entity.setLastHurtByPlayer(player);
@@ -3386,6 +3351,10 @@ public class VPUtil {
     }
 
     public static void antiResurrect(LivingEntity entity, long time){
+        if(time == -1){
+            entity.getPersistentData().putLong("VPDeath", 0);
+            return;
+        }
         entity.getPersistentData().putLong("VPDeath", System.currentTimeMillis()+time);
         syncEntity(entity);
         if(entity instanceof Player player){
@@ -3573,7 +3542,7 @@ public class VPUtil {
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){
-        return entity.getPersistentData().getLong("VPMirnoeReshenie") > 0 && (entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis()) < 9990;
+        return entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis() > 0;
     }
 
     public static int getSoulIntegrity(LivingEntity entity){
@@ -3618,11 +3587,13 @@ public class VPUtil {
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+                cap.sync(player);
             });
         } else {
             entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
             if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)
                 deadInside(entity);
+            syncEntity(entity);
         }
     }
 
@@ -3630,11 +3601,13 @@ public class VPUtil {
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+                cap.sync(player);
             });
         } else {
             entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
             if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)
                 deadInside(entity,modifier);
+            syncEntity(entity);
         }
     }
 

@@ -30,7 +30,8 @@ public class Trigon extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.MAGIC5.get());
         for(LivingEntity entity: VPUtil.ray(player,6,30,true)){
-            VPUtil.dealParagonDamage(entity,player,player.getMaxHealth()/10,2,true);
+            if(!VPUtil.isProtectedFromHit(player,entity))
+                VPUtil.dealParagonDamage(entity,player,player.getMaxHealth()/10,2,true);
         }
         VPUtil.rayParticles(player,ParticleTypes.WAX_ON,30,3,30,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level, stack);

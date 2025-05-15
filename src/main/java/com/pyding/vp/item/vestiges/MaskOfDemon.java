@@ -77,7 +77,7 @@ public class MaskOfDemon extends Vestige{
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             }
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
-                if(VPUtil.isProtectedFromHit(player,entity) || VPUtil.isFriendlyFireBetween(entity,player))
+                if(VPUtil.isProtectedFromHit(player,entity))
                     continue;
                 CompoundTag tag = entity.getPersistentData();
                 if (tag == null) {
@@ -141,9 +141,11 @@ public class MaskOfDemon extends Vestige{
         }
         player.getPersistentData().putFloat("VPHealDebt",player.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
-            entity.getPersistentData().putFloat("VPHealDebt",entity.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
-            VPUtil.dealDamage(entity,player,player.damageSources().sonicBoom(player),damage,3);
-            VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM,entity.getX(),entity.getY(),entity.getZ(),1,0,-0.1,0);
+            if(!VPUtil.isProtectedFromHit(player,entity)) {
+                entity.getPersistentData().putFloat("VPHealDebt", entity.getPersistentData().getFloat("VPHealDebt") + VPHealDebt);
+                VPUtil.dealDamage(entity, player, player.damageSources().sonicBoom(player), damage, 3);
+                VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM, entity.getX(), entity.getY(), entity.getZ(), 1, 0, -0.1, 0);
+            }
         }
         super.doUltimate(seconds, player, level, stack);
     }

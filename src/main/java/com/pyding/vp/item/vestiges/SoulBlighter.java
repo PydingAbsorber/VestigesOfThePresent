@@ -49,7 +49,7 @@ public class SoulBlighter extends Vestige{
         for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
             if (entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis()){
                 float souls = stack.getOrCreateTag().getFloat("VPSoulPool");
-                float price = souls*0.1f+10;
+                float price = (float) (Math.min(Integer.MAX_VALUE,Math.log10(souls)*100)+10);
                 if(souls > price) {
                     VPUtil.dealDamage(entity, player, player.damageSources().magic(), 125 + price, 2);
                     stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") - price);

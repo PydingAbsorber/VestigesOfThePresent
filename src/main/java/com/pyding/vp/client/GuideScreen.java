@@ -165,6 +165,11 @@ public class GuideScreen extends Screen {
                 pic.add(HEALDEBT);
                 pic.add(HEALDEBT);
                 pic.add(HEALDEBT);
+                pic.add(ShieldOverlay.getTexture(6));
+                pic.add(ShieldOverlay.getTexture(5));
+                pic.add(ShieldOverlay.getTexture(7));
+                pic.add(ShieldOverlay.getTexture(14));
+                pic.add(ShieldOverlay.getTexture(17));
             }
             if (page == 2) {
                 pic.add(HEAL1);
@@ -172,9 +177,10 @@ public class GuideScreen extends Screen {
                 pic.add(HEAL3);
             }
             if (page == 3) {
+                pic.add(ShieldOverlay.getTexture(16));
+                pic.add(ShieldOverlay.getTexture(21));
                 pic.add(ShieldOverlay.getTexture(6));
-                pic.add(ShieldOverlay.getTexture(5));
-                pic.add(ShieldOverlay.getTexture(7));
+                pic.add(ShieldOverlay.getTexture(22));
             }
             if(page == 4){
                 pic.add(SHIELD);

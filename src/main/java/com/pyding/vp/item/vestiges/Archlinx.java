@@ -92,8 +92,10 @@ public class Archlinx extends Vestige{
             for(LivingEntity entity: list){
                 if(!entities.contains(entity)) {
                     entities.add(entity);
-                    VPUtil.spawnSphere(entity, ParticleTypes.GLOW_SQUID_INK,20,2,0.4f);
-                    VPUtil.dealDamage(entity,player,player.damageSources().indirectMagic(player,player),damage,3,true);
+                    if(!VPUtil.isProtectedFromHit(player,entity)) {
+                        VPUtil.spawnSphere(entity, ParticleTypes.GLOW_SQUID_INK, 20, 2, 0.4f);
+                        VPUtil.dealDamage(entity, player, player.damageSources().indirectMagic(player, player), damage, 3, true);
+                    }
                 }
             }
         }

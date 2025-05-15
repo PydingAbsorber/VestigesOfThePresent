@@ -79,6 +79,8 @@ public class Lyra extends Vestige{
             }
         }
         for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,15,15,15)){
+            if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
+                continue;
             VPUtil.spawnAura(entity,20, ParticleTypes.NOTE,1);
             VPUtil.spawnCircleParticles(entity,20,ParticleTypes.NOTE,5,1);
             VPUtil.spawnSphere(entity,ParticleTypes.NOTE,40,3,0);
@@ -115,6 +117,8 @@ public class Lyra extends Vestige{
                     break;
             }
             for (LivingEntity entity : VPUtil.getCreaturesAndPlayersAround(player, 15, 15, 15)) {
+                if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
+                    continue;
                 entity.getPersistentData().putLong("VPOrchestra",System.currentTimeMillis()+seconds*2);
                 for(int i = 1; i < 9; i++){
                     entity.getPersistentData().putLong("VPLyra"+i,System.currentTimeMillis()+seconds*2);

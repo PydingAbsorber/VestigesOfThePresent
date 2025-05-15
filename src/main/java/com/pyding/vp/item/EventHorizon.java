@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,7 +48,7 @@ public class EventHorizon extends Item {
                     for (Entity entity : entities) {
                         if(entity == null || entity == player)
                             continue;
-                        if (entity instanceof LivingEntity livingEntity)
+                        if (entity instanceof LivingEntity livingEntity && (!VPUtil.isProtectedFromHit(player,entity) || player.getOffhandItem().is(ModItems.STELLAR.get())))
                             VPUtil.despawn(livingEntity);
                         else entity.kill();
                     }
@@ -68,7 +69,7 @@ public class EventHorizon extends Item {
                 entity = livingEntity;
                 break;
             }
-            if(entity != null){
+            if(entity != null && !VPUtil.isProtectedFromHit(player,entity)){
                 VPUtil.deadInside(entity, player);
             }
         }

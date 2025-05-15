@@ -11,10 +11,7 @@ import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.vestiges.Vestige;
-import com.pyding.vp.util.ConfigHandler;
-import com.pyding.vp.util.GradientUtil;
-import com.pyding.vp.util.LeaderboardUtil;
-import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -457,6 +454,15 @@ public class VPCommands {
                                         )
                                 )
                         )
+                )
+                .then(Commands.literal("renderSoulIntegrity")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            ClientConfig.COMMON.renderSoulIntegrity.set(!ClientConfig.COMMON.renderSoulIntegrity.get());
+                            player.sendSystemMessage(Component.literal("Render of Soul Integrity is now" + ClientConfig.COMMON.renderSoulIntegrity.get()).withStyle(ChatFormatting.GRAY));
+                            VPUtil.printFishDrop(player);
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
         );
     }

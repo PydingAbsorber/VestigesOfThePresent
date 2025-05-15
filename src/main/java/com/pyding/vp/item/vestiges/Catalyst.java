@@ -31,6 +31,8 @@ public class Catalyst extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.CATALYST1.get());
         for(LivingEntity entity: VPUtil.getEntities(player,20,false)){
+            if(VPUtil.isProtectedFromHit(player,entity))
+                continue;
             List<MobEffectInstance> list = new ArrayList<>(VPUtil.getEffectsHas(entity, false));
             VPUtil.clearEffects(entity,false);
             for(MobEffectInstance effectInstance: list){
@@ -58,6 +60,8 @@ public class Catalyst extends Vestige{
         Random random = new Random();
         int stolen = 0;
         for(LivingEntity entity: VPUtil.getEntities(player,25,false)){
+            if(VPUtil.isProtectedFromHit(player,entity))
+                continue;
             List<MobEffectInstance> list = new ArrayList<>();
             for(MobEffectInstance instance: VPUtil.getEffectsHas(entity, true)){
                 if(instance.getAmplifier() <= 4 || (isStellar(stack) && instance.getAmplifier() <= ConfigHandler.COMMON.catalystLvlLimit.get())) {

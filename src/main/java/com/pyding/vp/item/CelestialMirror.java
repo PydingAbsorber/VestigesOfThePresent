@@ -120,7 +120,7 @@ public class CelestialMirror extends Item{
             player.sendSystemMessage(Component.literal("This item cannot be cloned because it has containers or inventory. If it's not please write an issue on GitHub."));
             return true;
         }*/
-        if(!stack.getItem().canFitInsideContainerItems()) {
+        if(!stack.getItem().canFitInsideContainerItems() || (stack.hasTag() && stack.getTag().contains("Items"))) {
             player.sendSystemMessage(Component.literal("Nah bro, this item is definitely has smth dirty. I wont even allow you to configure it."));
             return true;
         }

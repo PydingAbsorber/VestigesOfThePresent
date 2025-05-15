@@ -27,7 +27,9 @@ public class Ball extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.BOLT.get());
         for(LivingEntity entity: VPUtil.getEntities(player,5,true)){
-            VPUtil.dealDamage(entity,player, player.damageSources().lightningBolt(),500,2);
+            if(!VPUtil.isProtectedFromHit(player,entity)) {
+                VPUtil.dealDamage(entity, player, player.damageSources().lightningBolt(), 500, 2);
+            }
         }
         player.hurt(player.damageSources().lightningBolt(),VPUtil.getAttack(player,true)*5);
         if(level instanceof ServerLevel serverLevel)
@@ -56,6 +58,8 @@ public class Ball extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.BOLT.get());
         for(LivingEntity entity: VPUtil.getEntities(player,30,true)){
+            if(VPUtil.isProtectedFromHit(player,entity))
+                continue;
             float shield = VPUtil.getShield(entity) + VPUtil.getOverShield(entity);
             if(shield > 0 || entity.getHealth() < player.getHealth() || entity.getArmorCoverPercentage() > 0 || entity.isInWaterRainOrBubble()){
                 float damageBonus = 1+(shield*0.001f)+(entity.getArmorCoverPercentage()*2)*(entity.getArmorValue()*0.1f);

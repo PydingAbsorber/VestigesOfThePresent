@@ -5,8 +5,10 @@ import com.mojang.blaze3d.vertex.*;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.SillySeashell;
 import com.pyding.vp.entity.VortexEntity;
+import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.vestiges.Catalyst;
 import com.pyding.vp.item.vestiges.Vestige;
+import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -59,6 +61,8 @@ public class ShieldOverlay {
             "textures/gui/note7.png");
     private static final ResourceLocation NOTE8 = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/note8.png");
+    private static final ResourceLocation SOUL = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/soul.png");
 
     public static ResourceLocation getNote(int number) {
         return switch (number) {
@@ -276,6 +280,7 @@ public class ShieldOverlay {
         float targetShield = player.getPersistentData().getFloat("VPRender1");
         float targetOverShield = player.getPersistentData().getFloat("VPRender2");
         float targetHealingDebt = player.getPersistentData().getFloat("VPRender3");
+        String targetSoul = player.getPersistentData().getString("VPRender4");
         LivingEntity target = null;
         for(Object o : VPUtil.rayClass(Entity.class,player,3,20,true)){
             if(o instanceof LivingEntity livingEntity)
@@ -344,6 +349,13 @@ public class ShieldOverlay {
                     pictureSizeX, pictureSizeY);
             pose.drawString(fontRenderer,(int)(targetHealingDebt/target.getMaxHealth()*100)+"%", x - (40), centerHeight + 22, 0xCE5858);
         }
+        if(!targetSoul.isEmpty() && target != null && Integer.parseInt(targetSoul.split("/")[0]) < Integer.parseInt(targetSoul.split("/")[1])){
+            int size = 32;
+            RenderSystem.setShaderTexture(0, SOUL);
+            pose.blit(SOUL, x + (32), centerHeight-7, 0, 0, size, size,
+                    size, size);
+            pose.drawString(fontRenderer,targetSoul, x + (32), centerHeight + 22, 0x808080);
+        }
 
         if(player.isCreative())
             return;
@@ -382,6 +394,8 @@ public class ShieldOverlay {
         }
         float overShield = VPUtil.getOverShield(player); //x больше-левее, меньше-правее, y меньше-выше, больше-ниже
         float shield = VPUtil.getShield(player);
+        int soul = VPUtil.getSoulIntegrity(player);
+        int maxSoul = VPUtil.getMaxSoulIntegrity(player);
         if(overShield > 0){
             int sizeX = 20;
             int sizeY = 20;
@@ -409,55 +423,21 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, SHIELD);
             /*poseStack.pushPose();
             renderTextureFromCenter(poseStack,x - (130+20), y - 39,width,height,16,16,16,16,1);*/
-            pose.blit(SHIELD, x - (130+20), y - 39, 0, 0, sizeX, sizeY,
+            pose.blit(SHIELD, x - (130+50), y - 39, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
             double log10 = Math.log10(shield);
             int move = (int) Math.floor(log10) + 1;
             pose.drawString(fontRenderer,""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
             //fontRenderer.(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
-
-        //94 54
-        //90 60 высота выше брони, правее
-        //92 42 высота ниже брони едва касается, левее на 2 пикселя
-        //91 52 выше, 1 пиксель левее
-        //90 35 слишком низко, 1 пиксель правее, что за хуйня
-        //90 40 1 пиксель выше
-        //90 39 идеальная высота
+        if(ClientConfig.COMMON.renderSoulIntegrity.get() && (soul < maxSoul || VPUtil.hasVestige(ModItems.DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player))){
+            int size = 32;
+            RenderSystem.setShaderTexture(0, SOUL);
+            pose.blit(SOUL, x - (130+80), y - 50, 0, 0, size, size,
+                    size, size);
+            pose.drawString(fontRenderer,soul+"/"+maxSoul, x - (129+80), y - 20, 0x808080);
+        }
     });
-
-
-    public static void renderTextureFromCenter(PoseStack matrix, float centerX, float centerY, float texOffX, float texOffY, float texWidth, float texHeight, float width, float height, float scale) {
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
-        matrix.pushPose();
-
-        matrix.translate(centerX, centerY, 0);
-        matrix.scale(scale, scale, scale);
-
-        Matrix4f m = matrix.last().pose();
-
-        float u1 = texOffX / texWidth;
-        float u2 = (texOffX + width) / texWidth;
-        float v1 = texOffY / texHeight;
-        float v2 = (texOffY + height) / texHeight;
-
-        float w2 = width / 2F;
-        float h2 = height / 2F;
-
-        builder.vertex(m, -w2, +h2, 0).uv(u1, v2).endVertex();
-        builder.vertex(m, +w2, +h2, 0).uv(u2, v2).endVertex();
-        builder.vertex(m, +w2, -h2, 0).uv(u2, v1).endVertex();
-        builder.vertex(m, -w2, -h2, 0).uv(u1, v1).endVertex();
-
-        matrix.popPose();
-
-        BufferUploader.drawWithShader(builder.end());
-    }
 
     public static ResourceLocation getTexture(int vp) {
         List<ResourceLocation> locations = new ArrayList<>();

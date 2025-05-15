@@ -42,7 +42,8 @@ public class Anemoculus extends Vestige{
                 VPUtil.play(player,SoundRegistry.WIND1.get());
             else VPUtil.play(player,SoundRegistry.WIND2.get());
             for(LivingEntity entity: VPUtil.getEntities(player,16,false)){
-                VPUtil.suckEntity(entity,player,2,true);
+                if(!VPUtil.isProtectedFromHit(player,entity))
+                    VPUtil.suckEntity(entity,player,2,true);
             }
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
         }

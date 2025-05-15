@@ -24,6 +24,8 @@ public class Book extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC_EFFECT2.get());
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,30,30,30,false)){
+            if(VPUtil.isProtectedFromHit(player,entity))
+                continue;
             VPUtil.negativnoEnchant(entity);
         }
         VPUtil.spawnParticles(player, ParticleTypes.ENCHANT,10,1,0,-0.1,0,1,false);
