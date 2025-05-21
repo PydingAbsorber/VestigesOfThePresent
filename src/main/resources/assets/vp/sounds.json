@@ -398,5 +398,20 @@
     "sounds": [
       "vp:magic_arrow_2"
     ]
+  },
+  "book_open": {
+    "sounds": [
+      "vp:book_open"
+    ]
+  },
+  "book_close": {
+    "sounds": [
+      "vp:book_close"
+    ]
+  },
+  "book_page1": {
+    "sounds": [
+      "vp:book_page1"
+    ]
   }
 }

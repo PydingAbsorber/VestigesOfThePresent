@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
-import com.pyding.vp.effects.VPEffects;
+import com.pyding.vp.compat.NoGriefCompat;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
@@ -605,18 +605,18 @@ public class VPUtil {
     public static void despawn(LivingEntity livingEntity){
         if(isNpc(livingEntity.getType()))
             return;
-        livingEntity.invalidateCaps();
         VPUtil.spawnSphere(livingEntity,ParticleTypes.ASH,50,2,0.01f);
         VPUtil.spawnSphere(livingEntity,ParticleTypes.WHITE_ASH,50,2,0.01f);
         VPUtil.play(livingEntity,SoundRegistry.DESPAWN.get());
+        setDead(livingEntity,livingEntity.damageSources().dryOut());
         if(livingEntity instanceof ServerPlayer player){
-            setDead(livingEntity,livingEntity.damageSources().dryOut());
             ((PlayerListVzlom)(player.getServer().getPlayerList())).getPlayers().remove(player);
         } else {
             setHealth(livingEntity,0);
             livingEntity.getBrain().clearMemories();
             ((EntityVzlom) livingEntity).setPersistentData(null);
         }
+        livingEntity.invalidateCaps();
         ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
     }
 
@@ -636,7 +636,6 @@ public class VPUtil {
                     corpse.gameEvent(GameEvent.ENTITY_DIE);
                     ((LivingEntityVzlom)corpse).invokeDropAllDeathLoot(source);
                 }
-
                 corpse.level().broadcastEntityEvent(corpse, (byte)3);
             }
             corpse.setPose(Pose.DYING);
@@ -1141,7 +1140,7 @@ public class VPUtil {
             giveNightmareDrop(entity,player);
         if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
             ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
-            stack.getOrCreateTag().putFloat("VPSoulPool", (float) (stack.getOrCreateTag().getFloat("VPSoulPool") + Math.min(Integer.MAX_VALUE,Math.log10(entity.getMaxHealth())*100)));
+            stack.getOrCreateTag().putFloat("VPSoulPool", (float) (stack.getOrCreateTag().getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth())));
         }
     }
 
@@ -1159,7 +1158,7 @@ public class VPUtil {
         antiResurrect(entity,10000);
         setRoflanEbalo(entity,10000);
         antiTp(entity,10000);
-        entity.setHealth(0);
+        setHealth(entity,0);
         despawn(entity);
     }
 
@@ -1512,6 +1511,10 @@ public class VPUtil {
     public static boolean isProtectedFromHit(Player attacker, Entity target) {
         if (attacker == null || target == null) {
             return false;
+        }
+        if(NoGriefCompat.ngLoaded() && target instanceof LivingEntity livingEntity){
+            if(!NoGriefCompat.canHurt(livingEntity,attacker))
+                return true;
         }
         if(attacker == target)
             return false;
@@ -2237,26 +2240,6 @@ public class VPUtil {
         return set;
     }
 
-    public static List<String> vortexItems(){
-        List<String> list = new ArrayList<>();
-        String stringList = ConfigHandler.COMMON.repairObjects.get().toString();
-        for(Item item: items) {
-            for (String element : stringList.split(",")) {
-                if (item.getDescriptionId().contains(element) && !list.contains(item.getDescriptionId())) {
-                    boolean add = true;
-                    for(String name : ConfigHandler.COMMON.repairBlackList.get().toString().split(",")){
-                        if(name.equals(element)){
-                            add = false;
-                        }
-                    }
-                    if(add)
-                        list.add(item.getDescriptionId());
-                }
-            }
-        }
-        return list;
-    }
-
     public static int getCurseAmount(ItemStack stack) {
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
         int totalCurses = 0;
@@ -2380,14 +2363,14 @@ public class VPUtil {
         return damage*maxCap/(maxCap+cap*baseAbsorb*100);
     }
 
-    public static float nightmareAbsorption(LivingEntity entity, float damage) {
+    public static float dpsAbsorption(LivingEntity entity, float damage) {
         if(damage < 0)
             return damage;
-        float buffer = entity.getPersistentData().getFloat("VPNightmareAbsorb");
+        float buffer = entity.getPersistentData().getFloat("VPDPSAbsorb");
         if(damage > buffer) {
             damage = buffer*0.75f;
         }
-        entity.getPersistentData().putFloat("VPNightmareAbsorb",buffer-damage);
+        entity.getPersistentData().putFloat("VPDPSAbsorb",buffer-damage);
         return damage;
     }
 

@@ -43,13 +43,17 @@ public class SoulBlighter extends Vestige{
         super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 300, 15, 300, true, stack);
     }
 
+    public static float getPrice(float souls){
+        return (float) (Math.min(Integer.MAX_VALUE,Math.log10(souls)*100)/3+10);
+    }
+
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.MAGIC4.get());
         for(LivingEntity entity: VPUtil.ray(player,6,30,true)) {
             if (entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis()){
-                float souls = stack.getOrCreateTag().getFloat("VPSoulPool");
-                float price = (float) (Math.min(Integer.MAX_VALUE,Math.log10(souls)*100)+10);
+                float souls = stack.getOrCreateTag().getFloat("VPSoulPool")+1;
+                float price = getPrice(souls);
                 if(souls > price) {
                     VPUtil.dealDamage(entity, player, player.damageSources().magic(), 125 + price, 2);
                     stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") - price);

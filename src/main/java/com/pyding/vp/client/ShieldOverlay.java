@@ -6,6 +6,7 @@ import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.entity.SillySeashell;
 import com.pyding.vp.entity.VortexEntity;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.Vortex;
 import com.pyding.vp.item.vestiges.Catalyst;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.ClientConfig;
@@ -19,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -287,7 +289,10 @@ public class ShieldOverlay {
                 target = livingEntity;
             if(o instanceof VortexEntity vortexEntity){
                 String current = (vortexEntity.getPersistentData().getString("VPVortexList"));
-                String max = (player.getPersistentData().getString("VPVortex"));
+                String max = "";
+                for(ItemStack stack: Vortex.items){
+                    max += stack.getDescriptionId() + ",";
+                }
                 int currentNumber = 0;
                 int maxNumber = 0;
                 List<String> listMax = new ArrayList<>();

@@ -1,15 +1,19 @@
 package com.pyding.vp.client;
 
 import com.pyding.vp.VestigesOfThePresent;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.ClientConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,6 +45,7 @@ public class NightmareScreen extends Screen {
         int padding = 5;
         int center = this.width/2 - buttonSize/2;
         int top = this.height - padding - buttonSize;
+        LocalPlayer player = Minecraft.getInstance().player;
         Button nextPage = new ImageButton(
                 center + (buttonSize - padding) * 2, top - this.height / 8,
                 buttonSize, buttonSize,
@@ -49,6 +54,7 @@ public class NightmareScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> {
                     page = Math.min(maxPages, page + 1);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
                 }
         );
         Button prevPage = new ImageButton(
@@ -59,6 +65,7 @@ public class NightmareScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> {
                     page = Math.max(1, page - 1);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
                 }
         );
         this.addRenderableWidget(nextPage);
@@ -137,5 +144,12 @@ public class NightmareScreen extends Screen {
             return true;
         }
         return true;
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        LocalPlayer player = Minecraft.getInstance().player;
+        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_CLOSE.get(), SoundSource.RECORDS, 1f, 1, false);
     }
 }

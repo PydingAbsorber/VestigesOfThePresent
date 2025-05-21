@@ -33,6 +33,6 @@ public class PlayerListMixin {
             VPUtil.antiTp(player,-1);
         if(VPUtil.isRoflanEbalo(player))
             VPUtil.setRoflanEbalo(player,-1);
-        VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
+        //VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
     }
 }

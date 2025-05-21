@@ -33,7 +33,7 @@ public class NightmareBook extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
         Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new NightmareScreen()));
-        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.CHEST_FALL.get(), SoundSource.MASTER, 1, 1, false);
+        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_OPEN.get(), SoundSource.MASTER, 1, 1, false);
         return super.use(level, player, p_41434_);
     }
 

@@ -1,5 +1,6 @@
 package com.pyding.vp.item;
 
+import com.pyding.vp.mixin.EntityVzlom;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -41,22 +42,23 @@ public class EventHorizon extends Item {
             VPUtil.deadInside(player,player);
         }
         else if(player instanceof ServerPlayer serverPlayer) {
-            ExecutorService temp = Executors.newSingleThreadExecutor();
-            CompletableFuture.runAsync(() -> {
-                try {
-                    Iterable<Entity> entities = serverPlayer.serverLevel().getAllEntities();
-                    for (Entity entity : entities) {
-                        if(entity == null || entity == player)
-                            continue;
-                        if (entity instanceof LivingEntity livingEntity && (!VPUtil.isProtectedFromHit(player,entity) || player.getOffhandItem().is(ModItems.STELLAR.get())))
-                            VPUtil.despawn(livingEntity);
-                        else entity.kill();
+            try {
+                Iterable<Entity> entities = serverPlayer.serverLevel().getAllEntities();
+                for (Entity entity : entities) {
+                    if(entity == null || entity == player)
+                        continue;
+                    if (entity instanceof LivingEntity livingEntity && (!VPUtil.isProtectedFromHit(player,entity) || player.getOffhandItem().is(ModItems.STELLAR.get())))
+                        VPUtil.despawn(livingEntity);
+                    else {
+                        entity.kill();
+                        ((EntityVzlom) entity).setPersistentData(null);
+                        entity.invalidateCaps();
+                        ((EntityVzlom) entity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
                     }
-                } catch (Exception e) {
-                    player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.DARK_RED));
                 }
-            }, temp).whenComplete((r, ex) -> temp.shutdown());
-
+            } catch (Exception e) {
+                player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.DARK_RED));
+            }
         }
         return super.use(p_41432_, player, p_41434_);
     }

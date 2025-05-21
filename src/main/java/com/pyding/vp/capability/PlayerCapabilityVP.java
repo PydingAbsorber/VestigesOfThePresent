@@ -81,6 +81,7 @@ public class PlayerCapabilityVP {
     private String headshots = "";
     private int soulIntegrity = 0;
     private String nightmareChallenge = "";
+    private int soulDeaths = 0;
 
     public void setSleep(boolean slept){
         sleep = slept;
@@ -589,6 +590,7 @@ public class PlayerCapabilityVP {
         advancements = 0;
         headshots = "";
         nightmareChallenge = "";
+        soulDeaths = 0;
         sync(player);
     }
 
@@ -715,7 +717,6 @@ public class PlayerCapabilityVP {
         VPUtil.initMonstersAndBosses(player);
         VPUtil.initBiomes(player,level);
         VPUtil.initBuckets();
-        player.getPersistentData().putString("VPVortex",VPUtil.filterString(VPUtil.vortexItems().toString()));
         for(int i = 1; i < totalVestiges+1; i++) {
             player.getPersistentData().putInt("VPMaxChallenge"+i,getMaximum(i,player));
         }
@@ -800,6 +801,7 @@ public class PlayerCapabilityVP {
         headshots = source.headshots;
         soulIntegrity = source.soulIntegrity;
         nightmareChallenge = source.nightmareChallenge;
+        soulDeaths = source.soulDeaths;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -849,6 +851,7 @@ public class PlayerCapabilityVP {
         nbt.putString("VPHeadshots",headshots);
         nbt.putInt("VPSI",soulIntegrity);
         nbt.putString("VPNChall",nightmareChallenge);
+        nbt.putInt("VPSD",soulDeaths);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -898,6 +901,7 @@ public class PlayerCapabilityVP {
         headshots = nbt.getString("VPHeadshots");
         soulIntegrity = nbt.getInt("VPSI");
         nightmareChallenge = nbt.getString("VPNChall");
+        soulDeaths = nbt.getInt("VPSD");
     }
 
     public void sync(Player player){
@@ -1165,5 +1169,14 @@ public class PlayerCapabilityVP {
             }
             sync(player);
         }
+    }
+
+    public int getSoulDeaths() {
+        return soulDeaths;
+    }
+
+    public void increaseSoulDeaths(Player player) {
+        this.soulDeaths += 1;
+        sync(player);
     }
 }

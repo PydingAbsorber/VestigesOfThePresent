@@ -1,6 +1,5 @@
 package com.pyding.vp.mixin;
 
-import com.ibm.icu.impl.CollectionSet;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.util.ConfigHandler;
@@ -11,7 +10,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -54,9 +52,9 @@ public abstract class VPLivingEntityMixin {
             ci.cancel();
             return;
         }
-        if(ConfigHandler.COMMON_SPEC.isLoaded() && VPUtil.isNightmareBoss(entity)){
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.cruelMode.get() && (VPUtil.isNightmareBoss(entity) || VPUtil.isBoss(entity))){
             ci.cancel();
-            float damage = VPUtil.nightmareAbsorption(entity,entity.getHealth() - amount);
+            float damage = VPUtil.dpsAbsorption(entity,entity.getHealth() - amount);
             ((EntityVzlom)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),entity.getHealth() - damage);
         }
     }
@@ -94,6 +92,9 @@ public abstract class VPLivingEntityMixin {
         if((Object)this instanceof Player player) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if (cap.getVip() > System.currentTimeMillis()) {
+                    boolean oneHourOfTortures = VPUtil.isRoflanEbalo(player);
+                    if(oneHourOfTortures)
+                        VPUtil.setRoflanEbalo(player,-1);
                     VipActivator.saveInventory(player);
                     cir.cancel();
                 }

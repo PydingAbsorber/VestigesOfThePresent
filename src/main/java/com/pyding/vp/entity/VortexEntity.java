@@ -2,6 +2,7 @@ package com.pyding.vp.entity;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.Vortex;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
@@ -60,7 +61,7 @@ public class VortexEntity extends Projectile {
             return;
         float r = 5;
         Player player = (Player) getOwner();
-        int maxSize = VPUtil.vortexItems().size()-ConfigHandler.COMMON.vortexReduction.get();
+        int maxSize = Vortex.items.size()-ConfigHandler.COMMON.vortexReduction.get();
         if(player == null) {
             discard();
             kill();

@@ -11,10 +11,7 @@ import com.pyding.vp.entity.EasterEggEntity;
 import com.pyding.vp.entity.HungryOyster;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.SillySeashell;
-import com.pyding.vp.item.CorruptFragment;
-import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.MysteryChest;
-import com.pyding.vp.item.VipActivator;
+import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.item.vestiges.*;
 import com.pyding.vp.mixin.LivingEntityVzlom;
@@ -119,8 +116,6 @@ public class EventHandler {
             if(entity.getPersistentData().getLong("VPWhirlOther") > System.currentTimeMillis()){
                 event.setAmount(event.getAmount()*2);
             }
-            if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.cruelMode.get())
-                event.setAmount(event.getAmount()-(float) (event.getAmount()*ConfigHandler.COMMON.absorbCruel.get()));
             LivingEntity attacker = null;
             if(event.getSource().getEntity() instanceof LivingEntity)
                 attacker = (LivingEntity) event.getSource().getEntity();
@@ -262,9 +257,6 @@ public class EventHandler {
                     player.getPersistentData().putBoolean("VPAttacked",false);
             }
             if(isNightmare){
-                //float absorb = entity.getPersistentData().getFloat("VPDreadAbsorb");
-                //event.setAmount(VPUtil.dreadAbsorbtion(event.getAmount(),absorb));
-                //entity.getPersistentData().putFloat("VPDreadAbsorb",Math.max(1,absorb-(absorb*0.01f+random.nextInt(10))));
                 int type = entity.getPersistentData().getInt("VPBossType");
                 if(type == 3 && attacker != null) {
                     attacker.hurt(event.getSource(), event.getAmount() * 0.1f);
@@ -385,10 +377,9 @@ public class EventHandler {
                 return;
             if(Float.isNaN(event.getAmount()))
                 event.setAmount(0);
-            if(isNightmare) {
-                event.setAmount(VPUtil.nightmareAbsorption(entity, event.getAmount()));
+            if((isNightmare || VPUtil.isBoss(entity)) && ConfigHandler.COMMON.cruelMode.get()) {
+                event.setAmount(VPUtil.dpsAbsorption(entity, event.getAmount()));
                 if (event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getBoolean("VPAttacked")) {
-                    //shieldDamage *= 5;
                     event.getSource().getEntity().getPersistentData().putBoolean("VPAttacked", false);
                 }
             }
@@ -1063,11 +1054,11 @@ public class EventHandler {
     @SubscribeEvent
     public static void loginIn(PlayerEvent.PlayerLoggedInEvent event){
         Player player = event.getEntity();
+        PlayerCapabilityVP.initMaximum(player);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
             VPUtil.resync(cap,player);
         });
-        PlayerCapabilityVP.initMaximum(player);
         VPUtil.updateStats(player);
         LeaderboardUtil.printVersion(player);
         if(LeaderboardUtil.isLeaderboardsActive(player) && player instanceof ServerPlayer serverPlayer) {
@@ -1078,6 +1069,7 @@ public class EventHandler {
         } else if(Math.random() < 0.1)
             player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
         MysteryChest.init();
+        Vortex.init();
         VPUtil.setRoflanEbalo(player,-1);
         VPUtil.antiResurrect(player,-1);
         VPUtil.antiTp(player,-1);
@@ -1352,10 +1344,6 @@ public class EventHandler {
                     }
                 }
             }
-            if(VPUtil.isRoflanEbalo(entity)){
-                ((LivingEntityVzlom)entity).setDead(false);
-                VPUtil.setDead(entity, entity.damageSources().dryOut());
-            }
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()){
             VPUtil.spawnSphere(entity,ParticleTypes.BUBBLE,60,3,1);
@@ -1366,8 +1354,6 @@ public class EventHandler {
         }
         if(VPUtil.isNightmareBoss(entity)){
             VPUtil.nightmareTickEvent(entity);
-            if(entity.tickCount % 20 == 0)
-                entity.getPersistentData().putFloat("VPNightmareAbsorb",(float)(entity.getMaxHealth()*ConfigHandler.COMMON.nightmareDpsCap.get()));
         }
         if (entity.getPersistentData().getInt("VPGravity") > 30)
             entity.getPersistentData().putInt("VPGravity", 30);
@@ -1383,6 +1369,10 @@ public class EventHandler {
             if(tag.getBoolean("MaskStellar")){
                 tag.putBoolean("MaskStellar", false);
             }
+            if(VPUtil.isNightmareBoss(entity))
+                entity.getPersistentData().putFloat("VPDPSAbsorb",(float)(entity.getMaxHealth()*ConfigHandler.COMMON.nightmareDpsCap.get()));
+            else if(VPUtil.isBoss(entity))
+                entity.getPersistentData().putFloat("VPDPSAbsorb",(float)(entity.getMaxHealth()*ConfigHandler.COMMON.absorbCruel.get()));
         }
         if(entity.getPersistentData().getLong("VPAntiShield") != 0 && entity.getPersistentData().getLong("VPAntiShield") <= System.currentTimeMillis()) {
             entity.getPersistentData().putLong("VPAntiShield", 0);
@@ -1736,8 +1726,12 @@ public class EventHandler {
     @SubscribeEvent
     public static void onMobSpawn(EntityJoinLevelEvent event) {
         if(event.getEntity() instanceof Player player){
-            if(VPUtil.getSoulIntegrity(player) <= 0)
-                VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
+            if(VPUtil.getSoulIntegrity(player) <= 0) {
+                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                    VPUtil.modifySoulIntegrity(player, (int) Math.max(1,VPUtil.getMaxSoulIntegrity(player) * (float)Math.pow(0.9, cap.getSoulDeaths())));
+                    cap.increaseSoulDeaths(player);
+                });
+            }
             VPUtil.updateStats(player);
             VPUtil.antiResurrect(player,-1);
             if(((LivingEntityVzlom)player).isDead())

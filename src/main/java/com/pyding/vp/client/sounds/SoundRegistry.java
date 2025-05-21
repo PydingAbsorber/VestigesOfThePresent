@@ -96,6 +96,9 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> ARROW_READY_2 = registerSoundEvent("arrow_ready_2");
     public static RegistryObject<SoundEvent> MAGIC_ARROW_1 = registerSoundEvent("magic_arrow_1");
     public static RegistryObject<SoundEvent> MAGIC_ARROW_2 = registerSoundEvent("magic_arrow_2");
+    public static RegistryObject<SoundEvent> BOOK_OPEN = registerSoundEvent("book_open");
+    public static RegistryObject<SoundEvent> BOOK_CLOSE = registerSoundEvent("book_close");
+    public static RegistryObject<SoundEvent> BOOK_PAGE1 = registerSoundEvent("book_page1");
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(VestigesOfThePresent.MODID, name)));

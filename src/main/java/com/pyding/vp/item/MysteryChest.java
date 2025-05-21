@@ -47,7 +47,6 @@ public class MysteryChest extends Item {
     public static double rareChance = 0;
     public static double mythicChance = 0;
     public static double legendaryChance = 0;
-    public static HashMap<Integer,List<String>> cacheLists = new HashMap<>();
 
     public static void init(){
         String list = ConfigHandler.COMMON.lootDrops.get().toString();
@@ -169,6 +168,8 @@ public class MysteryChest extends Item {
         return map;
     }
 
+    public static int hold = 0;
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
@@ -201,7 +202,12 @@ public class MysteryChest extends Item {
                     break;
                 }
             }
-            Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryDropScreen()));
+            hold += 2;
+            components.add(Component.literal(hold+"/"+100).withStyle(ChatFormatting.GRAY));
+            if(hold >= 100) {
+                Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryDropScreen()));
+                hold = 0;
+            }
         } else if (Screen.hasControlDown()) {
             Minecraft.getInstance().player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 components.add(Component.translatable("vp.mystery.desc3",(ConfigHandler.COMMON.mysteryChestAdvancementChance.get()+ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*cap.getAdvancements())*100+"%",ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*100+"%",ConfigHandler.COMMON.mysteryChestChallengeChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
@@ -210,6 +216,8 @@ public class MysteryChest extends Item {
             components.add(Component.translatable("vp.mystery.desc").withStyle(ChatFormatting.GRAY));
             components.add(Component.translatable("vp.mystery.desc2").withStyle(ChatFormatting.GRAY));
         }
+        if(hold >0)
+            hold--;
     }
 
     @OnlyIn(Dist.CLIENT)

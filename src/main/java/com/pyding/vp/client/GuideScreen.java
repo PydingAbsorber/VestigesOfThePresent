@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.pyding.vp.VestigesOfThePresent;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
@@ -17,8 +18,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -63,6 +66,7 @@ public class GuideScreen extends Screen {
         int padding = 5;
         int center = this.width/2 - buttonSize/2;
         int top = this.height - padding - buttonSize;
+        LocalPlayer player = Minecraft.getInstance().player;
         Button nextPage = new ImageButton(
                 center + (buttonSize - padding) * 3, top - this.height / 8,
                 buttonSize, buttonSize,
@@ -72,6 +76,7 @@ public class GuideScreen extends Screen {
                 button -> {
                     page = Math.min(maxPages, page + 1);
                     showEverything = false;
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
                 }
         );
         Button prevPage = new ImageButton(
@@ -83,6 +88,7 @@ public class GuideScreen extends Screen {
                 button -> {
                     page = Math.max(1, page - 1);
                     showEverything = false;
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
                 }
         );
         Button showAll = new ImageButton(
@@ -91,7 +97,10 @@ public class GuideScreen extends Screen {
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/button_all.png"),
                 buttonSize, buttonSize,
-                button -> showEverything = !showEverything
+                button -> {
+                    showEverything = !showEverything;
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
+                }
         );
         this.addRenderableWidget(nextPage);
         this.addRenderableWidget(prevPage);
@@ -251,5 +260,12 @@ public class GuideScreen extends Screen {
             return true;
         }
         return true;
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        LocalPlayer player = Minecraft.getInstance().player;
+        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_CLOSE.get(), SoundSource.RECORDS, 1f, 1, false);
     }
 }
