@@ -1119,7 +1119,12 @@ public class VPUtil {
         return entity.getPersistentData().getFloat("VPOverShield");
     }
 
+    public static long deathTime = 60000;
+
     public static void deadInside(LivingEntity entity,Player player){
+        if(entity instanceof ServerPlayer serverPlayer){
+            PacketHandler.sendToClient(new PlayerFlyPacket(8), serverPlayer);
+        }
         if(isNpc(entity.getType()))
             return;
         Random random = new Random();
@@ -1131,20 +1136,35 @@ public class VPUtil {
         entity.invulnerableTime = 0;
         entity.hurt(player.damageSources().playerAttack(player),0);
         entity.setLastHurtByPlayer(player);
-        antiResurrect(entity,10000);
-        setRoflanEbalo(entity,10000);
-        antiTp(entity,10000);
-        setHealth(entity,0);
-        despawn(entity);
+        antiResurrect(entity,deathTime);
+        setRoflanEbalo(entity,deathTime);
         if(isNightmareBoss(entity))
             giveNightmareDrop(entity,player);
         if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
             ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
-            stack.getOrCreateTag().putFloat("VPSoulPool", (float) (stack.getOrCreateTag().getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth())));
+            stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth()));
         }
+        setHealth(entity, 0);
+        entity.die(entity.damageSources().genericKill());
+        despawn(entity);
+        /*if(entity.getServer() != null){
+            entity.getServer().submit(() -> {
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        entity.getServer().execute(() -> {
+
+                        });
+                    }
+                }, 500);
+            });
+        }*/
     }
 
     public static void deadInside(LivingEntity entity){
+        if(entity instanceof ServerPlayer serverPlayer){
+            PacketHandler.sendToClient(new PlayerFlyPacket(8), serverPlayer);
+        }
         if(isNpc(entity.getType()) || entity.isRemoved())
             return;
         Random random = new Random();
@@ -1155,10 +1175,10 @@ public class VPUtil {
         }
         entity.invulnerableTime = 0;
         entity.hurt(entity.damageSources().genericKill(),0);
-        antiResurrect(entity,10000);
-        setRoflanEbalo(entity,10000);
-        antiTp(entity,10000);
-        setHealth(entity,0);
+        antiResurrect(entity,deathTime);
+        setRoflanEbalo(entity,deathTime);
+        setHealth(entity, 0);
+        entity.die(entity.damageSources().genericKill());
         despawn(entity);
     }
 
@@ -1982,7 +2002,7 @@ public class VPUtil {
         if(type != 5 && entity instanceof Player && hasStellarVestige(ModItems.ARMOR.get(),player)){
             ItemStack stack = getVestigeStack(Armor.class,player);
             if(stack.getItem() instanceof Armor armor && armor.isUltimateActive(stack))
-                dealParagonDamage(player,entity,damage*3,5,true);
+                dealParagonDamage(player,entity,damage*(3f+Armor.getPain(stack)/10),5,true);
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
             VPUtil.play(player, SoundRegistry.BUBBLE1.get());
@@ -3516,16 +3536,23 @@ public class VPUtil {
         });
     }
 
+    public static HashMap<UUID,Long> roflan = new HashMap<>();
+
     public static void setRoflanEbalo(LivingEntity entity, long time){
         if(time == -1){
-            entity.getPersistentData().putLong("VPMirnoeReshenie",0);
+            roflan.put(entity.getUUID(),0l);
+            //entity.getPersistentData().putLong("VPMirnoeReshenie",0);
             return;
         }
-        entity.getPersistentData().putLong("VPMirnoeReshenie",System.currentTimeMillis()+time);
+        roflan.put(entity.getUUID(),System.currentTimeMillis()+time);
+        //entity.getPersistentData().putLong("VPMirnoeReshenie",System.currentTimeMillis()+time);
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){
-        return entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis() > 0;
+        if(roflan.containsKey(entity.getUUID()))
+            return roflan.get(entity.getUUID()) - System.currentTimeMillis() > 0;
+        return false;
+        //return entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis() > 0;
     }
 
     public static int getSoulIntegrity(LivingEntity entity){
@@ -3542,7 +3569,7 @@ public class VPUtil {
         if(!isBoss(entity) && !(entity instanceof Player))
             return 100;
         AtomicInteger maxSoul = new AtomicInteger(100);
-        maxSoul.addAndGet((int) (entity.getMaxHealth()*0.01));
+        maxSoul.addAndGet((int) (Math.log10(entity.getMaxHealth())*100));
         if(isBoss(entity)) {
             maxSoul.set(maxSoul.get() * 2);
             if (isNightmareBoss(entity))

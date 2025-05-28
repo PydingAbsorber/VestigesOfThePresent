@@ -25,18 +25,22 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mixin(value = CuriosApi.class, remap = false)
+@Mixin(value = CuriosApi.class, remap = false, priority = 1)
 public class CuriosMixin {
 
-    @Inject(method = "getCuriosInventory",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getCuriosInventory",at = @At("HEAD"),cancellable = true, require = 1)
     private static void getInv(LivingEntity entity, CallbackInfoReturnable<LazyOptional<ICuriosItemHandler>> cir){
-        if(VPUtil.isRoflanEbalo(entity))
+        if(VPUtil.isRoflanEbalo(entity)) {
             cir.setReturnValue(LazyOptional.empty());
+            cir.cancel();
+        }
     }
 
-    @Inject(method = "getItemStackSlots*",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getItemStackSlots*",at = @At("HEAD"),cancellable = true, require = 1)
     private static void getStack(ItemStack stack, LivingEntity entity, CallbackInfoReturnable<Map<String, ISlotType>> cir){
-        if(VPUtil.isRoflanEbalo(entity))
+        if(VPUtil.isRoflanEbalo(entity)) {
             cir.setReturnValue(new HashMap<>());
+            cir.cancel();
+        }
     }
 }

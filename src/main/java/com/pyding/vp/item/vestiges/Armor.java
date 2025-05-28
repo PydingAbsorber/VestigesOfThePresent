@@ -3,14 +3,27 @@ package com.pyding.vp.item.vestiges;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
+import top.theillusivec4.curios.api.SlotContext;
 
-import java.util.Iterator;
+import java.util.*;
 
 public class Armor extends Vestige{
     public Armor(){
@@ -20,6 +33,30 @@ public class Armor extends Vestige{
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
         super.dataInit(11, ChatFormatting.RED, 4, 10, 1, 60, 60, 25, true, stack);
+    }
+
+    public HashMap<UUID,HashMap<DamageSource,Integer>> damageSources = new HashMap<>();
+
+    public int getAbsorbPercent(DamageSource source, UUID uuid){
+        if(!damageSources.containsKey(uuid))
+            damageSources.put(uuid,new HashMap<>());
+        if(!damageSources.get(uuid).containsKey(source))
+            damageSources.get(uuid).put(source,0);
+        return damageSources.get(uuid).get(source);
+    }
+
+    public void increaseAbsorb(DamageSource source, UUID uuid){
+        if(!damageSources.containsKey(uuid))
+            damageSources.put(uuid,new HashMap<>());
+        if(!damageSources.get(uuid).containsKey(source))
+            damageSources.get(uuid).put(source,0);
+        damageSources.get(uuid).put(source,Math.min(90,damageSources.get(uuid).get(source)+5));
+    }
+
+    public void clearDamage(UUID uuid){
+        for(DamageSource source: damageSources.get(uuid).keySet()){
+            damageSources.get(uuid).put(source,0);
+        }
     }
 
     @Override
@@ -39,7 +76,7 @@ public class Armor extends Vestige{
         player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(0.3f + debuffCount));
         player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+((debuffCount+4)/4*player.getMaxHealth()*0.4f));
         if(player.getPersistentData().getFloat("VPHealDebt") > player.getMaxHealth()*6) {
-            stack.getOrCreateTag().putFloat("VPArmor", stack.getOrCreateTag().getFloat("VPArmor") + 40);
+            stack.getOrCreateTag().putFloat("VPArmor", getPain(stack) + 40);
             VPUtil.addShield(player,stack.getOrCreateTag().getFloat("VPArmor")*0.1f,true);
         }
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
@@ -54,9 +91,17 @@ public class Armor extends Vestige{
     }
 
     @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        if(slotContext.entity() instanceof Player player){
+            if(player.tickCount % 7000 == 0)
+                clearDamage(player.getUUID());
+        }
+        super.curioTick(slotContext, stack);
+    }
+
+    @Override
     public void ultimateEnds(Player player, ItemStack stack) {
-        int pain = (int)stack.getOrCreateTag().getFloat("VPArmor");
-        VPUtil.repairAll(player,pain);
+        VPUtil.repairAll(player,(int)getPain(stack));
         stack.getOrCreateTag().putFloat("VPArmor",0);
         super.ultimateEnds(player, stack);
     }
@@ -65,5 +110,9 @@ public class Armor extends Vestige{
     public void curioSucks(Player player, ItemStack stack) {
         stack.getOrCreateTag().putFloat("VPArmor",0);
         super.curioSucks(player, stack);
+    }
+
+    public static float getPain(ItemStack stack){
+        return stack.getOrCreateTag().getFloat("VPArmor");
     }
 }

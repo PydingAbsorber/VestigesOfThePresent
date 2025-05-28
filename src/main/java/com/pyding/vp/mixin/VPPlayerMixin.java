@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 
-@Mixin(value = Player.class)
+@Mixin(value = Player.class, priority = 0)
 public class VPPlayerMixin {
     @Shadow @Final private GameProfile gameProfile;
 

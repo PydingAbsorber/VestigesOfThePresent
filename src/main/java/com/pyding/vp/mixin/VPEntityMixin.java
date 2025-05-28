@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = Entity.class)
+@Mixin(value = Entity.class, priority = 0)
 public abstract class VPEntityMixin {
 
     @Inject(method = "isInBubbleColumn",at = @At("RETURN"),cancellable = true, require = 1)

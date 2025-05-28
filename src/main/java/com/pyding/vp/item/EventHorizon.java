@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,11 +20,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class EventHorizon extends Item {
     public EventHorizon(Properties p_41383_) {
@@ -32,6 +35,19 @@ public class EventHorizon extends Item {
 
     public EventHorizon() {
         super(new Properties().stacksTo(1));
+    }
+
+    public static void destroy(Entity entity, Player player){
+        if(entity instanceof ItemEntity)
+            entity.kill();
+        else if (entity instanceof LivingEntity livingEntity && (!VPUtil.isProtectedFromHit(player,entity) || player.getOffhandItem().is(ModItems.STELLAR.get())))
+            VPUtil.deadInside(livingEntity);
+        else {
+            entity.kill();
+            ((EntityVzlom) entity).setPersistentData(null);
+            entity.invalidateCaps();
+            ((EntityVzlom) entity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
+        }
     }
 
     @Override
@@ -43,18 +59,11 @@ public class EventHorizon extends Item {
         }
         else if(player instanceof ServerPlayer serverPlayer) {
             try {
-                Iterable<Entity> entities = serverPlayer.serverLevel().getAllEntities();
-                for (Entity entity : entities) {
-                    if(entity == null || entity == player)
-                        continue;
-                    if (entity instanceof LivingEntity livingEntity && (!VPUtil.isProtectedFromHit(player,entity) || player.getOffhandItem().is(ModItems.STELLAR.get())))
-                        VPUtil.despawn(livingEntity);
-                    else {
-                        entity.kill();
-                        ((EntityVzlom) entity).setPersistentData(null);
-                        entity.invalidateCaps();
-                        ((EntityVzlom) entity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
-                    }
+                List<Entity> list = new ArrayList<>();
+                serverPlayer.serverLevel().getAllEntities().forEach(list::add);
+                for(Entity entity: list){
+                    if(entity != player)
+                        destroy(entity,player);
                 }
             } catch (Exception e) {
                 player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.DARK_RED));

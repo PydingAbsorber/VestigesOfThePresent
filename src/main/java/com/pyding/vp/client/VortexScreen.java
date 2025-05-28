@@ -30,8 +30,6 @@ import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class VortexScreen extends Screen {
-
-    public static List<ItemStack> list = new ArrayList<>();
     private float time;
     private static final ResourceLocation COMMON_TEXTURE = new ResourceLocation("vp", "textures/item/common.png");
     private static final ResourceLocation RARE_TEXTURE = new ResourceLocation("vp", "textures/item/rare.png");
@@ -86,7 +84,7 @@ public class VortexScreen extends Screen {
         startY = scaledItemSize;
         int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         renderCategory(guiGraphics, "Items for Vortex:", ChatFormatting.GRAY,
-                Vortex.items, startX, startY, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"common");
+                Vortex.getItems(), startX, startY, screenWidth, scaledItemSize, itemSpacing, lineSpacing, textOffsetY,scale,"common");
         startY += 15;
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }

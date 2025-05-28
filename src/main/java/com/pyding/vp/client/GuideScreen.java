@@ -172,8 +172,8 @@ public class GuideScreen extends Screen {
             List<ResourceLocation> pic = new ArrayList<>();
             if(page == 1) {
                 pic.add(HEALDEBT);
-                pic.add(HEALDEBT);
-                pic.add(HEALDEBT);
+                pic.add(ShieldOverlay.getTexture(20));
+                pic.add(ShieldOverlay.getTexture(11));
                 pic.add(ShieldOverlay.getTexture(6));
                 pic.add(ShieldOverlay.getTexture(5));
                 pic.add(ShieldOverlay.getTexture(7));

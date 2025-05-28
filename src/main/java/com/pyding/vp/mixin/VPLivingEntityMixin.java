@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
 
-@Mixin(value = LivingEntity.class)
+@Mixin(value = LivingEntity.class, priority = 0)
 public abstract class VPLivingEntityMixin {
 
     @Inject(method = "getDamageAfterMagicAbsorb",at = @At("RETURN"),cancellable = true, require = 1)
@@ -36,6 +36,14 @@ public abstract class VPLivingEntityMixin {
                     }
                 }
             }
+        }
+    }
+
+    @Inject(method = "getHealth",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void getHealth(CallbackInfoReturnable<Float> cir){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(VPUtil.isRoflanEbalo(entity)){
+            cir.setReturnValue(0f);
         }
     }
 
@@ -97,6 +105,8 @@ public abstract class VPLivingEntityMixin {
                         VPUtil.setRoflanEbalo(player,-1);
                     VipActivator.saveInventory(player);
                     cir.cancel();
+                    if(oneHourOfTortures)
+                        VPUtil.setRoflanEbalo(player,VPUtil.deathTime);
                 }
             });
         }

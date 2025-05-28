@@ -290,7 +290,7 @@ public class ShieldOverlay {
             if(o instanceof VortexEntity vortexEntity){
                 String current = (vortexEntity.getPersistentData().getString("VPVortexList"));
                 String max = "";
-                for(ItemStack stack: Vortex.items){
+                for(ItemStack stack: Vortex.getItems()){
                     max += stack.getDescriptionId() + ",";
                 }
                 int currentNumber = 0;
@@ -326,8 +326,7 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, OVER_SHIELD);
             pose.blit(OVER_SHIELD, x - 10, centerHeight, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            double log10 = Math.log10(targetOverShield);
-            int move = (int) Math.floor(log10) + 1;
+            int move = (int) Math.floor(Math.log10(targetOverShield))*2 + 1;
             pose.drawString(fontRenderer, ""+Math.round(targetOverShield * 100.0f) / 100.0f, x - (10 + move), centerHeight - 9, 0x9932CC);
             if(targetShield > 0)
                 pose.drawString(fontRenderer, ""+Math.round(targetShield * 100.0f) / 100.0f, x - (10 + move), centerHeight + 22, 0x808080);
@@ -340,8 +339,7 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, SHIELD);
             pose.blit(SHIELD, x - 8, centerHeight-3, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            double log10 = Math.log10(targetShield);
-            int move = (int) Math.floor(log10) + 1;
+            int move = (int) Math.floor(Math.log10(targetShield))*2 + 1;
             pose.drawString(fontRenderer,""+Math.round(targetShield * 100.0f) / 100.0f, x - (8 + move), centerHeight + 22, 0x808080);
         }
         if(targetHealingDebt > 0 && target != null){
@@ -352,14 +350,16 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, HEALDEBT);
             pose.blit(HEALDEBT, x - (40), centerHeight-3, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            pose.drawString(fontRenderer,(int)(targetHealingDebt/target.getMaxHealth()*100)+"%", x - (40), centerHeight + 22, 0xCE5858);
+            int move = (int) Math.floor(Math.log10(targetHealingDebt))*2 + 1;
+            pose.drawString(fontRenderer,(int)(targetHealingDebt/target.getMaxHealth()*100)+"%", x - (40+move), centerHeight + 22, 0xCE5858);
         }
         if(!targetSoul.isEmpty() && target != null && Integer.parseInt(targetSoul.split("/")[0]) < Integer.parseInt(targetSoul.split("/")[1])){
             int size = 32;
             RenderSystem.setShaderTexture(0, SOUL);
             pose.blit(SOUL, x + (32), centerHeight-7, 0, 0, size, size,
                     size, size);
-            pose.drawString(fontRenderer,targetSoul, x + (32), centerHeight + 22, 0x808080);
+            int move = (int) Math.floor(Math.log10(Integer.parseInt(targetSoul.split("/")[1])))*2 + 1;
+            pose.drawString(fontRenderer,targetSoul, x + (32+move), centerHeight + 22, 0x808080);
         }
 
         if(player.isCreative())
@@ -395,7 +395,8 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, HEALDEBT);
             pose.blit(HEALDEBT, x - (114), y - 43, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            pose.drawString(fontRenderer,(int)(healDebt/player.getMaxHealth()*100)+"%", x - (117), y - 27, 0xCE5858);
+            int move = (int) Math.floor(Math.log10(healDebt))*2 + 1;
+            pose.drawString(fontRenderer,(int)(healDebt/player.getMaxHealth()*100)+"%", x - (117+ move) , y - 27, 0xCE5858);
         }
         float overShield = VPUtil.getOverShield(player); //x больше-левее, меньше-правее, y меньше-выше, больше-ниже
         float shield = VPUtil.getShield(player);
@@ -412,8 +413,7 @@ public class ShieldOverlay {
             pose.blit(OVER_SHIELD, x - (132+20), y - 42, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
             //GuiComponent.drawString(poseStack, fontRenderer,"666 "+shield,x - 110, y - 50, 0); same shit lol
-            double log10 = Math.log10(overShield);
-            int move = (int) Math.floor(log10) + 1;
+            int move = (int) Math.floor(Math.log10(overShield))*2 + 1;
             pose.drawString(fontRenderer, ""+Math.round(overShield * 100.0f) / 100.0f, x - (129+20 + move), y - 51, 0x9932CC);
             //fontRenderer.draw(poseStack, ""+Math.round(overShield * 100.0f) / 100.0f, x - (129+20 + move), y - 51, 0x9932CC); //0x000000 for black
             if(shield > 0)
@@ -421,17 +421,16 @@ public class ShieldOverlay {
                 //fontRenderer.draw(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
         else if(shield > 0) {
-            int sizeX = 16;
-            int sizeY = 16;
-            int pictureSizeX = 16;
-            int pictureSizeY = 16;
+            int sizeX = 20;
+            int sizeY = 20;
+            int pictureSizeX = 20;
+            int pictureSizeY = 20;
             RenderSystem.setShaderTexture(0, SHIELD);
             /*poseStack.pushPose();
             renderTextureFromCenter(poseStack,x - (130+20), y - 39,width,height,16,16,16,16,1);*/
-            pose.blit(SHIELD, x - (130+50), y - 39, 0, 0, sizeX, sizeY,
+            pose.blit(SHIELD, x - (130+20), y - 42, 0, 0, sizeX, sizeY,
                     pictureSizeX, pictureSizeY);
-            double log10 = Math.log10(shield);
-            int move = (int) Math.floor(log10) + 1;
+            int move = (int) Math.floor(Math.log10(shield))*2 + 1;
             pose.drawString(fontRenderer,""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
             //fontRenderer.(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
@@ -440,7 +439,8 @@ public class ShieldOverlay {
             RenderSystem.setShaderTexture(0, SOUL);
             pose.blit(SOUL, x - (130+80), y - 50, 0, 0, size, size,
                     size, size);
-            pose.drawString(fontRenderer,soul+"/"+maxSoul, x - (129+80), y - 20, 0x808080);
+            int move = (int) Math.floor(Math.log10(maxSoul))*2 + 1;
+            pose.drawString(fontRenderer,soul+"/"+maxSoul, x - (129+80 + move), y - 20, 0x808080);
         }
     });
 

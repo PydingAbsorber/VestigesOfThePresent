@@ -70,6 +70,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.*;
 import net.minecraftforge.event.entity.living.*;
@@ -321,12 +322,22 @@ public class EventHandler {
                 if (VPUtil.hasVestige(ModItems.ARMOR.get(), player)) {
                     ItemStack stack = VPUtil.getVestigeStack(Armor.class,player);
                     float damageBefore = event.getAmount();
-                    event.setAmount(event.getAmount()*(1-VPUtil.missingHealth(player)/100));
-                    event.setAmount((float) Math.max(1, event.getAmount() - (ConfigHandler.COMMON.armorAbsorbBase.get()*stack.getOrCreateTag().getFloat("VPArmor"))));
-                    if(stack.getItem() instanceof Armor armor && armor.isUltimateActive(stack)) {
-                        stack.getOrCreateTag().putFloat("VPArmor", stack.getOrCreateTag().getFloat("VPArmor") + (float) (event.getAmount() * ConfigHandler.COMMON.armorAbsorbPercent.get()));
-                        if(armor.isStellar(stack) && !event.getSource().is(DamageTypes.CACTUS))
-                            VPUtil.dealDamage(attacker,player,player.damageSources().cactus(),damageBefore*3,3);
+                    if(stack.getItem() instanceof Armor armor) {
+                        int absorb = armor.getAbsorbPercent(event.getSource(),player.getUUID());
+                        event.setAmount(event.getAmount()*(1-(float)absorb/100));
+                        if(absorb == 85)
+                            stack.getOrCreateTag().putFloat("VPArmor",Armor.getPain(stack)+150);
+                        if (absorb < 90) armor.increaseAbsorb(event.getSource(),player.getUUID());
+                        if(!armor.isUltimateActive(stack)){
+                            float cost = Math.min(event.getAmount(),Armor.getPain(stack)*0.1f);
+                            stack.getOrCreateTag().putFloat("VPArmor",Armor.getPain(stack)-cost);
+                            event.setAmount(event.getAmount()-cost);
+                        }
+                        else {
+                            stack.getOrCreateTag().putFloat("VPArmor", Armor.getPain(stack) + (float) (event.getAmount() * ConfigHandler.COMMON.armorAbsorbPercent.get()));
+                            if (armor.isStellar(stack) && !event.getSource().is(DamageTypes.CACTUS) && attacker != null)
+                                VPUtil.dealDamage(attacker, player, player.damageSources().cactus(), damageBefore * (3f + Armor.getPain(stack) / 10), 3);
+                        }
                     }
                 }
                 if(!VPUtil.isDamagePhysical(event.getSource()) && VPUtil.hasCurse(player,1)){

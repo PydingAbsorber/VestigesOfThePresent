@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(value = PlayerList.class)
+@Mixin(value = PlayerList.class, priority = 0)
 public class PlayerListMixin {
 
     @Inject(method = "respawn",at = @At("HEAD"),cancellable = true, require = 1)

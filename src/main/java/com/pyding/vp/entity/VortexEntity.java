@@ -61,7 +61,7 @@ public class VortexEntity extends Projectile {
             return;
         float r = 5;
         Player player = (Player) getOwner();
-        int maxSize = Vortex.items.size()-ConfigHandler.COMMON.vortexReduction.get();
+        int maxSize = Vortex.getItems().size()-ConfigHandler.COMMON.vortexReduction.get();
         if(player == null) {
             discard();
             kill();

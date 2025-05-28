@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -74,6 +75,8 @@ public class VipActivator extends Item {
         public List<ItemStack> main;
         public List<ItemStack> armor;
         public List<ItemStack> offhand;
+        public int exp;
+        public int expPoints;
     }
 
     private static final Map<UUID, BackupData> backups = new HashMap<>();
@@ -92,6 +95,10 @@ public class VipActivator extends Item {
         data.offhand = new ArrayList<>();
         for (ItemStack stack : player.getInventory().offhand) {
             data.offhand.add(stack.copy());
+        }
+        if(player instanceof ServerPlayer serverPlayer) {
+            data.exp = serverPlayer.experienceLevel;
+            data.expPoints = (int)(serverPlayer.experienceProgress*serverPlayer.getXpNeededForNextLevel());
         }
         backups.put(player.getUUID(), data);
     }
@@ -116,6 +123,10 @@ public class VipActivator extends Item {
                 if (i < newPlayer.getInventory().offhand.size()) {
                     newPlayer.getInventory().offhand.set(i, data.offhand.get(i));
                 }
+            }
+            if(newPlayer instanceof ServerPlayer serverPlayer){
+                serverPlayer.setExperienceLevels(data.exp);
+                serverPlayer.setExperiencePoints(data.expPoints);
             }
             backups.remove(oldPlayer.getUUID());
         }

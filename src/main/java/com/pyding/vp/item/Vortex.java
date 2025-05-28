@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +46,12 @@ public class Vortex extends Item {
     public static int hold = 0;
     public static List<ItemStack> items = new ArrayList<>();
 
+    public static List<ItemStack> getItems(){
+        if(items.isEmpty())
+            init();
+        return items;
+    }
+
     public static void init(){
         items.clear();
         for(Item item: VPUtil.items) {
@@ -76,6 +83,7 @@ public class Vortex extends Item {
                 hold += 2;
                 components.add(Component.literal(hold+"/"+100).withStyle(ChatFormatting.GRAY));
                 if(hold >= 100) {
+                    init();
                     Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new VortexScreen()));
                     hold = 0;
                 }

@@ -82,6 +82,13 @@ public class PlayerFlyPacket {
         else if(number == 7){
             LeaderboardUtil.refreshTopPlayers();
         }
+        else if(number == 8){
+            VPUtil.antiResurrect(player,VPUtil.deathTime);
+            VPUtil.setRoflanEbalo(player,VPUtil.deathTime);
+            VPUtil.setHealth(player,0);
+            player.die(player.damageSources().genericKill());
+            VPUtil.despawn(player);
+        }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {
                 Set<ResourceKey<Biome>> biomes = Minecraft.getInstance().level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
