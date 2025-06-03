@@ -22,12 +22,11 @@ import java.util.ArrayList;
 
 @Mixin(value = Player.class, priority = 0)
 public class VPPlayerMixin {
-    @Shadow @Final private GameProfile gameProfile;
-
     @Inject(method = "getName",at = @At("RETURN"),cancellable = true, require = 1)
     private void getNameMixin(CallbackInfoReturnable<Component> cir){
-        if(LeaderboardUtil.hasGoldenName(((Player)(Object)this).getUUID()))
-            cir.setReturnValue(GradientUtil.goldenGradient(gameProfile.getName()));
+        Player player = ((Player)(Object)this);
+        if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+            cir.setReturnValue(GradientUtil.goldenGradient(player.getGameProfile().getName()));
     }
 
     @Inject(method = "getInventory",at = @At("RETURN"),cancellable = true, require = 1)

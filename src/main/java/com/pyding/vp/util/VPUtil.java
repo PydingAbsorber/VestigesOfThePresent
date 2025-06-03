@@ -1147,18 +1147,6 @@ public class VPUtil {
         setHealth(entity, 0);
         entity.die(entity.damageSources().genericKill());
         despawn(entity);
-        /*if(entity.getServer() != null){
-            entity.getServer().submit(() -> {
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        entity.getServer().execute(() -> {
-
-                        });
-                    }
-                }, 500);
-            });
-        }*/
     }
 
     public static void deadInside(LivingEntity entity){
@@ -3539,6 +3527,8 @@ public class VPUtil {
     public static HashMap<UUID,Long> roflan = new HashMap<>();
 
     public static void setRoflanEbalo(LivingEntity entity, long time){
+        if(entity == null)
+            return;
         if(time == -1){
             roflan.put(entity.getUUID(),0l);
             //entity.getPersistentData().putLong("VPMirnoeReshenie",0);
@@ -3549,6 +3539,8 @@ public class VPUtil {
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){
+        if(entity == null)
+            return false;
         if(roflan.containsKey(entity.getUUID()))
             return roflan.get(entity.getUUID()) - System.currentTimeMillis() > 0;
         return false;

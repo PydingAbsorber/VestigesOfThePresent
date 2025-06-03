@@ -54,6 +54,8 @@ public class Armor extends Vestige{
     }
 
     public void clearDamage(UUID uuid){
+        if(!damageSources.containsKey(uuid))
+            damageSources.put(uuid,new HashMap<>());
         for(DamageSource source: damageSources.get(uuid).keySet()){
             damageSources.get(uuid).put(source,0);
         }
