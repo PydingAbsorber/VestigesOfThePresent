@@ -849,6 +849,8 @@ public class EventHandler {
                 event.setCanceled(false);
             }
         }
+        if(event.getEntity() instanceof Player player)
+            VPUtil.printTrack("Was Death, IsCancelled: " + event.isCanceled(),player);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
@@ -1072,18 +1074,20 @@ public class EventHandler {
         });
         VPUtil.updateStats(player);
         LeaderboardUtil.printVersion(player);
-        if(LeaderboardUtil.isLeaderboardsActive(player) && player instanceof ServerPlayer serverPlayer) {
-            if (player.isCreative())
-                LeaderboardUtil.setCheating(player);
+        if(player instanceof ServerPlayer serverPlayer) {
             LeaderboardUtil.refreshTopPlayers();
             PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
-        } else if(Math.random() < 0.1)
-            player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
+            if(LeaderboardUtil.isLeaderboardsActive(player)) {
+                if (player.isCreative())
+                    LeaderboardUtil.setCheating(player);
+            } else if(Math.random() < 0.1)
+                player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
+        }
         MysteryChest.init();
         Vortex.init();
-        VPUtil.setRoflanEbalo(player,-1);
+        /*VPUtil.setRoflanEbalo(player,-1);
         VPUtil.antiResurrect(player,-1);
-        VPUtil.antiTp(player,-1);
+        VPUtil.antiTp(player,-1);*/
     }
 
     @SubscribeEvent
@@ -1710,6 +1714,7 @@ public class EventHandler {
         });
         PlayerCapabilityVP.initMaximum(event.getEntity());
         event.getOriginal().invalidateCaps();
+        VPUtil.printTrack("Was Clone, IsCancelled: " + event.isCanceled(),event.getEntity());
     }
 
     @SubscribeEvent

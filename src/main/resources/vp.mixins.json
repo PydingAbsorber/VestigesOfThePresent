@@ -12,6 +12,7 @@
     "EnchantmentsMixin",
     "EntityVzlom",
     "FishingMixin",
+    "ForgeMixin",
     "ItemCombinerMenuVzlom",
     "ItemEntityMixin",
     "LivingEntityVzlom",
@@ -29,10 +30,12 @@
     "NearestAttackebleTargetMixinVzlom",
     "PlayerListMixin",
     "PlayerListVzlom",
+    "ServerGamePacketListenerMixin",
     "SmithingMenuMixin",
     "SmithingVzlomMixing",
     "SmitingMenuVzlom",
     "SmitingMixing",
+    "SyncedEntityDataMixin",
     "VPCreativeTabMixin",
     "VPEntityMixin",
     "VPItemStackMixin",
@@ -42,7 +45,8 @@
   ],
   "client": [
     "JukeboxMixin",
-    "LevelRendererMixin"
+    "LevelRendererMixin",
+    "VPLocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

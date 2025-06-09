@@ -39,9 +39,11 @@ public abstract class VPLivingEntityMixin {
         }
     }
 
-    @Inject(method = "getHealth",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getHealth",at = @At("HEAD"),cancellable = true, require = 1)
     protected void getHealth(CallbackInfoReturnable<Float> cir){
         LivingEntity entity = (LivingEntity)(Object)this;
+        if(entity instanceof Player player)
+            VPUtil.printTrack("getHealthMix isRoflan: " + VPUtil.isRoflanEbalo(entity),player);
         if(VPUtil.isRoflanEbalo(entity)){
             cir.setReturnValue(0f);
         }
@@ -106,7 +108,7 @@ public abstract class VPLivingEntityMixin {
                     VipActivator.saveInventory(player);
                     cir.cancel();
                     if(oneHourOfTortures)
-                        VPUtil.setRoflanEbalo(player,VPUtil.deathTime);
+                        VPUtil.setRoflanEbalo(player,VPUtil.deathTime+System.currentTimeMillis());
                 }
             });
         }

@@ -464,6 +464,43 @@ public class VPCommands {
                             return Command.SINGLE_SUCCESS;
                         })
                 )
+                .then(Commands.literal("statTrack")
+                        .then(Commands.literal("data")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal("Max Health: " + player.getMaxHealth()));
+                                    player.sendSystemMessage(Component.literal("Health: " + player.getHealth()));
+                                    player.sendSystemMessage(Component.literal("AntiResurrect: " + VPUtil.canResurrect(player)));
+                                    player.sendSystemMessage(Component.literal("Roflan: " + VPUtil.isRoflanEbalo(player)));
+                                    player.sendSystemMessage(Component.literal("IsAlive: " + player.isAlive()));
+                                    player.sendSystemMessage(Component.literal("Cheating: " + LeaderboardUtil.isCheating(player)));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("roflanList")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal("UUID: " + player.getUUID()));
+                                    player.sendSystemMessage(Component.literal("Roflan List: " + VPUtil.roflan));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("goldenNameList")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal("Golden List: " + LeaderboardUtil.getTopPlayers()));
+                                    player.sendSystemMessage(Component.literal("Has Golden: " + LeaderboardUtil.hasGoldenName(player.getUUID())));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(Commands.literal("isHalloween")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal("Is Halloween: " + VPUtil.isHalloween()));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
         );
     }
 }

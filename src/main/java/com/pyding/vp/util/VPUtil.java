@@ -15,6 +15,7 @@ import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
@@ -1136,8 +1137,8 @@ public class VPUtil {
         entity.invulnerableTime = 0;
         entity.hurt(player.damageSources().playerAttack(player),0);
         entity.setLastHurtByPlayer(player);
-        antiResurrect(entity,deathTime);
-        setRoflanEbalo(entity,deathTime);
+        antiResurrect(entity,deathTime+System.currentTimeMillis());
+        setRoflanEbalo(entity,deathTime+System.currentTimeMillis());
         if(isNightmareBoss(entity))
             giveNightmareDrop(entity,player);
         if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
@@ -1163,8 +1164,8 @@ public class VPUtil {
         }
         entity.invulnerableTime = 0;
         entity.hurt(entity.damageSources().genericKill(),0);
-        antiResurrect(entity,deathTime);
-        setRoflanEbalo(entity,deathTime);
+        antiResurrect(entity,deathTime+System.currentTimeMillis());
+        setRoflanEbalo(entity,deathTime+System.currentTimeMillis());
         setHealth(entity, 0);
         entity.die(entity.damageSources().genericKill());
         despawn(entity);
@@ -3330,6 +3331,9 @@ public class VPUtil {
     public static void antiTp(LivingEntity entity, long time){
         if(time == -1){
             entity.getPersistentData().putLong("VPAntiTP", 0);
+            if(entity instanceof ServerPlayer serverPlayer){
+                PacketHandler.sendToClient(new PlayerFlyPacket(11),serverPlayer);
+            }
             return;
         }
         entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
@@ -3344,6 +3348,9 @@ public class VPUtil {
     public static void antiResurrect(LivingEntity entity, long time){
         if(time == -1){
             entity.getPersistentData().putLong("VPDeath", 0);
+            if(entity instanceof ServerPlayer serverPlayer){
+                PacketHandler.sendToClient(new PlayerFlyPacket(10),serverPlayer);
+            }
             return;
         }
         entity.getPersistentData().putLong("VPDeath", System.currentTimeMillis()+time);
@@ -3531,11 +3538,14 @@ public class VPUtil {
             return;
         if(time == -1){
             roflan.put(entity.getUUID(),0l);
-            //entity.getPersistentData().putLong("VPMirnoeReshenie",0);
+            if(entity instanceof ServerPlayer serverPlayer){
+                PacketHandler.sendToClient(new PlayerFlyPacket(9),serverPlayer);
+            }
             return;
         }
+        if(entity instanceof LocalPlayer localPlayer)
+            localPlayer.setShowDeathScreen(true);
         roflan.put(entity.getUUID(),System.currentTimeMillis()+time);
-        //entity.getPersistentData().putLong("VPMirnoeReshenie",System.currentTimeMillis()+time);
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){
@@ -3544,7 +3554,6 @@ public class VPUtil {
         if(roflan.containsKey(entity.getUUID()))
             return roflan.get(entity.getUUID()) - System.currentTimeMillis() > 0;
         return false;
-        //return entity.getPersistentData().getLong("VPMirnoeReshenie") - System.currentTimeMillis() > 0;
     }
 
     public static int getSoulIntegrity(LivingEntity entity){
@@ -3611,6 +3620,11 @@ public class VPUtil {
                 deadInside(entity,modifier);
             syncEntity(entity);
         }
+    }
+
+    public static void printTrack(String message, Player player){
+        if(player != null && player.getInventory() != null && player.getOffhandItem().is(ModItems.TEST.get()))
+            player.sendSystemMessage(Component.literal("IsClient: " + player.level().isClientSide + " " + message));
     }
 
 }

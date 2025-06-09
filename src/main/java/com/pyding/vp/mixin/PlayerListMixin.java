@@ -13,10 +13,8 @@ public class PlayerListMixin {
 
     @Inject(method = "respawn",at = @At("HEAD"),cancellable = true, require = 1)
     private void respawn(ServerPlayer player, boolean p_11238_, CallbackInfoReturnable<ServerPlayer> cir){
-        if(!VPUtil.canTeleport(player))
-            VPUtil.antiTp(player,-1);
+        VPUtil.printTrack("Was Revive",player);
         if(VPUtil.isRoflanEbalo(player))
-            VPUtil.setRoflanEbalo(player,-1);
-        //VPUtil.modifySoulIntegrity(player,(int) (VPUtil.getMaxSoulIntegrity(player)*0.25));
+            cir.cancel();
     }
 }

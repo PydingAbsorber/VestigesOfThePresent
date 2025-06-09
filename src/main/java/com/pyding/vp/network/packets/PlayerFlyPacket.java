@@ -4,10 +4,12 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -83,11 +85,21 @@ public class PlayerFlyPacket {
             LeaderboardUtil.refreshTopPlayers();
         }
         else if(number == 8){
-            VPUtil.antiResurrect(player,VPUtil.deathTime);
-            VPUtil.setRoflanEbalo(player,VPUtil.deathTime);
+            VPUtil.antiResurrect(player,System.currentTimeMillis()+VPUtil.deathTime);
+            VPUtil.setRoflanEbalo(player,System.currentTimeMillis()+VPUtil.deathTime);
             VPUtil.setHealth(player,0);
             player.die(player.damageSources().genericKill());
             VPUtil.despawn(player);
+            Minecraft.getInstance().setScreen(new DeathScreen(Component.literal("Death by Paragon Damage"),false));
+        }
+        else if(number == 9){
+            VPUtil.roflan.put(player.getUUID(),0l);
+        }
+        else if(number == 10){
+            VPUtil.antiResurrect(player,-1);
+        }
+        else if(number == 11){
+            VPUtil.antiTp(player,-1);
         }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {
