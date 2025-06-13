@@ -3,24 +3,15 @@ package com.pyding.vp.item.vestiges;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.*;
@@ -35,29 +26,34 @@ public class Armor extends Vestige{
         super.dataInit(11, ChatFormatting.RED, 4, 10, 1, 60, 60, 25, true, stack);
     }
 
-    public HashMap<UUID,HashMap<DamageSource,Integer>> damageSources = new HashMap<>();
+    public HashMap<UUID,HashMap<TagKey<DamageType>,Integer>> damageSources = new HashMap<>();
 
     public int getAbsorbPercent(DamageSource source, UUID uuid){
-        if(!damageSources.containsKey(uuid))
-            damageSources.put(uuid,new HashMap<>());
-        if(!damageSources.get(uuid).containsKey(source))
-            damageSources.get(uuid).put(source,0);
-        return damageSources.get(uuid).get(source);
+        for(TagKey<DamageType> type: VPUtil.getTypes(source)) {
+            if (!damageSources.containsKey(uuid))
+                damageSources.put(uuid, new HashMap<>());
+            if (!damageSources.get(uuid).containsKey(type))
+                damageSources.get(uuid).put(type, 0);
+            return damageSources.get(uuid).get(type);
+        }
+        return 0;
     }
 
     public void increaseAbsorb(DamageSource source, UUID uuid){
-        if(!damageSources.containsKey(uuid))
-            damageSources.put(uuid,new HashMap<>());
-        if(!damageSources.get(uuid).containsKey(source))
-            damageSources.get(uuid).put(source,0);
-        damageSources.get(uuid).put(source,Math.min(90,damageSources.get(uuid).get(source)+5));
+        for(TagKey<DamageType> type: VPUtil.getTypes(source)) {
+            if (!damageSources.containsKey(uuid))
+                damageSources.put(uuid, new HashMap<>());
+            if (!damageSources.get(uuid).containsKey(type))
+                damageSources.get(uuid).put(type, 0);
+            damageSources.get(uuid).put(type, Math.min(90, damageSources.get(uuid).get(type) + 5));
+        }
     }
 
     public void clearDamage(UUID uuid){
         if(!damageSources.containsKey(uuid))
             damageSources.put(uuid,new HashMap<>());
-        for(DamageSource source: damageSources.get(uuid).keySet()){
-            damageSources.get(uuid).put(source,0);
+        for(TagKey<DamageType> type: damageSources.get(uuid).keySet()){
+            damageSources.get(uuid).put(type,0);
         }
     }
 

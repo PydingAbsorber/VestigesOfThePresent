@@ -71,7 +71,6 @@ public class PlayerCapabilityVP {
     private double bindX = 0;
     private double bindY = 0;
     private double bindZ = 0;
-    private long deathTime = 0;
     private boolean cheating = false;
     private String password = "";
 
@@ -794,7 +793,6 @@ public class PlayerCapabilityVP {
         bindX = source.bindX;
         bindY = source.bindY;
         bindZ = source.bindZ;
-        deathTime = source.deathTime;
         cheating = source.cheating;
         password = source.password;
         advancements = source.advancements;
@@ -844,7 +842,6 @@ public class PlayerCapabilityVP {
         nbt.putDouble("VPBindX",bindX);
         nbt.putDouble("VPBindY",bindY);
         nbt.putDouble("VPBindZ",bindZ);
-        nbt.putLong("VPDeathTime",deathTime);
         nbt.putBoolean("VPCheating",cheating);
         nbt.putString("VPPassword",password);
         nbt.putInt("VPAdv",advancements);
@@ -894,7 +891,6 @@ public class PlayerCapabilityVP {
         bindX = nbt.getDouble("VPBindX");
         bindY = nbt.getDouble("VPBindY");
         bindZ = nbt.getDouble("VPBindZ");
-        deathTime = nbt.getLong("VPDeathTime");
         cheating = nbt.getBoolean("VPCheating");
         password = nbt.getString("VPPassword");
         advancements = nbt.getInt("VPAdv");
@@ -1104,14 +1100,6 @@ public class PlayerCapabilityVP {
 
     public void setBindZ(double bindZ) {
         this.bindZ = bindZ;
-    }
-
-    public long getDeathTime() {
-        return deathTime;
-    }
-
-    public void setDeathTime(long deathTime) {
-        this.deathTime = deathTime;
     }
 
     public boolean isCheating() {

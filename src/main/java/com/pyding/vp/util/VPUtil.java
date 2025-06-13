@@ -15,7 +15,6 @@ import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
@@ -695,6 +694,15 @@ public class VPUtil {
                 player.sendSystemMessage(Component.literal("\n"));
             }
         });
+    }
+
+    public static List<TagKey<DamageType>> getTypes(DamageSource source){
+        List<TagKey<DamageType>> types = new ArrayList<>();
+        for(TagKey<DamageType> type : VPUtil.damageTypes(false)){
+            if(source.is(type))
+                types.add(type);
+        }
+        return types;
     }
 
     public static EntityType getRandomEntity(){
@@ -1680,10 +1688,16 @@ public class VPUtil {
         }
     }
 
+    public static HashMap<SoundEvent,Long> soundCd = new HashMap<>();
+
     public static void play(LivingEntity main, SoundEvent sound){
         for(LivingEntity entity: getEntitiesAround(main,20,20,20,true)) {
             if (entity instanceof ServerPlayer player) {
-                PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1,0,0,0),player);
+                if(!soundCd.containsKey(sound))
+                    soundCd.put(sound,0L);
+                if(soundCd.get(sound) < System.currentTimeMillis())
+                    PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1,0,0,0),player);
+                soundCd.put(sound,System.currentTimeMillis()+100);
             }
         }
     }
@@ -3355,25 +3369,10 @@ public class VPUtil {
         }
         entity.getPersistentData().putLong("VPDeath", System.currentTimeMillis()+time);
         syncEntity(entity);
-        if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setDeathTime(System.currentTimeMillis() + time);
-            });
-        }
     }
 
     public static boolean canResurrect(Entity entity){
-        if(entity.getPersistentData().getLong("VPDeath") > System.currentTimeMillis()) {
-            return false;
-        }
-        AtomicBoolean resurrect = new AtomicBoolean(true);
-        if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(cap.getDeathTime() > System.currentTimeMillis())
-                    resurrect.set(false);
-            });
-        }
-        return resurrect.get();
+        return entity.getPersistentData().getLong("VPDeath") < System.currentTimeMillis();
     }
 
     public static boolean canTeleport(Entity entity){
@@ -3543,8 +3542,9 @@ public class VPUtil {
             }
             return;
         }
-        if(entity instanceof LocalPlayer localPlayer)
-            localPlayer.setShowDeathScreen(true);
+        if(entity instanceof ServerPlayer serverPlayer){
+            PacketHandler.sendToClient(new PlayerFlyPacket(12),serverPlayer);
+        }
         roflan.put(entity.getUUID(),System.currentTimeMillis()+time);
     }
 
@@ -3612,7 +3612,11 @@ public class VPUtil {
         if(entity instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+                if(number < 0)
+                    player.getPersistentData().putLong("VPSoulShow",System.currentTimeMillis()+120000);
                 cap.sync(player);
+                if(cap.getSoulIntegrity() <= 0)
+                    deadInside(player,modifier);
             });
         } else {
             entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));

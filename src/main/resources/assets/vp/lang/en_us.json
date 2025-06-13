@@ -268,7 +268,7 @@
   "vp.get.10": "Teleport with Ender Pearl in the same place Enderman teleports in the same second %s times.",
   "vp.damagetype.10": "dragon breath",
 
-  "vp.passive.11": "Damage taken consumes Pain Gauge(10% maximum) and reduces by consumed value, while Ultimate isn't active. \nTaking any damage will increase adaptation to it by 5% and refreshing every 5 minutes. \nReaching maximum 90% of adaptation to any damage grants 150 Pain Gauge.",
+  "vp.passive.11": "Damage taken consumes Pain Gauge(10% maximum) and reduces by consumed value, while Ultimate isn't active. \nTaking any damage type will increase adaptation to it by 5% and refreshing every 5 minutes. \nReaching maximum 90% of adaptation to any damage grants 150 Pain Gauge.",
   "vp.special.11": "Applies 2 random negative effects and Healing Debt equal to 40% of Max HP, while also dealing 30% damage to self. \nThe applied Healing Debt and self-inflicted damage increase with existing debuffs. \nIf the carrier's Healing Debt exceeds 600% of Max HP, the Pain Gauge increases by 40, and Shields equal to 10% of the Pain Gauge are granted.",
   "vp.ultimate.11": "While active, 10% of the damage taken is converted into the Pain Gauge. \nUpon expiration, the entire Pain Gauge is spent on repairing equipment durability, with any excess converted into experience.",
   "vp.damagetype.11": "cactus",

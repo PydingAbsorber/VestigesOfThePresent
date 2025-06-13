@@ -434,7 +434,7 @@ public class ShieldOverlay {
             pose.drawString(fontRenderer,""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
             //fontRenderer.(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
-        if(ClientConfig.COMMON.renderSoulIntegrity.get() && (soul < maxSoul || VPUtil.hasVestige(ModItems.DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player))){
+        if(ClientConfig.COMMON.renderSoulIntegrity.get() && ((soul < maxSoul && player.getPersistentData().getLong("VPSoulShow") > System.currentTimeMillis()) || VPUtil.hasVestige(ModItems.DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player))){
             int size = 32;
             RenderSystem.setShaderTexture(0, SOUL);
             pose.blit(SOUL, x - (130+80), y - 50, 0, 0, size, size,

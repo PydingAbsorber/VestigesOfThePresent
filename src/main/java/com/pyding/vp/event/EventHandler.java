@@ -184,13 +184,6 @@ public class EventHandler {
                         player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
                     }
                 }
-                int cap = 100;
-                if(entity instanceof Player || VPUtil.isBoss(entity))
-                    cap += (int) (entity.getMaxHealth()/100);
-                if (entity.getPersistentData().getInt("VPSoulRotting") >= cap) {
-                    entity.getPersistentData().putInt("VPSoulRotting",0);
-                    VPUtil.deadInside(entity, player);
-                }
                 if (entity.getPersistentData().getLong("VPEnchant") > 0)
                     event.setAmount(event.getAmount() * 1.5f);
                 if (VPUtil.hasVestige(ModItems.BALL.get(), player)) {
@@ -1085,9 +1078,9 @@ public class EventHandler {
         }
         MysteryChest.init();
         Vortex.init();
-        /*VPUtil.setRoflanEbalo(player,-1);
+        //VPUtil.setRoflanEbalo(player,-1);
         VPUtil.antiResurrect(player,-1);
-        VPUtil.antiTp(player,-1);*/
+        VPUtil.antiTp(player,-1);
     }
 
     @SubscribeEvent

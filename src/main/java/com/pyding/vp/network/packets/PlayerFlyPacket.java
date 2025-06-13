@@ -1,6 +1,7 @@
 package com.pyding.vp.network.packets;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
@@ -100,6 +101,12 @@ public class PlayerFlyPacket {
         }
         else if(number == 11){
             VPUtil.antiTp(player,-1);
+        }
+        else if(number == 12){
+            player.setShowDeathScreen(true);
+        }
+        else if(number == 13){
+            ClientConfig.COMMON.renderSoulIntegrity.set(!ClientConfig.COMMON.renderSoulIntegrity.get());
         }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {
