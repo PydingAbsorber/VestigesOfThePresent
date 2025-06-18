@@ -49,6 +49,16 @@ public abstract class VPLivingEntityMixin {
         }
     }
 
+    @Inject(method = "isAlive",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void isAlive(CallbackInfoReturnable<Boolean> cir){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(entity instanceof Player player)
+            VPUtil.printTrack("isAliveMix isRoflan: " + VPUtil.isRoflanEbalo(entity),player);
+        if(VPUtil.isRoflanEbalo(entity)){
+            cir.setReturnValue(false);
+        }
+    }
+
     @Inject(method = "setHealth",at = @At("HEAD"),cancellable = true, require = 1)
     protected void setHealthMix(float amount, CallbackInfo ci){
         LivingEntity entity = (LivingEntity)(Object)this;

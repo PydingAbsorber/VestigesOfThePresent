@@ -40,6 +40,7 @@ public class ModItems {
     public static final RegistryObject<Item> PEARL = ITEMS.register("pearl", () -> new Pearl());
     public static final RegistryObject<Item> WHIRLPOOL = ITEMS.register("whirlpool", () -> new Whirlpool());
     public static final RegistryObject<Item> ARCHLINX = ITEMS.register("archlinx", () -> new Archlinx());
+    public static final RegistryObject<Item> TREASURE = ITEMS.register("treasure", () -> new Treasure());
     public static final RegistryObject<Item> NIGHTMARE_DEVOURER = ITEMS.register("nightmare_devourer", () -> new NightmareDevourer());
     public static final RegistryObject<Item> STELLAR = ITEMS.register("stellar", () -> new StellarFragment(new Item.Properties().stacksTo(64)));
     public static final RegistryObject<Item> REFRESHER = ITEMS.register("refresher", () -> new Refresher(new Item.Properties().stacksTo(1)));
@@ -68,6 +69,7 @@ public class ModItems {
     public static final RegistryObject<Item> VIPACTIVATOR = ITEMS.register("vip", () -> new VipActivator(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> GUIDE_BOOK = ITEMS.register("guide_book", () -> new GuideBook(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> NIGHTMARE_BOOK = ITEMS.register("nightmare_book", () -> new NightmareBook(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> MINERAL_CLUSTER = ITEMS.register("mineral_cluster", () -> new MineralCluster());
     public static final RegistryObject<Item> EVENT_HORIZON = ITEMS.register("event_horizon", () -> new EventHorizon(new Item.Properties().stacksTo(1)));
 
     @ObjectHolder(value = MODID + ":seashell", registryName = "item")

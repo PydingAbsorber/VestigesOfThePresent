@@ -72,8 +72,8 @@ public class Armor extends Vestige{
             }
         }
         player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(0.3f + debuffCount));
-        player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt")+((debuffCount+4)/4*player.getMaxHealth()*0.4f));
-        if(player.getPersistentData().getFloat("VPHealDebt") > player.getMaxHealth()*6) {
+        VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+((debuffCount+4)/4*player.getMaxHealth()*0.4f));
+        if(VPUtil.getHealDebt(player) > player.getMaxHealth()*6) {
             stack.getOrCreateTag().putFloat("VPArmor", getPain(stack) + 40);
             VPUtil.addShield(player,stack.getOrCreateTag().getFloat("VPArmor")*0.1f,true);
         }

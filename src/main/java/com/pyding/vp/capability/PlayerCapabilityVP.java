@@ -18,6 +18,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.*;
@@ -25,7 +26,7 @@ import java.util.regex.Pattern;
 
 @AutoRegisterCapability
 public class PlayerCapabilityVP {
-    public static int totalVestiges = 25;
+    public static int totalVestiges = 26;
     private int[] challenges = new int[this.totalVestiges];
     private String coolDowned = "";
     private String biomesFound = "";
@@ -81,6 +82,7 @@ public class PlayerCapabilityVP {
     private int soulIntegrity = 0;
     private String nightmareChallenge = "";
     private int soulDeaths = 0;
+    private String ores = "";
 
     public void setSleep(boolean slept){
         sleep = slept;
@@ -543,6 +545,10 @@ public class PlayerCapabilityVP {
                 headshots = "";
                 break;
             }
+            case 26:{
+                ores = "";
+                break;
+            }
             default: break;
         }
         setChallenge(vp,0,player);
@@ -590,6 +596,7 @@ public class PlayerCapabilityVP {
         headshots = "";
         nightmareChallenge = "";
         soulDeaths = 0;
+        ores = "";
         sync(player);
     }
 
@@ -650,6 +657,8 @@ public class PlayerCapabilityVP {
                     return (int) (VPUtil.getSeaSize() * reduce);
                 case 25:
                     return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) * reduce);
+                case 26:
+                    return (int) (VPUtil.getOres().size() * reduce);
             }
         } else {
             int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number);
@@ -706,6 +715,8 @@ public class PlayerCapabilityVP {
                     return VPUtil.getSeaSize() - reduce;
                 case 25:
                     return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) - reduce);
+                case 26:
+                    return (VPUtil.getOres().size() - reduce);
             }
         }
         return  0;
@@ -800,6 +811,7 @@ public class PlayerCapabilityVP {
         soulIntegrity = source.soulIntegrity;
         nightmareChallenge = source.nightmareChallenge;
         soulDeaths = source.soulDeaths;
+        ores = source.ores;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -849,6 +861,7 @@ public class PlayerCapabilityVP {
         nbt.putInt("VPSI",soulIntegrity);
         nbt.putString("VPNChall",nightmareChallenge);
         nbt.putInt("VPSD",soulDeaths);
+        nbt.putString("VPOre",ores);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -898,6 +911,7 @@ public class PlayerCapabilityVP {
         soulIntegrity = nbt.getInt("VPSI");
         nightmareChallenge = nbt.getString("VPNChall");
         soulDeaths = nbt.getInt("VPSD");
+        ores = nbt.getString("VPOre");
     }
 
     public void sync(Player player){
@@ -1017,6 +1031,10 @@ public class PlayerCapabilityVP {
             }
             case 25:{
                 stack = new ItemStack(ModItems.ARCHLINX.get());
+                break;
+            }
+            case 26:{
+                stack = new ItemStack(ModItems.TREASURE.get());
                 break;
             }
             case 666:{
@@ -1140,7 +1158,7 @@ public class PlayerCapabilityVP {
     }
 
     public void addNightmareChallenge(int numb, Player player) {
-        if(!VPUtil.notContains(nightmareChallenge,numb+"")) {
+        if(VPUtil.notContains(nightmareChallenge,numb+"")) {
             this.nightmareChallenge += numb + ",";
             if(nightmareChallenge.split(",").length >= 7 && !player.level().isClientSide){
                 nightmareChallenge = "";
@@ -1166,5 +1184,16 @@ public class PlayerCapabilityVP {
     public void increaseSoulDeaths(Player player) {
         this.soulDeaths += 1;
         sync(player);
+    }
+
+    public void addOre(String block, Player player){
+        if(VPUtil.notContains(ores,block)){
+            ores += block + ",";
+            setChallenge(26,player);
+        }
+    }
+
+    public String getOres(){
+        return ores;
     }
 }

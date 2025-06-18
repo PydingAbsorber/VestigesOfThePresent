@@ -49,7 +49,7 @@ public class SweetDonut extends Vestige{
         VPUtil.play(player,SoundRegistry.HEAL1.get());
         player.getPersistentData().putBoolean("VPSweetUlt",true);
         if(isStellar(stack))
-            player.getPersistentData().putFloat("VPHealDebt", 0);
+            VPUtil.setHealDebt(player,0);
         super.doUltimate(seconds, player, level, stack);
     }
 

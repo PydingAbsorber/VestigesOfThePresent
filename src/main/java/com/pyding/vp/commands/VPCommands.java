@@ -472,7 +472,7 @@ public class VPCommands {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     player.sendSystemMessage(Component.literal("Max Health: " + player.getMaxHealth()));
                                     player.sendSystemMessage(Component.literal("Health: " + player.getHealth()));
-                                    player.sendSystemMessage(Component.literal("AntiResurrect: " + VPUtil.canResurrect(player)));
+                                    player.sendSystemMessage(Component.literal("CanResurrect: " + VPUtil.canResurrect(player)));
                                     player.sendSystemMessage(Component.literal("Roflan: " + VPUtil.isRoflanEbalo(player)));
                                     player.sendSystemMessage(Component.literal("IsAlive: " + player.isAlive()));
                                     player.sendSystemMessage(Component.literal("Cheating: " + LeaderboardUtil.isCheating(player)));

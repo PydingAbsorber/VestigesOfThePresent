@@ -66,8 +66,8 @@ public class MaskOfDemon extends Vestige{
         if(isSpecialActive(stack)) {
             boolean hurt = false;
             if (player.tickCount % 20 == 0) {
-                if(player.getPersistentData().getFloat("VPHealDebt") > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1){
-                    player.getPersistentData().putFloat("VPHealDebt",Math.max(0,player.getPersistentData().getFloat("VPHealDebt")-player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1));
+                if(VPUtil.getHealDebt(player) > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1){
+                    VPUtil.setHealDebt(player,Math.max(0,VPUtil.getHealDebt(player)-player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1));
                     hurt = true;
                 }
                 else if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1) {
@@ -134,15 +134,15 @@ public class MaskOfDemon extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.IMPACT.get());
         float damage = 300;
-        float VPHealDebt = player.getMaxHealth()*3;
+        float healDebt = player.getMaxHealth()*3;
         if(player.getHealth() <= player.getMaxHealth()*0.5) {
             damage *= 2;
-            VPHealDebt *= 2;
+            healDebt *= 2;
         }
-        player.getPersistentData().putFloat("VPHealDebt",player.getPersistentData().getFloat("VPHealDebt")+VPHealDebt);
+        VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+healDebt);
         for (LivingEntity entity: VPUtil.ray(player,8,60,false)){
             if(!VPUtil.isProtectedFromHit(player,entity)) {
-                entity.getPersistentData().putFloat("VPHealDebt", entity.getPersistentData().getFloat("VPHealDebt") + VPHealDebt);
+                VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)+healDebt);
                 VPUtil.dealDamage(entity, player, player.damageSources().sonicBoom(player), damage, 3);
                 VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM, entity.getX(), entity.getY(), entity.getZ(), 1, 0, -0.1, 0);
             }

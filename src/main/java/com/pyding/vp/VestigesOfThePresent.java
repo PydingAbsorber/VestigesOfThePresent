@@ -146,6 +146,7 @@ public class VestigesOfThePresent
             event.accept(ModItems.PEARL);
             event.accept(ModItems.WHIRLPOOL);
             event.accept(ModItems.ARCHLINX);
+            event.accept(ModItems.TREASURE);
             event.accept(ModItems.STELLAR);
             event.accept(ModItems.REFRESHER);
             event.accept(ModItems.RING_OF_FALLEN_STAR);
@@ -155,6 +156,7 @@ public class VestigesOfThePresent
             event.accept(ModItems.BOX);
             event.accept(ModItems.BOX_SAPLINGS);
             event.accept(ModItems.MYSTERY_CHEST);
+            event.accept(ModItems.MINERAL_CLUSTER);
             event.accept(ModItems.SHARD);
             event.accept(ModItems.NIGHTMARESHARD);
             event.accept(ModItems.VORTEX);

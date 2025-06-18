@@ -625,7 +625,7 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
                 }
                 else {
-                    int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23,25};
+                    int[] hobbyHorsing = {1,4,5,7,14,15,18,19,23,25,26};
                     boolean yesHorsing = false;
                     for (int horse : hobbyHorsing) {
                         if (horse == vestigeNumber) {
@@ -753,6 +753,10 @@ public class Vestige extends Item implements ICurioItem {
                         text =  VPUtil.filterAndTranslate(VPUtil.getSeaLeft(cap.getSea()).toString()).getString();
                         break;
                     }
+                    case 26:{
+                        text = VPUtil.getOresClient(player).toString();
+                        break;
+                    }
                     default:
                         text = null;
                 }
@@ -800,7 +804,7 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(color).append(Component.translatable("vp.ctrl"))));
-                if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 11 || vestigeNumber == 13 || vestigeNumber == 15 || vestigeNumber == 16 || vestigeNumber == 17 || vestigeNumber == 20)
+                if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 11 || vestigeNumber == 13 || vestigeNumber == 15 || vestigeNumber == 16 || vestigeNumber == 17 || vestigeNumber == 20 || vestigeNumber == 26)
                     components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
                 if(vestigeNumber == 3)
                     components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));

@@ -122,15 +122,6 @@ public class EventHandler {
                 attacker = (LivingEntity) event.getSource().getEntity();
             boolean isNightmare = VPUtil.isNightmareBoss(entity);
             if (event.getSource().getEntity() instanceof Player player) {
-                /*if(random.nextDouble() < 0.2 && VPUtil.hasStellarVestige(ModItems.KILLER.get(), player) && event.getSource().is(DamageTypeTags.IS_EXPLOSION)){
-                    if(random.nextDouble() < 0.5)
-                        VPUtil.play(player,SoundRegistry.EXPLODE1.get());
-                    else VPUtil.play(player,SoundRegistry.EXPLODE2.get());
-                    for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,8,8,8,true)){
-                        VPUtil.dealDamage(livingEntity,player, player.damageSources().explosion(entity,player),100,3);
-                        VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
-                    }
-                }*/
                 if(VPUtil.hasCurse(player,4) && !player.getPersistentData().getBoolean("VPAttacked")){
                     event.setAmount(0);
                     event.setCanceled(true);
@@ -145,12 +136,12 @@ public class EventHandler {
                 }
                 float curses = player.getPersistentData().getFloat("VPOverdrive");
                 if(VPUtil.hasStellarVestige(ModItems.MARK.get(), player) && curses > 0){
-                    float VPHealDebt = player.getPersistentData().getFloat("VPHealDebt");
-                    VPUtil.dealDamage(entity,player,player.damageSources().magic(),curses*10+VPHealDebt,3,true);
-                    player.getPersistentData().putFloat("VPHealDebt",VPHealDebt*0.9f);
+                    float healDebt = VPUtil.getHealDebt(player);
+                    VPUtil.dealDamage(entity,player,player.damageSources().magic(),curses*10+healDebt,3,true);
+                    VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+healDebt*0.9f);
                 }
                 if (VPUtil.hasVestige(ModItems.MASK.get(), player))
-                    entity.getPersistentData().putFloat("VPHealDebt", (float) (entity.getPersistentData().getFloat("VPHealDebt") + entity.getPersistentData().getFloat("VPHealDebt") * 0.01));
+                    VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)+VPUtil.getHealDebt(entity)*0.01f);
                 if (player.getPersistentData().getInt("VPMadness") > 0 && VPUtil.hasVestige(ModItems.MARK.get(), player)) {
                     //madness duplicate
                     if (entity.getHealth() <= entity.getMaxHealth() * 0.5 && random.nextDouble() < 0.5) {
@@ -159,6 +150,8 @@ public class EventHandler {
                         player.getPersistentData().putInt("VPMadness", player.getPersistentData().getInt("VPMadness") - 1);
                     }
                     entity.invulnerableTime = 0;
+                    if(player.getPersistentData().getFloat("VPOverdrive") > 0)
+                        VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)+10*player.getPersistentData().getFloat("VPOverdrive"));
                     player.attack(entity);
                 }
                 if(player.getPersistentData().getInt("VPMadness") < 0)
@@ -514,12 +507,10 @@ public class EventHandler {
                 if (random.nextDouble() < VPUtil.getChance(Math.min(0.99,passiveChance),player)) {
                     if(random.nextDouble() < 0.5){
                         if (random.nextDouble() < 0.5) {
-                            if(player.getPersistentData().getFloat("VPHealDebt") == 0)
-                                amount = (event.getAmount() + random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
+                            amount = (event.getAmount() + random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
                         } else amount = (event.getAmount() - random.nextInt(ConfigHandler.COMMON.chaosDamageCap.get()));
                         event.setCanceled(true);
                         player.hurt(damageSource,amount);
-                        return;
                     } else {
                         player.invulnerableTime = 0;
                         damageSource = VPUtil.randomizeDamageType(player);
@@ -528,10 +519,9 @@ public class EventHandler {
                         if (random.nextDouble() < VPUtil.getChance(0.3,player) && hasStellar) {
                             for (LivingEntity livingEntity : VPUtil.getEntities(player, 30, false)) {
                                 livingEntity.hurt(damageSource, amount);
-                                livingEntity.getPersistentData().putFloat("VPHealDebt",event.getAmount()*0.1f);
+                                VPUtil.setHealDebt(livingEntity,VPUtil.getHealDebt(livingEntity)+event.getAmount()*0.1f);
                             }
                         }
-                        return;
                     }
                 }
                 double chance = ConfigHandler.COMMON.chaosChance.get()*10 + random.nextInt(90);
@@ -539,9 +529,8 @@ public class EventHandler {
                     if (player.getPersistentData().getInt("VPChaos") > 0) {
                         player.getPersistentData().putInt("VPChaos", player.getPersistentData().getInt("VPChaos"));
                         livingEntity.hurt(damageSource, amount);
-                        livingEntity.getPersistentData().putFloat("VPHealDebt",event.getAmount()*0.1f);
+                        VPUtil.setHealDebt(livingEntity,VPUtil.getHealDebt(livingEntity)+event.getAmount()*0.1f);
                         event.setCanceled(true);
-                        return;
                     }
                 }
             }
@@ -806,6 +795,7 @@ public class EventHandler {
                     boolean stellar = VPUtil.hasStellarVestige(ModItems.KILLER.get(), player);
                     for(LivingEntity livingEntity: VPUtil.getEntitiesAround(player,20,20,20,false)){
                         VPUtil.dealDamage(livingEntity,player, player.damageSources().explosion(livingEntity,player),percent,3);
+                        VPUtil.setHealDebt(livingEntity,VPUtil.getHealDebt(livingEntity)+1000);
                         if(stellar){
                             livingEntity.getPersistentData().putLong("VPAntiShield",3*60*1000+System.currentTimeMillis());
                             VPUtil.antiTp(livingEntity,3*60*1000);
@@ -827,8 +817,8 @@ public class EventHandler {
                 if (livingEntity instanceof Player bard && VPUtil.hasVestige(ModItems.LYRA.get(), bard)) {
                     ItemStack stack = VPUtil.getVestigeStack(Lyra.class, bard);
                     if (stack != null && stack.getItem() instanceof Vestige vestige) {
-                        if (vestige.isUltimateActive(stack) && bard.getPersistentData().getFloat("VPHealDebt") <= 0 && VPUtil.canResurrect(entity)) {
-                            bard.getPersistentData().putFloat("VPHealDebt", bard.getPersistentData().getFloat("VPHealDebt") + entity.getMaxHealth() * 3);
+                        if (vestige.isUltimateActive(stack) && VPUtil.getHealDebt(bard) <= 0 && VPUtil.canResurrect(entity)) {
+                            VPUtil.setHealDebt(bard,VPUtil.getHealDebt(bard)+entity.getMaxHealth() * 3);
                             entity.setHealth(entity.getMaxHealth());
                             event.setCanceled(true);
                         }
@@ -1107,17 +1097,17 @@ public class EventHandler {
             if(healingBonus < 0)
                 resedHeal = (event.getAmount()*(healingBonus/100))*-1;
             event.setAmount(Math.max(0,event.getAmount()+(event.getAmount()*(healingBonus/100))));
-            float VPHealDebt = tag.getFloat("VPHealDebt");
-            if(VPHealDebt > 0 && event.getAmount() > 0) {
+            float healDebt = VPUtil.getHealDebt(entity);
+            if(healDebt > 0 && event.getAmount() > 0) {
                 float lastHeal = event.getAmount();
-                event.setAmount(Math.max(0, lastHeal - VPHealDebt));
-                if(VPHealDebt-lastHeal > 0) {
+                event.setAmount(Math.max(0, lastHeal - healDebt));
+                if(healDebt-lastHeal > 0) {
                     resedHeal += lastHeal;
-                    tag.putFloat("VPHealDebt", VPHealDebt - lastHeal);
+                    VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)-lastHeal);
                 }
                 else {
                     resedHeal += event.getAmount();
-                    tag.putFloat("VPHealDebt", 0);
+                    VPUtil.setHealDebt(entity,0);
                 }
             }
             if(entity instanceof Player player) {
@@ -1409,7 +1399,7 @@ public class EventHandler {
                     for(LivingEntity target: list){
                         player.getPersistentData().putFloat("VPRender1",VPUtil.getShield(target));
                         player.getPersistentData().putFloat("VPRender2",VPUtil.getOverShield(target));
-                        player.getPersistentData().putFloat("VPRender3",target.getPersistentData().getFloat("VPHealDebt"));
+                        player.getPersistentData().putFloat("VPRender3",VPUtil.getHealDebt(target));
                         player.getPersistentData().putString("VPRender4",VPUtil.getSoulIntegrity(target)+"/"+VPUtil.getMaxSoulIntegrity(target));
                         break;
                     }
@@ -1448,7 +1438,7 @@ public class EventHandler {
                 for(LivingEntity livingEntity: VPUtil.getEntities(playerServer,20,false)){
                     if(VPUtil.isProtectedFromHit(playerServer,entity))
                         continue;
-                    float healDebt = (float) (livingEntity.getPersistentData().getFloat("VPHealDebt")/ConfigHandler.COMMON.chaosCoreStellarHpRes.get());
+                    float healDebt = (float) (VPUtil.getHealDebt(livingEntity)/ConfigHandler.COMMON.chaosCoreStellarHpRes.get());
                     if(healDebt > 0) {
                         if(healDebt > livingEntity.getMaxHealth())
                             VPUtil.deadInside(livingEntity,playerServer);
@@ -1774,14 +1764,9 @@ public class EventHandler {
             if(event.getState().getBlock() instanceof CoralBlock coralBlock) {
                 cap.addSea(coralBlock.getDescriptionId(), player);
             }
-            /*if (flower.contains("flower")) {
-                cap.addFlower(flower, player);
-            } else {
-                for (String element : vanillaFlowers) {
-                    if (flower.contains(element))
-
-                }
-            }*/
+            if(VPUtil.getOres().contains(event.getState().getBlock().getDescriptionId())) {
+                cap.addOre(event.getState().getBlock().getDescriptionId(), player);
+            }
         });
     }
 

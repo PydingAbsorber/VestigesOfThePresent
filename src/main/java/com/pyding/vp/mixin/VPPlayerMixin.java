@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
@@ -29,31 +30,37 @@ public class VPPlayerMixin {
             cir.setReturnValue(GradientUtil.goldenGradient(player.getGameProfile().getName()));
     }
 
-    @Inject(method = "getInventory",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getInventory",at = @At("HEAD"),cancellable = true, require = 1)
     private void getInv(CallbackInfoReturnable<Inventory> cir){
         if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
             cir.setReturnValue(new Inventory(((Player)(Object)this)));
     }
 
-    @Inject(method = "getEnderChestInventory",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "aiStep",at = @At("HEAD"),cancellable = true, require = 1)
+    private void step(CallbackInfo ci){
+        if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
+            ci.cancel();
+    }
+
+    @Inject(method = "getEnderChestInventory",at = @At("HEAD"),cancellable = true, require = 1)
     private void getEndInv(CallbackInfoReturnable<PlayerEnderChestContainer> cir){
         if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
             cir.setReturnValue(new PlayerEnderChestContainer());
     }
 
-    @Inject(method = "getArmorSlots",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getArmorSlots",at = @At("HEAD"),cancellable = true, require = 1)
     private void getArmor(CallbackInfoReturnable<Iterable<ItemStack>> cir){
         if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
             cir.setReturnValue(new ArrayList<>());
     }
 
-    @Inject(method = "getHandSlots",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getHandSlots",at = @At("HEAD"),cancellable = true, require = 1)
     private void getHands(CallbackInfoReturnable<Iterable<ItemStack>> cir){
         if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
             cir.setReturnValue(new ArrayList<>());
     }
 
-    @Inject(method = "getSlot",at = @At("RETURN"),cancellable = true, require = 1)
+    @Inject(method = "getSlot",at = @At("HEAD"),cancellable = true, require = 1)
     private void getSlot(CallbackInfoReturnable<SlotAccess> cir){
         if(VPUtil.isRoflanEbalo(((Player)(Object)this)))
             cir.setReturnValue(SlotAccess.NULL);

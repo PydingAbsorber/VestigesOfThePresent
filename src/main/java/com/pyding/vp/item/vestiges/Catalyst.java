@@ -104,8 +104,8 @@ public class Catalyst extends Vestige{
                 player.getPersistentData().putLong("VPDeath",0);
                 debuffDefence--;
             }
-            if(player.getPersistentData().getFloat("VPHealDebt") > 0) {
-                player.getPersistentData().putFloat("VPHealDebt",0);
+            if(VPUtil.getHealDebt(player) > 0) {
+                VPUtil.setHealDebt(player,0);
                 debuffDefence--;
             }
             for (MobEffectInstance instance : VPUtil.getEffectsHas(player, false)){

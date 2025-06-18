@@ -16,6 +16,7 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -461,6 +462,10 @@ public class VPUtil {
 
     public static List<String> getMobsClient(Player player){
         return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPMobsClient").split(",")));
+    }
+
+    public static List<String> getOresClient(Player player){
+        return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPOresClient").split(",")));
     }
 
     public static HashSet<Block> blocks = new HashSet<>();
@@ -1911,6 +1916,34 @@ public class VPUtil {
         return allList;
     }
 
+    public static List<String> getOres(){
+        List<String> ores = new ArrayList<>();
+        TagKey<Item> forgeOreTag = TagKey.create(
+                ForgeRegistries.ITEMS.getRegistryKey(),
+                new ResourceLocation("forge", "ores")
+        );
+        for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(forgeOreTag)) {
+            ores.add(holder.value().getDescriptionId());
+        }
+        for(Block block: blocks){
+            String name = block.getDescriptionId();
+            if(name.contains("_ore") && !ores.contains(name))
+                ores.add(name);
+        }
+        return ores;
+    }
+
+    public static List<String> getOresLeft(String list,Player player){
+        List<String> oreList = new ArrayList<>(Arrays.asList(filterString(list).split(",")));
+        List<String> allList = new ArrayList<>();
+        for(String item: getOres()){
+            allList.add(item);
+        }
+        allList.removeAll(oreList);
+        player.getPersistentData().putString("VPOresClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
+        return allList;
+    }
+
     public static List<String> getRaresClient(Player player){
         return new ArrayList<>(Arrays.asList(player.getPersistentData().getString("VPRaresClient").split(",")));
     }
@@ -2165,6 +2198,7 @@ public class VPUtil {
 
     public static void vestigeNullify(Player player){
         Archlinx.removeModifiers(player);
+        player.getPersistentData().putBoolean("VPMarkUlt",false);
         player.getPersistentData().putFloat("VPShield", 0);
         player.getPersistentData().putFloat("VPOverShield", 0);
         player.getPersistentData().putInt("VPDevourerHits",0);
@@ -2357,6 +2391,7 @@ public class VPUtil {
             VPUtil.getBossesLeft(cap.getBosses(),player);
             VPUtil.getMobsLeft(cap.getMobsTamed(),player);
             VPUtil.getRareItemsLeft(cap.getrareItems(),player);
+            VPUtil.getOresLeft(cap.getOres(),player);
         }
     }
 
@@ -2641,7 +2676,7 @@ public class VPUtil {
             dealParagonDamage(player,boss,event.getAmount()*0.1f,0,true);
         }
         if(type == 1){
-            player.getPersistentData().putFloat("VPHealDebt", player.getPersistentData().getFloat("VPHealDebt") + player.getMaxHealth() * 2);
+            VPUtil.setHealDebt(player,VPUtil.getHealDebt(player) + player.getMaxHealth() * 2);
             float stack = player.getPersistentData().getFloat("VPIgnis");
             if ((player.getHealth() < player.getMaxHealth() * 0.3 || player.getMaxHealth() <= 5) && random.nextDouble() < getChance(0.2,player)) {
                 deadInside(player);
@@ -3631,4 +3666,11 @@ public class VPUtil {
             player.sendSystemMessage(Component.literal("IsClient: " + player.level().isClientSide + " " + message));
     }
 
+    public static void setHealDebt(LivingEntity entity, float amount){
+        entity.getPersistentData().putFloat("VPHealDebt",amount);
+    }
+
+    public static float getHealDebt(LivingEntity entity){
+        return entity.getPersistentData().getFloat("VPHealDebt");
+    }
 }

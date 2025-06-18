@@ -386,7 +386,7 @@ public class ShieldOverlay {
                             pictureSizeX, pictureSizeY);
             }
         }
-        float healDebt = player.getPersistentData().getFloat("VPHealDebt");
+        float healDebt = VPUtil.getHealDebt(player);
         if(healDebt > 0){
             int sizeX = 16;
             int sizeY = 16;

@@ -3,6 +3,7 @@ package com.pyding.vp.mixin;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,7 +24,7 @@ public class ForgeMixin {
 
     @Inject(method = "onLivingDeath",at = @At("HEAD"),cancellable = true, require = 1)
     private static void onDeath(LivingEntity entity, DamageSource src, CallbackInfoReturnable<Boolean> cir){
-        if(VPUtil.isRoflanEbalo(entity)) {
+        if(entity instanceof Player && VPUtil.isRoflanEbalo(entity)) {
             cir.setReturnValue(true);
         }
     }
