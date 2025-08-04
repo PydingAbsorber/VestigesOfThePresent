@@ -42,8 +42,9 @@ public class NightmareShard extends Item {
         }
         if(entity instanceof HungryOyster){
             entity.getPersistentData().putBoolean("VPCool",true);
-        } else {
-
+        } else if(VPUtil.getShield(player) == 0 && VPUtil.getOverShield(player) == 0) {
+            VPUtil.addOverShield(player,player.getMaxHealth()*1.5f,true);
+            VPUtil.addShield(player,player.getMaxHealth()*3f,false);
         }
         stack.shrink(1);
         return super.use(p_41432_, player, p_41434_);
@@ -54,5 +55,6 @@ public class NightmareShard extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         components.add(Component.translatable("vp.nightmareshard.get").withStyle(ChatFormatting.GRAY));
         components.add(Component.translatable("vp.nightmareshard.1").withStyle(ChatFormatting.GRAY));
+        components.add(Component.translatable("vp.nightmareshard.2").withStyle(ChatFormatting.GRAY));
     }
 }

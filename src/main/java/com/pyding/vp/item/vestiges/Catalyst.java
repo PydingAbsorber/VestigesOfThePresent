@@ -46,11 +46,11 @@ public class Catalyst extends Vestige{
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
         if(isStellar(stack))
-            player.getPersistentData().putInt("VPDebuffDefence", ConfigHandler.COMMON.catalystDeffence.get());
+            player.getPersistentData().putInt("VPDebuffDefence", VPUtil.scalePower(ConfigHandler.COMMON.catalystDeffence.get(),17,player));
         Random random = new Random();
         int duration = random.nextInt(140)+60;
         int power = random.nextInt(5);
-        player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(true),duration*20,power));
+        player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(true),VPUtil.scalePower(duration*20,17,player),VPUtil.scalePower(power,17,player)));
         super.doSpecial(seconds, player, level, stack);
     }
 

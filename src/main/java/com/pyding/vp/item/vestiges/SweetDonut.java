@@ -8,6 +8,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -29,7 +30,7 @@ public class SweetDonut extends Vestige{
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.HEAL3.get());
         VPUtil.spawnParticles(player, ParticleTypes.HEART,1,1,0,-0.1,0,1,false);
-        player.heal(player.getMaxHealth()*0.4f);
+        player.heal(VPUtil.scalePower(player.getMaxHealth()*0.4f,6,player));
         if(player instanceof ServerPlayer serverPlayer) {
             VPUtil.clearEffects(serverPlayer,false);
             if (serverPlayer.getHealth() <= serverPlayer.getMaxHealth() * 0.5) {
@@ -37,7 +38,7 @@ public class SweetDonut extends Vestige{
                 PacketHandler.sendToClient(new PlayerFlyPacket(4), serverPlayer);
             }
         }
-        float shieldBonus = (player.getPersistentData().getFloat("VPShieldBonusDonut"));
+        float shieldBonus = VPUtil.scalePower(player.getPersistentData().getFloat("VPShieldBonusDonut"),6,player);
         if(VPUtil.getShield(player) < player.getMaxHealth()*3*(1+shieldBonus/100))
             VPUtil.addShield(player,player.getMaxHealth()*3,false);
         super.doSpecial(seconds, player, level, stack);
@@ -56,12 +57,15 @@ public class SweetDonut extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        float bonus = ConfigHandler.COMMON.donutHealBonus.get();
+        float bonus = VPUtil.scalePower(ConfigHandler.COMMON.donutHealBonus.get(),6,player);
         if(player.getHealth() <= player.getMaxHealth()*0.5)
             bonus *= 2;
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",bonus);
         if(isStellar(stack) && VPUtil.getShield(player)>0)
             VPUtil.clearEffects(player,false);
+        if(player.getHealth() >= player.getMaxHealth() && player.hasEffect(MobEffects.REGENERATION)){
+            player.heal(VPUtil.scalePower(player.getEffect(MobEffects.REGENERATION).getAmplifier()+1,6,player));
+        }
         super.curioTick(slotContext, stack);
     }
 

@@ -90,7 +90,7 @@ public class BlackHole extends Projectile {
                 if(entity instanceof ServerPlayer serverPlayer1)
                     PacketHandler.sendToClient(new SuckPacket((float) (r/(entity.distanceTo(this)*2)),blockPosition()),serverPlayer1);
                 if (entity.distanceTo(this) <= Math.max(10,gravity-10) && tickCount % ConfigHandler.COMMON.blackhole.get() == 0)
-                    VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),10/entity.distanceTo(this),3);
+                    VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),VPUtil.scalePower(10/entity.distanceTo(this),3,player),3);
             }
         }
         if (!getCommandSenderWorld().isClientSide) {
@@ -99,7 +99,7 @@ public class BlackHole extends Projectile {
                 for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
                     if(entity.getUUID() != player.getUUID() && !VPUtil.isProtectedFromHit(player,entity)) {
                         if (entity.distanceTo(this) <= Math.max(20,gravity+10))
-                            VPUtil.dealParagonDamage(entity,player,(10/(entity.distanceTo(this)+1f))*(gravity*10),3,true);
+                            VPUtil.dealParagonDamage(entity,player,VPUtil.scalePower((10/(entity.distanceTo(this)+1f))*(gravity*10),3,player),3,true);
                     }
                 }
                 VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,r,20,0,0,0,0,false);

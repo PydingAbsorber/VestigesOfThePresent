@@ -74,7 +74,7 @@ public abstract class VPLivingEntityMixin {
         }
         if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.cruelMode.get() && (VPUtil.isNightmareBoss(entity) || VPUtil.isBoss(entity))){
             ci.cancel();
-            float damage = VPUtil.dpsAbsorption(entity,entity.getHealth() - amount);
+            float damage = VPUtil.dpsAbsorption(entity,entity.getHealth()-amount);
             ((EntityVzlom)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),entity.getHealth() - damage);
         }
     }
@@ -83,7 +83,7 @@ public abstract class VPLivingEntityMixin {
     protected void getMaxHealthMix(CallbackInfoReturnable<Float> cir){
         LivingEntity entity = (LivingEntity)(Object)this;
         if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.cruelMode.get() && ((ConfigHandler.COMMON.unlockHp.get() || cir.getReturnValue() <= 2048) && VPUtil.isNightmareBoss(entity)) && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
-            float maxHealth = Math.max(600,VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix())) * ConfigHandler.COMMON.bossHP.get();
+            float maxHealth = Math.max(600,VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix())) * (float)(ConfigHandler.COMMON.bossHP.get()+0);
             if(entity.getAttributes() != null){
                 maxHealth *= 10;
             }
@@ -109,6 +109,9 @@ public abstract class VPLivingEntityMixin {
 
     @Inject(method = "dropAllDeathLoot", at = @At("HEAD"), cancellable = true)
     private void onDropAllDeathLoot(DamageSource p_21192_, CallbackInfo cir) {
+        if((Object)this instanceof LivingEntity livingEntity){
+            livingEntity.getPersistentData().putBoolean("VPWasDrop",true);
+        }
         if((Object)this instanceof Player player) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 if (cap.getVip() > System.currentTimeMillis()) {

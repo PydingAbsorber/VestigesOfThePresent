@@ -86,9 +86,9 @@ public class Lyra extends Vestige{
             VPUtil.spawnSphere(entity,ParticleTypes.NOTE,40,3,0);
             entity.getPersistentData().putLong("VPLyra"+effect,System.currentTimeMillis()+seconds);
             if(effect == 1)
-                entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("9548da03-e5f8-4cfd-be48-c4ae9b25d86d"),1.6f, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp.lyra.1"));
+                entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("9548da03-e5f8-4cfd-be48-c4ae9b25d86d"),VPUtil.scalePower(1.6f,22,player), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp.lyra.1"));
             if(effect == 5)
-                entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR, UUID.fromString("403a8f4a-e7a4-4ffa-91b0-c122efa89443"),100, AttributeModifier.Operation.ADDITION,"vp.lyra.5"));
+                entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR, UUID.fromString("403a8f4a-e7a4-4ffa-91b0-c122efa89443"),VPUtil.scalePower(100,22,player), AttributeModifier.Operation.ADDITION,"vp.lyra.5"));
         }
         boolean notHas = true;
         for (int i = 1; i < 9; i++) {

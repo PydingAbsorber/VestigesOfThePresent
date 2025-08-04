@@ -2,6 +2,7 @@ package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.mixin.FishingHookMixin;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,18 +34,10 @@ public class Pearl extends Vestige{
         VPUtil.spawnCircleParticles(player, 30,ParticleTypes.FISHING,3,0);
         if(player.fishing != null){
             FishingHook hook = player.fishing;
-            if(hook.isOpenWaterFishing()){
-                try {
-                    Field timeUntilLured = FishingHook.class.getDeclaredField("timeUntilLured");
-                    timeUntilLured.setAccessible(true);
-                    timeUntilLured.setInt(hook, 100);
-                    timeUntilLured = FishingHook.class.getDeclaredField("nibble");
-                    timeUntilLured.setAccessible(true);
-                    timeUntilLured.setInt(hook, 100);
-                    player.setAirSupply(Math.max(0,player.getAirSupply()-(int)(player.getMaxAirSupply()*0.3)));
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+            if(hook.isOpenWaterFishing() && hook.isInFluidType()){
+                ((FishingHookMixin)hook).setTimeLured(100);
+                ((FishingHookMixin)hook).setNibble(100);
+                player.setAirSupply(Math.max(0,player.getAirSupply()-(int)(player.getMaxAirSupply()*0.3)));
             } else later = true;
         } else later = true;
         super.doSpecial(seconds, player, level, stack);
@@ -55,19 +48,11 @@ public class Pearl extends Vestige{
         if(later){
             if(player.fishing != null){
                 FishingHook hook = player.fishing;
-                if(hook.isOpenWaterFishing()){
-                    try {
-                        Field timeUntilLured = FishingHook.class.getDeclaredField("timeUntilLured");
-                        timeUntilLured.setAccessible(true);
-                        timeUntilLured.setInt(hook, 100);
-                        timeUntilLured = FishingHook.class.getDeclaredField("nibble");
-                        timeUntilLured.setAccessible(true);
-                        timeUntilLured.setInt(hook, 100);
-                        player.setAirSupply(Math.max(0,player.getAirSupply()-(int)(player.getMaxAirSupply()*0.3)));
-                        later = false;
-                    } catch (NoSuchFieldException | IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
+                if(hook.isOpenWaterFishing() && hook.isInFluidType()){
+                    ((FishingHookMixin)hook).setTimeLured(100);
+                    ((FishingHookMixin)hook).setNibble(100);
+                    player.setAirSupply(Math.max(0,player.getAirSupply()-(int)(player.getMaxAirSupply()*0.3)));
+                    later = false;
                 }
             }
         }
@@ -80,7 +65,7 @@ public class Pearl extends Vestige{
         VPUtil.spawnSphere(player, ParticleTypes.FISHING,30,3,0);
         VPUtil.spawnCircleParticles(player, 30,ParticleTypes.FISHING,3,0);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            player.getPersistentData().putInt("VPLures",Math.min(30,10+cap.getPearls()*5));
+            player.getPersistentData().putInt("VPLures",VPUtil.scalePower(Math.min(30,10+cap.getPearls()*5),23,player));
         });
         player.getPersistentData().putFloat("VPDepth", VPUtil.getWaterDepth(player));
         super.doUltimate(seconds, player, level, stack);

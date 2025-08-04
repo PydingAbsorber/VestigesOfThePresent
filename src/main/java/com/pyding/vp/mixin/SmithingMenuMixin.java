@@ -7,6 +7,7 @@ import com.pyding.vp.item.accessories.Accessory;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
@@ -30,8 +31,10 @@ public abstract class SmithingMenuMixin {
     @Inject(method = "onTake",at = @At("HEAD"),cancellable = true, require = 1)
     protected void onTakeMixin(Player player, ItemStack stack, CallbackInfo ci){
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            if(((SmithingVzlomMixing)this).getInputSlots().getItem(0).getItem() instanceof SmithingTemplateItem smithingTemplateItem)
-                cap.addTemplate(((SmitingMixing) smithingTemplateItem).upgradeDescription().getString(),player);
+            if(((SmithingVzlomMixing)this).getInputSlots().getItem(0).getItem() instanceof SmithingTemplateItem smithingTemplateItem &&
+                    ((SmitingMixing) smithingTemplateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents) {
+                cap.addTemplate(translatableContents.getKey(), player);
+            }
         });
         if(((SmithingVzlomMixing)this).getInputSlots().getItem(0).getItem() instanceof Accessory accessory)
             accessory.lvlUp(stack,player);

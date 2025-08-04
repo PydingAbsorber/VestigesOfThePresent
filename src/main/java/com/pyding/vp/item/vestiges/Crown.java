@@ -29,10 +29,10 @@ public class Crown extends Vestige{
             entity.getPersistentData().putBoolean("VPCrownHitDeath",true);
             float shields = VPUtil.getShield(player);
             if(VPUtil.canResurrect(entity) && shields > 1000*10 && isStellar(stack)){
-                VPUtil.dealParagonDamage(entity,player,(shields*0.1f)/1000f,2,true);
+                VPUtil.dealParagonDamage(entity,player,VPUtil.scalePower((shields*0.1f)/1000f,2,player),2,true);
                 player.getPersistentData().putFloat("VPShield",shields*0.9f);
             }
-            VPUtil.adaptiveDamageHurt(entity,player,300);
+            VPUtil.adaptiveDamageHurt(entity,player,VPUtil.scalePower(300,2,player));
             VPUtil.spawnParticles(player, ParticleTypes.GLOW,entity.getX(),entity.getY(),entity.getZ(),8,0,0.5,0);
         }
         super.doSpecial(seconds, player, level, stack);

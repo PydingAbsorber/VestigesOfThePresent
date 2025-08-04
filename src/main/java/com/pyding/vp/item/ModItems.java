@@ -14,7 +14,7 @@ import static com.pyding.vp.VestigesOfThePresent.MODID;
 public class ModItems {
     public static DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
-    public static final RegistryObject<Item> TEST = ITEMS.register("test", () -> new TestItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> LOGO = ITEMS.register("logo", () -> new TestItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> ANEMOCULUS = ITEMS.register("anemoculus", () -> new Anemoculus());
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown", () -> new Crown());
     public static final RegistryObject<Item> ATLAS = ITEMS.register("atlas", () -> new Atlas());

@@ -71,11 +71,11 @@ public class Armor extends Vestige{
                 debuffCount++;
             }
         }
-        player.hurt(player.damageSources().cactus(),VPUtil.getAttack(player,true)*(0.3f + debuffCount));
-        VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+((debuffCount+4)/4*player.getMaxHealth()*0.4f));
+        player.hurt(player.damageSources().cactus(),VPUtil.scalePower(VPUtil.getAttack(player,true)*(0.3f + debuffCount),11,player));
+        VPUtil.setHealDebt(player,VPUtil.scalePower(VPUtil.getHealDebt(player)+((debuffCount+4)/4*player.getMaxHealth()*0.4f),11,player));
         if(VPUtil.getHealDebt(player) > player.getMaxHealth()*6) {
-            stack.getOrCreateTag().putFloat("VPArmor", getPain(stack) + 40);
-            VPUtil.addShield(player,stack.getOrCreateTag().getFloat("VPArmor")*0.1f,true);
+            stack.getOrCreateTag().putFloat("VPArmor", VPUtil.scalePower(getPain(stack) + 40,11,player));
+            VPUtil.addShield(player,VPUtil.scalePower(stack.getOrCreateTag().getFloat("VPArmor")*0.1f,11,player),true);
         }
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
         super.doSpecial(seconds, player, level, stack); 

@@ -86,12 +86,15 @@ public class PlayerFlyPacket {
             LeaderboardUtil.refreshTopPlayers();
         }
         else if(number == 8){
+            if (Minecraft.getInstance().screen != null){
+                Minecraft.getInstance().screen.onClose();
+            }
             VPUtil.antiResurrect(player,System.currentTimeMillis()+VPUtil.deathTime);
             VPUtil.setRoflanEbalo(player,System.currentTimeMillis()+VPUtil.deathTime);
             VPUtil.setHealth(player,0);
             player.die(player.damageSources().genericKill());
             VPUtil.despawn(player);
-            Minecraft.getInstance().setScreen(new DeathScreen(Component.literal("Death by Paragon Damage"),false));
+            Minecraft.getInstance().forceSetScreen(new DeathScreen(Component.literal("Death by Paragon Damage"),false));
         }
         else if(number == 9){
             VPUtil.roflan.put(player.getUUID(),0l);

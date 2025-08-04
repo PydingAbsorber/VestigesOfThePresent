@@ -8,9 +8,11 @@
   "mixins": [
     "AttributesUnlock",
     "BucketMixin",
+    "BucketVzlom",
     "CuriosMixin",
     "EnchantmentsMixin",
     "EntityVzlom",
+    "FishingHookMixin",
     "FishingMixin",
     "ForgeMixin",
     "InventoryMixin",

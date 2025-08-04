@@ -18,7 +18,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LeaderboardUtil {
-    public static List<String> topPlayers = new ArrayList<>();
+    public static String topPlayers = "";
+    public static String specialPlayers = "";
+    public static boolean exception = false;
 
     public static String getHost() {
         if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardHost.get().toString().isEmpty())
@@ -74,6 +76,7 @@ public class LeaderboardUtil {
                         });
                 } else player.sendSystemMessage(Component.literal(response.body()).withStyle(ChatFormatting.RED));
             } catch (Exception e) {
+                exception = true;
                 player.sendSystemMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.RED));
             }
         });
@@ -92,6 +95,7 @@ public class LeaderboardUtil {
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             } catch (Exception e) {
+                exception = true;
                 e.printStackTrace();
             }
         });
@@ -190,30 +194,52 @@ public class LeaderboardUtil {
     }
 
     public static String getTopPlayers(){
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getTop?version=" + getCurrentVersion()))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception e) {
-            return "Something is not ok :(((( Backend may be offline \n"+e.getMessage();
+        if(exception)
+            return "exception";
+        if(topPlayers.isEmpty()) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    HttpClient client = HttpClient.newHttpClient();
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getTop?version=" + getCurrentVersion()))
+                            .GET()
+                            .build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    topPlayers = response.body();
+                } catch (Exception e) {
+                    exception = true;
+                    specialPlayers = "Something is not ok :(((( Backend may be offline \n" + e.getMessage();
+                }
+            });
         }
+        return topPlayers;
+    }
+
+    public static String getSpecialPlayers(){
+        if(exception)
+            return "exception";
+        if(specialPlayers.isEmpty()) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    HttpClient client = HttpClient.newHttpClient();
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getSpecial?version=" + getCurrentVersion()))
+                            .GET()
+                            .build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    specialPlayers = response.body();
+                } catch (Exception e) {
+                    exception = true;
+                    specialPlayers = "Something is not ok :(((( Backend may be offline \n" + e.getMessage();
+                }
+            });
+        }
+        return specialPlayers;
     }
 
     public static void refreshTopPlayers(){
-        CompletableFuture.runAsync(() -> {
-            try {
-                topPlayers.clear();
-                for (String element: VPUtil.filterString(getTopPlayers()).split(",")) {
-                    topPlayers.add(element.replaceAll("^\"|\"$", ""));
-                }
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        });
+        getTopPlayers();
+        getSpecialPlayers();
     }
 
     public static String getCurrentVersion(){
@@ -248,12 +274,25 @@ public class LeaderboardUtil {
     }
 
     public static boolean hasGoldenName(UUID uuid){
+        if(exception)
+            return false;
         try {
-            if (!topPlayers.isEmpty()) {
-                for (String element : topPlayers) {
-                    if (UUID.fromString(element).compareTo(uuid) == 0)
-                        return true;
-                }
+            for(String player: getTopPlayers().split(",")){
+                if(uuid.equals(UUID.fromString(player)))
+                    return true;
+            }
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
+    public static boolean hasSpecialName(String name){
+        if(exception)
+            return false;
+        try {
+            for(String nick: getSpecialPlayers().split(",")){
+                if(nick.equals(name))
+                    return true;
             }
         } catch (Exception e) {
         }

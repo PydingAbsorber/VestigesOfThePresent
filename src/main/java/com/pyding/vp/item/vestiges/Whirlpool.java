@@ -28,7 +28,7 @@ public class Whirlpool extends Vestige{
             VPUtil.play(player, SoundRegistry.BUBBLE2.get());
         else VPUtil.play(player, SoundRegistry.BUBBLE5.get());
         VPUtil.spawnSphere(player, ParticleTypes.SPLASH,40,3,0.2f);
-        player.getPersistentData().putInt("VPWhirlpool",3 + Math.min(10,Math.max(0,player.getMaxAirSupply()/100)));
+        player.getPersistentData().putInt("VPWhirlpool",VPUtil.scalePower(3 + Math.min(10,Math.max(0,player.getMaxAirSupply()/100)),24,player));
         super.doSpecial(seconds, player, level, stack);
     }
 

@@ -40,8 +40,8 @@ public class MaskOfDemon extends Vestige{
 
     private Multimap<Attribute, AttributeModifier> createAttributeMap(Player player, ItemStack stack) {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
-        double attackMultiplier = 4;
-        double speedMultiplier = 1;
+        double attackMultiplier = VPUtil.scalePower(4,5,player);
+        double speedMultiplier = VPUtil.scalePower(1,5,player);
         if(isStellar(stack)){
             attackMultiplier *= 1.5;
             speedMultiplier *= 1.5;
@@ -71,11 +71,14 @@ public class MaskOfDemon extends Vestige{
                     hurt = true;
                 }
                 else if (player.getHealth() > player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100 + 1) {
-                    VPUtil.dealParagonDamage(player,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,0,false);
+                    VPUtil.dealParagonDamage(player,player,VPUtil.scalePower(player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,5,player),0,false);
                     hurt = true;
                 }
                 player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(player, stack));
             }
+            float missingHealth = VPUtil.scalePower(VPUtil.missingHealth(player),5,player);
+            if(isStellar(stack))
+                missingHealth*=2;
             for(LivingEntity entity: VPUtil.getEntities(player,30,false)){
                 if(VPUtil.isProtectedFromHit(player,entity))
                     continue;
@@ -83,19 +86,16 @@ public class MaskOfDemon extends Vestige{
                 if (tag == null) {
                     tag = new CompoundTag();
                 }
-                float missingHealth = VPUtil.missingHealth(player);
-                if(isStellar(stack))
-                    missingHealth*=2;
                 tag.putFloat("VPHealResMask",0-missingHealth);
                 if(isStellar(stack))
                     tag.putBoolean("MaskStellar",true);
                 if(hurt && isStellar(stack) && player.getHealth() <= player.getMaxHealth()*0.5){
-                    VPUtil.dealParagonDamage(entity,player,player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,1,false);
+                    VPUtil.dealParagonDamage(entity,player,VPUtil.scalePower(player.getMaxHealth() * ConfigHandler.COMMON.maskRotAmount.get()/100,5,player),1,false);
                     VPUtil.spawnParticles(player, ParticleTypes.DAMAGE_INDICATOR,entity.getX(),entity.getY(),entity.getZ(),1,0,0.1,0);
                 }
                 entity.getPersistentData().merge(tag);
             }
-            player.getPersistentData().putFloat("VPHealResMask",0-VPUtil.missingHealth(player));
+            player.getPersistentData().putFloat("VPHealResMask",0-missingHealth);
         } else player.getAttributes().removeAttributeModifiers(this.createAttributeMap(player, stack));
         super.curioTick(slotContext, stack);
     }
@@ -133,8 +133,8 @@ public class MaskOfDemon extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.IMPACT.get());
-        float damage = 300;
-        float healDebt = player.getMaxHealth()*3;
+        float damage = VPUtil.scalePower(300,5,player);
+        float healDebt = VPUtil.scalePower(player.getMaxHealth()*3,5,player);
         if(player.getHealth() <= player.getMaxHealth()*0.5) {
             damage *= 2;
             healDebt *= 2;

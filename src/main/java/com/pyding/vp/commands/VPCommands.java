@@ -9,12 +9,15 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.event.EventHandler;
+import com.pyding.vp.item.ModItems;
 import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementList;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -28,6 +31,7 @@ import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class VPCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -165,6 +169,16 @@ public class VPCommands {
                                         })
                                 )
                         )
+                        .then(Commands.literal("removeAll")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                        cap.removeAllFriends(player);
+                                    });
+                                    player.sendSystemMessage(Component.literal("All friends removed"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
                         .then(Commands.literal("seeFriends")
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
@@ -194,7 +208,7 @@ public class VPCommands {
                             return Command.SINGLE_SUCCESS;
                         })
                 )
-                .then(Commands.literal("jail")
+                .then(Commands.literal("jail").requires(sender -> sender.hasPermission(2))
                     .then(Commands.argument("player", EntityArgument.player())
                         .then(Commands.argument("time", LongArgumentType.longArg())
                             .executes(context -> {
@@ -280,6 +294,13 @@ public class VPCommands {
                             ItemStack stack = player.getMainHandItem();
                             if(stack != null){
                                 player.sendSystemMessage(Component.literal("Id: " + stack.getItem().getDescriptionId()));
+                                player.sendSystemMessage(Component.literal("Class: " + stack.getClass().getName()));
+                                player.sendSystemMessage(Component.literal("Extends: " + stack.getClass().getSuperclass().getName()));
+                                player.sendSystemMessage(Component.literal("Implements: "));
+                                Class<?>[] interfaces = stack.getClass().getInterfaces();
+                                for (Class<?> interfaceClass : interfaces) {
+                                    player.sendSystemMessage(Component.literal(interfaceClass.getName()));
+                                }
                                 player.sendSystemMessage(Component.literal("Enchantments list: " + stack.getEnchantmentTags()));
                                 for(Enchantment enchantment: stack.getAllEnchantments().keySet()) {
                                     player.sendSystemMessage(Component.literal("Ench name: " + enchantment.getDescriptionId()));
@@ -339,7 +360,7 @@ public class VPCommands {
                             }
                             else {
                                 ConfigHandler.COMMON.cruelMode.set(true);
-                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7All bosses max hp now is §cx" + ConfigHandler.COMMON.bossHP.get() + " §7and attack is §cx" + ConfigHandler.COMMON.bossHP.get() + " §7armor and armor toughness is §cx" + ConfigHandler.COMMON.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ConfigHandler.COMMON.shieldCruel.get() + " §7and Over Shields §cx" + ConfigHandler.COMMON.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ConfigHandler.COMMON.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ConfigHandler.COMMON.absorbCruel.get()*100 + "%"));
+                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7All bosses max hp now is §cx" + ConfigHandler.COMMON.bossHP.get() + " §7and attack is §cx" + ConfigHandler.COMMON.bossHP.get() + " §7armor and armor toughness is §cx" + ConfigHandler.COMMON.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ConfigHandler.COMMON.shieldCruel.get() + " §7and Over Shields §cx" + ConfigHandler.COMMON.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ConfigHandler.COMMON.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ConfigHandler.COMMON.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6."));
                             }
                             return Command.SINGLE_SUCCESS;
                         })
@@ -455,6 +476,21 @@ public class VPCommands {
                                                 })
                                         )
                                 )
+                        )
+                        .then(Commands.literal("syncAdvancements")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                        int advancements = 0;
+                                        for(Advancement advancement: player.server.getAdvancements().getAllAdvancements()){
+                                            if(!advancement.getId().getPath().startsWith("recipes/") && advancement.getDisplay() != null && player.getAdvancements().getOrStartProgress(advancement).isDone()){
+                                                advancements++;
+                                            }
+                                        }
+                                        cap.setAdvancement(player,advancements);
+                                    });
+                                    return Command.SINGLE_SUCCESS;
+                                })
                         )
                 )
                 .then(Commands.literal("renderSoulIntegrity")

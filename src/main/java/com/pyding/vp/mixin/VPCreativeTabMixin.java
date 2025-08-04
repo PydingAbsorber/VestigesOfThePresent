@@ -1,8 +1,6 @@
 package com.pyding.vp.mixin;
 
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.item.StellarFragment;
-import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.GradientUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -21,7 +19,7 @@ public abstract class VPCreativeTabMixin {
 
     @Inject(method = "getDisplayName",at = @At("HEAD"),cancellable = true, require = 1)
     private void descMixin(CallbackInfoReturnable<Component> cir){
-        if(ModItems.TEST.isPresent() && getIconItem().is(ModItems.TEST.get())) {
+        if(ModItems.LOGO.isPresent() && getIconItem().is(ModItems.LOGO.get())) {
             cir.setReturnValue(GradientUtil.customGradient(Component.translatable("itemGroup.vptab").getString().substring(2),GradientUtil.PURPLE_DARK_PURPLE));
         }
     }

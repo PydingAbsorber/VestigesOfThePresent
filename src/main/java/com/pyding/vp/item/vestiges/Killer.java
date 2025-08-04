@@ -31,7 +31,7 @@ public class Killer extends Vestige{
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20)){
             if(VPUtil.isProtectedFromHit(player,entity))
                 continue;
-            VPUtil.dealDamage(entity,player, player.damageSources().explosion(entity,player),400,2);
+            VPUtil.dealDamage(entity,player, player.damageSources().explosion(entity,player),VPUtil.scalePower(400,4,player),2);
             entity.getPersistentData().putBoolean("VPKillerQueen",true);
         }
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);

@@ -3,6 +3,7 @@ package com.pyding.vp.util;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.AtomicDouble;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -25,6 +26,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -56,10 +58,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CoralBlock;
-import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -105,26 +104,6 @@ public class VPUtil {
 
         for (char letter : text.toCharArray()) {
             ChatFormatting color = colors[random.nextInt(colors.length - 1) + 1];
-            coloredText.append(color).append(letter);
-        }
-
-        return coloredText.toString();
-    }
-
-    public static String getDarkString(String text) {
-        StringBuilder coloredText = new StringBuilder();
-        ChatFormatting[] colors = ChatFormatting.values();
-        Random random = new Random();
-        for (char letter : text.toCharArray()) {
-            ChatFormatting color;
-            if(random.nextDouble() > 0.5){
-                color = ChatFormatting.BLACK;
-            } else {
-                if(random.nextDouble() > 0.5){
-                    color = ChatFormatting.DARK_GRAY;
-                }
-                else color = ChatFormatting.GRAY;
-            }
             coloredText.append(color).append(letter);
         }
 
@@ -259,8 +238,8 @@ public class VPUtil {
     public static HashSet<String> getTemplates(){
         if(templates.isEmpty()) {
             for (Item item : items) {
-                if (item instanceof SmithingTemplateItem templateItem)
-                    templates.add(((SmitingMixing) templateItem).upgradeDescription().getString());
+                if (item instanceof SmithingTemplateItem templateItem && ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents)
+                    templates.add(translatableContents.getKey());
             }
         }
         return templates;
@@ -279,7 +258,7 @@ public class VPUtil {
         if(musicDisks.isEmpty()) {
             for (Item item : items) {
                 if (item instanceof RecordItem recordItem)
-                    musicDisks.add(item.getDescriptionId()+".desc");
+                    musicDisks.add(item.getDescriptionId());
             }
         }
         return musicDisks;
@@ -311,7 +290,7 @@ public class VPUtil {
 
     public static void initBuckets(){
         for(MobBucketItem bucketItem: getBuckets()){
-            EntityType<?> type = ((BucketMixin)bucketItem).getFishSup().get();
+            EntityType<?> type = ((BucketVzlom)bucketItem).getFishSup().get();
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
                 HashSet<String> tropicalFish = new HashSet<>();
                 for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
@@ -324,7 +303,7 @@ public class VPUtil {
                     axolotl.add(variant.getName());
                 bucketMap.put(bucketItem, axolotl);
             } else {
-                seaList.add(type.getDescriptionId());
+                seaList.add(bucketItem.getDescriptionId());
             }
         }
     }
@@ -338,23 +317,59 @@ public class VPUtil {
     }
 
     public static HashSet<String> getSeaList(){
-        if(seaList.isEmpty()) {
-            for (Block block : blocks) {
-                if (block instanceof CoralBlock)
-                    seaList.add(block.getDescriptionId());
-            }
-        }
+        if(seaList.size() <= 10)
+            seaList.clear();
         if(bucketMap.isEmpty())
             initBuckets();
+        for (Block block : blocks) {
+            if (block instanceof CoralBlock || block instanceof CoralPlantBlock || block instanceof CoralWallFanBlock || block instanceof CoralFanBlock) {
+                seaList.add(block.getDescriptionId());
+            }
+        }
+        for(MobBucketItem bucket: buckets){
+            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            if(type.getDescriptionId().contains("entity.minecraft.axolotl") || type.getDescriptionId().contains("entity.minecraft.tropical_fish")){
+                continue;
+            }
+            seaList.add(bucket.getDescriptionId());
+        }
         return seaList;
+    }
+
+    public static HashSet<String> getAxolotlVariantsLeft(String list){
+        HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>();
+        for(MobBucketItem bucket: buckets){
+            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            if(type.getDescriptionId().contains("entity.minecraft.axolotl")){
+                allList.addAll(bucketMap.get(bucket));
+            }
+        }
+        allList.removeAll(have);
+        return allList;
+    }
+
+    public static HashSet<String> getTropiclVariantsLeft(String list){
+        HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
+        HashSet<String> allList = new HashSet<>();
+        for(MobBucketItem bucket: buckets){
+            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")){
+                allList.addAll(bucketMap.get(bucket));
+            }
+        }
+        allList.removeAll(have);
+        return allList;
     }
 
     public static int getSeaSize(){
         int size = 0;
         size += getSeaList().size();
-        for(MobBucketItem bucketItem: getBuckets()){
-            for(String fish: fishTypesFromBucket(bucketItem)){
-                size++;
+        for(MobBucketItem bucket: buckets){
+            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            if(type.getDescriptionId().contains("entity.minecraft.tropical_fish") || type.getDescriptionId().contains("entity.minecraft.axolotl")){
+                for(String id: bucketMap.get(bucket))
+                    size++;
             }
         }
         return size;
@@ -388,12 +403,6 @@ public class VPUtil {
             }
         }
         initRareDrops(list,player.getServer());
-    }
-
-    public static boolean isNpc(EntityType<?> type){
-        if(type.toString().contains("easy_npc"))
-            return true;
-        return false;
     }
 
     public static boolean isBlacklistBoss(EntityType<?> type,Player player){
@@ -556,6 +565,7 @@ public class VPUtil {
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
         if(isProtectedFromHit(player,entity))
             return;
+        entity.getPersistentData().putInt("VPDealType",type);
         entity.invulnerableTime = 0;
         ItemStack stack = player.getMainHandItem();
         boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
@@ -572,6 +582,7 @@ public class VPUtil {
     public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
         if(isProtectedFromHit(player,entity))
             return;
+        entity.getPersistentData().putInt("VPDealType",type);
         if(invulPierce)
             entity.invulnerableTime = 0;
         ItemStack stack = player.getMainHandItem();
@@ -584,9 +595,9 @@ public class VPUtil {
         float curseMultiplier = getCurseMultiplier(player,4);
         if(curseMultiplier > 0)
             damage *= curseMultiplier;
+        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
         player.getPersistentData().putBoolean("VPAttacked",true);
-        entity.hurt(source,damage*(1 + damagePercentBonus(player,type)/100));
-        entity.hurt(source,damage*(1 + damagePercentBonus(player,type)/100));
+        entity.hurt(damageSource,damage*(1 + damagePercentBonus(player,type)/100));
     }
 
     public static void spawnLightning(ServerLevel world, double x, double y, double z) {
@@ -626,22 +637,22 @@ public class VPUtil {
     }
 
     public static void setDead(LivingEntity corpse, DamageSource source){
-        if (!corpse.isRemoved() && !((LivingEntityVzlom)corpse).isDead()) {
+        if(corpse.isAlive() || !corpse.getPersistentData().getBoolean("VPWasDrop")) {
             Entity entity = source.getEntity();
             if (corpse.isSleeping()) {
                 corpse.stopSleeping();
             }
-            setHealth(corpse,0);
-            ((LivingEntityVzlom)corpse).setDead(true);
+            setHealth(corpse, 0);
+            ((LivingEntityVzlom) corpse).setDead(true);
             corpse.getCombatTracker().recheckStatus();
             Level level = corpse.level();
             if (level instanceof ServerLevel) {
-                ServerLevel serverlevel = (ServerLevel)level;
+                ServerLevel serverlevel = (ServerLevel) level;
                 if (entity == null || entity.killedEntity(serverlevel, corpse)) {
                     corpse.gameEvent(GameEvent.ENTITY_DIE);
-                    ((LivingEntityVzlom)corpse).invokeDropAllDeathLoot(source);
+                    ((LivingEntityVzlom) corpse).invokeDropAllDeathLoot(source);
                 }
-                corpse.level().broadcastEntityEvent(corpse, (byte)3);
+                corpse.level().broadcastEntityEvent(corpse, (byte) 3);
             }
             corpse.setPose(Pose.DYING);
         }
@@ -657,12 +668,6 @@ public class VPUtil {
         if(!entity.getCommandSenderWorld().isClientSide)
             PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(sendNudes,entity.getId()));
     }
-
-    public static final List<String> vanillaFlowers = Arrays.asList(
-            "poppy", "dandelion", "lily_of_the_valley", "blue_orchid", "allium",
-            "azure_bluet", "red_tulip", "orange_tulip", "white_tulip", "pink_tulip",
-            "oxeye_daisy", "cornflower", "wither_rose", "sunflower", "lilac", "rose_bush", "peony"
-    );
 
     public static final String damageSubtypes(){
         String damage = "";
@@ -995,6 +1000,7 @@ public class VPUtil {
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
         return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
     }
+
     public static List getEntitiesAroundOfType(Class entityClass,Player player,double x, double y, double z,boolean self){
         if(self)
             return player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
@@ -1007,6 +1013,7 @@ public class VPUtil {
             return list;
         }
     }
+
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z,boolean self){
         if(self)
             return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
@@ -1152,14 +1159,12 @@ public class VPUtil {
         entity.setLastHurtByPlayer(player);
         antiResurrect(entity,deathTime+System.currentTimeMillis());
         setRoflanEbalo(entity,deathTime+System.currentTimeMillis());
-        if(isNightmareBoss(entity))
-            giveNightmareDrop(entity,player);
         if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
             ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
             stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth()));
         }
         setHealth(entity, 0);
-        entity.die(entity.damageSources().genericKill());
+        entity.die(new DamageSource(player.damageSources().genericKill().typeHolder(),player));
         despawn(entity);
     }
 
@@ -1274,6 +1279,12 @@ public class VPUtil {
 
     public static boolean isNightmareBoss(LivingEntity entity){
         return entity.getPersistentData().getBoolean("VPNightmareBoss");
+    }
+
+    public static boolean isNpc(EntityType<?> type){
+        if(type.toString().contains("easy_npc"))
+            return true;
+        return false;
     }
 
     public static boolean isNightmareBoss(Entity entity){
@@ -1742,8 +1753,9 @@ public class VPUtil {
                 if(curseShield != 0){
                     cursedShield(player,curseShield,shield);
                     return;
-                } else tag.putFloat("VPOverShield", shield);
+                }
             }
+            tag.putFloat("VPOverShield", shield);
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1757,11 +1769,10 @@ public class VPUtil {
     }
 
     public static void regenOverShield(LivingEntity entity,float amount){
-        if((entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9)) || (entity instanceof Player player && hasCurse(player,5)))
+        if((entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9)))
             return;
         CompoundTag tag = entity.getPersistentData();
-        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
-                +entity.getPersistentData().getFloat("VPShieldBonusFlower"));
+        float shieldBonus = getShieldBonus(entity);
         if(tag.getFloat("VPOverShield") <= 0)
             return;
         float shield = (tag.getFloat("VPOverShield") + amount*(1 + shieldBonus/100));
@@ -1772,12 +1783,11 @@ public class VPUtil {
                     cursedShield(player, curseShield, shield);
                     return;
                 }
-            } else {
-                if (tag.getFloat("VPOverShieldMax") <= 0) {
-                    tag.putFloat("VPOverShield", shield);
-                    tag.putFloat("VPOverShieldMax", shield);
-                } else tag.putFloat("VPOverShield", Math.min(tag.getFloat("VPOverShieldMax"), shield));
             }
+            if (tag.getFloat("VPOverShieldMax") <= 0) {
+                tag.putFloat("VPOverShield", shield);
+                tag.putFloat("VPOverShieldMax", shield);
+            } else tag.putFloat("VPOverShield", Math.min(tag.getFloat("VPOverShieldMax"), shield));
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1788,7 +1798,7 @@ public class VPUtil {
     }
 
     public static void stealShields(LivingEntity entity,LivingEntity stealer,float percent, boolean applyBonus){
-        if(stealer.getPersistentData().getInt("VPSoulRotting") >= 10 || (entity instanceof Player player && hasCurse(player,5)))
+        if(stealer.getPersistentData().getInt("VPSoulRotting") >= 10)
             return;
         CompoundTag tag = entity.getPersistentData();
         float shieldBonus = getShieldBonus(stealer);
@@ -1912,7 +1922,7 @@ public class VPUtil {
             allList.add(item.getDescriptionId());
         }
         allList.removeAll(rareList);
-        player.getPersistentData().putString("VPRaresClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
+        player.getPersistentData().putString("VPRaresClient", filterString(allList.toString()));
         return allList;
     }
 
@@ -1940,7 +1950,7 @@ public class VPUtil {
             allList.add(item);
         }
         allList.removeAll(oreList);
-        player.getPersistentData().putString("VPOresClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
+        player.getPersistentData().putString("VPOresClient", filterString(allList.toString()));
         return allList;
     }
 
@@ -2038,7 +2048,7 @@ public class VPUtil {
         if(type != 5 && entity instanceof Player && hasStellarVestige(ModItems.ARMOR.get(),player)){
             ItemStack stack = getVestigeStack(Armor.class,player);
             if(stack.getItem() instanceof Armor armor && armor.isUltimateActive(stack))
-                dealParagonDamage(player,entity,damage*(3f+Armor.getPain(stack)/10),5,true);
+                dealParagonDamage(player,entity,scalePower(damage*(3f+Armor.getPain(stack)/10),11,player),5,true);
         }
         if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) {
             VPUtil.play(player, SoundRegistry.BUBBLE1.get());
@@ -2049,8 +2059,9 @@ public class VPUtil {
             entity.getPersistentData().putFloat("VPOverShield",overShields);
             long time = 10000;
             if(hasStellarVestige(ModItems.WHIRLPOOL.get(),player)){
-                if(getVestigeStack(Whirlpool.class,player).getItem() instanceof Vestige vestige && vestige.ultimateTimeBonus > 0)
-                    time *= (long) vestige.ultimateTimeBonus;
+                ItemStack stack = getVestigeStack(Whirlpool.class,player);
+                if(stack.getItem() instanceof Vestige vestige && (vestige.ultimateMaxTime(stack)-vestige.ultimateDurationBase(stack)) > 0)
+                    time *= (vestige.ultimateMaxTime(stack)-vestige.ultimateDurationBase(stack));
             }
             entity.getPersistentData().putLong("VPWhirlParagon",System.currentTimeMillis()+time);
         }
@@ -2425,11 +2436,13 @@ public class VPUtil {
         if(damage < 0)
             return damage;
         float buffer = entity.getPersistentData().getFloat("VPDPSAbsorb");
+        int type = entity.getPersistentData().getInt("VPDealType");
         if(damage > buffer) {
             damage = buffer*0.75f;
         }
         entity.getPersistentData().putFloat("VPDPSAbsorb",buffer-damage);
-        return damage;
+        entity.getPersistentData().putInt("VPDealType",0);
+        return damage*(1+type*2);
     }
 
     public static boolean hasLyra(LivingEntity entity, int number){
@@ -2619,18 +2632,18 @@ public class VPUtil {
     }
 
     public static void spawnBoss(LivingEntity entity){
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),ConfigHandler.COMMON.bossHP.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),ConfigHandler.COMMON.bossAttack.get(), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),(float)(ConfigHandler.COMMON.bossHP.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),(float)(ConfigHandler.COMMON.bossAttack.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
         entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
-        VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()),false);
         VPUtil.setHealth(entity,entity.getMaxHealth()); //test
+        entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()));
         entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldCruel.get()));
         if(VPUtil.isNightmareBoss(entity)){
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
             entity.setHealth(entity.getMaxHealth());
-            VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()),false);
+            entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()));
             entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldCruel.get()));
             AABB boundingBox = entity.getBoundingBox();
             AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
@@ -3297,13 +3310,13 @@ public class VPUtil {
                             multiplier = 40;
                     }
                     else if(curse == 3){
-                        multiplier = 0.03f; //shields-shields*s
+                        multiplier = 0.01f; //shields-shields*s
                         if(vestige.isStellar(stack))
-                            multiplier = 0.02f;
-                        if(vestige.isDoubleStellar(stack))
-                            multiplier = 0.01f;
-                        if(vestige.isTripleStellar(stack))
                             multiplier = 0.005f;
+                        if(vestige.isDoubleStellar(stack))
+                            multiplier = 0.001f;
+                        if(vestige.isTripleStellar(stack))
+                            multiplier = 0.0001f;
                     }
                     else if(curse == 4){
                         multiplier = 1.4f; //damage*
@@ -3662,15 +3675,70 @@ public class VPUtil {
     }
 
     public static void printTrack(String message, Player player){
-        if(player != null && player.getInventory() != null && player.getOffhandItem().is(ModItems.TEST.get()))
+        if(player != null && player.getInventory() != null && player.getOffhandItem().is(ModItems.LOGO.get()))
             player.sendSystemMessage(Component.literal("IsClient: " + player.level().isClientSide + " " + message));
     }
 
     public static void setHealDebt(LivingEntity entity, float amount){
         entity.getPersistentData().putFloat("VPHealDebt",amount);
+        if(entity instanceof Player player && hasVestige(ModItems.CHAOS.get(),player)){
+            ItemStack stack = getVestigeStack(Chaos.class,player);
+            if(stack.getItem() instanceof Vestige vestige && vestige.isUltimateActive(stack)){
+                for (LivingEntity livingEntity : VPUtil.getEntities(player, 30, false)) {
+                    livingEntity.getPersistentData().putFloat("VPHealDebt",amount*0.3f);
+                }
+            }
+        }
     }
 
     public static float getHealDebt(LivingEntity entity){
         return entity.getPersistentData().getFloat("VPHealDebt");
+    }
+
+    public static HashMap<UUID,CompoundTag> temporaryData = new HashMap<>();
+
+    public static void saveNbt(UUID uuid, CompoundTag tag){
+        temporaryData.put(uuid,tag);
+    }
+
+    public static CompoundTag getTemporaryData(UUID uuid){
+        if(temporaryData.containsKey(uuid))
+            return temporaryData.get(uuid);
+        return new CompoundTag();
+    }
+
+    public static List<Double> powerList = new ArrayList<>();
+
+    public static void updatePowerList(Player player){
+        for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++) {
+            AtomicDouble power = new AtomicDouble(ConfigHandler.COMMON.powerScale(i));
+            if(power.get() < 100) {
+                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                    power.addAndGet(cap.getCommonChallenges() * ConfigHandler.COMMON.powerBoost.get());
+                    if(power.addAndGet(cap.getStellarChallenges() * ConfigHandler.COMMON.powerBoost.get() * 2) > 100)
+                        power.set(100);
+                });
+            }
+            powerList.add(i,power.get());
+        }
+    }
+
+    public static double getPower(int challenge, Player player){
+        if(powerList.isEmpty()) {
+            updatePowerList(player);
+        }
+        if(challenge == 666)
+            return 100;
+        return powerList.get(challenge-1);
+    }
+
+    public static double scalePower(double number,int challenge, Player player){
+        return number*(getPower(challenge,player)/100);
+    }
+    public static float scalePower(float number,int challenge, Player player){
+        return (float) (number*(getPower(challenge,player)/100));
+    }
+    public static int scalePower(int number,int challenge, Player player){
+        return (int) (number*(getPower(challenge,player)/100));
     }
 }

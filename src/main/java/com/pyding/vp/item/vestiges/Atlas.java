@@ -35,7 +35,7 @@ public class Atlas extends Vestige{
                 if (entity instanceof ServerPlayer serverPlayer) {
                     PacketHandler.sendToClient(new PlayerFlyPacket(2), serverPlayer);
                 }
-                VPUtil.dealDamage(entity, player, player.damageSources().fall(), 50, 2);
+                VPUtil.dealDamage(entity, player, player.damageSources().fall(), VPUtil.scalePower(50,3,player), 2);
             }
         }
         VPUtil.rayParticles(player, ParticleTypes.GLOW_SQUID_INK,distance,8,30,0,-1,0,5,false);

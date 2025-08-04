@@ -46,7 +46,7 @@ public class Anomaly extends Vestige{
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
                     serverPlayer.teleportTo(entity.getX()-1,entity.getY(),entity.getZ()-1);
-                    VPUtil.dealDamage(entity,player,player.damageSources().dragonBreath(),400,2);
+                    VPUtil.dealDamage(entity,player,player.damageSources().dragonBreath(),VPUtil.scalePower(400,10,player),2);
                     VPUtil.antiTp(entity,seconds);
                 }
             }
@@ -60,7 +60,7 @@ public class Anomaly extends Vestige{
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 Random random = new Random();
-                if(isStellar(stack) && (random.nextDouble() < VPUtil.getChance(0.05,player))){
+                if(isStellar(stack) && (random.nextDouble() < VPUtil.getChance(VPUtil.scalePower(0.05,10,player),player))){
                     int counter = 0;
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){

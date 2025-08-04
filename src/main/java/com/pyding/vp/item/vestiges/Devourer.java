@@ -53,7 +53,7 @@ public class Devourer extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.SOUL2.get());
-        player.getPersistentData().putInt("VPDevourerHits", ConfigHandler.COMMON.devourer.get());
+        player.getPersistentData().putInt("VPDevourerHits", VPUtil.scalePower(ConfigHandler.COMMON.devourer.get(),15,player));
         VPUtil.spawnParticles(player, ParticleTypes.GLOW_SQUID_INK,8,1,0,0.1,0,1,false);
         super.doUltimate(seconds, player, level, stack);
     }

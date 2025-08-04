@@ -7,6 +7,7 @@ import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.LorePacket;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -315,6 +316,9 @@ public class PlayerCapabilityVP {
         }
         return false;
     }
+    public String getGoldenItems(){
+        return this.goldenItems;
+    }
     public void addGold(String gold, Player player){
         if(VPUtil.notContains(goldenItems,gold)) {
             this.goldenItems += gold + ",";
@@ -336,6 +340,12 @@ public class PlayerCapabilityVP {
         }
         sync(player);
     }
+
+    public void removeAllFriends(Player player){
+        friends = "";
+        sync(player);
+    }
+
     public String getFriends(){
         return friends;
     }
@@ -922,11 +932,12 @@ public class PlayerCapabilityVP {
         ServerPlayer serverPlayer = (ServerPlayer) player;
         CompoundTag nbt = new CompoundTag();
         saveNBT(nbt);
+        VPUtil.updatePowerList(player);
         PacketHandler.sendToClient(new SendPlayerCapaToClient(nbt),serverPlayer);
     }
 
     public void sendLore(Player player, int number){
-        if(player instanceof ServerPlayer serverPlayer)
+        if(player instanceof ServerPlayer serverPlayer && ConfigHandler.COMMON.lore.get())
             PacketHandler.sendToClient(new LorePacket(number),serverPlayer);
     }
 
@@ -1052,6 +1063,8 @@ public class PlayerCapabilityVP {
             stellarChance += 5;
         if(getVip() > System.currentTimeMillis())
             stellarChance += 10;
+        if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+            stellarChance += 10;
         if(random.nextDouble() < VPUtil.getChance(stellarChance/100,player)){
             if(stellarChance >= 200){
                 Vestige.setDoubleStellar(stack,player);
@@ -1142,6 +1155,11 @@ public class PlayerCapabilityVP {
 
     public void addAdvancement(Player player) {
         this.advancements += 1;
+        sync(player);
+    }
+
+    public void setAdvancement(Player player, int amount) {
+        this.advancements = amount;
         sync(player);
     }
 

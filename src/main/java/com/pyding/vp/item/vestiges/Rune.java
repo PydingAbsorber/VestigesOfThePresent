@@ -33,7 +33,7 @@ public class Rune extends Vestige{
         bonus += VPUtil.equipmentDurability(20,player,player,false);
         if (isUltimateActive(stack))
             bonus /= 2;
-        player.getPersistentData().putFloat("VPRuneBonus",bonus/10);
+        player.getPersistentData().putFloat("VPRuneBonus",VPUtil.scalePower(bonus/10,21,player));
         super.doSpecial(seconds, player, level, stack);
     }
 
@@ -45,8 +45,8 @@ public class Rune extends Vestige{
                 continue;
             VPUtil.spawnSphere(entity,ParticleTypes.FLAME,30,5,1);
             entity.getPersistentData().putLong("VPRuneUlt",seconds);
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR, UUID.fromString("4cfa176b-4d5b-43bf-bd9b-9d717ffd7689"),20*(1 + VPUtil.getShieldBonus(entity)), AttributeModifier.Operation.ADDITION,"vp:rune"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR_TOUGHNESS, UUID.fromString("16c73772-b469-4600-ae01-946807a719f7"),20*(1 + VPUtil.getShieldBonus(entity)), AttributeModifier.Operation.ADDITION,"vp:rune2"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR, UUID.fromString("4cfa176b-4d5b-43bf-bd9b-9d717ffd7689"),VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADDITION,"vp:rune"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ARMOR_TOUGHNESS, UUID.fromString("16c73772-b469-4600-ae01-946807a719f7"),VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADDITION,"vp:rune2"));
         }
         super.doUltimate(seconds, player, level, stack);
     }

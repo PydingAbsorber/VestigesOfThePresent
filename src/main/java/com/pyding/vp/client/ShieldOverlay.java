@@ -137,8 +137,8 @@ public class ShieldOverlay {
                     }
                     if(vestigeNumber == 5 && vestige.isSpecialActive(stack)){
                         if(vestige.isStellar(vestiges.get(i)))
-                            info = ((int)VPUtil.missingHealth(player)*8 + "%");
-                        else info = ((int)VPUtil.missingHealth(player)*4 + "%");
+                            info = ((int)VPUtil.scalePower(VPUtil.missingHealth(player)*8,5,player) + "%");
+                        else info = ((int)VPUtil.scalePower(VPUtil.missingHealth(player)*4,5,player) + "%");
                     }
                     if(vestigeNumber == 6){
                         info = String.valueOf((int)player.getPersistentData().getFloat("VPSaturation"));

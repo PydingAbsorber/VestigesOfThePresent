@@ -28,7 +28,7 @@ public class Ball extends Vestige{
         VPUtil.play(player, SoundRegistry.BOLT.get());
         for(LivingEntity entity: VPUtil.getEntities(player,5,true)){
             if(!VPUtil.isProtectedFromHit(player,entity)) {
-                VPUtil.dealDamage(entity, player, player.damageSources().lightningBolt(), 500, 2);
+                VPUtil.dealDamage(entity, player, player.damageSources().lightningBolt(), VPUtil.scalePower(500,18,player), 2);
             }
         }
         player.hurt(player.damageSources().lightningBolt(),VPUtil.getAttack(player,true)*5);
@@ -63,11 +63,11 @@ public class Ball extends Vestige{
             float shield = VPUtil.getShield(entity) + VPUtil.getOverShield(entity);
             if(shield > 0 || entity.getHealth() < player.getHealth() || entity.getArmorCoverPercentage() > 0 || entity.isInWaterRainOrBubble()){
                 float damageBonus = 1+(shield*0.001f)+(entity.getArmorCoverPercentage()*2)*(entity.getArmorValue()*0.1f);
-                VPUtil.dealDamage(entity,player,player.damageSources().lightningBolt(),1000*damageBonus,3);
+                VPUtil.dealDamage(entity,player,player.damageSources().lightningBolt(),VPUtil.scalePower(1000*damageBonus,18,player),3);
                 if(level instanceof ServerLevel serverLevel)
                     VPUtil.spawnLightning(serverLevel, entity.getX(),entity.getY(),entity.getZ());
                 if(entity.isInWaterRainOrBubble())
-                    VPUtil.dealParagonDamage(entity,player,damageBonus/10,3,true);
+                    VPUtil.dealParagonDamage(entity,player,VPUtil.scalePower(damageBonus/10,18,player),3,true);
             }
         }
         super.doUltimate(seconds, player, level, stack);

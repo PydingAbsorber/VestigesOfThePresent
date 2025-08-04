@@ -134,7 +134,7 @@ public class SillySeashell extends WaterAnimal {
                     Entity entity = list.get(random.nextInt(list.size())).create(getCommandSenderWorld());
                     if (entity == null)
                         continue;
-                    if(wave > 6 && random.nextDouble() < 0.1)
+                    if(wave > 6 && random.nextDouble() < 0.1 && !bossList.isEmpty())
                         entity = bossList.get(random.nextInt(bossList.size())).create(getCommandSenderWorld());
                     entity.setPos(getX(),getY(),getZ());
                     VPUtil.teleportRandomly(entity,15,true);

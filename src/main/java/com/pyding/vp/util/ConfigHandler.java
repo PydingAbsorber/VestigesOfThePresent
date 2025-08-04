@@ -35,8 +35,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue healPercent;
         public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
-        public final ForgeConfigSpec.IntValue bossHP;
-        public final ForgeConfigSpec.IntValue bossAttack;
+        public final ForgeConfigSpec.DoubleValue bossHP;
+        public final ForgeConfigSpec.DoubleValue bossAttack;
         public final ForgeConfigSpec.IntValue chaostime;
         public final ForgeConfigSpec.IntValue devourer;
         public final ForgeConfigSpec.IntValue blackhole;
@@ -90,6 +90,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue eatingMinutes;
         public final ForgeConfigSpec.BooleanValue failFlowers;
         public final ForgeConfigSpec.ConfigValue<List<Integer>> reduceChallenges;
+        public final ForgeConfigSpec.ConfigValue<List<Integer>> powerScale;
         public final ForgeConfigSpec.BooleanValue reduceChallengesPercent;
         public final ForgeConfigSpec.ConfigValue fishObjects;
         public final ForgeConfigSpec.DoubleValue nightmareDpsCap;
@@ -116,23 +117,31 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue mysteryChestChallengeChance;
         public final ForgeConfigSpec.ConfigValue mineralCluster;
         public final ForgeConfigSpec.ConfigValue mineralClusterBlacklist;
+        public final ForgeConfigSpec.BooleanValue lore;
+        public final ForgeConfigSpec.DoubleValue powerBoost;
 
         public Common(ForgeConfigSpec.Builder builder) {
+            lore = builder.comment("Set false to disable chat messages with Lore").define("lore", true);
             vestigesCooldown = builder.comment("Cooldown in milliseconds for any Vestiges abilities. 200 is 0.2 sec.").defineInRange("vestigesCooldown", 200, 0, Long.MAX_VALUE);
             List<Integer> reduceList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
                 reduceList.add(0);
             reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallenges",reduceList);
             reduceChallengesPercent = builder.comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum").define("reduceChallengesPercent", false);
+            List<Integer> scaleList = new ArrayList<>();
+            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
+                scaleList.add(10);
+            powerScale = builder.comment("Each Vestige Power Scale in percents.").define("powerScale",reduceList);
+            powerBoost = builder.comment("Power Scale increase by completing new challenges.").defineInRange("powerBoost", 5d, 1d, 2100000000d);
 
             cruelMode = builder.comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("cruelMode", false);
-            bossHP = builder.comment("Cruel mode Hp scale").defineInRange("bossHP", 4, 1, 2100000000);
-            bossAttack = builder.comment("Cruel mode attack scale").defineInRange("bossAttack", 2, 1, 2100000000);
+            bossHP = builder.comment("Cruel mode Hp scale").defineInRange("bossHP", 1.5d, 1, 2100000000);
+            bossAttack = builder.comment("Cruel mode attack scale").defineInRange("bossAttack", 3d, 1, 2100000000);
             armorCruel = builder.comment("Cruel mode armor and armor toughness").defineInRange("armorCruel", 100, 1, 2100000000);
             damageCruel = builder.comment("Cruel mode damage percent from maximum hp when starving, drowning. Set 0 to disable.").defineInRange("damageCruel", 0.15d, 0, 2100000000);
             absorbCruel = builder.comment("Cruel mode DPS cap from max health %, 0.1 is 10%").defineInRange("absorbCruel", 0.2, 0, Integer.MAX_VALUE);
-            shieldCruel = builder.comment("Cruel mode Shield from hp percent 1 is 100%").defineInRange("shieldCruel", 1.5d, 0.1, 2100000000);
-            overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.5, 0.1, 2100000000);
+            shieldCruel = builder.comment("Cruel mode Shield from hp percent 1 is 100%").defineInRange("shieldCruel", 0.75d, 0.1, 2100000000);
+            overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.25, 0.1, 2100000000);
             healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
 
 
@@ -224,6 +233,10 @@ public class ConfigHandler {
 
         public int getChallengeReduceByNumber(int number) {
             return reduceChallenges.get().get(number-1);
+        }
+
+        public int powerScale(int number) {
+            return powerScale.get().get(number);
         }
 
         public static final String DEFAULT_LOOT = "1<item.vp.corrupted_fragment,item.vp.box_saplings,item.irons_spellbooks.blank_rune4,item.irons_spellbooks.rare_ink5,block.minecraft.wither_skeleton_skull,item.minecraft.end_crystal4,item.minecraft.netherite_scrap2,block.aether.enchanted_gravitite8,item.irons_spellbooks.arcane_salvage,item.minecraft.diamond4,item.botania.black_lotus8,item.bloodmagic.blankslate16,item.bloodmagic.reinforcedslate8,item.bloodmagic.infusedslate4,item.eidolon.soul_shard8,item.alexscaves.darkened_apple,block.minecraft.glass32,block.minecraft.quartz_block16,block.minecraft.gold_block4>0.3<item.vp.corrupted_item,item.minecraft.totem_of_undying,item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment16,item.aquamirae.ship_graveyard_echo4,item.enigmaticlegacy.earth_heart,item.enigmaticlegacy.etherium_ore5,item.skilltree.wisdom_scroll4,block.occultism.storage_stabilizer_tier3,item.celestisynth.supernal_netherite_ingot4,item.enigmaticlegacy.angel_blessing,item.enigmaticlegacy.ocean_stone,item.enigmaticlegacy.blazing_core,item.enigmaticlegacy.eye_of_nebula,item.irons_spellbooks.lightning_upgrade_orb,item.irons_spellbooks.ice_upgrade_orb,item.irons_spellbooks.protection_upgrade_orb,item.irons_spellbooks.mana_upgrade_orb,item.irons_spellbooks.ender_upgrade_orb,item.irons_spellbooks.cooldown_upgrade_orb,item.irons_spellbooks.nature_upgrade_orb,item.irons_spellbooks.evocation_upgrade_orb,item.irons_spellbooks.fire_upgrade_orb,item.irons_spellbooks.holy_upgrade_orb,item.irons_spellbooks.blood_upgrade_orb,item.irons_spellbooks.epic_ink5,item.vp.stellar2,item.vp.stellar3,item.botania.terrasteel_ingot,item.botania.blacker_lotus8,item.bloodmagic.demonslate8,item.bloodmagic.etherealslate4,item.bloodmagic.hellforgedparts4,item.eidolon.lesser_soul_gem4,item.twilightforest.charm_of_life_1,item.twilightforest.charm_of_life_2,item.twilightforest.charm_of_keeping_1>0.05<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item8,item.enigmaticlegacy.cosmic_heart,item.aquamirae.abyssal_amethyst8,item.enigmaticlegacy.astral_fruit,item.enigmaticlegacy.ichor_bottle,item.enigmaticlegacy.void_pearl,item.irons_spellbooks.legendary_ink5,item.vp.stellar10,item.vp.stellar16,block.occultism.storage_stabilizer_tier4,item.vp.chaos_orb,block.minecraft.dragon_egg,item.twilightforest.charm_of_keeping_64,item.vp.box,item.vp.box_eggs2,item.vp.refresher,item.mythicbotany.alfsteel_ingot,block.alexscaves.tremorzilla_egg,item.enigmaticlegacy.soul_crystal,item.enigmaticlegacy.abyssal_heart,item.vp.vip,item.alexsmobs.warped_mixture>0.001<item.vp.chaos_orb64,item.vp.celestial_mirror,item.vp.pinky_pearl20,item.enigmaticlegacy.the_cube>";

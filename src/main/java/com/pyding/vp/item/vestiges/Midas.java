@@ -89,9 +89,9 @@ public class Midas extends Vestige{
         super.doUltimate(seconds, player, level, stack);
     }
 
-    private Multimap<Attribute, AttributeModifier> createAttributeMap(ItemStack stack) {
+    private Multimap<Attribute, AttributeModifier> createAttributeMap(ItemStack stack,Player player) {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
-        int luck = stack.getOrCreateTag().getInt("VPLuck");
+        int luck = VPUtil.scalePower(stack.getOrCreateTag().getInt("VPLuck"),9,player);
         attributesDefault.put(Attributes.LUCK, new AttributeModifier(UUID.fromString("f55f3429-0399-4d9e-9f84-0d7156cc0593"), "vp:luck", luck, AttributeModifier.Operation.ADDITION));
         return attributesDefault;
     }
@@ -100,7 +100,7 @@ public class Midas extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
         if (player.tickCount % 20 == 0) {
-            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(stack));
+            player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap(stack,player));
         }
         if(!isSpecialActive(stack))
             player.getPersistentData().putFloat("VPMidasTouch",0);

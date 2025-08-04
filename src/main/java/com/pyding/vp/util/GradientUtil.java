@@ -4,6 +4,7 @@ import com.pyding.vp.VestigesOfThePresent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -13,10 +14,18 @@ public class GradientUtil {
 
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
-        if(event.getPlayer() != null && LeaderboardUtil.hasGoldenName(event.getPlayer().getUUID())) {
-            String originalText = event.getMessage().getString();
-            Component gradientMessage = goldenGradient(originalText);
-            event.setMessage(gradientMessage);
+        if(event.getPlayer() != null) {
+            Player player = event.getPlayer();
+            /*if(LeaderboardUtil.hasSpecialName(player.getName().getString())){
+                String originalText = event.getMessage().getString();
+                Component gradientMessage = customGradient(originalText,PURPLE_DARK_PURPLE);
+                event.setMessage(gradientMessage);
+            }
+w            else */if(LeaderboardUtil.hasGoldenName(player.getUUID())) {
+                String originalText = event.getMessage().getString();
+                Component gradientMessage = goldenGradient(originalText);
+                event.setMessage(gradientMessage);
+            }
         }
     }
 

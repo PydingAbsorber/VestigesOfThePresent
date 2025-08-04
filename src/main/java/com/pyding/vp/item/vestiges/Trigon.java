@@ -31,7 +31,7 @@ public class Trigon extends Vestige{
         VPUtil.play(player, SoundRegistry.MAGIC5.get());
         for(LivingEntity entity: VPUtil.ray(player,6,30,true)){
             if(!VPUtil.isProtectedFromHit(player,entity))
-                VPUtil.dealParagonDamage(entity,player,player.getMaxHealth()/10,2,true);
+                VPUtil.dealParagonDamage(entity,player,VPUtil.scalePower(player.getMaxHealth()/10,19,player),2,true);
         }
         VPUtil.rayParticles(player,ParticleTypes.WAX_ON,30,3,30,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level, stack);
@@ -52,7 +52,7 @@ public class Trigon extends Vestige{
         int numba = random.nextInt(list.size());
         if(isStellar(stack) && VPUtil.getOverShield(player) > 0 && player.getPersistentData().getFloat("VPOverShieldMax") > 0) {
             float amount = 1+(1-(VPUtil.getOverShield(player)/player.getPersistentData().getFloat("VPOverShieldMax")))/2;
-            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
+            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), VPUtil.scalePower(amount,19,player), AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
         }
         VPUtil.addOverShield(list.get(numba),overshields,false);
         super.doUltimate(seconds, player, level, stack);
@@ -61,7 +61,7 @@ public class Trigon extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player1 = (Player) slotContext.entity();
         if(VPUtil.getOverShield(player1) > 0)
-            player1.getPersistentData().putFloat("VPTrigonBonus",(100-VPUtil.getOverShield(player1)/(player1.getPersistentData().getFloat("VPOverShieldMax")/100))*2);
+            player1.getPersistentData().putFloat("VPTrigonBonus",VPUtil.scalePower((100-VPUtil.getOverShield(player1)/(player1.getPersistentData().getFloat("VPOverShieldMax")/100))*2,19,player1));
         else player1.getPersistentData().putFloat("VPTrigonBonus",0);
         super.curioTick(slotContext, stack);
     }

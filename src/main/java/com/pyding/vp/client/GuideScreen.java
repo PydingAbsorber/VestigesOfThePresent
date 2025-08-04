@@ -52,7 +52,7 @@ public class GuideScreen extends Screen {
             "textures/gui/frame.png");
     int page = 1;
     boolean showEverything = false;
-    int maxPages = 8;
+    int maxPages = 9;
     long time = 0;
 
     public GuideScreen() {

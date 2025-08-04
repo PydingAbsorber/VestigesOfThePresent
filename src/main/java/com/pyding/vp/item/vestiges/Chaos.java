@@ -27,7 +27,7 @@ public class Chaos extends Vestige{
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.CHAOS_CORE.get());
-        strelyalki = 10 + new Random().nextInt(70);
+        strelyalki = VPUtil.scalePower(10 + new Random().nextInt(70),14,player);
         VPUtil.spawnParticles(player, ParticleTypes.NAUTILUS,12,1,0,-0.1,0,1,false);
         super.doUltimate(seconds, player, level, stack);
     }

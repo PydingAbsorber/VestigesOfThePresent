@@ -1,6 +1,7 @@
 package com.pyding.vp.network.packets;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.util.VPUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -39,6 +40,7 @@ public class SendPlayerCapaToClient {
         LocalPlayer player = Minecraft.getInstance().player;
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.loadNBT(tag);
+            VPUtil.updatePowerList(player);
         });
     }
 }

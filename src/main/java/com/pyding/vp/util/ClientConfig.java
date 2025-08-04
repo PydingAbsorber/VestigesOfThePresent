@@ -25,6 +25,7 @@ public class ClientConfig {
         public final ForgeConfigSpec.DoubleValue guiScaleLoot;
         public final ForgeConfigSpec.DoubleValue guiScaleGuide;
         public final ForgeConfigSpec.DoubleValue guiScaleVortex;
+        public final ForgeConfigSpec.DoubleValue guiScaleChallenge;
         public final ForgeConfigSpec.BooleanValue renderSoulIntegrity;
 
         public Common(ForgeConfigSpec.Builder builder) {
@@ -32,6 +33,7 @@ public class ClientConfig {
             guiScaleLoot = builder.comment("Gui scale").defineInRange("guiScaleLoot", 1, 0.01, 10);
             guiScaleGuide = builder.comment("Gui scale").defineInRange("guiScaleGuide", 1, 0.01, 10);
             guiScaleVortex = builder.comment("Gui scale").defineInRange("guiScaleVortex", 1, 0.01, 10);
+            guiScaleChallenge = builder.comment("Gui scale").defineInRange("guiScaleChallenge", 1, 0.01, 10);
             renderSoulIntegrity = builder.comment("Should Soul Integrity be rendered?").define("renderSoulIntegrity", true);
         }
     }

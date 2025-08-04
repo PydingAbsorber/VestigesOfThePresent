@@ -91,9 +91,9 @@ public class VortexEntity extends Projectile {
                     items.add(itemEntity.getItem().getDescriptionId());
                     itemEntity.discard();
                     if(vestige.isTripleStellar(itemEntity.getItem()))
-                        frags += 400;
+                        frags += 120;
                     else if(vestige.isDoubleStellar(itemEntity.getItem()))
-                        frags += 100;
+                        frags += 80;
                     else if(vestige.isStellar(itemEntity.getItem()))
                         frags += 10;
                     else frags += 2;

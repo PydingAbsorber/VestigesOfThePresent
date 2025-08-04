@@ -26,8 +26,11 @@ public class VPPlayerMixin {
     @Inject(method = "getName",at = @At("RETURN"),cancellable = true, require = 1)
     private void getNameMixin(CallbackInfoReturnable<Component> cir){
         Player player = ((Player)(Object)this);
+        String name = cir.getReturnValue().getString();
+        if(LeaderboardUtil.hasSpecialName(name))
+            cir.setReturnValue(GradientUtil.customGradient(name,GradientUtil.PURPLE_DARK_PURPLE));
         if(LeaderboardUtil.hasGoldenName(player.getUUID()))
-            cir.setReturnValue(GradientUtil.goldenGradient(player.getGameProfile().getName()));
+            cir.setReturnValue(GradientUtil.goldenGradient(name));
     }
 
     @Inject(method = "getInventory",at = @At("HEAD"),cancellable = true, require = 1)
