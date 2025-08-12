@@ -56,6 +56,7 @@ public class SoulBlighter extends Vestige{
                 float price = getPrice(souls);
                 if(souls > price) {
                     VPUtil.dealDamage(entity, player, player.damageSources().magic(), VPUtil.scalePower(125 + price,20,player), 2);
+                    VPUtil.addRadiance(SoulBlighter.class,VPUtil.getRadianceSpecial(),player);
                     stack.getOrCreateTag().putFloat("VPSoulPool", stack.getOrCreateTag().getFloat("VPSoulPool") - price);
                     VPUtil.modifySoulIntegrity(entity, player, (int) -price);
                 }
@@ -89,7 +90,8 @@ public class SoulBlighter extends Vestige{
             if(isStellar(stack)) {
                 player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"), 1 + stack.getOrCreateTag().getFloat("VPMaxHealth") * 0.3f, AttributeModifier.Operation.ADDITION, "vp:soulblighter_hp_boost"));
                 player.setHealth(player.getMaxHealth());
-            } setCdUltimateActive((int) (ultimateCd(stack)*0.2),stack);
+            }
+            //setCdUltimateActive((int) (ultimateCd(stack)*0.2),stack);
         } else {
             VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+player.getMaxHealth()*20);
             for(LivingEntity entity: VPUtil.ray(player,4,30,true)){

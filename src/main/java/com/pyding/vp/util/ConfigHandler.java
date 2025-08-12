@@ -153,7 +153,7 @@ public class ConfigHandler {
             nightmareLootMin = builder.comment("Nightmare Bosses min loot multiplier").defineInRange("nightmareLootMin", 10, 1, 2100000000);
             nightmareBoxes = builder.comment("Nightmare Bosses max boxes").defineInRange("nightmareBoxes", 8, 1, 2100000000);
             nightmareBoxesMin = builder.comment("Nightmare Bosses min boxes").defineInRange("nightmareBoxesMin", 4, 1, 2100000000);
-            refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.5 is 50%.").defineInRange("refresherChance", 0.5d, 0, 1);
+            refresherChance = builder.comment("Chance for Refresher after completing Stellar challenge. 1 is 100%, 0.25 is 25%.").defineInRange("refresherChance", 0.25d, 0, 1);
 
             cooldown = builder.comment("Challenge cooldown in hours").defineInRange("cooldown", 8, 0, 2100000000);
             stellarChanceIncrease = builder.comment("How many % of stellar chance will you get on failure").defineInRange("stellarChanceIncrease", 10, 0, 100);

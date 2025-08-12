@@ -110,7 +110,8 @@ public class Mark extends Vestige{
         if(damageFinal > 0) {
             player.hurt(player.damageSources().fellOutOfWorld(), damageFinal);
         }
-        else setCdUltimateActive(cdUltimateActive(stack)-(int) Math.min(ultimateCd(stack) * 0.6, ultimateCd(stack) * ((VPUtil.calculatePercentageDifference(damage,heal))/100)),stack);
+        else addRadiance(getMaxRadiance(stack)*0.3f,stack);
+        //setCdUltimateActive(cdUltimateActive(stack)-(int) Math.min(ultimateCd(stack) * 0.6, ultimateCd(stack) * ((VPUtil.calculatePercentageDifference(damage,heal))/100)),stack);
         player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
         if(isStellar(stack))
             player.getAttributes().removeAttributeModifiers(this.overdrive(0,player));

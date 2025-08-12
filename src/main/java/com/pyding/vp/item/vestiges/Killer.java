@@ -33,6 +33,7 @@ public class Killer extends Vestige{
                 continue;
             VPUtil.dealDamage(entity,player, player.damageSources().explosion(entity,player),VPUtil.scalePower(400,4,player),2);
             entity.getPersistentData().putBoolean("VPKillerQueen",true);
+            VPUtil.addRadiance(Killer.class,VPUtil.getRadianceSpecial(),player);
         }
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
         super.doSpecial(seconds, player, level, stack);

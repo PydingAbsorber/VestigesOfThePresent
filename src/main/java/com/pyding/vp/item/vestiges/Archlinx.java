@@ -2,6 +2,7 @@ package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.event.EventHandler;
+import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.util.VPUtil;
@@ -55,7 +56,7 @@ public class Archlinx extends Vestige{
                 if(!player.getCommandSenderWorld().isClientSide) {
                     setTimeUlt(1,stack);
                     setUltimateActive(true,stack);
-                    setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
+                    //setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
                     Random random = new Random();
                     if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
                         setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
@@ -95,6 +96,7 @@ public class Archlinx extends Vestige{
                     if(!VPUtil.isProtectedFromHit(player,entity)) {
                         VPUtil.spawnSphere(entity, ParticleTypes.GLOW_SQUID_INK, 20, 2, 0.4f);
                         VPUtil.dealDamage(entity, player, player.damageSources().indirectMagic(player, player), VPUtil.scalePower(damage,25,player), 3, true);
+                        VPUtil.addRadiance(this.getClass(),VPUtil.getRadianceUltimate(),player);
                     }
                 }
             }

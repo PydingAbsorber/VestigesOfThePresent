@@ -65,6 +65,28 @@ public class ShieldOverlay {
             "textures/gui/note8.png");
     private static final ResourceLocation SOUL = new ResourceLocation(VestigesOfThePresent.MODID,
             "textures/gui/soul.png");
+    private static final ResourceLocation ULT = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult.png");
+    private static final ResourceLocation ULT1 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult1.png");
+    private static final ResourceLocation ULT2 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult2.png");
+    private static final ResourceLocation ULT3 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult3.png");
+    private static final ResourceLocation ULT4 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult4.png");
+    private static final ResourceLocation ULT5 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult5.png");
+    private static final ResourceLocation ULT6 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult6.png");
+    private static final ResourceLocation ULT7 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult7.png");
+    private static final ResourceLocation ULT8 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult8.png");
+    private static final ResourceLocation ULT9 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult9.png");
+    private static final ResourceLocation ULT10 = new ResourceLocation(VestigesOfThePresent.MODID,
+            "textures/gui/ult10.png");
 
     public static ResourceLocation getNote(int number) {
         return switch (number) {
@@ -80,10 +102,26 @@ public class ShieldOverlay {
         };
     }
 
+    public static ResourceLocation getUlt(int number) {
+        return switch (number) {
+            case 1 -> ULT1;
+            case 2 -> ULT2;
+            case 3 -> ULT3;
+            case 4 -> ULT4;
+            case 5 -> ULT5;
+            case 6 -> ULT6;
+            case 7 -> ULT7;
+            case 8 -> ULT8;
+            case 9 -> ULT9;
+            case 10 -> ULT10;
+            default -> ULT;
+        };
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static final IGuiOverlay HUD_SHIELD = ((gui, pose, partialTick, width, height) -> {
         int x = width / 2;
-        int y = height;
+        int y = height-6;
         PoseStack poseStack = pose.pose();
         Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -275,6 +313,13 @@ public class ShieldOverlay {
                             }
                         }
                     }
+                    int radiance = (int)(vestige.getRadiance(stack) / vestige.getMaxRadiance(stack) * 10);
+                    if(currentChargeUltimate == vestige.ultimateCharges(stack))
+                        radiance = 10;
+                    RenderSystem.setShaderTexture(0, getUlt(radiance));
+                    int size = 24;
+                    pose.blit(getUlt(radiance), x+(126+i*40),y-14, 0, 0, size, size,
+                            size, size);
                 }
             }
         }

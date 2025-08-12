@@ -1066,6 +1066,7 @@ public class VPUtil {
         }
         DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
         dealDamage(entity,player,source,percent,2);
+        VPUtil.addRadiance(Crown.class,VPUtil.getRadianceSpecial(),player);
         //this fucking stinky dinky spaggety code wrote by an absolute disgusting imbecile(me lol) didn't work even after 20 tries to fix it
     }
 
@@ -2054,6 +2055,7 @@ public class VPUtil {
             VPUtil.play(player, SoundRegistry.BUBBLE1.get());
             entity.getPersistentData().putLong("VPBubble", 0);
             VPUtil.dealDamage(entity, player, player.damageSources().drown(), 1000, 3);
+            VPUtil.addRadiance(Whirlpool.class,VPUtil.getRadianceUltimate(),player);
             entity.getPersistentData().putLong("VPWet", System.currentTimeMillis() + 20000);
             overShields /= 2;
             entity.getPersistentData().putFloat("VPOverShield",overShields);
@@ -3740,5 +3742,20 @@ public class VPUtil {
     }
     public static int scalePower(int number,int challenge, Player player){
         return (int) (number*(getPower(challenge,player)/100));
+    }
+
+    public static int getRadianceSpecial(){
+        return 25;
+    }
+
+    public static int getRadianceUltimate(){
+        return 100;
+    }
+
+    public static void addRadiance(Class clazz, int number, Player player){
+        ItemStack stack = getVestigeStack(clazz,player);
+        if(stack.getItem() instanceof Vestige vestige){
+            vestige.addRadiance(number,stack);
+        }
     }
 }

@@ -144,6 +144,7 @@ public class MaskOfDemon extends Vestige{
             if(!VPUtil.isProtectedFromHit(player,entity)) {
                 VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)+healDebt);
                 VPUtil.dealDamage(entity, player, player.damageSources().sonicBoom(player), damage, 3);
+                VPUtil.addRadiance(MaskOfDemon.class,VPUtil.getRadianceUltimate(),player);
                 VPUtil.spawnParticles(player, ParticleTypes.SONIC_BOOM, entity.getX(), entity.getY(), entity.getZ(), 1, 0, -0.1, 0);
             }
         }

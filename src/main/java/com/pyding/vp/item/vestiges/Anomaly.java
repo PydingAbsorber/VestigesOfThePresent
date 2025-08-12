@@ -47,6 +47,7 @@ public class Anomaly extends Vestige{
                 if(player instanceof ServerPlayer serverPlayer){
                     serverPlayer.teleportTo(entity.getX()-1,entity.getY(),entity.getZ()-1);
                     VPUtil.dealDamage(entity,player,player.damageSources().dragonBreath(),VPUtil.scalePower(400,10,player),2);
+                    VPUtil.addRadiance(this.getClass(),VPUtil.getRadianceSpecial(),player);
                     VPUtil.antiTp(entity,seconds);
                 }
             }

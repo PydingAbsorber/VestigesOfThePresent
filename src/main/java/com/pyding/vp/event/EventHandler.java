@@ -122,6 +122,11 @@ public class EventHandler {
                     event.setCanceled(true);
                     return;
                 }
+                List<ItemStack> list = VPUtil.getVestigeList(player);
+                for(ItemStack stack: list){
+                    if(stack.getItem() instanceof Vestige vestige && vestige.damageType)
+                        vestige.addRadiance(1,stack);
+                }
                 event.setAmount(event.getAmount()*(1+player.getPersistentData().getFloat("VPAcsDamage")/100));
                 if (event.getSource().is(DamageTypes.FALL) && player.getPersistentData().getInt("VPGravity") < 30 && random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.atlasChance.get(),player))
                     player.getPersistentData().putInt("VPGravity", Math.min(30, player.getPersistentData().getInt("VPGravity") + 1));
@@ -134,6 +139,7 @@ public class EventHandler {
                     float healDebt = VPUtil.getHealDebt(player);
                     VPUtil.dealDamage(entity,player,player.damageSources().magic(),VPUtil.scalePower(curses*10+healDebt,7,player),3,true);
                     VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+VPUtil.scalePower(healDebt*0.9f,7,player));
+                    VPUtil.addRadiance(Mark.class,VPUtil.getRadianceUltimate(),player);
                 }
                 if (VPUtil.hasVestige(ModItems.MASK.get(), player))
                     VPUtil.setHealDebt(entity,(float) (Math.log10(VPUtil.getHealDebt(entity)))*Math.min(100,VPUtil.getHealDebt(entity)/100));
@@ -213,6 +219,7 @@ public class EventHandler {
                 if(entity.getPersistentData().getLong("VPBubble") > System.currentTimeMillis() && !event.getSource().is(DamageTypeTags.IS_DROWNING)){
                     entity.getPersistentData().putLong("VPBubble",0);
                     VPUtil.dealDamage(entity,player,player.damageSources().drown(),VPUtil.scalePower(1000,24,player),3);
+                    VPUtil.addRadiance(Whirlpool.class,VPUtil.getRadianceUltimate(),player);
                     entity.getPersistentData().putLong("VPWet",System.currentTimeMillis()+20000);
                     long time = 10000;
                     if(VPUtil.hasStellarVestige(ModItems.WHIRLPOOL.get(),player)){
@@ -317,8 +324,10 @@ public class EventHandler {
                         }
                         else {
                             stack.getOrCreateTag().putFloat("VPArmor", VPUtil.scalePower(Armor.getPain(stack) + (float) (event.getAmount() * ConfigHandler.COMMON.armorAbsorbPercent.get()),11,player));
-                            if (armor.isStellar(stack) && !event.getSource().is(DamageTypes.CACTUS) && attacker != null)
-                                VPUtil.dealDamage(attacker, player, player.damageSources().cactus(), VPUtil.scalePower(damageBefore * (3f + Armor.getPain(stack) / 10),11,player), 3);
+                            if (armor.isStellar(stack) && !event.getSource().is(DamageTypes.CACTUS) && attacker != null) {
+                                VPUtil.dealDamage(attacker, player, player.damageSources().cactus(), VPUtil.scalePower(damageBefore * (3f + Armor.getPain(stack) / 10), 11, player), 3);
+                                VPUtil.addRadiance(Armor.class,10,player);
+                            }
                         }
                     }
                 }
@@ -347,6 +356,7 @@ public class EventHandler {
                             if(livingEntity != player){
                                 VPUtil.dealDamage(livingEntity,player,player.damageSources().freeze(),VPUtil.scalePower(event.getAmount()*0.3f,25,player),1,true);
                                 VPUtil.spawnSphere(livingEntity,ParticleTypes.SNOWFLAKE,25,1.5f,0.2f);
+                                VPUtil.addRadiance(Archlinx.class,VPUtil.getRadianceSpecial(),player);
                             }
                         }
                     }
@@ -362,6 +372,7 @@ public class EventHandler {
                         player.getPersistentData().putInt("VPBookDamage", 0);
                         player.getPersistentData().putInt("VPBookHits", 0);
                         VPUtil.play(player,SoundRegistry.MAGIC_EFFECT1.get());
+                        VPUtil.addRadiance(Book.class,20,player);
                     }
                 }
                 VPUtil.printDamage(player,event);
@@ -778,7 +789,7 @@ public class EventHandler {
                     ItemStack stack = VPUtil.getVestigeStack(Armor.class,player);
                     stack.getOrCreateTag().putFloat("VPArmor",0);
                 }
-                if(VPUtil.hasVestige(ModItems.KILLER.get(), player) && player.getPersistentData().getLong("VPQueenDeath") >= 0 && VPUtil.canResurrect(entity)){
+                if(VPUtil.hasVestige(ModItems.KILLER.get(), player) && player.getPersistentData().getLong("VPQueenDeath") >= 0 && VPUtil.canResurrect(entity) && !(player.getPersistentData().getLong("VPQueenDeath") > 0 && player.getPersistentData().getLong("VPQueenDeath") < System.currentTimeMillis())){
                     int percent = VPUtil.scalePower(800,4,player);
                     if(player.getPersistentData().getLong("VPQueenDeath") > 0){
                         percent = VPUtil.scalePower(8000,4,player);
@@ -794,6 +805,7 @@ public class EventHandler {
                     boolean stellar = VPUtil.hasStellarVestige(ModItems.KILLER.get(), player);
                     for(LivingEntity livingEntity: VPUtil.getEntitiesAround(player,20,20,20,false)){
                         VPUtil.dealDamage(livingEntity,player, player.damageSources().explosion(livingEntity,player),percent,3);
+                        VPUtil.addRadiance(Killer.class,VPUtil.getRadianceUltimate(),player);
                         VPUtil.setHealDebt(livingEntity,VPUtil.getHealDebt(livingEntity)+1000);
                         if(stellar){
                             livingEntity.getPersistentData().putLong("VPAntiShield",3*60*1000+System.currentTimeMillis());
@@ -1827,12 +1839,14 @@ public class EventHandler {
                 VPUtil.spawnSphere(target,ParticleTypes.ENCHANTED_HIT,25,1.5f,0.2f);
                 if(player.getPersistentData().getInt("VPArchShots") > 0) {
                     VPUtil.dealDamage(target, player, player.damageSources().freeze(), 130, 2);
+                    VPUtil.addRadiance(Archlinx.class,VPUtil.getRadianceSpecial(),player);
                     player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
                     VPUtil.spawnSphere(target,ParticleTypes.SNOWFLAKE,25,1.5f,0.2f);
                 }
             }
         } else if(player.getPersistentData().getInt("VPArchShots") > 0 && VPUtil.hasVestige(ModItems.ARCHLINX.get(),player)){
             VPUtil.dealDamage(target,player,player.damageSources().freeze(),30,2);
+            VPUtil.addRadiance(Archlinx.class,VPUtil.getRadianceSpecial(),player);
             player.getPersistentData().putInt("VPArchShots",player.getPersistentData().getInt("VPArchShots")-1);
             VPUtil.spawnSphere(target,ParticleTypes.SNOWFLAKE,25,1.5f,0.2f);
         }

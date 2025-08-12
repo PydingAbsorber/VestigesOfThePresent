@@ -2,6 +2,8 @@ package com.pyding.vp.entity;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.vestiges.Archlinx;
+import com.pyding.vp.item.vestiges.Atlas;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
 import com.pyding.vp.network.packets.SendEntityNbtToClient;
@@ -89,8 +91,10 @@ public class BlackHole extends Projectile {
                     VPUtil.suckToPos(entity,blockPosition(),r/(entity.distanceTo(this)*2));
                 if(entity instanceof ServerPlayer serverPlayer1)
                     PacketHandler.sendToClient(new SuckPacket((float) (r/(entity.distanceTo(this)*2)),blockPosition()),serverPlayer1);
-                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && tickCount % ConfigHandler.COMMON.blackhole.get() == 0)
-                    VPUtil.dealDamage(entity,player, player.damageSources().fellOutOfWorld(),VPUtil.scalePower(10/entity.distanceTo(this),3,player),3);
+                if (entity.distanceTo(this) <= Math.max(10,gravity-10) && tickCount % ConfigHandler.COMMON.blackhole.get() == 0) {
+                    VPUtil.dealDamage(entity, player, player.damageSources().fellOutOfWorld(), VPUtil.scalePower(10 / entity.distanceTo(this), 3, player), 3);
+                    VPUtil.addRadiance(Atlas.class, 1, player);
+                }
             }
         }
         if (!getCommandSenderWorld().isClientSide) {

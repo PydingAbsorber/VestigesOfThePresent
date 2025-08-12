@@ -55,6 +55,35 @@ public class Vestige extends Item implements ICurioItem {
 
     public ChatFormatting color;
 
+    public float getRadiance(ItemStack stack) {
+        return stack.getOrCreateTag().getFloat("VPRadiance");
+    }
+
+    public void addRadiance(float number, ItemStack stack){
+        if(ultimateCharges(stack) > currentChargeUltimate(stack))
+            stack.getOrCreateTag().putFloat("VPRadiance", Math.min(number+getRadiance(stack),getMaxRadiance(stack)));
+    }
+
+    public void setRadiance(float number, ItemStack stack) {
+        stack.getOrCreateTag().putFloat("VPRadiance", Math.min(number,getMaxRadiance(stack)));
+    }
+
+    public float getMaxRadiance(ItemStack stack){
+        return stack.getOrCreateTag().getFloat("VPMaxRadiance");
+    }
+
+    public void setMaxRadiance(float number, ItemStack stack) {
+        stack.getOrCreateTag().putFloat("VPMaxRadiance", number);
+    }
+
+    public float getMaxRadianceBase(ItemStack stack){
+        return stack.getOrCreateTag().getFloat("VPMaxRadianceBase");
+    }
+
+    public void setMaxRadianceBase(float number, ItemStack stack) {
+        stack.getOrCreateTag().putFloat("VPMaxRadianceBase", number);
+    }
+
     public int specialCharges(ItemStack stack) {
         return stack.getOrCreateTag().getInt("VPSpecialCharges");
     }
@@ -79,13 +108,13 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putInt("VPSpecialCd", number);
     }
 
-    public int ultimateCd(ItemStack stack) {
+    /*public int ultimateCd(ItemStack stack) {
         return stack.getOrCreateTag().getInt("VPUltimateCd");
     }
 
     public void setUltimateCd(int number, ItemStack stack) {
         stack.getOrCreateTag().putInt("VPUltimateCd", number);
-    }
+    }*/
 
     public int cdSpecialActive(ItemStack stack) {
         return stack.getOrCreateTag().getInt("VPCdSpecialActive");
@@ -95,13 +124,13 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putInt("VPCdSpecialActive", number);
     }
 
-    public int cdUltimateActive(ItemStack stack) {
+    /*public int cdUltimateActive(ItemStack stack) {
         return stack.getOrCreateTag().getInt("VPCdUltimateActive");
     }
 
     public void setCdUltimateActive(int number, ItemStack stack) {
         stack.getOrCreateTag().putInt("VPCdUltimateActive", number);
-    }
+    }*/
 
     public int specialBonusModifier(ItemStack stack) {
         return stack.getOrCreateTag().getInt("VPSpecialBonusModifier");
@@ -175,19 +204,20 @@ public class Vestige extends Item implements ICurioItem {
         stack.getOrCreateTag().putInt("VPSpecialCdBase", number);
     }
 
-    public int ultimateCdBase(ItemStack stack) {
+    /*public int ultimateCdBase(ItemStack stack) {
         return stack.getOrCreateTag().getInt("VPUltimateCdBase");
-    }
+    }*/
 
-    public void setUltimateCdBase(int number, ItemStack stack) {
+    /*public void setUltimateCdBase(int number, ItemStack stack) {
         stack.getOrCreateTag().putInt("VPUltimateCdBase", number);
-    }
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+    }*/
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int radiance, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
         setUltimateChargesBase(ultimateCharges, stack);
         setSpecialChargesBase(specialCharges, stack);
         setUltimateCharges(ultimateCharges, stack);
-        setUltimateCdBase(ultimateCd * 20, stack);
-        setUltimateCd(ultimateCd * 20, stack);
+        //setUltimateCdBase(ultimateCd * 20, stack);
+        //setUltimateCd(ultimateCd * 20, stack);
+        setMaxRadianceBase(radiance,stack);
         setSpecialCharges(specialCharges, stack);
         setSpecialCdBase(specialCd * 20, stack);
         setSpecialCd(specialCd * 20, stack);
@@ -201,7 +231,7 @@ public class Vestige extends Item implements ICurioItem {
         setUltimateDurationBase((long) ultimateMaxTime * 1000, stack);
         this.ultimateChargesBase = ultimateCharges;
         this.specialChargesBase = specialCharges;
-        this.ultimateCdBase = ultimateCd * 20;
+        //this.ultimateCdBase = ultimateCd * 20;
         this.specialCdBase = specialCd * 20;
         this.specialDurationBase = (long) specialMaxTime * 1000;
         this.ultimateDurationBase = (long) ultimateMaxTime * 1000;
@@ -349,7 +379,7 @@ public class Vestige extends Item implements ICurioItem {
             if(!player.getCommandSenderWorld().isClientSide) {
                 setTimeUlt(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
                 setUltimateActive(true,stack);
-                setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
+                //setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
                 Random random = new Random();
                 if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
                     setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
@@ -420,7 +450,8 @@ public class Vestige extends Item implements ICurioItem {
             ultimateTimeBonus -= 0.5f;
         }
         setSpecialCd((int) (specialCdBase(stack)*Math.max(0.1,specialCdBonus)),stack); //cauton!!!
-        setUltimateCd((int) (ultimateCdBase(stack)*Math.max(0.1,ultimateCdBonus)),stack);
+        //setUltimateCd((int) (ultimateCdBase(stack)*Math.max(0.1,ultimateCdBonus)),stack);
+        setMaxRadiance((float) (getMaxRadianceBase(stack)*Math.max(0.1,ultimateCdBonus)),stack);
         setSpecialMaxTime((int) (specialDurationBase(stack)*Math.max(0.1,specialTimeBonus)),stack);
         setUltimateMaxTime((int) (ultimateDurationBase(stack)*Math.max(0.1,ultimateTimeBonus)),stack);
         setSpecialCharges(specialChargesBase(stack)+specialBonus+specialBonusModifier(stack)+spAcsBonus,stack);
@@ -472,7 +503,7 @@ public class Vestige extends Item implements ICurioItem {
                     specialRecharges(playerServer, stack);
             }
         }
-        if (cdUltimateActive(stack) > 0) {
+        /*if (cdUltimateActive(stack) > 0) {
             setCdUltimateActive(cdUltimateActive(stack)-1,stack);
             if(curseShieldModifier != 0 && VPUtil.getShield(playerServer) > 10 && VPUtil.getOverShield(playerServer) > 10 && cdUltimateActive(stack) > 0){
                 setCdUltimateActive(cdUltimateActive(stack)-1,stack);
@@ -485,8 +516,14 @@ public class Vestige extends Item implements ICurioItem {
                 if(playerServer != null)
                     ultimateRecharges(playerServer, stack);
             }
+        }*/
+        if(ultimateCharges(stack) > currentChargeUltimate(stack) && getRadiance(stack) >= getMaxRadiance(stack)){
+            setRadiance(0,stack);
+            setCurrentChargeUltimate(currentChargeUltimate(stack)+1,stack);
+            if(playerServer != null)
+                ultimateRecharges(playerServer, stack);
         }
-        if((currentChargeUltimate(stack) == 0 && cdUltimateActive(stack) == 0) || (currentChargeSpecial(stack) == 0 && cdSpecialActive(stack) == 0) || specialCdBase == 0) {
+        if((currentChargeUltimate(stack) == 0) && (currentChargeSpecial(stack) == 0 && cdSpecialActive(stack) == 0) && specialCdBase == 0) {
             setTime(0, stack);
             setTimeUlt(0, stack);
             setSpecialActive(false, stack);
@@ -494,7 +531,7 @@ public class Vestige extends Item implements ICurioItem {
             setCurrentChargeSpecial(0, stack);
             setCurrentChargeUltimate(0, stack);
             setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
-            setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
+            //setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
             curioSucks(playerServer, stack);
         }
         ICurioItem.super.curioTick(slotContext, stack);
@@ -520,11 +557,11 @@ public class Vestige extends Item implements ICurioItem {
                 int spCharges;
                 int ultCharges;
                 int spCd;
-                int ultCd;
+                int radiance;
                 spCharges = specialCharges(stack);
                 spCd = specialCd(stack);
                 ultCharges = ultimateCharges(stack);
-                ultCd = ultimateCd(stack);
+                radiance = (int) getMaxRadiance(stack);
                 if(vestigeNumber == 10)
                     components.add(Component.translatable("vp.return").withStyle(color).append(Component.literal("\n"
                             + stack.getOrCreateTag().getString("VPReturnKey") + " "
@@ -567,8 +604,8 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.ultimate").withStyle(color)
                         .append(Component.translatable("vp.charges").withStyle(color))
                         .append(Component.literal(" " + ultCharges ).withStyle(color))
-                        .append(Component.translatable("vp.charges2").withStyle(color))
-                        .append(Component.literal(" " + ultCd / 20).withStyle(color))
+                        .append(Component.translatable("vp.radiance").withStyle(color))
+                        .append(Component.literal(" " + radiance).withStyle(color))
                         .append(Component.translatable("vp.seconds").withStyle(color))
                         .append(Component.literal(" "))
                         .append(Component.translatable("vp.activation"))
@@ -618,8 +655,8 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
                     if(isTripleStellar(stack))
                         components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
+                    components.add(Component.translatable("vp.condition").append(Component.translatable("vp.condition."+vestigeNumber)).withStyle(color));
                     components.add(Component.translatable("vestige_power",VPUtil.getPower(vestigeNumber,player)+"%").withStyle(ChatFormatting.GRAY));
-                    components.add(Component.translatable("config").withStyle(ChatFormatting.GRAY));
                 }
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient(VPUtil.generateRandomString(7) + " :")));
@@ -966,7 +1003,8 @@ public class Vestige extends Item implements ICurioItem {
             setCurrentChargeSpecial(0, stack);
             setCurrentChargeUltimate(0, stack);
             setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
-            setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
+            setRadiance(0,stack);
+            //setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
         }
         VPUtil.vestigeNullify(player);
         applyBonus(stack,player);
@@ -1051,7 +1089,7 @@ public class Vestige extends Item implements ICurioItem {
 
     public void refresh(Player player, ItemStack stack){
         setCdSpecialActive(0,stack);
-        setCdUltimateActive(0,stack);
+        //setCdUltimateActive(0,stack);
         setCurrentChargeSpecial(specialCharges(stack),stack);
         setCurrentChargeUltimate(ultimateCharges(stack),stack);
         if(!(stack.getItem() instanceof Archlinx))
