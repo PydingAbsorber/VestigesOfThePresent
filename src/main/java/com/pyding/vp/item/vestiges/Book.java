@@ -17,7 +17,7 @@ public class Book extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(12, ChatFormatting.LIGHT_PURPLE, 1, 10, 1, 200, 15, 60, hasDamage, stack);
+        super.dataInit(12, ChatFormatting.LIGHT_PURPLE, 1, 10, 1, 90, 15, 60, hasDamage, stack);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class Book extends Vestige{
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,30,30,30,false)){
             if(VPUtil.isProtectedFromHit(player,entity))
                 continue;
-            VPUtil.negativnoEnchant(entity);
+            VPUtil.negativnoEnchant(entity,player);
         }
         VPUtil.spawnParticles(player, ParticleTypes.ENCHANT,10,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level, stack);

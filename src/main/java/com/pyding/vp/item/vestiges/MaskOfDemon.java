@@ -26,7 +26,7 @@ public class MaskOfDemon extends Vestige{
     }
 
     @Override
-    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int radiance, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
         vestigeNumber = 5;
         color = ChatFormatting.BLUE;
         specialCharges = 1;
@@ -34,8 +34,8 @@ public class MaskOfDemon extends Vestige{
         specialMaxTime = 666;
         ultimateMaxTime = 1;
         ultimateCharges = 1;
-        ultimateCd = 60;
-        super.dataInit(vestigeNumber, color, specialCharges, specialCd, ultimateCharges, ultimateCd, specialMaxTime, ultimateMaxTime, true, stack);
+        radiance = 95;
+        super.dataInit(vestigeNumber, color, specialCharges, specialCd, ultimateCharges, radiance, specialMaxTime, ultimateMaxTime, true, stack);
     }
 
     private Multimap<Attribute, AttributeModifier> createAttributeMap(Player player, ItemStack stack) {

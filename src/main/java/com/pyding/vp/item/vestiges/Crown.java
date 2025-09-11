@@ -16,7 +16,7 @@ public class Crown extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(2, ChatFormatting.YELLOW, 5, 15, 1, 35, 1, 15, true, stack);
+        super.dataInit(2, ChatFormatting.YELLOW, 5, 15, 1, 160, 1, 15, true, stack);
     }
 
     @Override

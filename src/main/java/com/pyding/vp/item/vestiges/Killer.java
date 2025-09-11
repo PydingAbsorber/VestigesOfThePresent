@@ -18,7 +18,7 @@ public class Killer extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(4, ChatFormatting.YELLOW, 2, 10, 1, 60, 1, 20, true, stack);
+        super.dataInit(4, ChatFormatting.YELLOW, 2, 10, 1, 150, 1, 20, true, stack);
     }
 
 
@@ -28,12 +28,18 @@ public class Killer extends Vestige{
         if(random.nextDouble() < 0.5)
             VPUtil.play(player,SoundRegistry.EXPLODE1.get());
         else VPUtil.play(player,SoundRegistry.EXPLODE2.get());
+        int count = 0;
         for(LivingEntity entity: VPUtil.getEntitiesAround(player,20,20,20)){
             if(VPUtil.isProtectedFromHit(player,entity))
                 continue;
+            if(entity.getPersistentData().getBoolean("VPKillerQueen"))
+                count++;
             VPUtil.dealDamage(entity,player, player.damageSources().explosion(entity,player),VPUtil.scalePower(400,4,player),2);
             entity.getPersistentData().putBoolean("VPKillerQueen",true);
             VPUtil.addRadiance(Killer.class,VPUtil.getRadianceSpecial(),player);
+        }
+        if(count >= 4){
+            VPUtil.addRadiance(Killer.class,40,player);
         }
         VPUtil.spawnParticles(player, ParticleTypes.EXPLOSION,8,1,0,0,0,0,false);
         super.doSpecial(seconds, player, level, stack);

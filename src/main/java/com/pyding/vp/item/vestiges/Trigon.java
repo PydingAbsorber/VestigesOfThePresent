@@ -23,15 +23,17 @@ public class Trigon extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(19, ChatFormatting.GOLD, 3, 13, 1, 60, 1, 1, true, stack);
+        super.dataInit(19, ChatFormatting.GOLD, 3, 13, 1, 135, 1, 1, true, stack);
     }
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.MAGIC5.get());
         for(LivingEntity entity: VPUtil.ray(player,6,30,true)){
-            if(!VPUtil.isProtectedFromHit(player,entity))
-                VPUtil.dealParagonDamage(entity,player,VPUtil.scalePower(player.getMaxHealth()/10,19,player),2,true);
+            if(!VPUtil.isProtectedFromHit(player,entity)) {
+                VPUtil.dealParagonDamage(entity, player, VPUtil.scalePower(player.getMaxHealth() / 10, 19, player), 2, true);
+                VPUtil.addRadiance(Trigon.class,VPUtil.getRadianceSpecial(),player);
+            }
         }
         VPUtil.rayParticles(player,ParticleTypes.WAX_ON,30,3,30,0,-0.5,0,1,false);
         super.doSpecial(seconds, player, level, stack);

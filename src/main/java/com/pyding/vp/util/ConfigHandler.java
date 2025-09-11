@@ -119,10 +119,11 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue mineralClusterBlacklist;
         public final ForgeConfigSpec.BooleanValue lore;
         public final ForgeConfigSpec.DoubleValue powerBoost;
+        public final ForgeConfigSpec.DoubleValue expMultiplier;
 
         public Common(ForgeConfigSpec.Builder builder) {
             lore = builder.comment("Set false to disable chat messages with Lore").define("lore", true);
-            vestigesCooldown = builder.comment("Cooldown in milliseconds for any Vestiges abilities. 200 is 0.2 sec.").defineInRange("vestigesCooldown", 200, 0, Long.MAX_VALUE);
+            vestigesCooldown = builder.comment("Cooldown in milliseconds for any Vestiges abilities. 100 is 0.1 sec.").defineInRange("vestigesCooldown", 50, 0, Long.MAX_VALUE);
             List<Integer> reduceList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
                 reduceList.add(0);
@@ -143,7 +144,7 @@ public class ConfigHandler {
             shieldCruel = builder.comment("Cruel mode Shield from hp percent 1 is 100%").defineInRange("shieldCruel", 0.75d, 0.1, 2100000000);
             overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.25, 0.1, 2100000000);
             healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
-
+            expMultiplier = builder.comment("Exp base multiplier from bosses in Cruel mode").defineInRange("expMultiplier", 10d, 1d, 2100000000);
 
             nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareAllBoxChance", 1d, 0, 1);
             nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
@@ -227,7 +228,7 @@ public class ConfigHandler {
             mysteryChestAdvancementChance = builder.comment("Chance to obtain Mystery Chest from advancement").defineInRange("mysteryChestAdvancementChance", 0.01d, 0, 1);
             mysteryChestAdvancementBoost = builder.comment("Chance increase per each advancement").defineInRange("mysteryChestAdvancementBoost", 0.0005d, 0, 1);
             mysteryChestChallengeChance = builder.comment("Chance to obtain Mystery Chest from challenge").defineInRange("mysteryChestChallengeChance", 0.33d, 0, 1);
-            mineralCluster = builder.comment("Id of items that drop of Mineral Cluster should contain: ").define("mineralClusterList","gem,mineral,diamond,emerald,jadeite,quartz,feldspar,mica,fluorite,halite,gypsum,talc,graphite,pyrite,galena,hematite,magnetite,bauxite,corundum,sapphire,ruby,topaz,amethyst,citrine,agate,jasper,opal,garnet,zircon,olivine,tourmaline,beryl,aquamarine,biotite,muscovite,orthoclase,plagioclase,amphibole,pyroxene,apatite,barite,sulfur,malachite,azurite,bornite,chalcopyrite,sphalerite,cassiterite,rutile,ilmenite,chromite,kaolinite,serpentine,epidote,staurolite,kyanite,andalusite,sillimanite");
+            mineralCluster = builder.comment("Id of items that drop of Mineral Cluster should contain: ").define("mineralClusterList","_gem_,mineral,diamond,emerald,jadeite,quartz,feldspar,mica,fluorite,halite,gypsum,_talc,graphite,pyrite,_galena,hematite,magnetite,bauxite,corundum,sapphire,ruby,topaz,amethyst,citrine,agate,jasper,opal,garnet,zircon,olivine,tourmaline,beryl,aquamarine,biotite,muscovite,orthoclase,plagioclase,amphibole,pyroxene,apatite,barite,sulfur,malachite,azurite,bornite,chalcopyrite,sphalerite,cassiterite,rutile,ilmenite,chromite,kaolinite,serpentine,epidote,staurolite,kyanite,andalusite,sillimanite");
             mineralClusterBlacklist = builder.comment("Black list for items in Mineral Cluster: ").define("mineralClusterBlacklist","");
         }
 

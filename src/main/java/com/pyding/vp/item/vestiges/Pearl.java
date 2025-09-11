@@ -22,7 +22,7 @@ public class Pearl extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(23, ChatFormatting.DARK_BLUE, 4, 40, 1, 360, 30, 30, false, stack);
+        super.dataInit(23, ChatFormatting.DARK_BLUE, 4, 40, 1, 45, 30, 30, false, stack);
     }
 
     boolean later = false;

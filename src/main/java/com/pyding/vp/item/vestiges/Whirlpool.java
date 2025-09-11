@@ -18,7 +18,7 @@ public class Whirlpool extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(24, ChatFormatting.BLUE, 3, 40, 1, 60, 30, 20, true, stack);
+        super.dataInit(24, ChatFormatting.BLUE, 3, 40, 1, 115, 30, 20, true, stack);
     }
 
     @Override

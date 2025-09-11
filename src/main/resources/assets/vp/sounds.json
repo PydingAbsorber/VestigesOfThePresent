@@ -159,6 +159,11 @@
       "vp:overshield"
     ]
   },
+  "overshield_break": {
+    "sounds": [
+      "vp:overshield_break"
+    ]
+  },
   "bolt": {
     "sounds": [
       "vp:bolt"

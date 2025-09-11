@@ -20,7 +20,7 @@ public class Chaos extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(14, ChatFormatting.DARK_PURPLE, 1, 20, 1, 20, 20, 20, hasDamage, stack);
+        super.dataInit(14, ChatFormatting.DARK_PURPLE, 1, 20, 1, 30, 20, 20, hasDamage, stack);
     }
 
     int strelyalki = 0;

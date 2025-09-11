@@ -40,7 +40,7 @@ public class SoulBlighter extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 300, 15, 300, true, stack);
+        super.dataInit(20, ChatFormatting.LIGHT_PURPLE, 2, 30, 1, 330, 15, 300, true, stack);
     }
 
     public static float getPrice(float souls){

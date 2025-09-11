@@ -21,7 +21,7 @@ public class Treasure extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(26, ChatFormatting.GOLD, 2, 60, 1, 360, 30, 10, hasDamage, stack);
+        super.dataInit(26, ChatFormatting.GOLD, 2, 60, 1, 50, 30, 10, hasDamage, stack);
     }
 
     @Override

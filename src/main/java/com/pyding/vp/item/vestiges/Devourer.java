@@ -22,7 +22,7 @@ public class Devourer extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(15, ChatFormatting.DARK_RED, 1, 30, 1, 130, 5, 130, hasDamage, stack);
+        super.dataInit(15, ChatFormatting.DARK_RED, 1, 30, 1, 115, 5, 130, hasDamage, stack);
     }
     int souls = 0;
 

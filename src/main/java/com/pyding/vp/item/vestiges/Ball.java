@@ -20,7 +20,7 @@ public class Ball extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(18, ChatFormatting.AQUA, 5, 25, 2, 30, 1, 1, true, stack);
+        super.dataInit(18, ChatFormatting.AQUA, 5, 25, 2, 70, 1, 1, true, stack);
     }
 
     @Override

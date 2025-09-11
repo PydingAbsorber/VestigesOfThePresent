@@ -40,29 +40,17 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHole> {
         poseStack.pushPose();
         float gravity = entity.getPersistentData().getFloat("VPGravity");
         poseStack.translate(0.0F,2.5F,0.0F);
-        float scale = 6+gravity/5;
+        float scale = 6+gravity/4;
         if(entity.tickCount < 20)
             scale /= 20-entity.tickCount;
-        else if(entity.tickCount+20 > 20 * (gravity+2))
-            scale /= (entity.tickCount+20)-(20 * (gravity+2));
+        else if(entity.tickCount > 20 * (gravity/4))
+            scale /= (entity.tickCount)-(20 * (gravity/4));
         poseStack.scale(scale,scale,scale);
         float angle = (System.currentTimeMillis() % 36000) / 2.0f;
         poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
         ItemStack stack = new ItemStack(ModItems.BLACKHOLE_ITEM.get());
         poseStack.scale(0.5F, 0.5F, 0.5F);
         this.itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
-
-        ShaderBlackHole shader = null;
-        try {
-            shader = new ShaderBlackHole();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        shader.bind();
-        shader.setUniform("iTime", (System.currentTimeMillis() % 10000L) / 1000.0f);
-        shader.setUniform("iResolution", Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
-        shader.unbind();
-
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }

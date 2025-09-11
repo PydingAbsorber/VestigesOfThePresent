@@ -362,14 +362,17 @@ public class VPUtil {
         return allList;
     }
 
+    public static int size = 0;
+
     public static int getSeaSize(){
-        int size = 0;
-        size += getSeaList().size();
-        for(MobBucketItem bucket: buckets){
-            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
-            if(type.getDescriptionId().contains("entity.minecraft.tropical_fish") || type.getDescriptionId().contains("entity.minecraft.axolotl")){
-                for(String id: bucketMap.get(bucket))
-                    size++;
+        if(size == 0) {
+            size += getSeaList().size();
+            for (MobBucketItem bucket : buckets) {
+                EntityType<?> type = ((BucketVzlom) bucket).getFishSup().get();
+                if (type.getDescriptionId().contains("entity.minecraft.tropical_fish") || type.getDescriptionId().contains("entity.minecraft.axolotl")) {
+                    for (String id : bucketMap.get(bucket))
+                        size++;
+                }
             }
         }
         return size;
@@ -848,6 +851,8 @@ public class VPUtil {
     }
 
     public static float equipmentDurability(float percentage,LivingEntity entity,Player dealer,boolean stellar){
+        if(hasVestige(ModItems.RUNE.get(),dealer))
+            addRadiance(Rune.class,15,dealer);
         percentage = percentage / 100;
         int totalDamage = 0;
         for (ItemStack stack2 : entity.getArmorSlots()) {
@@ -1059,6 +1064,7 @@ public class VPUtil {
         if(damage >= playerDamageSources(player,player).size())
             damage = 0;
         if(adopted){
+            VPUtil.addRadiance(Crown.class,5,player);
             damage++;
             if(damage >= playerDamageSources(player,player).size())
                 damage = 0;
@@ -1120,6 +1126,8 @@ public class VPUtil {
                     addOverShield(player,shield*0.05f,false);
             }
             tag.putFloat("VPShield", shield);
+            if(entity instanceof Player player && VPUtil.hasVestige(ModItems.DONUT.get(),player))
+                VPUtil.addRadiance(SweetDonut.class,10,player);
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1426,21 +1434,25 @@ public class VPUtil {
             player.giveExperiencePoints(totalDamage);
     }
 
-    public static void negativnoEnchant(LivingEntity entity){
+    public static void negativnoEnchant(LivingEntity entity,Player player){
+        int count = 0;
         for(ItemStack stack: getAllEquipment(entity)){
             Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+            Set<Enchantment> copy = new HashSet<>(enchantments.keySet());
             if(!enchantments.isEmpty()){
-                for(Enchantment enchantment: enchantments.keySet()){
+                for(Enchantment enchantment: copy){
                     if(stack.getEnchantmentLevel(enchantment) < 0 || enchantment.isCurse())
                         continue;
                     int lvl = enchantments.get(enchantment);
                     enchantments.remove(enchantment);
                     enchantments.put(enchantment,lvl*-1);
+                    count++;
                 }
                 stack.getOrCreateTag().putBoolean("VPEnchant",true);
             }
         }
         entity.getPersistentData().putLong("VPEnchant",System.currentTimeMillis()+15000);
+        VPUtil.addRadiance(Book.class,count*3,player);
     }
 
     public static void negativnoDisenchant(LivingEntity entity){
@@ -1757,6 +1769,8 @@ public class VPUtil {
                 }
             }
             tag.putFloat("VPOverShield", shield);
+            if(entity instanceof Player player && hasVestige(ModItems.RUNE.get(),player))
+                VPUtil.addRadiance(Rune.class,5,player);
         }
         if(entity instanceof ServerPlayer player) {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
@@ -1927,19 +1941,22 @@ public class VPUtil {
         return allList;
     }
 
+    public static List<String> ores = new ArrayList<>();
+
     public static List<String> getOres(){
-        List<String> ores = new ArrayList<>();
-        TagKey<Item> forgeOreTag = TagKey.create(
-                ForgeRegistries.ITEMS.getRegistryKey(),
-                new ResourceLocation("forge", "ores")
-        );
-        for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(forgeOreTag)) {
-            ores.add(holder.value().getDescriptionId());
-        }
-        for(Block block: blocks){
-            String name = block.getDescriptionId();
-            if(name.contains("_ore") && !ores.contains(name))
-                ores.add(name);
+        if(ores.isEmpty()) {
+            TagKey<Item> forgeOreTag = TagKey.create(
+                    ForgeRegistries.ITEMS.getRegistryKey(),
+                    new ResourceLocation("forge", "ores")
+            );
+            for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(forgeOreTag)) {
+                ores.add(holder.value().getDescriptionId());
+            }
+            for (Block block : blocks) {
+                String name = block.getDescriptionId();
+                if (name.contains("_ore") && !ores.contains(name))
+                    ores.add(name);
+            }
         }
         return ores;
     }
@@ -2101,6 +2118,8 @@ public class VPUtil {
                     VPUtil.addOverShield(deb,health*0.5f,true);
             }
         } else {
+            if(hasVestige(ModItems.TRIGON.get(),player))
+                addRadiance(Trigon.class,25,player);
             deadInside(entity,player);
         }
     }
@@ -3660,6 +3679,8 @@ public class VPUtil {
 
     public static void modifySoulIntegrity(LivingEntity entity,Player modifier, int number){
         if(entity instanceof Player player){
+            if(hasVestige(ModItems.SOULBLIGHTER.get(),player))
+                VPUtil.addRadiance(SoulBlighter.class,10,player);
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
                 if(number < 0)
@@ -3677,18 +3698,24 @@ public class VPUtil {
     }
 
     public static void printTrack(String message, Player player){
-        if(player != null && player.getInventory() != null && player.getOffhandItem().is(ModItems.LOGO.get()))
+        if(player != null && player.getInventory() != null && player.getOffhandItem().getItem() instanceof TestItem)
             player.sendSystemMessage(Component.literal("IsClient: " + player.level().isClientSide + " " + message));
     }
 
     public static void setHealDebt(LivingEntity entity, float amount){
         entity.getPersistentData().putFloat("VPHealDebt",amount);
-        if(entity instanceof Player player && hasVestige(ModItems.CHAOS.get(),player)){
-            ItemStack stack = getVestigeStack(Chaos.class,player);
-            if(stack.getItem() instanceof Vestige vestige && vestige.isUltimateActive(stack)){
-                for (LivingEntity livingEntity : VPUtil.getEntities(player, 30, false)) {
-                    livingEntity.getPersistentData().putFloat("VPHealDebt",amount*0.3f);
+        if(entity instanceof Player player){
+            if(hasVestige(ModItems.CHAOS.get(),player)) {
+                ItemStack stack = getVestigeStack(Chaos.class, player);
+                if (stack.getItem() instanceof Vestige vestige && vestige.isUltimateActive(stack)) {
+                    for (LivingEntity livingEntity : VPUtil.getEntities(player, 30, false)) {
+                        livingEntity.getPersistentData().putFloat("VPHealDebt", amount * 0.3f);
+                    }
                 }
+                addRadiance(Chaos.class, 1, player);
+            }
+            if(hasVestige(ModItems.LYRA.get(),player) && amount <= 0) {
+                addRadiance(Lyra.class, 15, player);
             }
         }
     }
@@ -3745,16 +3772,24 @@ public class VPUtil {
     }
 
     public static int getRadianceSpecial(){
-        return 25;
+        return 5;
     }
 
     public static int getRadianceUltimate(){
-        return 100;
+        return 10;
     }
 
     public static void addRadiance(Class clazz, int number, Player player){
         ItemStack stack = getVestigeStack(clazz,player);
         if(stack.getItem() instanceof Vestige vestige){
+            int used = player.getPersistentData().getInt("VPRadianceUsed");
+            if((player.getPersistentData().getLong("VPRadianceTime") + 100) > System.currentTimeMillis()){
+                number /= 2*(used);
+                player.getPersistentData().putInt("VPRadianceUsed",used+1);
+            } else {
+                player.getPersistentData().putLong("VPRadianceTime",System.currentTimeMillis());
+                player.getPersistentData().putInt("VPRadianceUsed",1);
+            }
             vestige.addRadiance(number,stack);
         }
     }

@@ -23,7 +23,7 @@ public class Atlas extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(3, ChatFormatting.RED, 2, 10, 1, 30, 1, 4, true, stack);
+        super.dataInit(3, ChatFormatting.RED, 2, 10, 1, 220, 1, 4, true, stack);
     }
 
     @Override

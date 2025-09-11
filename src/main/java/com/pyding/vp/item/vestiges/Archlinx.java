@@ -36,7 +36,7 @@ public class Archlinx extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(25, ChatFormatting.BLUE, 2, 25, 1, 120, 120, 9999, true, stack);
+        super.dataInit(25, ChatFormatting.BLUE, 2, 25, 1, 275, 120, 9999, true, stack);
     }
 
     @Override

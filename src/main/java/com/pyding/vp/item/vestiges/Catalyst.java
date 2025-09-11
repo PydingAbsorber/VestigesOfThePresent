@@ -25,7 +25,7 @@ public class Catalyst extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 120, 1, 1, hasDamage, stack);
+        super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 75, 1, 1, hasDamage, stack);
     }
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
@@ -42,6 +42,7 @@ public class Catalyst extends Vestige{
                 if(random.nextDouble() < 0.2)
                     amplifier += 1;
                 entity.addEffect(new MobEffectInstance(effectInstance.getEffect(),duration,amplifier));
+                addRadiance(3,stack);
             }
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }
@@ -73,6 +74,7 @@ public class Catalyst extends Vestige{
             for(MobEffectInstance effectInstance: list){
                 player.addEffect(new MobEffectInstance(effectInstance.getEffect(),effectInstance.getDuration(),effectInstance.getAmplifier()));
                 entity.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false),10*20,random.nextInt(3)));
+                addRadiance(3,stack);
             }
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE_COLUMN_UP,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
         }

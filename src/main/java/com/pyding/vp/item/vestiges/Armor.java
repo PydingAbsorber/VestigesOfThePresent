@@ -23,7 +23,7 @@ public class Armor extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(11, ChatFormatting.RED, 4, 10, 1, 60, 60, 25, true, stack);
+        super.dataInit(11, ChatFormatting.RED, 4, 10, 1, 70, 60, 25, true, stack);
     }
 
     public HashMap<UUID,HashMap<TagKey<DamageType>,Integer>> damageSources = new HashMap<>();

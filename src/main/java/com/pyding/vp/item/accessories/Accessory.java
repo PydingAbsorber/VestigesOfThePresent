@@ -100,7 +100,8 @@ public class Accessory extends Item implements ICurioItem {
         List<ItemStack> list = VPUtil.getVestigeList(player);
         for(ItemStack itemStack: list){
             if(itemStack.getItem() instanceof Vestige vestige){
-                vestige.curioSucks(player,itemStack);
+                //vestige.curioSucks(player,itemStack);
+                vestige.applyBonus(stack,player);
             }
         }
         refreshStats(player);

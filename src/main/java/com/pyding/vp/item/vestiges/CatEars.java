@@ -29,7 +29,7 @@ public class CatEars extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(8, ChatFormatting.YELLOW, 1, 30, 1, 60, 30, 40, hasDamage, stack);
+        super.dataInit(8, ChatFormatting.YELLOW, 1, 30, 1, 75, 30, 40, hasDamage, stack);
     }
 
     @Override

@@ -29,7 +29,7 @@ public class Midas extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(9, ChatFormatting.GOLD, 1, 40, 1, 120, 40, 1, hasDamage, stack);
+        super.dataInit(9, ChatFormatting.GOLD, 1, 40, 1, 320, 40, 1, hasDamage, stack);
     }
 
     @Override

@@ -170,7 +170,7 @@ public class GuideScreen extends Screen {
                 guiGraphics.drawString(font, lines.get(lineIndex), textX, textY, ChatFormatting.GRAY.getColor());
             }
             List<ResourceLocation> pic = new ArrayList<>();
-            if(page == 1) {
+            if(page == 2) {
                 pic.add(HEALDEBT);
                 pic.add(ShieldOverlay.getTexture(20));
                 pic.add(ShieldOverlay.getTexture(11));
@@ -180,24 +180,24 @@ public class GuideScreen extends Screen {
                 pic.add(ShieldOverlay.getTexture(14));
                 pic.add(ShieldOverlay.getTexture(17));
             }
-            if (page == 2) {
+            if (page == 3) {
                 pic.add(HEAL1);
                 pic.add(HEAL2);
                 pic.add(HEAL3);
             }
-            if (page == 3) {
+            if (page == 4) {
                 pic.add(ShieldOverlay.getTexture(16));
                 pic.add(ShieldOverlay.getTexture(21));
                 pic.add(ShieldOverlay.getTexture(6));
                 pic.add(ShieldOverlay.getTexture(22));
             }
-            if(page == 4){
+            if(page == 5){
                 pic.add(SHIELD);
             }
-            if(page == 5){
+            if(page == 6){
                 pic.add(OVER_SHIELD);
             }
-            if (page == 6) {
+            if (page == 7) {
                 pic.add(ShieldOverlay.getTexture(19));
                 pic.add(ShieldOverlay.getTexture(5));
                 pic.add(ShieldOverlay.getTexture(18));
@@ -206,11 +206,11 @@ public class GuideScreen extends Screen {
                 pic.add(ShieldOverlay.getTexture(21));
                 pic.add(ShieldOverlay.getTexture(11));
             }
-            if(page == 7){
+            if(page == 8){
                 pic.add(ShieldOverlay.getTexture(15));
                 pic.add(ShieldOverlay.getTexture(20));
             }
-            if(page == 8){
+            if(page == 9){
                 pic.add(ShieldOverlay.getTexture(11));
             }
             if(!pic.isEmpty()){

@@ -22,7 +22,7 @@ public class Prism extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(13, ChatFormatting.RED, 4, 60, 1, 300, 40, 60, hasDamage, stack);
+        super.dataInit(13, ChatFormatting.RED, 4, 60, 1, 60, 40, 60, hasDamage, stack);
     }
 
     @Override

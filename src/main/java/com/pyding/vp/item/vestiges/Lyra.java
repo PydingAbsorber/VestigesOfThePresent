@@ -23,7 +23,7 @@ public class Lyra extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(22, ChatFormatting.DARK_GREEN, 3, 40, 1, 60, 30, 10, false, stack);
+        super.dataInit(22, ChatFormatting.DARK_GREEN, 3, 40, 1, 120, 30, 10, false, stack);
     }
 
     @Override
@@ -120,6 +120,7 @@ public class Lyra extends Vestige{
                 if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
                     continue;
                 entity.getPersistentData().putLong("VPOrchestra",System.currentTimeMillis()+seconds*2);
+                addRadiance(60,stack);
                 for(int i = 1; i < 9; i++){
                     entity.getPersistentData().putLong("VPLyra"+i,System.currentTimeMillis()+seconds*2);
                 }

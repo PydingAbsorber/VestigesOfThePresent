@@ -24,16 +24,19 @@ public class Anemoculus extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(1, ChatFormatting.DARK_AQUA, 2, 30, 5, 60, 1, 20, hasDamage, stack);
+        super.dataInit(1, ChatFormatting.DARK_AQUA, 2, 30, 5, 70, 1, 20, hasDamage, stack);
     }
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
+        int dudes = 0;
         if(!isUltimateActive(stack)) {
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,25,0,0.5,0,3,false);
             for (LivingEntity entity : VPUtil.getEntities(player, 8,true)) {
-                if(!VPUtil.isProtectedFromHit(player,entity))
+                if(!VPUtil.isProtectedFromHit(player,entity)) {
                     VPUtil.liftEntity(entity, VPUtil.commonPower);
+                    dudes++;
+                }
             }
         }
         else {
@@ -42,11 +45,15 @@ public class Anemoculus extends Vestige{
                 VPUtil.play(player,SoundRegistry.WIND1.get());
             else VPUtil.play(player,SoundRegistry.WIND2.get());
             for(LivingEntity entity: VPUtil.getEntities(player,16,false)){
-                if(!VPUtil.isProtectedFromHit(player,entity))
-                    VPUtil.suckEntity(entity,player,2,true);
+                if(!VPUtil.isProtectedFromHit(player,entity)) {
+                    VPUtil.suckEntity(entity, player, 2, true);
+                    dudes++;
+                }
             }
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
         }
+        if(dudes >= 3)
+            addRadiance(25,stack);
         super.doSpecial(seconds, player, level, stack);
     }
 

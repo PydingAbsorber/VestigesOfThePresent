@@ -60,8 +60,11 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void addRadiance(float number, ItemStack stack){
-        if(ultimateCharges(stack) > currentChargeUltimate(stack))
-            stack.getOrCreateTag().putFloat("VPRadiance", Math.min(number+getRadiance(stack),getMaxRadiance(stack)));
+        if(ultimateCharges(stack) > currentChargeUltimate(stack)) {
+            if(isStellar(stack))
+                number *= 1.2f;
+            stack.getOrCreateTag().putFloat("VPRadiance", Math.min(number + getRadiance(stack), getMaxRadiance(stack)));
+        }
     }
 
     public void setRadiance(float number, ItemStack stack) {
@@ -218,6 +221,7 @@ public class Vestige extends Item implements ICurioItem {
         //setUltimateCdBase(ultimateCd * 20, stack);
         //setUltimateCd(ultimateCd * 20, stack);
         setMaxRadianceBase(radiance,stack);
+        setMaxRadiance(radiance,stack);
         setSpecialCharges(specialCharges, stack);
         setSpecialCdBase(specialCd * 20, stack);
         setSpecialCd(specialCd * 20, stack);
@@ -505,23 +509,25 @@ public class Vestige extends Item implements ICurioItem {
         }
         /*if (cdUltimateActive(stack) > 0) {
             setCdUltimateActive(cdUltimateActive(stack)-1,stack);
-            if(curseShieldModifier != 0 && VPUtil.getShield(playerServer) > 10 && VPUtil.getOverShield(playerServer) > 10 && cdUltimateActive(stack) > 0){
-                setCdUltimateActive(cdUltimateActive(stack)-1,stack);
-                playerServer.getPersistentData().putFloat("VPShield", VPUtil.getShield(playerServer)-VPUtil.getShield(playerServer)*curseShieldModifier);
-                playerServer.getPersistentData().putFloat("VPOverShield", VPUtil.getOverShield(playerServer)-VPUtil.getOverShield(playerServer)*curseShieldModifier);
-                VPUtil.sync(playerServer);
-            }
             if ((this.cdUltimateActive(stack) > this.ultimateCd(stack) ? (this.cdUltimateActive(stack) % this.ultimateCd(stack) == 0) : (this.cdUltimateActive(stack) - (this.ultimateCd(stack)) == 0 || this.cdUltimateActive(stack) == 0)) && this.ultimateCharges(stack) > this.currentChargeUltimate(stack)) {
                 setCurrentChargeUltimate(currentChargeUltimate(stack)+1,stack);
                 if(playerServer != null)
                     ultimateRecharges(playerServer, stack);
             }
         }*/
-        if(ultimateCharges(stack) > currentChargeUltimate(stack) && getRadiance(stack) >= getMaxRadiance(stack)){
-            setRadiance(0,stack);
-            setCurrentChargeUltimate(currentChargeUltimate(stack)+1,stack);
-            if(playerServer != null)
-                ultimateRecharges(playerServer, stack);
+        if(ultimateCharges(stack) > currentChargeUltimate(stack)){
+            if(getRadiance(stack) >= getMaxRadiance(stack)) {
+                setRadiance(0, stack);
+                setCurrentChargeUltimate(currentChargeUltimate(stack) + 1, stack);
+                if (playerServer != null)
+                    ultimateRecharges(playerServer, stack);
+            }
+            else if(curseShieldModifier != 0 && VPUtil.getShield(playerServer) > 10 && VPUtil.getOverShield(playerServer) > 10){
+                addRadiance(1,stack);
+                playerServer.getPersistentData().putFloat("VPShield", VPUtil.getShield(playerServer)-VPUtil.getShield(playerServer)*curseShieldModifier);
+                playerServer.getPersistentData().putFloat("VPOverShield", VPUtil.getOverShield(playerServer)-VPUtil.getOverShield(playerServer)*curseShieldModifier);
+                VPUtil.sync(playerServer);
+            }
         }
         if((currentChargeUltimate(stack) == 0) && (currentChargeSpecial(stack) == 0 && cdSpecialActive(stack) == 0) && specialCdBase == 0) {
             setTime(0, stack);
@@ -606,7 +612,6 @@ public class Vestige extends Item implements ICurioItem {
                         .append(Component.literal(" " + ultCharges ).withStyle(color))
                         .append(Component.translatable("vp.radiance").withStyle(color))
                         .append(Component.literal(" " + radiance).withStyle(color))
-                        .append(Component.translatable("vp.seconds").withStyle(color))
                         .append(Component.literal(" "))
                         .append(Component.translatable("vp.activation"))
                         .append(Component.literal(" " + secondKey)));
@@ -1004,11 +1009,11 @@ public class Vestige extends Item implements ICurioItem {
             setCurrentChargeUltimate(0, stack);
             setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
             setRadiance(0,stack);
-            //setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
         }
         VPUtil.vestigeNullify(player);
         applyBonus(stack,player);
     }
+
     /*@Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         Player player = (Player) slotContext.entity();

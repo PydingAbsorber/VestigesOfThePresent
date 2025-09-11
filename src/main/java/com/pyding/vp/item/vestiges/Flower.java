@@ -18,7 +18,7 @@ public class Flower extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(16, ChatFormatting.DARK_GREEN, 2, 10, 1, 30, 5, 30, hasDamage, stack);
+        super.dataInit(16, ChatFormatting.DARK_GREEN, 2, 10, 1, 35, 5, 30, hasDamage, stack);
     }
 
     @Override
