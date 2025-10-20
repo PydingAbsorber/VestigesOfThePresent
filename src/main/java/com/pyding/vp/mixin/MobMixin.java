@@ -1,7 +1,9 @@
 package com.pyding.vp.mixin;
 
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.warden.Warden;
@@ -33,5 +35,11 @@ public abstract class MobMixin {
         else if(cir.getReturnValue() instanceof Player player && mob.getPersistentData().hasUUID("VPPlayer") && player.getUUID().compareTo(mob.getPersistentData().getUUID("VPPlayer")) == 0){
             cir.setReturnValue(null);
         }
+    }
+
+    @Inject(method = "getEquipmentDropChance",at = @At("HEAD"),cancellable = true, require = 1)
+    private void getEquipmentDropChanceMixin(EquipmentSlot p_21520_, CallbackInfoReturnable<Float> cir){
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.cruelMode.get())
+            cir.setReturnValue(0f);
     }
 }

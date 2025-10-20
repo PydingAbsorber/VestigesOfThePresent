@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 public class SillySeashell extends WaterAnimal {
@@ -188,21 +189,23 @@ public class SillySeashell extends WaterAnimal {
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE_COLUMN_UP,20,4,0.2f);
         for(LivingEntity entity: VPUtil.getEntitiesAround(this,40,40,40,false)){
             if(entity instanceof Player player){
+                Random random = new Random();
+                if(random.nextDouble() < VPUtil.getChance(0.05,player))
+                    VPUtil.giveStack(new ItemStack(ModItems.PEARL.get()),player);
+                VPUtil.giveStack(new ItemStack(ModItems.SEASHELL.get()),player);
+                VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),random.nextInt(4)+4),player);
+                for(int i = 0; i < 20; i++){
+                    VPUtil.giveStack(VPUtil.getFishDrop(player),player);
+                }
+                List<EntityType> list = new ArrayList<>();
+                if(random.nextDouble() < VPUtil.getChance(0.1,player)){
+                    list.addAll(VPUtil.bossList);
+                }
+                else list.addAll(VPUtil.getEntitiesList());
+                if(list.get(random.nextInt(list.size())).create(player.getCommandSenderWorld()) instanceof LivingEntity livingEntity)
+                    VPUtil.dropEntityLoot(livingEntity,player,false);
+
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    if(random.nextDouble() < VPUtil.getChance(0.05,player))
-                        VPUtil.giveStack(new ItemStack(ModItems.PEARL.get()),player);
-                    VPUtil.giveStack(new ItemStack(ModItems.SEASHELL.get()),player);
-                    VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),random.nextInt(4)+4),player);
-                    for(int i = 0; i < 20; i++){
-                        VPUtil.giveStack(VPUtil.getFishDrop(player),player);
-                    }
-                    List<EntityType> list = new ArrayList<>();
-                    if(random.nextDouble() < VPUtil.getChance(0.1,player)){
-                        list.addAll(VPUtil.bossList);
-                    }
-                    else list.addAll(VPUtil.getEntitiesList());
-                    if(list.get(random.nextInt(list.size())).create(player.getCommandSenderWorld()) instanceof LivingEntity livingEntity)
-                        VPUtil.dropEntityLoot(livingEntity,player,false);
                     cap.setChallenge(23,player);
                 });
             }

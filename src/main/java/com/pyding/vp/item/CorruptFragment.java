@@ -52,36 +52,7 @@ public class CorruptFragment extends Item{
         if(VPUtil.getCurseAmount(player.getOffhandItem()) > 0 || player.getCommandSenderWorld().isClientSide() || hand == InteractionHand.OFF_HAND){
             return super.use(level, player, hand);
         }
-        if(VPUtil.isEnchantable(player.getOffhandItem())){
-            ItemStack itemStack = player.getOffhandItem();
-            Random random = new Random();
-            if(random.nextDouble() < VPUtil.getChance(0.8,player)){
-                List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
-                list.removeIf(Enchantment::isCurse);
-                Enchantment enchantment = list.get(random.nextInt(list.size()));
-                if (itemStack.getEnchantmentLevel(enchantment) >= enchantment.getMaxLevel())
-                    return super.use(level, player, hand);
-                int lvl = itemStack.getEnchantmentLevel(enchantment);
-                if (lvl > 0) {
-                    Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
-                    enchantments.remove(enchantment);
-                    EnchantmentHelper.setEnchantments(enchantments, itemStack);
-                    if (lvl + 1 > enchantment.getMaxLevel())
-                        lvl--;
-                }
-                itemStack.enchant(enchantment, 1 + lvl);
-            } else {
-                List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
-                list.removeIf(enchantment -> !enchantment.isCurse());
-                Enchantment curse = list.get(new Random().nextInt(list.size()));
-                itemStack.enchant(curse,curse.getMaxLevel());
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.setChallenge(7,player);
-                });
-            }
-            player.getMainHandItem().split(1);
-            player.getPersistentData().putBoolean("VPBlockHand",true);
-        }
+        VPUtil.useOrb(player.getOffhandItem(),player.getMainHandItem(),player);
         return super.use(level, player, hand);
     }
 

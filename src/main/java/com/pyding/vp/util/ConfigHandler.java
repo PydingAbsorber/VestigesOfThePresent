@@ -98,6 +98,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue eventMode;
         public final ForgeConfigSpec.DoubleValue rareItemChance;
         public final ForgeConfigSpec.DoubleValue empoweredChance;
+        public final ForgeConfigSpec.DoubleValue healthBoost;
         public final ForgeConfigSpec.ConfigValue debuffBlacklist;
         public final ForgeConfigSpec.ConfigValue cloneBlackList;
         public final ForgeConfigSpec.ConfigValue cloneWhiteList;
@@ -120,6 +121,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue lore;
         public final ForgeConfigSpec.DoubleValue powerBoost;
         public final ForgeConfigSpec.DoubleValue expMultiplier;
+        public final ForgeConfigSpec.DoubleValue anomalyPlayerTeleportChance;
 
         public Common(ForgeConfigSpec.Builder builder) {
             lore = builder.comment("Set false to disable chat messages with Lore").define("lore", true);
@@ -145,6 +147,8 @@ public class ConfigHandler {
             overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.25, 0.1, 2100000000);
             healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
             expMultiplier = builder.comment("Exp base multiplier from bosses in Cruel mode").defineInRange("expMultiplier", 10d, 1d, 2100000000);
+            empoweredChance = builder.comment("Chance to spawn Empowered mob in Hardcore mode").defineInRange("empoweredChance", 0.01, 0, 2100000000);
+            healthBoost = builder.comment("Health Boost for all monsters in Cruel Mode. Leave at 1.0 to disable.").defineInRange("healthBoost", 2.0, 0, 2100000000);
 
             nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareAllBoxChance", 1d, 0, 1);
             nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
@@ -195,7 +199,7 @@ public class ConfigHandler {
             chaostime = builder.comment("Minutes before Chaos Core challenge reset").defineInRange("chaostime", 15, 1, 2100000000);
             eatingMinutes = builder.comment("Minutes for fish to fed up").defineInRange("eatingMinutes", 1, 1, 2100000000);
 
-            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper, luxtructosaurus,atlatitan,forsaken,void_worm,");
+            bosses = builder.comment("additional bosses: ").define("bosses","hullbreaker,tremorzilla,nucleeper,luxtructosaurus,atlatitan,forsaken,void_worm,");
             blacklistBosses = builder.comment("blacklist for bosses: ").define("blacklistBosses","void_worm_part,");
             repairObjects = builder.comment("repairObjectsId: ").define("repairObjects","mending,repair,unbreak,restore,heal,ingot");
             repairBlackList = builder.comment("repairBlackListId: ").define("repairBlackList","");
@@ -211,7 +215,6 @@ public class ConfigHandler {
             unlockHp = builder.comment("For servers with maxed out desync and hp lock to 2048 or if you just have problems with MaxHp.").define("unlockHp", false);
             eventMode = builder.comment("Event mode that disables all teleportations and fly.").define("eventMode", false);
             rareItemChance = builder.comment("Chance for Item to define as rare for Prism challenge. For example carrot has 0.025 chance to drop from zobmie").defineInRange("rareItemChance", 0.025d, 0.0001, 1);
-            empoweredChance = builder.comment("Chance to spawn Empowered mob in Hardcore mode").defineInRange("empoweredChance", 0.001, 0, 2100000000);
             debuffBlacklist = builder.comment("Defines blacklist for random potion effects as from Heirloom's Special: ").define("debuffBlacklist","crystallized,");
             cloneBlackList = builder.comment("Defines blacklist for items that cannot be cloned with Celestial Mirror: ").define("cloneBlackList2","bundle,pouch,bag,backpack,chest,box,pocket,store,storage,satchel,knapsack,cargo,vault,locker,crate,trunk,barrel,bin,safe,drawer,compartment,cache,case,basket,haversack,receptacle,container,ghostly_pickaxe,soul_gem,horse_flute,sack,broom,jar,bottle");
             cloneWhiteList = builder.comment("Defines whitelist for items that can be cloned with Celestial Mirror with highest priority. F.e. chestplate to not be blocked by chest in blacklist: ").define("cloneWhiteList","chestplate,box_eggs,box_saplings,item.vp.box,item.vp.mystery_chest");
@@ -230,6 +233,7 @@ public class ConfigHandler {
             mysteryChestChallengeChance = builder.comment("Chance to obtain Mystery Chest from challenge").defineInRange("mysteryChestChallengeChance", 0.33d, 0, 1);
             mineralCluster = builder.comment("Id of items that drop of Mineral Cluster should contain: ").define("mineralClusterList","_gem_,mineral,diamond,emerald,jadeite,quartz,feldspar,mica,fluorite,halite,gypsum,_talc,graphite,pyrite,_galena,hematite,magnetite,bauxite,corundum,sapphire,ruby,topaz,amethyst,citrine,agate,jasper,opal,garnet,zircon,olivine,tourmaline,beryl,aquamarine,biotite,muscovite,orthoclase,plagioclase,amphibole,pyroxene,apatite,barite,sulfur,malachite,azurite,bornite,chalcopyrite,sphalerite,cassiterite,rutile,ilmenite,chromite,kaolinite,serpentine,epidote,staurolite,kyanite,andalusite,sillimanite");
             mineralClusterBlacklist = builder.comment("Black list for items in Mineral Cluster: ").define("mineralClusterBlacklist","");
+            anomalyPlayerTeleportChance = builder.comment("Chance to teleport to random player on the server from Teleportation Anomaly's Stellar Ultimate").defineInRange("anomalyPlayerTeleportChance", 0.05d, 0, 1);
         }
 
         public int getChallengeReduceByNumber(int number) {

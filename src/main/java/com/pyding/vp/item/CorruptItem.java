@@ -35,43 +35,7 @@ public class CorruptItem extends Item{
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if(!player.getOffhandItem().getOrCreateTag().getBoolean("VPCursed")){
-            if(VPUtil.isEnchantable(player.getOffhandItem()) && !level.isClientSide()){
-                int modifier = 2;
-                if(VPUtil.hasVestige(ModItems.BOOK.get(),player))
-                    modifier *= 2;
-                ItemStack itemStack = player.getOffhandItem();
-                List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
-                list.removeIf(enchantment -> !enchantment.isCurse());
-                Enchantment curse = list.get(new Random().nextInt(list.size()));
-                itemStack.enchant(curse,curse.getMaxLevel()*modifier);
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.setChallenge(7,player);
-                });
-                list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
-                list.removeIf(Enchantment::isCurse);
-                int attempts = 0;
-                while (attempts < 5) {
-                    int random = new Random().nextInt(list.size());
-                    Enchantment enchantment = list.get(random);
-                    int original = itemStack.getEnchantmentLevel(enchantment);
-                    if(original > 0) {
-                        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(itemStack);
-                        enchantments.remove(enchantment);
-                        EnchantmentHelper.setEnchantments(enchantments, itemStack);
-                    }
-                    itemStack.enchant(enchantment, enchantment.getMaxLevel() * modifier + original);
-                    attempts++;
-                }
-                itemStack.getOrCreateTag().putBoolean("VPCursed",true);
-                player.getMainHandItem().split(1);
-                player.getPersistentData().putBoolean("VPBlockHand",true);
-            }
-            if(player.getOffhandItem().getItem() instanceof Vestige){
-                if(VPUtil.curseVestige(player.getOffhandItem(),new Random().nextInt(Vestige.maxCurses)+1,player))
-                    player.getMainHandItem().split(1);
-            }
-        }
+        VPUtil.useOrb(player.getOffhandItem(),player.getMainHandItem(),player);
         return super.use(level, player, hand);
     }
 

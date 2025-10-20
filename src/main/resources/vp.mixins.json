@@ -6,6 +6,7 @@
   "refmap": "vp.refmap.json",
   "verbose": true,
   "mixins": [
+    "AbstractContainerMixin",
     "AttributesUnlock",
     "BucketMixin",
     "BucketVzlom",
@@ -47,6 +48,7 @@
     "VzlomJopiMixin"
   ],
   "client": [
+    "AbstractContainerScreenMixin",
     "JukeboxMixin",
     "LevelRendererMixin",
     "VPLocalPlayerMixin"

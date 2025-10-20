@@ -36,6 +36,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -54,6 +55,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -552,6 +554,10 @@ public class VPUtil {
             if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
                 percentBonus += 600;
             percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
+            if(hasVestige(ModItems.ANOMALY.get(),player)) {
+                ItemStack stack = getVestigeStack(Anomaly.class, player);
+                percentBonus += stack.getOrCreateTag().getInt("VPTeleports")*20;
+            }
         }
         else if(type == 3) {
             if(VPUtil.getSet(player) == 4)
@@ -2794,6 +2800,15 @@ public class VPUtil {
         }
         livingEntity.getPersistentData().putBoolean("VPEmpowered",true);
         syncEntity(livingEntity);
+        for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
+            if (!livingEntity.getItemBySlot(equipmentslot).isEmpty()) {
+                ItemStack stack = livingEntity.getItemBySlot(equipmentslot);
+                List<EnchantmentInstance> possible = EnchantmentHelper.selectEnchantment(RandomSource.create(), stack, 30, false);
+                for(EnchantmentInstance enchantment : possible) {
+                    livingEntity.getItemBySlot(equipmentslot).enchant(enchantment.enchantment, enchantment.level);
+                }
+            }
+        }
     }
 
     public static void nightmareTickEvent(LivingEntity entity){
@@ -3791,6 +3806,249 @@ public class VPUtil {
                 player.getPersistentData().putInt("VPRadianceUsed",1);
             }
             vestige.addRadiance(number,stack);
+        }
+    }
+
+    public static List<ArmorItem> armorList = new ArrayList<>();
+
+    public static List<ArmorItem> getArmorList(){
+        if(armorList.isEmpty()){
+            for(Item item: getItems()){
+                if(item instanceof ArmorItem armorItem)
+                    armorList.add(armorItem);
+            }
+        }
+        return armorList;
+    }
+
+    public static ArmorItem getRandomArmor(EquipmentSlot slot){
+        Random random = new Random();
+        ArmorItem armor = getArmorList().get(random.nextInt(getArmorList().size()-1));
+        while(armor.getEquipmentSlot() != slot){
+            armor = getArmorList().get(random.nextInt(getArmorList().size()-1));
+        }
+        return armor;
+    }
+
+    public static void useOrb(ItemStack stack, ItemStack orb, Player player){
+        if(stack.isEmpty() || orb.isEmpty())
+            return;
+        if(orb.getItem() instanceof CorruptFragment){
+            if(isEnchantable(stack) && getCurseAmount(stack) == 0){
+                Random random = new Random();
+                if(random.nextDouble() < getChance(0.8,player)){
+                    List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                    list.removeIf(Enchantment::isCurse);
+                    Enchantment enchantment = list.get(random.nextInt(list.size()));
+                    if (stack.getEnchantmentLevel(enchantment) >= enchantment.getMaxLevel())
+                        return;
+                    int lvl = stack.getEnchantmentLevel(enchantment);
+                    if (lvl > 0) {
+                        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+                        enchantments.remove(enchantment);
+                        EnchantmentHelper.setEnchantments(enchantments, stack);
+                        if (lvl + 1 > enchantment.getMaxLevel())
+                            lvl--;
+                    }
+                    stack.enchant(enchantment, 1 + lvl);
+                } else {
+                    List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                    list.removeIf(enchantment -> !enchantment.isCurse());
+                    Enchantment curse = list.get(new Random().nextInt(list.size()));
+                    stack.enchant(curse,curse.getMaxLevel());
+                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                        cap.setChallenge(7,player);
+                    });
+                }
+                orb.split(1);
+                player.getPersistentData().putBoolean("VPBlockHand",true);
+            }
+        }
+        else if(orb.getItem() instanceof CorruptItem){
+            if(!stack.getOrCreateTag().getBoolean("VPCursed")){
+                if(VPUtil.isEnchantable(stack)){
+                    int modifier = 2;
+                    if(VPUtil.hasVestige(ModItems.BOOK.get(),player))
+                        modifier *= 2;
+                    List<Enchantment> list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                    list.removeIf(enchantment -> !enchantment.isCurse());
+                    Enchantment curse = list.get(new Random().nextInt(list.size()));
+                    stack.enchant(curse,curse.getMaxLevel()*modifier);
+                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                        cap.setChallenge(7,player);
+                    });
+                    list = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                    list.removeIf(Enchantment::isCurse);
+                    int attempts = 0;
+                    while (attempts < 5) {
+                        int random = new Random().nextInt(list.size());
+                        Enchantment enchantment = list.get(random);
+                        int original = stack.getEnchantmentLevel(enchantment);
+                        if(original > 0) {
+                            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+                            enchantments.remove(enchantment);
+                            EnchantmentHelper.setEnchantments(enchantments, stack);
+                        }
+                        stack.enchant(enchantment, enchantment.getMaxLevel() * modifier + original);
+                        attempts++;
+                    }
+                    stack.getOrCreateTag().putBoolean("VPCursed",true);
+                    orb.split(1);
+                    player.getPersistentData().putBoolean("VPBlockHand",true);
+                }
+                if(stack.getItem() instanceof Vestige){
+                    if(VPUtil.curseVestige(stack,new Random().nextInt(Vestige.maxCurses)+1,player))
+                        orb.split(1);
+                }
+            }
+        }
+        else if(orb.getItem() instanceof ChaosOrb){
+            if(isEnchantable(stack) && !stack.getAllEnchantments().isEmpty()){
+                Random random = new Random();
+                List<Enchantment> cursedList = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                cursedList.removeIf(enchantment -> !enchantment.isCurse());
+                List<Enchantment> goodEnchant = new ArrayList<>(ForgeRegistries.ENCHANTMENTS.getValues());
+                goodEnchant.removeIf(Enchantment::isCurse);
+                Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+                for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                    if(enchantment.isCurse())
+                        continue;
+                    Enchantment randomEnchant = goodEnchant.get(random.nextInt(goodEnchant.size()));
+                    int lvl = enchantments.get(enchantment);
+                    if(enchantments.containsKey(randomEnchant)){
+                        lvl = lvl+enchantments.get(randomEnchant);
+                        enchantments.remove(enchantment);
+                        enchantments.remove(randomEnchant);
+                        enchantments.put(randomEnchant, lvl);
+                    }
+                    else {
+                        enchantments.remove(enchantment);
+                        enchantments.put(randomEnchant, lvl);
+                    }
+                }
+                double negativeChance = 0.02 * (cursedList.size()+1);
+                if(random.nextDouble() < negativeChance) {
+                    int count = 0;
+                    int numba = random.nextInt(enchantments.size());
+                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                        if(count == numba){
+                            int original = enchantments.get(enchantment);
+                            if(original > 0)
+                                original *= -1;
+                            enchantments.remove(enchantment);
+                            enchantments.put(enchantment, original);
+                            break;
+                        }
+                        count++;
+                    }
+                }
+                double splitChance = 0.05;
+                if(random.nextDouble() < getChance(splitChance,player)) {
+                    int lvl = 0;
+                    int count = 0;
+                    int numba = random.nextInt(enchantments.size());
+                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                        if(count == numba){
+                            lvl = enchantments.get(enchantment);
+                            enchantments.remove(enchantment);
+                            break;
+                        }
+                        count++;
+                    }
+                    while (lvl > 0){
+                        count = 0;
+                        numba = random.nextInt(enchantments.size());
+                        for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                            if(count == numba){
+                                int original = enchantments.get(enchantment);
+                                enchantments.remove(enchantment);
+                                enchantments.put(enchantment, original+1);
+                                lvl--;
+                            }
+                            count++;
+                        }
+                    }
+                    while (lvl < 0){
+                        count = 0;
+                        numba = random.nextInt(enchantments.size());
+                        for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                            if(count == numba){
+                                int original = enchantments.get(enchantment);
+                                enchantments.remove(enchantment);
+                                enchantments.put(enchantment, original-1);
+                                lvl++;
+                            }
+                            count++;
+                        }
+                    }
+                }
+                double bookChance = 0.005;
+                if(random.nextDouble() < getChance(bookChance,player)) {
+                    int count = 0;
+                    int numba = random.nextInt(enchantments.size());
+                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
+                        if(count == numba){
+                            ItemStack enchantedBook = new ItemStack(Items.ENCHANTED_BOOK);
+                            EnchantmentHelper.setEnchantments(Map.of(enchantment, enchantments.get(enchantment)), enchantedBook);
+                            giveStack(enchantedBook,player);
+                        }
+                        count++;
+                    }
+                }
+                double bookEnchantChance = 0.001;
+                if(random.nextDouble() < getChance(bookEnchantChance,player)) {
+                    for (ItemStack inventoryStack : player.getInventory().items) {
+                        if (inventoryStack.getItem() instanceof EnchantedBookItem) {
+                            Map<Enchantment, Integer> bookEnchantments = EnchantmentHelper.getEnchantments(inventoryStack);
+                            for (Map.Entry<Enchantment, Integer> entry : bookEnchantments.entrySet()) {
+                                Enchantment enchantment = entry.getKey();
+                                int bookLevel = entry.getValue();
+                                int lvl = enchantments.get(enchantment);
+                                if(lvl > 0){
+                                    lvl = lvl+bookLevel;
+                                    enchantments.remove(enchantment);
+                                    enchantments.put(enchantment, lvl);
+                                }
+                                else {
+                                    enchantments.put(enchantment, bookLevel);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                EnchantmentHelper.setEnchantments(enchantments, stack);
+                orb.split(1);
+                player.getPersistentData().putBoolean("VPBlockHand",true);
+            } else if(stack.getItem() instanceof Vestige vestige && getVestigeCurse(stack) != 0){
+                if(getVestigeCurse(stack) == 6)
+                    Vestige.decreaseStars(stack);
+                if(Math.random() < 0.05) {
+                    Vestige.increaseStars(stack,player);
+                    stack.getOrCreateTag().putInt("VPCursed",6);
+                } else stack.getOrCreateTag().putInt("VPCursed",new Random().nextInt(Vestige.maxCurses)+1);
+                orb.split(1);
+            } else if(stack.getItem() instanceof Accessory accessory){
+                Random random = new Random();
+                int lvl = accessory.getLvl(stack);
+                if(new Random().nextDouble() < getChance(0.03,player)){
+                    stack.getOrCreateTag().putInt("VPType",random.nextInt(5)+1);
+                }
+                int type = stack.getOrCreateTag().getInt("VPType");
+                stack.getOrCreateTag().putFloat("VPStat",0);
+                float stat = 0;
+                switch (type) {
+                    case 1 -> stat = (float) (getChance(3*(lvl+1),player)+1*(lvl+1));
+                    case 2 -> stat = (float) (getChance(4*(lvl+1),player)+2*(lvl+1));
+                    case 3 -> stat = (float) (getChance(10*(lvl+1),player)+5*(lvl+1));
+                    case 4 -> stat = (float) (getChance(6*(lvl+1),player)+3*(lvl+1));
+                    case 5 -> stat = (float) (getChance(8*(lvl+1),player)+4*(lvl+1));
+                    default -> {
+                    }
+                }
+                stack.getOrCreateTag().putFloat("VPStat", stat);
+                orb.split(1);
+            }
         }
     }
 }

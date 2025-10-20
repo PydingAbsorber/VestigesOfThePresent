@@ -301,6 +301,12 @@ public class EventHandler {
                     player.getPersistentData().putFloat("VPDamageReduced", event.getAmount() + player.getPersistentData().getFloat("VPDamageReduced"));
                     event.setAmount(0);
                 }
+                if(VPUtil.hasVestige(ModItems.ANOMALY.get(),player)){
+                    ItemStack stack = VPUtil.getVestigeStack(Anomaly.class,player);
+                    int bonus = stack.getOrCreateTag().getInt("VPTeleports");
+                    event.setAmount(event.getAmount()*bonus);
+                    stack.getOrCreateTag().putInt("VPTeleports",0);
+                }
                 if (VPUtil.hasVestige(ModItems.EARS.get(), player)) {
                     float armor = (float) player.getArmorValue();
                     float chance = VPUtil.scalePower(Math.min(ConfigHandler.COMMON.catEvadeCap.get(), armor) / 100,8,player);
@@ -1044,6 +1050,10 @@ public class EventHandler {
                         challange.setChallenge(10, player);
                 }
             });
+            if(VPUtil.hasVestige(ModItems.ANOMALY.get(),player)){
+                ItemStack stack = VPUtil.getVestigeStack(Anomaly.class,player);
+                stack.getOrCreateTag().putInt("VPTeleports",Math.min(10,stack.getOrCreateTag().getInt("VPTeleports")+1));
+            }
         }
     }
 
@@ -1798,12 +1808,24 @@ public class EventHandler {
         }
         else if(event.getEntity() instanceof LivingEntity entity) {
             VPUtil.modifySoulIntegrity(entity, 99999);
-            if (ConfigHandler.COMMON.cruelMode.get()) {
+            if (ConfigHandler.COMMON.cruelMode.get() && !entity.level().isClientSide()) {
                 RandomSource random = entity.getRandom();
+                if(ConfigHandler.COMMON.healthBoost.get() > 1)
+                    entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.randomUUID(), (float)(ConfigHandler.COMMON.healthBoost.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:cruel_health"));
                 if (VPUtil.isBoss(entity))
                     VPUtil.spawnBoss(entity);
-                else if (entity instanceof Monster && random.nextDouble() < ConfigHandler.COMMON.empoweredChance.get())
-                    VPUtil.boostEntity(entity, 5, entity.getHealth() * 3 * (float) (0.5 + 4 * random.nextDouble()), entity.getHealth() * (float) (0.5 + 4 * random.nextDouble()));
+                else if (entity instanceof Monster monster) {
+                    double chance = ConfigHandler.COMMON.empoweredChance.get();
+                    if(random.nextDouble() < (chance <= 0.01 ? chance*10 : chance * (1 + Math.exp(-chance)))) {
+                        for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
+                            if (equipmentslot.getType() == EquipmentSlot.Type.ARMOR && monster.getItemBySlot(equipmentslot).isEmpty())
+                                monster.setItemSlot(equipmentslot, new ItemStack(VPUtil.getRandomArmor(equipmentslot)));
+                        }
+                    }
+                    if(random.nextDouble() < chance) {
+                        VPUtil.boostEntity(entity, 5, entity.getHealth() * 3 * (float) (0.5 + 4 * random.nextDouble()), entity.getHealth() * (float) (0.5 + 4 * random.nextDouble()));
+                    }
+                }
             }
         }
     }

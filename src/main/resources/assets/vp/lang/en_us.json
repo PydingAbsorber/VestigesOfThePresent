@@ -273,7 +273,7 @@
   "vp.ultimate.9": "Spends all gold in Passive and with a 0.01% chance per nugget of gold permanently increases luck attribute of this Vestige by 1.",
   "vp.get.9": "When eating enchanted golden apple there is a 10% chance to progress challenge. \nChance can be increased by 1% for each golden item crafted(non repeatable). \nCurrent chance: ",
 
-  "vp.passive.10": "Using an Eye of Ender teleports self and nearest creatures within 4 blocks to the return point. \nIf return doesn't exist then teleports to respawn point.",
+  "vp.passive.10": "Any teleport gives +100% damage and +20% Special damage for next attack. (stacks up to 10)\nUsing an Eye of Ender teleports self and nearest creatures within 4 blocks to the return point. \nIf return doesn't exist then teleports to respawn point.",
   "vp.special.10": "Special was pressed with Eye of Ender in hands: setting the return point. \nIn other cases: teleport to the creature by eye sight, deal 400% damage and prevent teleportation for 30 sec.",
   "vp.ultimate.10": "Teleport to a random world, where you've been at least once, at random coordinates within world's borders x, z and y 0-250.",
   "vp.get.10": "Teleport with Ender Pearl in the same place Enderman teleports in the same second.",

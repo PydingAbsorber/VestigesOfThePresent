@@ -28,7 +28,7 @@ public class Anomaly extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(10, ChatFormatting.LIGHT_PURPLE, 2, 60, 1, 360, 30, 1, true, stack);
+        super.dataInit(10, ChatFormatting.LIGHT_PURPLE, 4, 15, 1, 360, 30, 1, true, stack);
     }
 
     @Override
@@ -45,10 +45,18 @@ public class Anomaly extends Vestige{
         } else {
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){
-                    serverPlayer.teleportTo(entity.getX()-1,entity.getY(),entity.getZ()-1);
-                    VPUtil.dealDamage(entity,player,player.damageSources().dragonBreath(),VPUtil.scalePower(400,10,player),2);
-                    VPUtil.addRadiance(this.getClass(),VPUtil.getRadianceSpecial(),player);
-                    VPUtil.antiTp(entity,seconds);
+                    double localX = player.getDeltaMovement().x * Math.cos(-player.getYRot()) - player.getDeltaMovement().z * Math.sin(-player.getYRot());
+                    if (localX < -0.1) {
+                        System.out.println("Moving LEFT");
+                    } else if (localX > 0.1) {
+                        System.out.println("Moving RIGHT");
+                    }
+                    else {
+                        serverPlayer.teleportTo(entity.getX() - 1, entity.getY(), entity.getZ() - 1);
+                        VPUtil.dealDamage(entity, player, player.damageSources().dragonBreath(), VPUtil.scalePower(400, 10, player), 2);
+                        VPUtil.addRadiance(this.getClass(), VPUtil.getRadianceSpecial(), player);
+                        VPUtil.antiTp(entity, seconds);
+                    }
                 }
             }
         }
@@ -61,7 +69,7 @@ public class Anomaly extends Vestige{
         if(player instanceof ServerPlayer serverPlayer){
             serverPlayer.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 Random random = new Random();
-                if(isStellar(stack) && (random.nextDouble() < VPUtil.getChance(VPUtil.scalePower(0.05,10,player),player))){
+                if(isStellar(stack) && (random.nextDouble() < VPUtil.scalePower(ConfigHandler.COMMON.anomalyPlayerTeleportChance.get(),10,player))){
                     int counter = 0;
                     for(ServerPlayer victim: serverPlayer.getCommandSenderWorld().getServer().getPlayerList().getPlayers()){
                         if(victim != serverPlayer){
