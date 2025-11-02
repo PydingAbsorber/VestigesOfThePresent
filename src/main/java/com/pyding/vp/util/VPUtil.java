@@ -2788,7 +2788,7 @@ public class VPUtil {
         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:5"));
         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:6"));
         livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ATTACK_DAMAGE, UUID.randomUUID(), amount, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:4"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), scaleDown(amount,2), AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:7"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), scaleDown(amount,1.25f), AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:boss7:7"));
         livingEntity.setHealth(livingEntity.getMaxHealth());
         if(shields > 0) {
             livingEntity.getPersistentData().putFloat("VPShieldInit",shields);
@@ -3805,7 +3805,7 @@ public class VPUtil {
                 player.getPersistentData().putLong("VPRadianceTime",System.currentTimeMillis());
                 player.getPersistentData().putInt("VPRadianceUsed",1);
             }
-            vestige.addRadiance(number,stack);
+            vestige.addRadiance(number,stack,player);
         }
     }
 

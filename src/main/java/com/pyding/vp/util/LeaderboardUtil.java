@@ -7,9 +7,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,13 +27,7 @@ public class LeaderboardUtil {
     public static String getHost() {
         if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardHost.get().toString().isEmpty())
             return ConfigHandler.COMMON.leaderboardHost.get().toString();
-        return "95.153.100.57";
-    }
-
-    public static String getPort() {
-        if(ConfigHandler.COMMON_SPEC.isLoaded() && !ConfigHandler.COMMON.leaderboardPort.get().toString().isEmpty())
-            return ConfigHandler.COMMON.leaderboardPort.get().toString();
-        return "5242";
+        return "www.pyding.org";
     }
 
     public static String addNickname(Player player, UUID uuid, String password){
@@ -41,11 +37,21 @@ public class LeaderboardUtil {
         AtomicReference<String> message = new AtomicReference<>("");
         CompletableFuture.runAsync(() -> {
             try {
-                HttpClient client = HttpClient.newHttpClient();
+                HttpClient client = HttpClient.newBuilder()
+                        .version(HttpClient.Version.HTTP_2)
+                        .build();
+
+                String url = "https://" + getHost() +
+                        "/addNickname?nickName=" + URLEncoder.encode(player.getScoreboardName(), StandardCharsets.UTF_8) +
+                        "&UUID=" + uuid +
+                        "&version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8) +
+                        "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8);
+
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addNickname?nickName=" + player.getScoreboardName() + "&UUID=" + uuid.toString() + "&version=" + getCurrentVersion() + "&password=" +password))
+                        .uri(URI.create(url))
                         .GET()
                         .build();
+
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 message.set(response.body());
             } catch (Exception e) {
@@ -62,9 +68,16 @@ public class LeaderboardUtil {
         }
         CompletableFuture.runAsync(() -> {
             try {
-                HttpClient client = HttpClient.newHttpClient();
+                HttpClient client = HttpClient.newBuilder()
+                        .version(HttpClient.Version.HTTP_2)
+                        .build();
+                String url = "https://" + getHost() +
+                        "/login?nickName=" + URLEncoder.encode(player.getScoreboardName(), StandardCharsets.UTF_8) +
+                        "&UUID=" + URLEncoder.encode(uuid.toString(), StandardCharsets.UTF_8) +
+                        "&version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8) +
+                        "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8);
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/login?nickName=" + player.getScoreboardName() + "&UUID=" + uuid.toString() + "&version=" + getCurrentVersion() + "&password=" +password))
+                        .uri(URI.create(url))
                         .GET()
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -88,9 +101,16 @@ public class LeaderboardUtil {
         }
         CompletableFuture.runAsync(() -> {
             try {
-                HttpClient client = HttpClient.newHttpClient();
+                HttpClient client = HttpClient.newBuilder()
+                        .version(HttpClient.Version.HTTP_2)
+                        .build();
+                String url = "https://" + getHost() +
+                        "/addChallenge?UUID=" + URLEncoder.encode(player.getUUID().toString(), StandardCharsets.UTF_8) +
+                        "&id=" + id +
+                        "&version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8) +
+                        "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8);
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://" + getHost() + ":" + getPort() + "/addChallenge?UUID=" + player.getUUID().toString() + "&id=" + id + "&version=" + getCurrentVersion() + "&password=" +password))
+                        .uri(URI.create(url))
                         .GET()
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -120,12 +140,18 @@ public class LeaderboardUtil {
 
     public static String getInformation(UUID uuid){
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .build();
+            String url = "https://" + getHost() +
+                    "/getInformation?UUID=" + URLEncoder.encode(uuid.toString(), StandardCharsets.UTF_8) +
+                    "&version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getInformation?UUID=" + uuid.toString() + "&version=" + getCurrentVersion()))
+                    .uri(URI.create(url))
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,9 +161,13 @@ public class LeaderboardUtil {
 
     public static String getAll(){
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .build();
+            String url = "https://" + getHost() +
+                    "/getAll?version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getAll?version=" + getCurrentVersion()))
+                    .uri(URI.create(url))
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -150,9 +180,13 @@ public class LeaderboardUtil {
 
     public static String check(){
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .build();
+            String url = "https://" + getHost() +
+                    "/check?version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/check?version=" + getCurrentVersion()))
+                    .uri(URI.create(url))
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -199,9 +233,13 @@ public class LeaderboardUtil {
         if(topPlayers.isEmpty()) {
             CompletableFuture.runAsync(() -> {
                 try {
-                    HttpClient client = HttpClient.newHttpClient();
+                    HttpClient client = HttpClient.newBuilder()
+                            .version(HttpClient.Version.HTTP_2)
+                            .build();
+                    String url = "https://" + getHost() +
+                            "/getTop?version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8);
                     HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getTop?version=" + getCurrentVersion()))
+                            .uri(URI.create(url))
                             .GET()
                             .build();
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -221,9 +259,13 @@ public class LeaderboardUtil {
         if(specialPlayers.isEmpty()) {
             CompletableFuture.runAsync(() -> {
                 try {
-                    HttpClient client = HttpClient.newHttpClient();
+                    HttpClient client = HttpClient.newBuilder()
+                            .version(HttpClient.Version.HTTP_2)
+                            .build();
+                    String url = "https://" + getHost() +
+                            "/getSpecial?version=" + URLEncoder.encode(getCurrentVersion(), StandardCharsets.UTF_8);
                     HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getSpecial?version=" + getCurrentVersion()))
+                            .uri(URI.create(url))
                             .GET()
                             .build();
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -261,9 +303,13 @@ public class LeaderboardUtil {
     public static String getVersion(){
         try {
             String[] currentVersion = VestigesOfThePresent.VERSION.split(":");
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2)
+                    .build();
+            String url = "https://" + getHost() +
+                    "/getVersion?version=" + URLEncoder.encode(currentVersion[0], StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://" + getHost() + ":" + getPort() + "/getVersion?version=" + currentVersion[0]))
+                    .uri(URI.create(url))
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

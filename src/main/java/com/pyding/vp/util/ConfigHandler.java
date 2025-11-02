@@ -140,9 +140,9 @@ public class ConfigHandler {
             cruelMode = builder.comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("cruelMode", false);
             bossHP = builder.comment("Cruel mode Hp scale").defineInRange("bossHP", 1.5d, 1, 2100000000);
             bossAttack = builder.comment("Cruel mode attack scale").defineInRange("bossAttack", 3d, 1, 2100000000);
-            armorCruel = builder.comment("Cruel mode armor and armor toughness").defineInRange("armorCruel", 100, 1, 2100000000);
+            armorCruel = builder.comment("Cruel mode armor and armor toughness").defineInRange("armorCruel", 60, 1, 2100000000);
             damageCruel = builder.comment("Cruel mode damage percent from maximum hp when starving, drowning. Set 0 to disable.").defineInRange("damageCruel", 0.15d, 0, 2100000000);
-            absorbCruel = builder.comment("Cruel mode DPS cap from max health %, 0.1 is 10%").defineInRange("absorbCruel", 0.2, 0, Integer.MAX_VALUE);
+            absorbCruel = builder.comment("Cruel mode DPS cap from max health %, 0.1 is 10%").defineInRange("absorbCruel", 0.4, 0, Integer.MAX_VALUE);
             shieldCruel = builder.comment("Cruel mode Shield from hp percent 1 is 100%").defineInRange("shieldCruel", 0.75d, 0.1, 2100000000);
             overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.25, 0.1, 2100000000);
             healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);

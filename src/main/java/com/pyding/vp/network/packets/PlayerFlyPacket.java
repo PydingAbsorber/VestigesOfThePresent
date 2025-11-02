@@ -1,6 +1,9 @@
 package com.pyding.vp.network.packets;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
+import com.pyding.vp.client.LeaderboardScreen;
+import com.pyding.vp.client.NightmareScreen;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.VPUtil;
@@ -12,6 +15,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.biome.Biome;
@@ -110,6 +114,10 @@ public class PlayerFlyPacket {
         }
         else if(number == 13){
             ClientConfig.COMMON.renderSoulIntegrity.set(!ClientConfig.COMMON.renderSoulIntegrity.get());
+        }
+        else if(number == 14){
+            Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new LeaderboardScreen()));
+            //player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_OPEN.get(), SoundSource.MASTER, 1, 1, false);
         }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {

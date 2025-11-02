@@ -120,7 +120,7 @@ public class Lyra extends Vestige{
                 if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
                     continue;
                 entity.getPersistentData().putLong("VPOrchestra",System.currentTimeMillis()+seconds*2);
-                addRadiance(60,stack);
+                addRadiance(60,stack,player);
                 for(int i = 1; i < 9; i++){
                     entity.getPersistentData().putLong("VPLyra"+i,System.currentTimeMillis()+seconds*2);
                 }

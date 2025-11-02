@@ -60,6 +60,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.util.FakePlayer;
@@ -125,7 +126,7 @@ public class EventHandler {
                 List<ItemStack> list = VPUtil.getVestigeList(player);
                 for(ItemStack stack: list){
                     if(stack.getItem() instanceof Vestige vestige && vestige.damageType)
-                        vestige.addRadiance(1,stack);
+                        vestige.addRadiance(1,stack,player);
                 }
                 event.setAmount(event.getAmount()*(1+player.getPersistentData().getFloat("VPAcsDamage")/100));
                 if (event.getSource().is(DamageTypes.FALL) && player.getPersistentData().getInt("VPGravity") < 30 && random.nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.atlasChance.get(),player)) {
@@ -278,7 +279,9 @@ public class EventHandler {
                 if(astralAttacker && VPUtil.hasStellarVestige(ModItems.SOULBLIGHTER.get(),player))
                     VPUtil.modifySoulIntegrity(event.getEntity(),10);
                 if(ConfigHandler.COMMON.cruelMode.get() && ConfigHandler.COMMON.damageCruel.get() > 0 && ((event.getSource().is(DamageTypes.STARVE) && player.getFoodData().getFoodLevel() <= 1)
-                || (event.getSource().is(DamageTypes.DROWN) && player.getAirSupply() <= 1))){
+                || (event.getSource().is(DamageTypes.DROWN) && player.getAirSupply() <= 1)
+                || (event.getSource().is(DamageTypes.LAVA))
+                || (event.getSource().is(DamageTypes.FELL_OUT_OF_WORLD) && player.getY() <= -30))){
                     VPUtil.dealParagonDamage(player,player,(float)(player.getMaxHealth()*ConfigHandler.COMMON.damageCruel.get()),0,false);
                 }
                 double damagePlayer = player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
@@ -788,6 +791,9 @@ public class EventHandler {
                 if(VPUtil.hasVestige(ModItems.CROWN.get(), player) && entity.getPersistentData().getBoolean("VPCrownHitDeath")) {
                     VPUtil.addShield(player, VPUtil.scalePower(entity.getMaxHealth() / 100 * ConfigHandler.COMMON.crownShield.get(),2,player), true);
                     VPUtil.addOverShield(player, VPUtil.scalePower(entity.getMaxHealth() / 100 * ConfigHandler.COMMON.crownShield.get(),2,player), true);
+                }
+                if(VPUtil.hasStellarVestige(ModItems.TREASURE.get(), player) && entity.getPersistentData().getInt("VPDealType") == 2) {
+                    VPUtil.addShield(player, VPUtil.scalePower(entity.getMaxHealth() / 100 * entity.getArmorValue()*6,26,player), true);
                 }
                 if (VPUtil.hasVestige(ModItems.WHIRLPOOL.get(), player) && event.getSource().is(DamageTypeTags.IS_DROWNING)){
                     VPUtil.addShield(player,VPUtil.scalePower(20,24,player),true);
@@ -1850,6 +1856,33 @@ public class EventHandler {
                 }
             }
         });
+        Level level = player.level();
+        if(player.getPersistentData().getInt("VPBreak") > player.tickCount+2)
+            player.getPersistentData().putInt("VPBreak",player.tickCount);
+        if(player instanceof ServerPlayer serverPlayer && player.getPersistentData().getInt("VPBreak") < player.tickCount && player.getMainHandItem().getItem() instanceof PickaxeItem && VPUtil.hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = VPUtil.getVestigeStack(Treasure.class,player);
+            player.getPersistentData().putInt("VPBreak",player.tickCount);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack) && player.hasCorrectToolForDrops(event.getState())){
+                int r = (treasure.getRadius(stack))/2;
+                BlockState centerState = event.getState();
+                float hardness = centerState.getDestroySpeed(level, event.getPos());
+                for (int x = -r; x <= r; x++) {
+                    for (int y = -r; y <= r; y++) {
+                        for (int z = -r; z <= r; z++) {
+                            BlockPos pos = event.getPos().offset(x, y, z);
+                            if (level.isEmptyBlock(pos)) continue;
+                            BlockState state = level.getBlockState(pos);
+                            if (state.getDestroySpeed(level, pos) < 0) continue;
+                            if (Math.abs(state.getDestroySpeed(level, pos) - hardness) <= 1.5f) {
+                                if (player.hasCorrectToolForDrops(state)) {
+                                    serverPlayer.gameMode.destroyBlock(pos);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if((block instanceof FlowerBlock || block instanceof CropBlock) && VPUtil.hasVestige(ModItems.FLOWER.get(),player) && player.getRandom().nextDouble() < VPUtil.getChance(0.01,player)){
             VPUtil.giveStack(new ItemStack(ModItems.BOX_SAPLINGS.get()),player);
         }

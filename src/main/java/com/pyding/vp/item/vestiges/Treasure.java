@@ -1,17 +1,34 @@
 package com.pyding.vp.item.vestiges;
 
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.ParticlePacket;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.VPUtilParticles;
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Treasure extends Vestige{
@@ -21,18 +38,41 @@ public class Treasure extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(26, ChatFormatting.GOLD, 2, 60, 1, 50, 30, 10, hasDamage, stack);
+        super.dataInit(26, ChatFormatting.GOLD, 3, 60, 1, 145, 3, 30, hasDamage, stack);
     }
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
-
+        stack.getOrCreateTag().putInt("VPTicks",player.tickCount);
+        stack.getOrCreateTag().putInt("VPEarthquake",0);
         super.doSpecial(seconds, player, level, stack);
+    }
+
+    public int getRadius(ItemStack stack){
+        return Math.min(11,Math.max(1,stack.getOrCreateTag().getInt("VPRadius")));
+    }
+
+    @Override
+    public void whileSpecial(Player player, ItemStack stack) {
+        if((player.tickCount-stack.getOrCreateTag().getInt("VPTicks")) % 20 == 0){
+            int earthquake = stack.getOrCreateTag().getInt("VPEarthquake");
+            if(earthquake < 6)
+                stack.getOrCreateTag().putInt("VPEarthquake",earthquake+1);
+            for(LivingEntity entity: VPUtil.getEntitiesAround(player,Math.max(1,3 * earthquake),Math.max(1,earthquake),Math.max(1,3 * earthquake))){
+                if(entity != player) {
+                    VPUtil.dealDamage(entity,player,player.damageSources().inWall(),player.getArmorValue()*4,2,true);
+                }
+            }
+            if (player instanceof ServerPlayer serverPlayer) {
+                createOvalHoleUnderPlayer(serverPlayer, Math.max(1,3 * earthquake), Math.max(1,earthquake));
+            }
+        }
+        super.whileSpecial(player, stack);
     }
 
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
-
+        stack.getOrCreateTag().putInt("VPRadius",0);
         super.doUltimate(seconds, player, level, stack);
     }
 
@@ -79,5 +119,58 @@ public class Treasure extends Vestige{
             }
         }
         return ores;
+    }
+
+    public static void createOvalHoleUnderPlayer(ServerPlayer player, int radius, int depth) {
+        ServerLevel level = (ServerLevel) player.level();
+        BlockPos playerPos = player.blockPosition();
+        BlockPos center = playerPos.below();
+        int minX = center.getX() - radius;
+        int maxX = center.getX() + radius;
+        int minZ = center.getZ() - radius;
+        int maxZ = center.getZ() + radius;
+        int minY = Math.max(level.getMinBuildHeight(), center.getY() - depth);
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                if (isPointInEllipse(x, z, center.getX(), center.getZ(), radius, radius)) {
+                    digColumnToDepth(level, new BlockPos(x, center.getY(), z), minY,player);
+                }
+            }
+        }
+        spawnDestructionEffects(level, center, radius, player);
+    }
+
+    private static boolean isPointInEllipse(int x, int z, int centerX, int centerZ,
+                                            int radiusX, int radiusZ) {
+        double dx = (x - centerX) / (double) radiusX;
+        double dz = (z - centerZ) / (double) radiusZ;
+        return dx * dx + dz * dz <= 1.0;
+    }
+
+    private static void digColumnToDepth(ServerLevel level, BlockPos topPos, int minY,ServerPlayer serverPlayer) {
+        for (int y = topPos.getY(); y >= minY; y--) {
+            BlockPos currentPos = new BlockPos(topPos.getX(), y, topPos.getZ());
+            BlockState state = level.getBlockState(currentPos);
+            if (state.is(Blocks.BEDROCK)) {
+                break;
+            }
+            if (!state.isAir()) {
+                level.playSound(null, currentPos, state.getSoundType().getBreakSound(),
+                        SoundSource.BLOCKS, 0.8F, 1.0F);
+                serverPlayer.gameMode.destroyBlock(currentPos);
+            }
+        }
+    }
+
+    private static void spawnDestructionEffects(ServerLevel level, BlockPos center, int radius, ServerPlayer serverPlayer) {
+        for (int i = 0; i < 360; i += 15) {
+            double angle = Math.toRadians(i);
+            double x = center.getX() + radius * Math.cos(angle);
+            double z = center.getZ() + radius * Math.sin(angle);
+            level.sendParticles(ParticleTypes.POOF,
+                    x, center.getY() + 1, z,
+                    10, 0.5, 0.1, 0.5, 0.05);
+        }
+        PacketHandler.sendToClient(new ParticlePacket(666,center.getX(), center.getY(), center.getZ(), 0, 0, 0),serverPlayer);
     }
 }

@@ -31,7 +31,7 @@ public class TestItem extends Item {
         if(!VPUtil.getFirstVestige(player).isEmpty()) {
             ItemStack stack = VPUtil.getFirstVestige(player).get(0);
             if(stack.getItem() instanceof Vestige vestige){
-                vestige.addRadiance(10,stack);
+                vestige.addRadiance(10,stack,player);
             }
         }
         return super.use(level, player, p_41434_);

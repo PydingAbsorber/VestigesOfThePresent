@@ -95,7 +95,8 @@ public class VPCommands {
                         )
                         .then(Commands.literal("showAll")
                                 .executes(context -> {
-                                    LeaderboardUtil.printAll(context.getSource().getPlayerOrException());
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    PacketHandler.sendToClient(new PlayerFlyPacket(14),player);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )

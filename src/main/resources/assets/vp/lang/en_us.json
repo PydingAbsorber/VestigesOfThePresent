@@ -34,7 +34,7 @@
   "item.vp.flower": "§2Seven-coloured Flower",
   "item.vp.catalyst": "§aInfested Catalyst",
   "item.vp.archlinx": "§9Archlinx",
-  "item.vp.treasure": "§eTreasure Of The Mountain King (WIP)",
+  "item.vp.treasure": "§eTreasure Of The Mountain King",
   "item.vp.nightmare_devourer": "§4Nightmare Devourer",
   "item.vp.easter_egg": "§cEaster Egg",
   "item.vp.shard": "§dCrystallized §5Despair",
@@ -364,8 +364,8 @@
   "vp.damagetype.25": "freeze, magic",
 
   "vp.passive.26": "When mining ore, there's a 6% chance to obtain a Mineral Cluster. \nEvery 20 ore in inventory grants +1 armor, and every 32 minerals grants +1 armor density while holding a pickaxe.",
-  "vp.special.26": "For 30 seconds after activation, prevents the pickaxe from breaking and grants it +1 digging radius.",
-  "vp.ultimate.26": "Breaks all blocks in a large dome-shaped area, flattening the terrain. \nAffected Ore is broken with Fortune 10 and grants +10 Shields. \nAffected creatures take damage equal to 300% of armor and grant +50 Shields.",
+  "vp.special.26": "Causes an earthquake, breaking blocks and dealing damage equal to 400% of Armor in a gradually increasing radius.",
+  "vp.ultimate.26": "For the next 20 seconds, increases mining radius by +1 and Vestiges effect radius by +5% for every 10 Radiance obtained during the duration. (Max 10 stacks)",
   "vp.get.26": "Mine all ore in the modpack.",
   "vp.damagetype.26": "in-wall",
 
@@ -403,7 +403,7 @@
   "vp.stellar.23": "The Ultimate grants a chance to not consume charges for 30 seconds, which depends on the current depth. (1% for every 10 blocks, up to 30%)",
   "vp.stellar.24": "Ultimate: Depending on the damage that burst the bubble, the enemy is afflicted with a Deadly Omen for 20 seconds:\nMagic - forbids resurrection, Shields and OverShields obtaining, teleportation. \nWither - lowers regeneration by 50.\nVoid - reduces Max HP by 80%.\nParagon - Over Shields are reduced by 50% and take 800% more damage.\nOthers - increases incoming damage by 100%.",
   "vp.stellar.25": "Headshot kills steal 30% of all a creature’s attributes for 15 minutes.\nAttributes are replaced if the current ones are worse and refreshed if the current ones are better.",
-  "vp.stellar.26": "digging radius from Special increases by 1 for each 20 armor.",
+  "vp.stellar.26": "Creatures killed by Special gives Shields from 600% of their armor.",
 
   "vp.archlinx.easter": "Unleashed power: Steal 5% of Shields and Overshields on Headshots.",
 
@@ -515,6 +515,7 @@
   "vp.meme.23": "",
   "vp.meme.24": "",
   "vp.meme.25": "I'm playing on Linux btw!",
+  "vp.meme.26": "",
   "vp.meme.666": "My power is so great that I am able to reduce to atoms with a single glance.",
 
   "vp.condition": "How to obtain Radiance: ",

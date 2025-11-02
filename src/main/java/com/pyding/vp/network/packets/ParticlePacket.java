@@ -2,6 +2,8 @@ package com.pyding.vp.network.packets;
 
 import com.pyding.vp.util.VPUtilParticles;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
@@ -78,12 +80,12 @@ public class ParticlePacket {
     private static void handle2(int id, double x, double y, double z, double deltaX, double deltaY, double deltaZ,double color1,double color2,double color3) {
         ParticleOptions options = VPUtilParticles.getParticleById(id);
         if (options != null) {
-            Player player = Minecraft.getInstance().player;
+            Minecraft mc = Minecraft.getInstance();
+            Player player = mc.player;
             if (player != null) {
-                /*if(color1 != 0 || color2 != 0 || color3 != 0)
-                    player.getCommandSenderWorld().addParticle(new ColoredOrbParticleOptions(new Vec3(color1,color2,color3)), x, y, z, deltaX, deltaY, deltaZ);
-                else */
-                player.getCommandSenderWorld().addParticle(options, x, y, z, deltaX, deltaY, deltaZ);
+                if(id == 666){
+                    mc.particleEngine.crack(new BlockPos((int) x, (int) y, (int) z), Direction.UP);
+                } else player.getCommandSenderWorld().addParticle(options, x, y, z, deltaX, deltaY, deltaZ);
             }
         }
     }

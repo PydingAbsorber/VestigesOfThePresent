@@ -53,7 +53,7 @@ public class Anemoculus extends Vestige{
             VPUtil.spawnParticles(player, ParticleTypes.CLOUD,8,1,0,0.5,0,3,false);
         }
         if(dudes >= 3)
-            addRadiance(25,stack);
+            addRadiance(25,stack,player);
         super.doSpecial(seconds, player, level, stack);
     }
 

@@ -59,10 +59,14 @@ public class Vestige extends Item implements ICurioItem {
         return stack.getOrCreateTag().getFloat("VPRadiance");
     }
 
-    public void addRadiance(float number, ItemStack stack){
+    public void addRadiance(float number, ItemStack stack, Player player){
         if(ultimateCharges(stack) > currentChargeUltimate(stack)) {
             if(isStellar(stack))
                 number *= 1.2f;
+            if(number > 10 && VPUtil.hasVestige(ModItems.TREASURE.get(),player)) {
+                ItemStack vestige = VPUtil.getVestigeStack(Treasure.class,player);
+                vestige.getOrCreateTag().putInt("VPRadius", (int) (vestige.getOrCreateTag().getInt("VPRadius")+(number/10)));
+            }
             stack.getOrCreateTag().putFloat("VPRadiance", Math.min(number + getRadiance(stack), getMaxRadiance(stack)));
         }
     }
@@ -523,7 +527,7 @@ public class Vestige extends Item implements ICurioItem {
                     ultimateRecharges(playerServer, stack);
             }
             else if(curseShieldModifier != 0 && VPUtil.getShield(playerServer) > 10 && VPUtil.getOverShield(playerServer) > 10){
-                addRadiance(1,stack);
+                addRadiance(1,stack,playerServer);
                 playerServer.getPersistentData().putFloat("VPShield", VPUtil.getShield(playerServer)-VPUtil.getShield(playerServer)*curseShieldModifier);
                 playerServer.getPersistentData().putFloat("VPOverShield", VPUtil.getOverShield(playerServer)-VPUtil.getOverShield(playerServer)*curseShieldModifier);
                 VPUtil.sync(playerServer);
