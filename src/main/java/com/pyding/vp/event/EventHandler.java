@@ -1816,8 +1816,10 @@ public class EventHandler {
             VPUtil.modifySoulIntegrity(entity, 99999);
             if (ConfigHandler.COMMON.cruelMode.get() && !entity.level().isClientSide()) {
                 RandomSource random = entity.getRandom();
-                if(ConfigHandler.COMMON.healthBoost.get() > 1)
-                    entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.randomUUID(), (float)(ConfigHandler.COMMON.healthBoost.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:cruel_health"));
+                if(ConfigHandler.COMMON.healthBoost.get() > 1 && !VPUtil.isBoss(entity)) {
+                    entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.randomUUID(), (float) (ConfigHandler.COMMON.healthBoost.get() + 0), AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:cruel_health"));
+                    entity.setHealth(entity.getMaxHealth());
+                }
                 if (VPUtil.isBoss(entity))
                     VPUtil.spawnBoss(entity);
                 else if (entity instanceof Monster monster) {
