@@ -71,6 +71,17 @@ public class Treasure extends Vestige{
     }
 
     @Override
+    public void whileUltimate(Player player, ItemStack stack) {
+        int radius = stack.getOrCreateTag().getInt("VPRadiusOst");
+        while (radius > 10){
+            radius -= 10;
+            stack.getOrCreateTag().putInt("VPRadius", (stack.getOrCreateTag().getInt("VPRadius") + 1));
+        }
+        stack.getOrCreateTag().putInt("VPRadiusOst",radius);
+        super.whileUltimate(player, stack);
+    }
+
+    @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         stack.getOrCreateTag().putInt("VPRadius",0);
         super.doUltimate(seconds, player, level, stack);

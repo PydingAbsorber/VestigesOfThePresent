@@ -220,6 +220,9 @@ public class ShieldOverlay {
                         if(number > 0)
                             info = String.valueOf(number);
                     }
+                    if(vestigeNumber == 26 && !durationUlt.isEmpty()){
+                        info = (stack.getOrCreateTag().getInt("VPRadius") + "");
+                    }
                     if(!info.isEmpty())
                         pose.drawString(fontRenderer,""+info, x+(132+i*40),y-43, 0x9932CC);
                     //fontRenderer.draw(poseStack, ""+info, x+(132+i*40),y-30, vestige.color.getColor());

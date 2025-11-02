@@ -1234,9 +1234,16 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                range *= 1 + treasure.getRadius(stack) * 0.05f;
+                maxDist = (int) (maxDist * (1 + treasure.getRadius(stack) * 0.05));
+            }
+        }
+
         Vector3 target = Vector3.fromEntityCenter(player);
         List<LivingEntity> entities = new ArrayList<>();
-
         for (int distance = 1; distance < maxDist; ++distance) {
             target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
             List<LivingEntity> list = player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));

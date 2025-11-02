@@ -17,7 +17,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.5.6'
+version = '1.5.7'
 group = 'com.pyding.vop'
 archivesBaseName = 'VestigesOfThePresent 1.20.1'
 

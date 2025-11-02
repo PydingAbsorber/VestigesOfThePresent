@@ -63,9 +63,10 @@ public class Vestige extends Item implements ICurioItem {
         if(ultimateCharges(stack) > currentChargeUltimate(stack)) {
             if(isStellar(stack))
                 number *= 1.2f;
-            if(number > 10 && VPUtil.hasVestige(ModItems.TREASURE.get(),player)) {
+            if(VPUtil.hasVestige(ModItems.TREASURE.get(),player)) {
                 ItemStack vestige = VPUtil.getVestigeStack(Treasure.class,player);
-                vestige.getOrCreateTag().putInt("VPRadius", (int) (vestige.getOrCreateTag().getInt("VPRadius")+(number/10)));
+                if(isUltimateActive(vestige))
+                    vestige.getOrCreateTag().putInt("VPRadiusOst", (int) (vestige.getOrCreateTag().getInt("VPRadiusOst") + number));
             }
             stack.getOrCreateTag().putFloat("VPRadiance", Math.min(number + getRadiance(stack), getMaxRadiance(stack)));
         }
