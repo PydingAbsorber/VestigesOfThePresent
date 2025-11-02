@@ -131,6 +131,11 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getEntities(Player player,double radius,boolean self){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack))
+                radius *= 1+treasure.getRadius(stack)*0.05;
+        }
         List<LivingEntity> list = new ArrayList<>(player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius)));
         if(!self)
             list.remove(player);
@@ -1009,6 +1014,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
         return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
     }
 
@@ -1026,6 +1039,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z,boolean self){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
         if(self)
             return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
         else {
@@ -1038,14 +1059,22 @@ public class VPUtil {
         }
     }
 
-    public static List<LivingEntity> getEntitiesAround(LivingEntity player,double x, double y, double z,boolean self){
+    public static List<LivingEntity> getEntitiesAround(LivingEntity entity,double x, double y, double z,boolean self){
+        if(entity instanceof Player player && hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
         if(self)
-            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+            return entity.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(entity.getX()+x,entity.getY()+y,entity.getZ()+z,entity.getX()-x,entity.getY()-y,entity.getZ()-z));
         else {
             List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
-                if(entity != player)
-                    list.add(entity);
+            for(LivingEntity livingEntity: entity.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(entity.getX()+x,entity.getY()+y,entity.getZ()+z,entity.getX()-x,entity.getY()-y,entity.getZ()-z))){
+                if(livingEntity != entity)
+                    list.add(livingEntity);
             }
             return list;
         }
@@ -1529,6 +1558,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getMonstersAround(Player player,double x, double y, double z){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
         List<LivingEntity> list = new ArrayList<>();
         for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
             if(!(entity instanceof Animal) && entity != player)
@@ -1538,6 +1575,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getCreaturesAround(Player player,double x, double y, double z){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
         List<LivingEntity> list = new ArrayList<>();
         for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
             if(entity instanceof Animal)
@@ -1668,6 +1713,14 @@ public class VPUtil {
     }
 
     public static List<LivingEntity> getCreaturesAndPlayersAround(Player player, double x, double y, double z){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
         List<LivingEntity> list = new ArrayList<>();
         for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
             if(entity instanceof Animal || entity instanceof Player)
