@@ -23,7 +23,7 @@ public class Lyra extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(22, ChatFormatting.DARK_GREEN, 3, 40, 1, 120, 30, 10, false, stack);
+        super.dataInit(22, ChatFormatting.DARK_GREEN, 3, 40, 1, 60, 30, 10, false, stack);
     }
 
     @Override

@@ -50,6 +50,7 @@ import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
@@ -1783,16 +1784,22 @@ public class VPUtil {
         }
     }
 
-    public static HashMap<SoundEvent,Long> soundCd = new HashMap<>();
+    public static HashMap<ResourceLocation,Long> soundCd = new HashMap<>();
 
     public static void play(LivingEntity main, SoundEvent sound){
-        for(LivingEntity entity: getEntitiesAround(main,20,20,20,true)) {
-            if (entity instanceof ServerPlayer player) {
-                if(!soundCd.containsKey(sound))
-                    soundCd.put(sound,0L);
-                if(soundCd.get(sound) < System.currentTimeMillis())
-                    PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1,0,0,0),player);
-                soundCd.put(sound,System.currentTimeMillis()+100);
+        if(!main.level().isClientSide) {
+            double x = 0;
+            double y = 0;
+            double z = 0;
+            if(main instanceof ServerPlayer serverPlayer){
+                x = serverPlayer.getX();
+                y = serverPlayer.getY();
+                z = serverPlayer.getZ();
+            }
+            for (LivingEntity entity : getEntitiesAround(main, 20, 20, 20, true)) {
+                if (entity instanceof ServerPlayer player) {
+                    PacketHandler.sendToClient(new SoundPacket(sound.getLocation(), 1, 1, x,y,z), player);
+                }
             }
         }
     }
@@ -2590,7 +2597,7 @@ public class VPUtil {
             List<Item> items = biomeFishMap.getOrDefault(getCurrentBiome(player), new ArrayList<>());
             if (!items.isEmpty()) {
                 Item randomItem = items.get(random.nextInt(items.size()-1));
-                while(ConfigHandler.COMMON.fishingBlacklist.get().toString().contains(randomItem.getDescriptionId())){
+                while(ConfigHandler.COMMON.fishingBlacklist.get().toString().contains(randomItem.getDescriptionId()) || randomItem instanceof Vestige){
                     randomItem = items.get(random.nextInt(items.size()-1));
                 }
                 if((stack.getItem() instanceof PinkyPearl && random.nextDouble() > getChance(ConfigHandler.COMMON.rareFishingDropChance.get(),player)/10)){
@@ -3637,6 +3644,8 @@ public class VPUtil {
     public static HashMap<UUID,String> osMap = new HashMap<>();
 
     public static String getOs(Player player){
+        if(osMap.get(player.getUUID()) == null)
+            return "windows";
         return osMap.get(player.getUUID());
     }
 
@@ -3787,10 +3796,10 @@ public class VPUtil {
                         livingEntity.getPersistentData().putFloat("VPHealDebt", amount * 0.3f);
                     }
                 }
-                addRadiance(Chaos.class, 1, player);
+                addRadiance(Chaos.class, 3, player);
             }
             if(hasVestige(ModItems.LYRA.get(),player) && amount <= 0) {
-                addRadiance(Lyra.class, 15, player);
+                addRadiance(Lyra.class, 20, player);
             }
         }
     }
@@ -3811,29 +3820,40 @@ public class VPUtil {
         return new CompoundTag();
     }
 
-    public static List<Double> powerList = new ArrayList<>();
+    public static HashMap<Player,List<Double>> powerList = new HashMap<>();
 
     public static void updatePowerList(Player player){
+        powerList.remove(player);
+        List<Double> list = new ArrayList<>();
         for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++) {
             AtomicDouble power = new AtomicDouble(ConfigHandler.COMMON.powerScale(i));
-            if(power.get() < 100) {
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    power.addAndGet(cap.getCommonChallenges() * ConfigHandler.COMMON.powerBoost.get());
-                    if(power.addAndGet(cap.getStellarChallenges() * ConfigHandler.COMMON.powerBoost.get() * 2) > 100)
-                        power.set(100);
-                });
-            }
-            powerList.add(i,power.get());
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                power.addAndGet(cap.getCommonChallenges() * ConfigHandler.COMMON.powerBoost.get());
+                if(power.addAndGet(cap.getStellarChallenges() * ConfigHandler.COMMON.powerBoost.get() * 2) > ConfigHandler.COMMON.maxPower.get())
+                    power.set(ConfigHandler.COMMON.maxPower.get());
+            });
+            list.set(i,power.get());
         }
+        powerList.put(player,list);
     }
 
     public static double getPower(int challenge, Player player){
-        if(powerList.isEmpty()) {
+        if(powerList.isEmpty())
             updatePowerList(player);
+        double power = powerList.get(player).get(challenge-1);
+        if(challenge == 666 || (power < ConfigHandler.COMMON.maxPower.get() && player.isCreative()))
+            power = ConfigHandler.COMMON.maxPower.get();
+        if(power + 15 < ConfigHandler.COMMON.maxPower.get()){
+            for(ItemStack stack: getVestigeList(player)){
+                if(stack.getItem() instanceof Vestige vestige && vestige.vestigeNumber == challenge && Vestige.isStellar(stack)){
+                    power += 15;
+                    break;
+                }
+            }
         }
-        if(challenge == 666)
-            return 100;
-        return powerList.get(challenge-1);
+        if(player.getPersistentData().getLong("VPOrchestra") > System.currentTimeMillis())
+            power += 15;
+        return power;
     }
 
     public static double scalePower(double number,int challenge, Player player){
@@ -4108,6 +4128,52 @@ public class VPUtil {
                 }
                 stack.getOrCreateTag().putFloat("VPStat", stat);
                 orb.split(1);
+            }
+        }
+    }
+
+    public static void clearEntities(MinecraftServer server, boolean ignoreConfig){
+        if(ConfigHandler.COMMON_SPEC.isLoaded()){
+            int time = ConfigHandler.COMMON.clearEntities.get();
+            if(time > 0 || ignoreConfig){
+                List<ServerPlayer> players = server.getPlayerList().getPlayers();
+                int ticks = server.getTickCount();
+                if(!ignoreConfig && ticks % time == (int)(time*0.9)){
+                    for(ServerPlayer serverPlayer: players){
+                        if(!serverPlayer.getCommandSenderWorld().isClientSide)
+                            serverPlayer.sendSystemMessage(Component.translatable("vp.entity_clear",(int)(time*0.1)).withStyle(ChatFormatting.GREEN));
+                    }
+                }
+                if (ignoreConfig || ticks % time == 0) {
+                    try {
+                        HashSet<Entity> list = new HashSet<>();
+                        int count = 0;
+                        for (ServerPlayer serverPlayer : players)
+                            serverPlayer.serverLevel().getAllEntities().forEach(list::add);
+                        for (Entity entity : list) {
+                            if(entity instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame())
+                                continue;
+                            if(entity instanceof Villager || isNpc(entity.getType()) || entity.getType().getDescriptionId().contains("ironspell"))
+                                continue;
+                            if (entity instanceof ItemEntity || entity instanceof Projectile)
+                                entity.kill();
+                            else if (entity instanceof LivingEntity livingEntity && !(entity instanceof Player) && !(entity.hasCustomName()) && !VPUtil.isBoss(livingEntity)) {
+                                setHealth(livingEntity,0);
+                                livingEntity.getBrain().clearMemories();
+                                ((EntityVzlom) livingEntity).setPersistentData(null);
+                                livingEntity.invalidateCaps();
+                                ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
+                                count++;
+                            }
+                        }
+                        for(ServerPlayer serverPlayer: players){
+                            if(!serverPlayer.getCommandSenderWorld().isClientSide)
+                                serverPlayer.sendSystemMessage(Component.translatable("vp.entity_cleared",count).withStyle(ChatFormatting.GREEN));
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
             }
         }
     }

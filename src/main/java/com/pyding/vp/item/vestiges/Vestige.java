@@ -669,7 +669,11 @@ public class Vestige extends Item implements ICurioItem {
                     if(isTripleStellar(stack))
                         components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
                     components.add(Component.translatable("vp.condition").append(Component.translatable("vp.condition."+vestigeNumber)).withStyle(color));
-                    components.add(Component.translatable("vestige_power",VPUtil.getPower(vestigeNumber,player)+"%").withStyle(ChatFormatting.GRAY));
+                    String creative = "";
+                    double power = VPUtil.getPower(vestigeNumber,player);
+                    if(player.isCreative() && power <= 100)
+                        creative = " (in Creative)";
+                    components.add(Component.translatable("vestige_power",power+"%" + creative).withStyle(ChatFormatting.GRAY));
                 }
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient(VPUtil.generateRandomString(7) + " :")));

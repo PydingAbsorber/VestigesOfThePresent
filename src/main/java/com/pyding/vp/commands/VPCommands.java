@@ -142,6 +142,13 @@ public class VPCommands {
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
+                        .then(Commands.literal("entities")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    VPUtil.clearEntities(player.getServer(),true);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
                 )
                 .then(Commands.literal("friend")
                         .then(Commands.literal("add")
@@ -229,7 +236,7 @@ public class VPCommands {
                                     for(int i = 1; i < PlayerCapabilityVP.totalVestiges; i++){
                                         int progress = cap.getChallenge(i);
                                         if(i == 12)
-                                            progress = EventHandler.getCurses(player);
+                                            progress = VPUtil.getCurseAmount(player);
                                         player.sendSystemMessage(Component.literal("Current progress for Vestige ").append(Component.translatable("vp.name."+i)));
                                         player.sendSystemMessage(Component.translatable("vp.progress").withStyle(ChatFormatting.DARK_GREEN)
                                                 .append(Component.literal(" " + progress))

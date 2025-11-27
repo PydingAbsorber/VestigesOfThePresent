@@ -74,7 +74,7 @@ public class EventHorizon extends Item {
 
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity swinger) {
-        if(swinger instanceof Player player && player.isCreative()) {
+        if(swinger instanceof Player player && player.isCreative() && !swinger.level().isClientSide) {
             LivingEntity entity = null;
             for (LivingEntity livingEntity : VPUtil.ray(player, 2, 60, true)) {
                 entity = livingEntity;

@@ -1,5 +1,6 @@
 package com.pyding.vp.network.packets;
 
+import com.pyding.vp.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,6 +15,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import static com.pyding.vp.util.VPUtil.soundCd;
 
 public class SoundPacket {
     private final ResourceLocation soundLocation;
@@ -58,9 +61,14 @@ public class SoundPacket {
         if (soundEvent != null) {
             Player player = Minecraft.getInstance().player;
             if (player != null) {
-                if(x == 0 && y == 0 && z == 0)
-                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.MASTER, volume, pitch, false);
-                else player.getCommandSenderWorld().playLocalSound(x, y, z, soundEvent, SoundSource.MASTER, volume, pitch, false);
+                if (!soundCd.containsKey(soundLocation))
+                    soundCd.put(soundLocation, 0L);
+                if (soundCd.get(soundLocation) < System.currentTimeMillis()) {
+                    if(x == 0 && y == 0 && z == 0)
+                        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.MASTER, volume, pitch, false);
+                    else player.getCommandSenderWorld().playLocalSound(x, y, z, soundEvent, SoundSource.MASTER, volume, pitch, false);
+                    soundCd.put(soundLocation, System.currentTimeMillis() + 100);
+                }
             }
         }
     }

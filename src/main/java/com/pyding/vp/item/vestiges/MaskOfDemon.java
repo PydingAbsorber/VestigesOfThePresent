@@ -34,7 +34,7 @@ public class MaskOfDemon extends Vestige{
         specialMaxTime = 666;
         ultimateMaxTime = 1;
         ultimateCharges = 1;
-        radiance = 95;
+        radiance = 175;
         super.dataInit(vestigeNumber, color, specialCharges, specialCd, ultimateCharges, radiance, specialMaxTime, ultimateMaxTime, true, stack);
     }
 

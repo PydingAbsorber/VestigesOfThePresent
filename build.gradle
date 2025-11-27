@@ -17,7 +17,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.5.7'
+version = '1.5.8'
 group = 'com.pyding.vop'
 archivesBaseName = 'VestigesOfThePresent 1.20.1'
 
@@ -127,7 +127,7 @@ dependencies {
     implementation fg.deobf("mezz.jei:jei-1.20.1-forge-api:15.2.0.27")
     runtimeOnly(fg.deobf("mezz.jei:jei-1.20.1-forge:15.2.0.27"))
 
-    compileOnly name: 'NoGrief 1.20.1-1.0.0'
+    compileOnly name: 'NoGrief 1.20.1-1.0.1'
 
     //implementation name: 'fantasy_ending'
 

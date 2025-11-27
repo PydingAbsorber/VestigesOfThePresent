@@ -90,7 +90,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue eatingMinutes;
         public final ForgeConfigSpec.BooleanValue failFlowers;
         public final ForgeConfigSpec.ConfigValue<List<Integer>> reduceChallenges;
-        public final ForgeConfigSpec.ConfigValue<List<Integer>> powerScale;
+        public final ForgeConfigSpec.ConfigValue<List<Integer>> powerScales;
         public final ForgeConfigSpec.BooleanValue reduceChallengesPercent;
         public final ForgeConfigSpec.ConfigValue fishObjects;
         public final ForgeConfigSpec.DoubleValue nightmareDpsCap;
@@ -119,9 +119,11 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue mineralCluster;
         public final ForgeConfigSpec.ConfigValue mineralClusterBlacklist;
         public final ForgeConfigSpec.BooleanValue lore;
+        public final ForgeConfigSpec.DoubleValue maxPower;
         public final ForgeConfigSpec.DoubleValue powerBoost;
         public final ForgeConfigSpec.DoubleValue expMultiplier;
         public final ForgeConfigSpec.DoubleValue anomalyPlayerTeleportChance;
+        public final ForgeConfigSpec.IntValue clearEntities;
 
         public Common(ForgeConfigSpec.Builder builder) {
             lore = builder.comment("Set false to disable chat messages with Lore").define("lore", true);
@@ -131,10 +133,11 @@ public class ConfigHandler {
                 reduceList.add(0);
             reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallenges",reduceList);
             reduceChallengesPercent = builder.comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum").define("reduceChallengesPercent", false);
+            maxPower = builder.comment("Maximum power of Vestiges.").defineInRange("maxPower", 100d, 1d, 2100000000d);
             List<Integer> scaleList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                scaleList.add(10);
-            powerScale = builder.comment("Each Vestige Power Scale in percents.").define("powerScale",reduceList);
+                scaleList.add(30);
+            powerScales = builder.comment("Each Vestige Power Scale in percents.").define("powerScales",reduceList);
             powerBoost = builder.comment("Power Scale increase by completing new challenges.").defineInRange("powerBoost", 5d, 1d, 2100000000d);
 
             cruelMode = builder.comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("cruelMode", false);
@@ -208,7 +211,7 @@ public class ConfigHandler {
             easterChance = builder.comment("Additional chance for Easter Egg 10 is 10%").defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
             fishObjects = builder.comment("fishObjects: ").define("fishObjects","fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle,wet,river");
             rareItems = builder.comment("Rare Items for fishing by Abyssal Pearl: ").define("rareItems","item.vp.hearty_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
-            fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","item.vp.pearl");
+            fishingBlacklist = builder.comment("Fishing Blacklist for Abyssal Pearl: ").define("fishingBlacklist","bottle_of_forfeiture");
             rareFishingDropChance = builder.comment("Chance of rare drop in current biome from Fishing with Pearl or by defending Silly Seashell.").defineInRange("rareFishingDropChance", 0.001, 0, 1);
             failFlowers = builder.comment("Fails flowers Challenge when they are being placed.").define("failFlowers", false);
             nightmareDpsCap = builder.comment("Damage per second cap for Nightmare Bosses in max hp % -> 0.01 is 1%").defineInRange("nightmareDpsCap", 0.01,0,Float.MAX_VALUE);
@@ -224,8 +227,8 @@ public class ConfigHandler {
             leaderboardPort = builder.comment("Ip port for leaderboard: ").define("leaderboardPort","");
             leaderboard = builder.comment("Defines if Leaderboard should be enabled: ").define("leaderboard",false);
             chaosCoreStellarHpRes = builder.comment("Reduce modifier for Chaos Core Stellar ability of max hp lowering from Healing Debt").defineInRange("chaosCoreStellarHpRes", 10d, 0, 2100000000);
-            oysterChance = builder.comment("Base chance for spawning Hungry Oyster per 8000 ticks").defineInRange("oysterChance", 0.05d, 0, 1);
-            seashellChance = builder.comment("Base chance for spawning Silly Seashell per 8000 ticks").defineInRange("seashellChance", 0.05d, 0, 1);
+            oysterChance = builder.comment("Base chance for spawning Hungry Oyster per 8000 ticks").defineInRange("oysterChance", 0.15d, 0, 1);
+            seashellChance = builder.comment("Base chance for spawning Silly Seashell per 8000 ticks").defineInRange("seashellChance", 0.15d, 0, 1);
             lootDrops = builder.comment("Loot tables for Mystery Chest common/rare/mystic/legendary. All chances are independent so 0.7(70% chance) on common cause dropping air in 30% cases.").define("lootDrops",DEFAULT_LOOT);
             strictOptimization = builder.comment("Enables strict optimization that may increase performance but break a lot of mechanics. WIP ").define("strictOptimization",false);
             mysteryChestAdvancementChance = builder.comment("Chance to obtain Mystery Chest from advancement").defineInRange("mysteryChestAdvancementChance", 0.01d, 0, 1);
@@ -234,6 +237,7 @@ public class ConfigHandler {
             mineralCluster = builder.comment("Id of items that drop of Mineral Cluster should contain: ").define("mineralClusterList","_gem_,mineral,diamond,emerald,jadeite,quartz,feldspar,mica,fluorite,halite,gypsum,_talc,graphite,pyrite,_galena,hematite,magnetite,bauxite,corundum,sapphire,ruby,topaz,amethyst,citrine,agate,jasper,opal,garnet,zircon,olivine,tourmaline,beryl,aquamarine,biotite,muscovite,orthoclase,plagioclase,amphibole,pyroxene,apatite,barite,sulfur,malachite,azurite,bornite,chalcopyrite,sphalerite,cassiterite,rutile,ilmenite,chromite,kaolinite,serpentine,epidote,staurolite,kyanite,andalusite,sillimanite");
             mineralClusterBlacklist = builder.comment("Black list for items in Mineral Cluster: ").define("mineralClusterBlacklist","");
             anomalyPlayerTeleportChance = builder.comment("Chance to teleport to random player on the server from Teleportation Anomaly's Stellar Ultimate").defineInRange("anomalyPlayerTeleportChance", 0.05d, 0, 1);
+            clearEntities = builder.comment("Time between entity clearing in ticks, 20t = 1 sec. Turned off by default with 0.").defineInRange("clearEntities", 0, 0, Integer.MAX_VALUE);
         }
 
         public int getChallengeReduceByNumber(int number) {
@@ -241,7 +245,7 @@ public class ConfigHandler {
         }
 
         public int powerScale(int number) {
-            return powerScale.get().get(number);
+            return powerScales.get().get(number);
         }
 
         public static final String DEFAULT_LOOT = "1<item.vp.corrupted_fragment,item.vp.box_saplings,item.irons_spellbooks.blank_rune4,item.irons_spellbooks.rare_ink5,block.minecraft.wither_skeleton_skull,item.minecraft.end_crystal4,item.minecraft.netherite_scrap2,block.aether.enchanted_gravitite8,item.irons_spellbooks.arcane_salvage,item.minecraft.diamond4,item.botania.black_lotus8,item.bloodmagic.blankslate16,item.bloodmagic.reinforcedslate8,item.bloodmagic.infusedslate4,item.eidolon.soul_shard8,item.alexscaves.darkened_apple,block.minecraft.glass32,block.minecraft.quartz_block16,block.minecraft.gold_block4>0.3<item.vp.corrupted_item,item.minecraft.totem_of_undying,item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment16,item.aquamirae.ship_graveyard_echo4,item.enigmaticlegacy.earth_heart,item.enigmaticlegacy.etherium_ore5,item.skilltree.wisdom_scroll4,block.occultism.storage_stabilizer_tier3,item.celestisynth.supernal_netherite_ingot4,item.enigmaticlegacy.angel_blessing,item.enigmaticlegacy.ocean_stone,item.enigmaticlegacy.blazing_core,item.enigmaticlegacy.eye_of_nebula,item.irons_spellbooks.lightning_upgrade_orb,item.irons_spellbooks.ice_upgrade_orb,item.irons_spellbooks.protection_upgrade_orb,item.irons_spellbooks.mana_upgrade_orb,item.irons_spellbooks.ender_upgrade_orb,item.irons_spellbooks.cooldown_upgrade_orb,item.irons_spellbooks.nature_upgrade_orb,item.irons_spellbooks.evocation_upgrade_orb,item.irons_spellbooks.fire_upgrade_orb,item.irons_spellbooks.holy_upgrade_orb,item.irons_spellbooks.blood_upgrade_orb,item.irons_spellbooks.epic_ink5,item.vp.stellar2,item.vp.stellar3,item.botania.terrasteel_ingot,item.botania.blacker_lotus8,item.bloodmagic.demonslate8,item.bloodmagic.etherealslate4,item.bloodmagic.hellforgedparts4,item.eidolon.lesser_soul_gem4,item.twilightforest.charm_of_life_1,item.twilightforest.charm_of_life_2,item.twilightforest.charm_of_keeping_1>0.05<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item8,item.enigmaticlegacy.cosmic_heart,item.aquamirae.abyssal_amethyst8,item.enigmaticlegacy.astral_fruit,item.enigmaticlegacy.ichor_bottle,item.enigmaticlegacy.void_pearl,item.irons_spellbooks.legendary_ink5,item.vp.stellar10,item.vp.stellar16,block.occultism.storage_stabilizer_tier4,item.vp.chaos_orb,block.minecraft.dragon_egg,item.twilightforest.charm_of_keeping_64,item.vp.box,item.vp.box_eggs2,item.vp.refresher,item.mythicbotany.alfsteel_ingot,block.alexscaves.tremorzilla_egg,item.enigmaticlegacy.soul_crystal,item.enigmaticlegacy.abyssal_heart,item.vp.vip,item.alexsmobs.warped_mixture>0.001<item.vp.chaos_orb64,item.vp.celestial_mirror,item.vp.pinky_pearl20,item.enigmaticlegacy.the_cube>";

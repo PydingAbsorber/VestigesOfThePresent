@@ -60,7 +60,7 @@ public class Treasure extends Vestige{
                 stack.getOrCreateTag().putInt("VPEarthquake",earthquake+1);
             for(LivingEntity entity: VPUtil.getEntitiesAround(player,Math.max(1,3 * earthquake),Math.max(1,earthquake),Math.max(1,3 * earthquake))){
                 if(entity != player) {
-                    VPUtil.dealDamage(entity,player,player.damageSources().inWall(),player.getArmorValue()*4,2,true);
+                    VPUtil.dealDamage(entity,player,player.damageSources().inWall(),player.getArmorValue()*(4+earthquake),2,true);
                 }
             }
             if (player instanceof ServerPlayer serverPlayer) {
