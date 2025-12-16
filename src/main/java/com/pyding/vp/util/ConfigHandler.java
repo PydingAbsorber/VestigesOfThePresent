@@ -137,7 +137,7 @@ public class ConfigHandler {
             List<Integer> scaleList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
                 scaleList.add(30);
-            powerScales = builder.comment("Each Vestige Power Scale in percents.").define("powerScales",reduceList);
+            powerScales = builder.comment("Each Vestige Power Scale in percents.").define("powerScales",scaleList);
             powerBoost = builder.comment("Power Scale increase by completing new challenges.").defineInRange("powerBoost", 5d, 1d, 2100000000d);
 
             cruelMode = builder.comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("cruelMode", false);
@@ -231,8 +231,8 @@ public class ConfigHandler {
             seashellChance = builder.comment("Base chance for spawning Silly Seashell per 8000 ticks").defineInRange("seashellChance", 0.15d, 0, 1);
             lootDrops = builder.comment("Loot tables for Mystery Chest common/rare/mystic/legendary. All chances are independent so 0.7(70% chance) on common cause dropping air in 30% cases.").define("lootDrops",DEFAULT_LOOT);
             strictOptimization = builder.comment("Enables strict optimization that may increase performance but break a lot of mechanics. WIP ").define("strictOptimization",false);
-            mysteryChestAdvancementChance = builder.comment("Chance to obtain Mystery Chest from advancement").defineInRange("mysteryChestAdvancementChance", 0.01d, 0, 1);
-            mysteryChestAdvancementBoost = builder.comment("Chance increase per each advancement").defineInRange("mysteryChestAdvancementBoost", 0.0005d, 0, 1);
+            mysteryChestAdvancementChance = builder.comment("Chance to obtain Mystery Chest from advancement").defineInRange("mysteryChestAdvancementChance", 0.1d, 0, 1);
+            mysteryChestAdvancementBoost = builder.comment("Chance increase per each advancement").defineInRange("mysteryChestAdvancementBoost", 0.0002d, 0, 1);
             mysteryChestChallengeChance = builder.comment("Chance to obtain Mystery Chest from challenge").defineInRange("mysteryChestChallengeChance", 0.33d, 0, 1);
             mineralCluster = builder.comment("Id of items that drop of Mineral Cluster should contain: ").define("mineralClusterList","_gem_,mineral,diamond,emerald,jadeite,quartz,feldspar,mica,fluorite,halite,gypsum,_talc,graphite,pyrite,_galena,hematite,magnetite,bauxite,corundum,sapphire,ruby,topaz,amethyst,citrine,agate,jasper,opal,garnet,zircon,olivine,tourmaline,beryl,aquamarine,biotite,muscovite,orthoclase,plagioclase,amphibole,pyroxene,apatite,barite,sulfur,malachite,azurite,bornite,chalcopyrite,sphalerite,cassiterite,rutile,ilmenite,chromite,kaolinite,serpentine,epidote,staurolite,kyanite,andalusite,sillimanite");
             mineralClusterBlacklist = builder.comment("Black list for items in Mineral Cluster: ").define("mineralClusterBlacklist","");

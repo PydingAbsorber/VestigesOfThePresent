@@ -1067,8 +1067,6 @@ public class EventHandler {
             Player player = event.getEntity();
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 String name = stack.getItem().getDescriptionId();
-                /*name = name.substring("translation{key=".length());
-                name = name.substring(0,name.length()-"', args=[]}".length());*/
                 name = name.replaceAll(",","");
                 cap.addGold(name,player);
             });
@@ -1327,7 +1325,7 @@ public class EventHandler {
         }
         if(entity.tickCount % 20 == 0 && (VPUtil.getShield(entity) > 0 || VPUtil.getOverShield(entity) > 0))
             VPUtil.syncEntity(entity);
-        if(VPUtil.isBoss(entity) && ConfigHandler.COMMON.cruelMode.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47")))){
+        if(ConfigHandler.COMMON.cruelMode.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"))) && VPUtil.isBoss(entity) ){
             VPUtil.spawnBoss(entity);
         }
         if (tag.hasUUID("VPPlayer") && entity instanceof Mob mob && mob.getTarget() != null && mob.getTarget().getUUID() == tag.getUUID("VPPlayer")){
@@ -1354,7 +1352,7 @@ public class EventHandler {
         /*if(entity.tickCount < 10 && VPUtil.isBoss(entity))
             entity.heal(9999);*/
         if(entity.tickCount % 20 == 0) {
-            if(VPUtil.isBoss(entity))
+            if(ConfigHandler.COMMON.cruelMode.get() && VPUtil.isBoss(entity))
                 entity.heal((float) (entity.getMaxHealth() * ConfigHandler.COMMON.healPercent.get()));
             if(VPUtil.isNpc(entity.getType())){
                 VPUtil.antiTp(entity,99999);
@@ -1676,7 +1674,7 @@ public class EventHandler {
                     cap.clearCoolDown(player);
                     cap.addTimeCd(System.currentTimeMillis(),player);
                 }
-                if(!player.getCommandSenderWorld().isClientSide && !cap.getSleep() && player.tickCount > 24000 && player.tickCount < 24100 && !cap.getLore(player,2)) {
+                if(!player.getCommandSenderWorld().isClientSide && ConfigHandler.COMMON.lore.get() && !cap.getSleep() && player.tickCount > 24000 && player.tickCount < 24100 && !cap.getLore(player,2)) {
                     player.sendSystemMessage(Component.translatable("vp.sleep"));
                     cap.setSleep(true);
                 }

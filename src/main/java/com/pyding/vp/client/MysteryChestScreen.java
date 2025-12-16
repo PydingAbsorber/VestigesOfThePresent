@@ -188,7 +188,7 @@ public class MysteryChestScreen extends Screen {
                     float progress = (localTick - jumpDuration) / fallDuration;
                     yVelocity = Mth.lerp(progress * progress, y - 120, this.height);
                 }
-                yVelocity *= 1 + random.nextFloat(0.2f);
+                //yVelocity *= 1 + random.nextFloat(0.2f);
                 poseStack.translate(xVelocity, yVelocity, 5000);
                 poseStack.scale(scale, scale, scale);
                 guiGraphics.renderItem(stack, (int) (centerX/scale), (int) (centerY/scale));

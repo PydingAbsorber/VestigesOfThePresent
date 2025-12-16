@@ -2,6 +2,7 @@ package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.ChallengeScreen;
+import com.pyding.vp.client.VestigeScreen;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.mixin.BucketVzlom;
 import com.pyding.vp.mixin.SmitingMixing;
@@ -480,6 +481,8 @@ public class Vestige extends Item implements ICurioItem {
             this.init(stack);
         }
         ServerPlayer playerServer = (ServerPlayer) slotContext.entity();
+        if(playerServer.tickCount % 20 == 0)
+            stack.getOrCreateTag().putDouble("VPPower",VPUtil.getPower(vestigeNumber,playerServer));
         if(!isStellar(stack) && playerServer.isCreative())
             setStellar(stack,playerServer);
         if(playerServer != null) {
@@ -560,6 +563,7 @@ public class Vestige extends Item implements ICurioItem {
         boolean stellar = isStellar(stack);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             if (Screen.hasShiftDown()) {
+                Minecraft.getInstance().setScreen(new VestigeScreen(stack,player));
                 components.add(Component.translatable("vp.passive").withStyle(color));
                 if(vestigeNumber == 18)
                     components.add(Component.translatable("vp.passive." + vestigeNumber,(int)(ConfigHandler.COMMON.ballShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballOverShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballDebuff.get()+0)+"%").withStyle(ChatFormatting.GRAY));
@@ -670,9 +674,11 @@ public class Vestige extends Item implements ICurioItem {
                         components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
                     components.add(Component.translatable("vp.condition").append(Component.translatable("vp.condition."+vestigeNumber)).withStyle(color));
                     String creative = "";
-                    double power = VPUtil.getPower(vestigeNumber,player);
+                    double power = stack.getOrCreateTag().getDouble("VPPower");
                     if(player.isCreative() && power <= 100)
                         creative = " (in Creative)";
+                    if(power == 0)
+                        power = VPUtil.getPower(vestigeNumber,player);
                     components.add(Component.translatable("vestige_power",power+"%" + creative).withStyle(ChatFormatting.GRAY));
                 }
             } else if (Screen.hasControlDown()) {
@@ -760,88 +766,7 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.creative").withStyle(ChatFormatting.DARK_PURPLE));
                 }
             } else if (Screen.hasAltDown()) {
-                List<ItemStack> list = new ArrayList<>();
-                String text = "";
-                switch (vestigeNumber) {
-                    case 2: {
-                        text = VPUtil.getMonsterClient(player).toString();
-                        break;
-                    }
-                    case 3: {
-                        text = VPUtil.getBiomesClient(player).toString();
-                        break;
-                    }
-                    case 6: {
-                        text = VPUtil.filterString(VPUtil.getFoodLeft(cap.getFoodEaten()).toString());
-                        break;
-                    }
-                    case 9: {
-                        text = cap.getGoldenItems();
-                        break;
-                    }
-                    case 11:{
-                        text = VPUtil.getDamageKindsLeft(cap.getDamageDie()).toString();
-                        break;
-                    }
-                    case 13:{
-                        text = VPUtil.getRaresClient(player).toString();
-                        break;
-                    }
-                    case 15: {
-                        text = VPUtil.getBossClient(player).toString();
-                        break;
-                    }
-                    case 16: {
-                        text = VPUtil.filterString(VPUtil.getFlowersLeft(cap.getFlowers()).toString());
-                        break;
-                    }
-                    case 17: {
-                        text = VPUtil.filterAndTranslate(VPUtil.getEffectsLeft(cap.getEffects()).toString(),ChatFormatting.GRAY).getString();
-                        break;
-                    }
-                    case 20:{
-                        text = VPUtil.getMobsClient(player).toString();
-                        break;
-                    }
-                    case 21:{
-                        text = VPUtil.filterString(VPUtil.getTemplatesLeft(cap.getTemplates()).toString());
-                        break;
-                    }
-                    case 22:{
-                        text =  VPUtil.filterString(VPUtil.getMusicDisksLeft(cap.getMusic()).toString());
-                        break;
-                    }
-                    case 24:{
-                        text =  VPUtil.filterString(VPUtil.getSeaLeft(cap.getSea()).toString());
-                        break;
-                    }
-                    case 26:{
-                        text = VPUtil.getOresClient(player).toString();
-                        break;
-                    }
-                    default:
-                        text = null;
-                }
-                if(vestigeNumber == 24)
-                    components.add(Component.translatable("vp.fish.2").withStyle(ChatFormatting.BLUE));
-                if(vestigeNumber == 22)
-                    components.add(Component.translatable("vp.lyre.authors").withStyle(ChatFormatting.BLUE));
-                if (text != null)
-                    components.add(Component.literal(text).withStyle(ChatFormatting.GRAY));
-                int[] items = {6,9,13,16,21,22,24,26};
-                for (int numb : items) {
-                    if (numb == vestigeNumber) {
-                        for(Item item: VPUtil.getItems()) {
-                            for(String id: text.split(",")){
-                                if (item instanceof SmithingTemplateItem templateItem &&  ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
-                                && translatableContents.getKey().equals(id.trim()))
-                                    list.add(new ItemStack(templateItem));
-                                else if(item.getDescriptionId().equals(id.trim()))
-                                    list.add(new ItemStack(item));
-                            }
-                        }
-                    }
-                }
+                List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber,player);
                 if(!list.isEmpty()){
                     Object[] data = new Object[3];
                     if(vestigeNumber == 9)

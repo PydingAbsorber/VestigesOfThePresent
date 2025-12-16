@@ -3825,25 +3825,25 @@ public class VPUtil {
     public static void updatePowerList(Player player){
         powerList.remove(player);
         List<Double> list = new ArrayList<>();
-        for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++) {
-            AtomicDouble power = new AtomicDouble(ConfigHandler.COMMON.powerScale(i));
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                power.addAndGet(cap.getCommonChallenges() * ConfigHandler.COMMON.powerBoost.get());
-                if(power.addAndGet(cap.getStellarChallenges() * ConfigHandler.COMMON.powerBoost.get() * 2) > ConfigHandler.COMMON.maxPower.get())
-                    power.set(ConfigHandler.COMMON.maxPower.get());
-            });
-            list.set(i,power.get());
-        }
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            double basePower = 0;
+            basePower += cap.getCommonChallenges() * ConfigHandler.COMMON.powerBoost.get();
+            basePower += cap.getStellarChallenges() * ConfigHandler.COMMON.powerBoost.get() * 2;
+            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++) {
+                AtomicDouble power = new AtomicDouble(ConfigHandler.COMMON.powerScale(i));
+                list.add(Math.min(ConfigHandler.COMMON.maxPower.get(),basePower + power.get()));
+            }
+        });
         powerList.put(player,list);
     }
 
     public static double getPower(int challenge, Player player){
-        if(powerList.isEmpty())
+        if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).get(0) == null || powerList.get(player).get(challenge-1) == null)
             updatePowerList(player);
         double power = powerList.get(player).get(challenge-1);
         if(challenge == 666 || (power < ConfigHandler.COMMON.maxPower.get() && player.isCreative()))
             power = ConfigHandler.COMMON.maxPower.get();
-        if(power + 15 < ConfigHandler.COMMON.maxPower.get()){
+        if((power + 15) < ConfigHandler.COMMON.maxPower.get()){
             for(ItemStack stack: getVestigeList(player)){
                 if(stack.getItem() instanceof Vestige vestige && vestige.vestigeNumber == challenge && Vestige.isStellar(stack)){
                     power += 15;
@@ -4176,5 +4176,89 @@ public class VPUtil {
                 }
             }
         }
+    }
+
+    public static List<ItemStack> getChallengeList(int vestigeNumber, Player player){
+        List<ItemStack> list = new ArrayList<>();
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            String text = "";
+            switch (vestigeNumber) {
+                case 2: {
+                    text = VPUtil.getMonsterClient(player).toString();
+                    break;
+                }
+                case 3: {
+                    text = VPUtil.getBiomesClient(player).toString();
+                    break;
+                }
+                case 6: {
+                    text = VPUtil.getFoodLeft(cap.getFoodEaten()).toString();
+                    break;
+                }
+                case 9: {
+                    text = cap.getGoldenItems();
+                    break;
+                }
+                case 11:{
+                    text = VPUtil.getDamageKindsLeft(cap.getDamageDie()).toString();
+                    break;
+                }
+                case 13:{
+                    text = VPUtil.getRaresClient(player).toString();
+                    break;
+                }
+                case 15: {
+                    text = VPUtil.getBossClient(player).toString();
+                    break;
+                }
+                case 16: {
+                    text = VPUtil.getFlowersLeft(cap.getFlowers()).toString();
+                    break;
+                }
+                case 17: {
+                    text = VPUtil.filterAndTranslate(VPUtil.getEffectsLeft(cap.getEffects()).toString(),ChatFormatting.GRAY).getString();
+                    break;
+                }
+                case 20:{
+                    text = VPUtil.getMobsClient(player).toString();
+                    break;
+                }
+                case 21:{
+                    text = VPUtil.getTemplatesLeft(cap.getTemplates()).toString();
+                    break;
+                }
+                case 22:{
+                    text =  VPUtil.getMusicDisksLeft(cap.getMusic()).toString();
+                    break;
+                }
+                case 24:{
+                    text =  VPUtil.getSeaLeft(cap.getSea()).toString();
+                    break;
+                }
+                case 26:{
+                    text = VPUtil.getOresClient(player).toString();
+                    break;
+                }
+                default:
+                    text = null;
+            }
+            if(text != null)
+                text = filterString(text);
+            int[] items = {6,9,13,16,21,22,24,26};
+            for (int numb : items) {
+                if (numb == vestigeNumber) {
+                    for(Item item: VPUtil.getItems()) {
+                        for(String id: text.split(",")){
+                            if (item instanceof SmithingTemplateItem templateItem &&  ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
+                                    && translatableContents.getKey().equals(id.trim()))
+                                list.add(new ItemStack(templateItem));
+                            else if(item.getDescriptionId().equals(id.trim()))
+                                list.add(new ItemStack(item));
+                        }
+                    }
+                }
+            }
+        });
+        return list;
     }
 }

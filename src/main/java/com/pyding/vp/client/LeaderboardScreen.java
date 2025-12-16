@@ -74,7 +74,7 @@ public class LeaderboardScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
-        double scale = ClientConfig.COMMON.guiScaleLeaderboard.get();
+        double scale = ClientConfig.COMMON.guiScaleLeaderboard.get()+0.3;
         int infoWidth = (int) (512*scale);
         int infoHeight = (int) (512*scale);
         int x = this.width/2 - infoWidth/2;

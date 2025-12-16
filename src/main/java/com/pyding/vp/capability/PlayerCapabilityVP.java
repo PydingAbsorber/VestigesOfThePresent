@@ -220,6 +220,8 @@ public class PlayerCapabilityVP {
     }
 
     public int getCommonChallenges(){
+        if(commonChallenges.isEmpty())
+            return 0;
         int challs = 0;
         for(String ignored : commonChallenges.split(","))
             challs++;
@@ -227,6 +229,8 @@ public class PlayerCapabilityVP {
     }
 
     public int getStellarChallenges(){
+        if(stellarChallenges.isEmpty())
+            return 0;
         int challs = 0;
         for(String ignored : stellarChallenges.split(","))
             challs++;
