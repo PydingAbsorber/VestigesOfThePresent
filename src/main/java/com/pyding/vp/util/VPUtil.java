@@ -3838,7 +3838,7 @@ public class VPUtil {
     }
 
     public static double getPower(int challenge, Player player){
-        if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).get(0) == null || powerList.get(player).get(challenge-1) == null)
+        if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).size() < PlayerCapabilityVP.totalVestiges)
             updatePowerList(player);
         double power = powerList.get(player).get(challenge-1);
         if(challenge == 666 || (power < ConfigHandler.COMMON.maxPower.get() && player.isCreative()))
@@ -4176,6 +4176,71 @@ public class VPUtil {
                 }
             }
         }
+    }
+
+    public static String getChallengeString(int vestigeNumber, Player player, PlayerCapabilityVP cap){
+        String text;
+        switch (vestigeNumber) {
+            case 2: {
+                text = VPUtil.getMonsterClient(player).toString();
+                break;
+            }
+            case 3: {
+                text = VPUtil.getBiomesClient(player).toString();
+                break;
+            }
+            case 6: {
+                text = VPUtil.filterString(VPUtil.getFoodLeft(cap.getFoodEaten()).toString());
+                break;
+            }
+            case 9: {
+                text = cap.getGoldenItems();
+                break;
+            }
+            case 11:{
+                text = VPUtil.getDamageKindsLeft(cap.getDamageDie()).toString();
+                break;
+            }
+            case 13:{
+                text = VPUtil.getRaresClient(player).toString();
+                break;
+            }
+            case 15: {
+                text = VPUtil.getBossClient(player).toString();
+                break;
+            }
+            case 16: {
+                text = VPUtil.filterString(VPUtil.getFlowersLeft(cap.getFlowers()).toString());
+                break;
+            }
+            case 17: {
+                text = VPUtil.filterAndTranslate(VPUtil.getEffectsLeft(cap.getEffects()).toString(),ChatFormatting.GRAY).getString();
+                break;
+            }
+            case 20:{
+                text = VPUtil.getMobsClient(player).toString();
+                break;
+            }
+            case 21:{
+                text = VPUtil.filterString(VPUtil.getTemplatesLeft(cap.getTemplates()).toString());
+                break;
+            }
+            case 22:{
+                text =  VPUtil.filterString(VPUtil.getMusicDisksLeft(cap.getMusic()).toString());
+                break;
+            }
+            case 24:{
+                text =  VPUtil.filterString(VPUtil.getSeaLeft(cap.getSea()).toString());
+                break;
+            }
+            case 26:{
+                text = VPUtil.getOresClient(player).toString();
+                break;
+            }
+            default:
+                text = "";
+        }
+        return text;
     }
 
     public static List<ItemStack> getChallengeList(int vestigeNumber, Player player){

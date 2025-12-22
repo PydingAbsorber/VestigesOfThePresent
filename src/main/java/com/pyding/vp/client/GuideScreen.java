@@ -54,9 +54,22 @@ public class GuideScreen extends Screen {
     boolean showEverything = false;
     int maxPages = 9;
     long time = 0;
+    ItemStack stack;
+    Button back;
 
     public GuideScreen() {
         super(Component.empty());
+    }
+
+    public GuideScreen(int page) {
+        super(Component.empty());
+        this.page = page;
+    }
+
+    public GuideScreen(int page, ItemStack stack) {
+        super(Component.empty());
+        this.page = page;
+        this.stack = stack;
     }
 
     @Override
@@ -125,12 +138,23 @@ public class GuideScreen extends Screen {
         );
         this.addRenderableWidget(zoomInButton);
         this.addRenderableWidget(zoomOutButton);
+        buttonSize = 78;
+        back = new ImageButton(
+                0, 0,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/back.png"),
+                buttonSize, buttonSize,
+                button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new VestigeScreen(stack, getMinecraft().player)))
+        );
+        this.addRenderableWidget(back);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
         double scale = ClientConfig.COMMON.guiScaleGuide.get();
+        back.visible = !showEverything;
         if(!showEverything)
             scale *= 1.5f;
         int infoWidth = (int) (256*scale);
@@ -161,7 +185,17 @@ public class GuideScreen extends Screen {
             Font font = this.font;
             int x = this.width/2 - infoWidth/2;
             int y = this.height/2 - infoHeight/2;
-            guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight,infoWidth,infoHeight);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 10);
+            guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight, infoWidth, infoHeight);
+
+
+            if(stack != null){
+                back.visible = true;
+                back.setX((int) (x - back.getWidth()/2.8));
+                back.setY(this.height/3);
+            }
+
             Component comp = Component.translatable("vp.info." + page);
             List<net.minecraft.util.FormattedCharSequence> lines = font.split(comp, infoWidth - 2 * infoPadding);
             for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
@@ -232,6 +266,7 @@ public class GuideScreen extends Screen {
                     guiGraphics.blit(pic.get(i), xPos, yPos, 0, 0, size, size, size, size);
                 }
             }
+            guiGraphics.pose().popPose();
         }
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }

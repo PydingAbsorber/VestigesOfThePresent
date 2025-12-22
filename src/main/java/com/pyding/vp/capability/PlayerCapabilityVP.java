@@ -436,8 +436,10 @@ public class PlayerCapabilityVP {
 
     public double getGoldenChance(){
         double chance = 10;
-        for (String gold: goldenItems.split(","))
-            chance += 1;
+        if(!goldenItems.isEmpty()) {
+            for (String gold : goldenItems.split(","))
+                chance += 1;
+        }
         return chance;
     }
 

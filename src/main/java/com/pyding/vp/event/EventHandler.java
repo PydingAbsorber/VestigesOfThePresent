@@ -1526,6 +1526,8 @@ public class EventHandler {
         if(entity.tickCount % 1000 == 0)
             Objects.requireNonNull(entity.getAttribute(Attributes.MAX_HEALTH)).removeModifier(UUID.fromString("95124945-2b8e-438e-b070-a48e32605d88"));
         if(event.getEntity() instanceof Player player){
+            if(player.getPersistentData().getInt("VPHold") > 0)
+                player.getPersistentData().putInt("VPHold",player.getPersistentData().getInt("VPHold")-1);
             if(entity.tickCount % 4000 == 0 && random.nextDouble() < VPUtil.getChance(0.2+ConfigHandler.COMMON.easterChance.get()/100d,player)){
                 if(VPUtil.isEasterEvent()){
                     VPUtil.spawnEgg(player);

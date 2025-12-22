@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
@@ -37,14 +38,23 @@ public class LeaderboardScreen extends Screen {
             "textures/gui/scroll.png");
     long time = 0;
     String text = "";
+    Button back;
 
     public LeaderboardScreen() {
         super(Component.empty());
     }
 
+    ItemStack stack;
+
+    public LeaderboardScreen(ItemStack stack) {
+        super(Component.empty());
+        this.stack = stack;
+    }
+
     @Override
     protected void init() {
         super.init();
+        double scale = ClientConfig.COMMON.guiScaleLeaderboard.get()+0.3;
         CompletableFuture.runAsync(() -> text = VPUtil.filterString(LeaderboardUtil.getAll()));
         int buttonSize = 32;
         int padding = 5;
@@ -69,11 +79,25 @@ public class LeaderboardScreen extends Screen {
         );
         this.addRenderableWidget(zoomInButton);
         this.addRenderableWidget(zoomOutButton);
+        buttonSize = 128;
+        back = new ImageButton(
+                0, 0,
+                buttonSize, buttonSize,
+                0, 0, 0,
+                new ResourceLocation("vp", "textures/gui/back.png"),
+                buttonSize, buttonSize,
+                button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new VestigeScreen(stack, getMinecraft().player)))
+        );
+        this.addRenderableWidget(back);
+        back.visible = false;
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        guiGraphics.pose().translate(0, 0, 10);
         double scale = ClientConfig.COMMON.guiScaleLeaderboard.get()+0.3;
         int infoWidth = (int) (512*scale);
         int infoHeight = (int) (512*scale);
@@ -92,9 +116,14 @@ public class LeaderboardScreen extends Screen {
         scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
         int textStartY = y + infoHeight/4 + 90;
         int textCenterX = x + infoWidth / 2;
-        enableScissor( x + 10, y, infoWidth - 25, infoHeight - infoHeight/4 - 25);
 
-        PoseStack pose = guiGraphics.pose();
+        if(stack != null){
+            back.visible = true;
+            back.setX(x - back.getWidth() + (int)(58 * scale));
+            back.setY(textStartY-64);
+        }
+
+        enableScissor( x + 10, y, infoWidth - 25, infoHeight - infoHeight/4 - 25);
         pose.pushPose();
         pose.scale(textScale, textScale, 1.0f);
         int startIndex = scrollOffset / lineHeight;
@@ -110,6 +139,7 @@ public class LeaderboardScreen extends Screen {
         }
         pose.popPose();
         RenderSystem.disableScissor();
+        pose.popPose();
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 

@@ -168,8 +168,6 @@ public class MysteryChest extends Item {
         return map;
     }
 
-    public static int hold = 0;
-
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
@@ -202,12 +200,15 @@ public class MysteryChest extends Item {
                     break;
                 }
             }
+            Player player = Minecraft.getInstance().player;
+            int hold = player.getPersistentData().getInt("VPHold");
             hold += 2;
-            components.add(Component.literal(hold+"/"+100).withStyle(ChatFormatting.GRAY));
+            components.add(Component.literal(hold/10 + "/" + 10).withStyle(ChatFormatting.GRAY));
             if(hold >= 100) {
                 Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new MysteryDropScreen()));
                 hold = 0;
             }
+            player.getPersistentData().putInt("VPHold",hold);
         } else if (Screen.hasControlDown()) {
             Minecraft.getInstance().player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 components.add(Component.translatable("vp.mystery.desc3",(ConfigHandler.COMMON.mysteryChestAdvancementChance.get()+ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*cap.getAdvancements())*100+"%",ConfigHandler.COMMON.mysteryChestAdvancementBoost.get()*100+"%",ConfigHandler.COMMON.mysteryChestChallengeChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
@@ -216,8 +217,6 @@ public class MysteryChest extends Item {
             components.add(Component.translatable("vp.mystery.desc").withStyle(ChatFormatting.GRAY));
             components.add(Component.translatable("vp.mystery.desc2").withStyle(ChatFormatting.GRAY));
         }
-        if(hold >0)
-            hold--;
     }
 
     @OnlyIn(Dist.CLIENT)

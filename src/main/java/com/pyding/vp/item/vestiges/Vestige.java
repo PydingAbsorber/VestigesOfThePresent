@@ -2,6 +2,7 @@ package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.ChallengeScreen;
+import com.pyding.vp.client.MysteryDropScreen;
 import com.pyding.vp.client.VestigeScreen;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.mixin.BucketVzlom;
@@ -562,125 +563,15 @@ public class Vestige extends Item implements ICurioItem {
         Player player = Minecraft.getInstance().player;
         boolean stellar = isStellar(stack);
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+            int hold = player.getPersistentData().getInt("VPHold");
             if (Screen.hasShiftDown()) {
-                Minecraft.getInstance().setScreen(new VestigeScreen(stack,player));
-                components.add(Component.translatable("vp.passive").withStyle(color));
-                if(vestigeNumber == 18)
-                    components.add(Component.translatable("vp.passive." + vestigeNumber,(int)(ConfigHandler.COMMON.ballShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballOverShield.get()*100)+"%",(int)(ConfigHandler.COMMON.ballDebuff.get()+0)+"%").withStyle(ChatFormatting.GRAY));
-                else if (vestigeNumber == 20) {
-                    components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                    components.add(Component.translatable("vp.dop." + vestigeNumber, (int) stack.getOrCreateTag().getFloat("VPSoulPool")).withStyle(ChatFormatting.GRAY));
+                hold += 2;
+                components.add(Component.literal(hold/10 + "/" + 10).withStyle(ChatFormatting.GRAY));
+                if(hold >= 100) {
+                    Minecraft.getInstance().setScreen(new VestigeScreen(stack,player));
+                    hold = 0;
                 }
-                else components.add(Component.translatable("vp.passive." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                int spCharges;
-                int ultCharges;
-                int spCd;
-                int radiance;
-                spCharges = specialCharges(stack);
-                spCd = specialCd(stack);
-                ultCharges = ultimateCharges(stack);
-                radiance = (int) getMaxRadiance(stack);
-                if(vestigeNumber == 10)
-                    components.add(Component.translatable("vp.return").withStyle(color).append(Component.literal("\n"
-                            + stack.getOrCreateTag().getString("VPReturnKey") + " "
-                            + stack.getOrCreateTag().getDouble("VPReturnX") + "X, "
-                            + stack.getOrCreateTag().getDouble("VPReturnY") + "Y, "
-                            + stack.getOrCreateTag().getDouble("VPReturnZ") + "Z, ").withStyle(ChatFormatting.GRAY)));
-                String firstKey = "";
-                String secondKey = "";
-                if(!VPUtil.getFirstVestige(player).isEmpty() && VPUtil.getFirstVestige(player).get(0) == stack){
-                    if(!KeyBinding.FIRST_KEY.getKeyModifier().name().equals("NONE"))
-                        firstKey += KeyBinding.FIRST_KEY.getKeyModifier().name() + "+";
-                    firstKey += KeyBinding.FIRST_KEY.getKey().getDisplayName().getString();
-                    if(!KeyBinding.FIRST_KEY_ULT.getKeyModifier().name().equals("NONE"))
-                        secondKey += KeyBinding.FIRST_KEY_ULT.getKeyModifier().name() + "+";
-                    secondKey += KeyBinding.FIRST_KEY_ULT.getKey().getDisplayName().getString();
-                } else {
-                    if(!KeyBinding.SECOND_KEY.getKeyModifier().name().equals("NONE"))
-                        firstKey += KeyBinding.SECOND_KEY.getKeyModifier().name() + "+";
-                    firstKey += KeyBinding.SECOND_KEY.getKey().getDisplayName().getString();
-                    if(!KeyBinding.SECOND_KEY_ULT.getKeyModifier().name().equals("NONE"))
-                        secondKey += KeyBinding.SECOND_KEY_ULT.getKeyModifier().name() + "+";
-                    secondKey += KeyBinding.SECOND_KEY_ULT.getKey().getDisplayName().getString();
-                }
-                components.add(Component.translatable("vp.special").withStyle(color)
-                        .append(Component.translatable("vp.charges").withStyle(color))
-                        .append(Component.literal(" " + spCharges ).withStyle(color))
-                        .append(Component.translatable("vp.charges2").withStyle(color))
-                        .append(Component.literal(" " + spCd / 20).withStyle(color))
-                        .append(Component.translatable("vp.seconds").withStyle(color))
-                        .append(Component.literal(" "))
-                        .append(Component.translatable("vp.activation"))
-                        .append(Component.literal(" " + firstKey)));
-                if(vestigeNumber == 2){
-                    components.add(Component.translatable("vp.special." + vestigeNumber,ConfigHandler.COMMON.crownShield.get()+"%").withStyle(ChatFormatting.GRAY));
-                }
-                else components.add(Component.translatable("vp.special." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                if(vestigeNumber == 25 && System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("linux")){
-                    components.add(GradientUtil.customGradient(Component.translatable("vp.archlinx.easter").getString(),GradientUtil.BLUE_LIGHT_BLUE));
-                }
-                components.add(Component.translatable("vp.ultimate").withStyle(color)
-                        .append(Component.translatable("vp.charges").withStyle(color))
-                        .append(Component.literal(" " + ultCharges ).withStyle(color))
-                        .append(Component.translatable("vp.radiance").withStyle(color))
-                        .append(Component.literal(" " + radiance).withStyle(color))
-                        .append(Component.literal(" "))
-                        .append(Component.translatable("vp.activation"))
-                        .append(Component.literal(" " + secondKey)));
-                if(vestigeNumber == 15){
-                    components.add(Component.translatable("vp.ultimate." + vestigeNumber,ConfigHandler.COMMON.devourer.get(),ConfigHandler.COMMON.devourerChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
-                }
-                else if (vestigeNumber == 23){
-                    components.add(Component.translatable("vp.ultimate." + vestigeNumber,Math.min(30,10+cap.getPearls()*5)).withStyle(ChatFormatting.GRAY));
-                }
-                else if (vestigeNumber == 6){
-                    components.add(Component.translatable("vp.ultimate." + vestigeNumber,ConfigHandler.COMMON.donutMaxSaturation.get()).withStyle(ChatFormatting.GRAY));
-                }
-                else components.add(Component.translatable("vp.ultimate." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                if(vestigeNumber == 10)
-                    components.add(Component.translatable("vp.worlds").withStyle(color).append(Component.literal("\n" + cap.getDimensions()).withStyle(ChatFormatting.GRAY)));
-                if (damageType) {
-                    components.add(Component.translatable("vp.damage").withStyle(color));
-                    components.add(Component.translatable("vp.damagetype." + vestigeNumber).withStyle(ChatFormatting.GRAY));
-                }
-                if(vestigeNumber == 666){
-                    if(stellar) {
-                        components.add(GradientUtil.stellarGradient("Stellar: "));
-                        components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
-                    }
-                    if(isDoubleStellar(stack)){
-                        components.add(GradientUtil.stellarGradient("Double Stellar: "));
-                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar." + vestigeNumber).getString()));
-                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
-                    }
-                    if (isTripleStellar(stack)) {
-                        components.add(GradientUtil.stellarGradient("Triple Stellar: "));
-                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar." + vestigeNumber).getString()));
-                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
-                    }
-                }
-                else {
-                    if (stellar) {
-                        if (isTripleStellar(stack))
-                            components.add(GradientUtil.stellarGradient("Triple Stellar: "));
-                        else if (isDoubleStellar(stack))
-                            components.add(GradientUtil.stellarGradient("Double Stellar: "));
-                        else components.add(GradientUtil.stellarGradient("Stellar: "));
-                    } else components.add(Component.translatable(("Stellar")).withStyle(color));
-                    components.add(Component.translatable(("vp.stellarText")).withStyle(ChatFormatting.GRAY).append(Component.translatable("vp.stellar." + vestigeNumber)));
-                    if(isDoubleStellar(stack))
-                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.double_stellar").getString()));
-                    if(isTripleStellar(stack))
-                        components.add(GradientUtil.stellarGradient(Component.translatable("vp.triple_stellar").getString()));
-                    components.add(Component.translatable("vp.condition").append(Component.translatable("vp.condition."+vestigeNumber)).withStyle(color));
-                    String creative = "";
-                    double power = stack.getOrCreateTag().getDouble("VPPower");
-                    if(player.isCreative() && power <= 100)
-                        creative = " (in Creative)";
-                    if(power == 0)
-                        power = VPUtil.getPower(vestigeNumber,player);
-                    components.add(Component.translatable("vestige_power",power+"%" + creative).withStyle(ChatFormatting.GRAY));
-                }
+                player.getPersistentData().putInt("VPHold",hold);
             } else if (Screen.hasControlDown()) {
                 components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient(VPUtil.generateRandomString(7) + " :")));
                 if(vestigeNumber == 9)
@@ -766,30 +657,33 @@ public class Vestige extends Item implements ICurioItem {
                     components.add(Component.translatable("vp.creative").withStyle(ChatFormatting.DARK_PURPLE));
                 }
             } else if (Screen.hasAltDown()) {
-                List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber,player);
-                if(!list.isEmpty()){
+                hold += 2;
+                components.add(Component.literal(hold/10 + "/" + 10).withStyle(ChatFormatting.GRAY));
+                if (hold >= 100) {
+                    List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber, player);
                     Object[] data = new Object[3];
-                    if(vestigeNumber == 9)
+                    data[2] = VPUtil.getChallengeString(vestigeNumber,player,cap);
+                    if (vestigeNumber == 9)
                         data[0] = cap.getGoldenChance();
-                    else if(vestigeNumber == 24) {
+                    else if (vestigeNumber == 24) {
                         data[0] = VPUtil.filterString(VPUtil.getAxolotlVariantsLeft(cap.getSea()).toString());
                         data[2] = VPUtil.filterString(VPUtil.getTropiclVariantsLeft(cap.getSea()).toString());
                     }
                     data[1] = " " + cap.getChallenge(vestigeNumber) + " / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber);
-                    Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber,list,data));
+                    Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber, list, data));
+                    hold = 0;
                 }
+                player.getPersistentData().putInt("VPHold", hold);
             } else {
+                List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber,player);
                 if(stellar && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
                     components.add(Component.translatable("vp.meme."+vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
-                components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
-                components.add(Component.translatable("vp.press").append(Component.literal("CTRL").withStyle(color).append(Component.translatable("vp.ctrl"))));
-                if (vestigeNumber == 2 || vestigeNumber == 6 || vestigeNumber == 10 || vestigeNumber == 11 || vestigeNumber == 13 || vestigeNumber == 15 || vestigeNumber == 16 || vestigeNumber == 17 || vestigeNumber == 20 || vestigeNumber == 21 || vestigeNumber == 22 || vestigeNumber == 26)
-                    components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
+                components.add(Component.translatable("vp.hold").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 if(vestigeNumber == 3)
-                    components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));
-                //if(vestigeNumber == 13)
-                    //components.add(Component.translatable("vp.press").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.prism"))));
+                    components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));
+                else if(!list.isEmpty())
+                    components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
             }
             if(vestigeNumber == 9){
                 int luck = stack.getOrCreateTag().getInt("VPLuck");
