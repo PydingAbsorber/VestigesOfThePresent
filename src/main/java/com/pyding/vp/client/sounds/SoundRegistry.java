@@ -99,6 +99,9 @@ public class SoundRegistry {
     public static RegistryObject<SoundEvent> BOOK_OPEN = registerSoundEvent("book_open");
     public static RegistryObject<SoundEvent> BOOK_CLOSE = registerSoundEvent("book_close");
     public static RegistryObject<SoundEvent> BOOK_PAGE1 = registerSoundEvent("book_page1");
+    public static RegistryObject<SoundEvent> VESTIGE_GUI_OPEN_1 = registerSoundEvent("vestige_gui_open_1");
+    public static RegistryObject<SoundEvent> VESTIGE_GUI_OPEN_2 = registerSoundEvent("vestige_gui_open_2");
+    public static RegistryObject<SoundEvent> VESTIGE_GUI_BUTTON = registerSoundEvent("vestige_gui_button");
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(VestigesOfThePresent.MODID, name)));

@@ -40,6 +40,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -920,6 +921,20 @@ public class EventHandler {
         if(event.getEntity() instanceof Player player) {
             if(VPUtil.hasVestige(ModItems.DONUT.get(),player))
                 VPUtil.addRadiance(SweetDonut.class,15,player);
+            if(VPUtil.hasVestige(ModItems.EARS.get(),player)) {
+                for(String name: ConfigHandler.COMMON.catFood.get().toString().split(",")){
+                    if(event.getItem().getItem().getDescriptionId().contains(name)){
+                        if(!player.hasEffect(MobEffects.NIGHT_VISION))
+                            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 2000));
+                        else {
+                            int duration = player.getEffect(MobEffects.NIGHT_VISION).getDuration();
+                            int amp = player.getEffect(MobEffects.NIGHT_VISION).getAmplifier();
+                            player.removeEffect(MobEffects.NIGHT_VISION);
+                            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, duration+2000,amp));
+                        }
+                    }
+                }
+            }
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                 if(player.getCommandSenderWorld().isClientSide)
                     return;

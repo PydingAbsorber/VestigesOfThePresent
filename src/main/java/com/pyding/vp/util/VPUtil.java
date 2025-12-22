@@ -4151,6 +4151,13 @@ public class VPUtil {
                         for (ServerPlayer serverPlayer : players)
                             serverPlayer.serverLevel().getAllEntities().forEach(list::add);
                         for (Entity entity : list) {
+                            boolean blacklist = false;
+                            for(String name: ConfigHandler.COMMON.clearEntitiesBlacklist.get().toString().split(",")){
+                                if(entity.getType().getDescriptionId().contains(name))
+                                    blacklist = true;
+                            }
+                            if(blacklist)
+                                continue;
                             if(entity instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame())
                                 continue;
                             if(entity instanceof Villager || isNpc(entity.getType()) || entity.getType().getDescriptionId().contains("ironspell"))

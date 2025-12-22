@@ -67,7 +67,7 @@ public class MysteryChestScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
-        Button zoomInButton = new ImageButton(
+        Button zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -75,7 +75,7 @@ public class MysteryChestScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleChest.set(Math.min(2.0, ClientConfig.COMMON.guiScaleChest.get() + 0.1))
         );
-        Button zoomOutButton = new ImageButton(
+        Button zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,

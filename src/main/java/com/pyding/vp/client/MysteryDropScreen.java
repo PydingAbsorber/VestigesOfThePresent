@@ -59,7 +59,7 @@ public class MysteryDropScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
-        resetButton = new ImageButton(
+        resetButton = new NiceButton(
                 right - buttonSize*2 - padding*2, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -67,7 +67,7 @@ public class MysteryDropScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> PacketHandler.sendToServer(new ButtonPressPacket(42))
         );
-        zoomInButton = new ImageButton(
+        zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -75,7 +75,7 @@ public class MysteryDropScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleLoot.set(Math.min(2.0, ClientConfig.COMMON.guiScaleLoot.get() + 0.1))
         );
-        zoomOutButton = new ImageButton(
+        zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,

@@ -61,7 +61,7 @@ public class LeaderboardScreen extends Screen {
         int top = this.height - padding - buttonSize;
         time = System.currentTimeMillis();
         int right = this.width - padding - buttonSize;
-        Button zoomInButton = new ImageButton(
+        Button zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -69,7 +69,7 @@ public class LeaderboardScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleLeaderboard.set(Math.min(2.0, ClientConfig.COMMON.guiScaleLeaderboard.get() + 0.1))
         );
-        Button zoomOutButton = new ImageButton(
+        Button zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -80,7 +80,7 @@ public class LeaderboardScreen extends Screen {
         this.addRenderableWidget(zoomInButton);
         this.addRenderableWidget(zoomOutButton);
         buttonSize = 128;
-        back = new ImageButton(
+        back = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,

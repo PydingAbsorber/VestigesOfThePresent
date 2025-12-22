@@ -4,6 +4,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.ChallengeScreen;
 import com.pyding.vp.client.MysteryDropScreen;
 import com.pyding.vp.client.VestigeScreen;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.mixin.BucketVzlom;
 import com.pyding.vp.mixin.SmitingMixing;
@@ -17,7 +18,9 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -554,6 +557,9 @@ public class Vestige extends Item implements ICurioItem {
         }
         ICurioItem.super.curioTick(slotContext, stack);
     }
+
+    double numb = new Random().nextDouble();
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
@@ -567,7 +573,21 @@ public class Vestige extends Item implements ICurioItem {
             if (Screen.hasShiftDown()) {
                 hold += 2;
                 components.add(Component.literal(hold/10 + "/" + 10).withStyle(ChatFormatting.GRAY));
+                SoundEvent event;
+                int sound;
+                if(numb < 0.5){
+                    event = SoundRegistry.VESTIGE_GUI_OPEN_1.get();
+                    sound = 45;
+                } else {
+                    event = SoundRegistry.VESTIGE_GUI_OPEN_2.get();
+                    sound = 80;
+                }
+                if(hold >= sound && numb > 0){
+                    numb = 0;
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), event, SoundSource.RECORDS, 1f, 1, false);
+                }
                 if(hold >= 100) {
+                    numb = new Random().nextDouble();
                     Minecraft.getInstance().setScreen(new VestigeScreen(stack,player));
                     hold = 0;
                 }
@@ -676,13 +696,14 @@ public class Vestige extends Item implements ICurioItem {
                 player.getPersistentData().putInt("VPHold", hold);
             } else {
                 List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber,player);
+                String info = VPUtil.getChallengeString(vestigeNumber,player,cap);
                 if(stellar && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
                     components.add(Component.translatable("vp.meme."+vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.hold").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 if(vestigeNumber == 3)
                     components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));
-                else if(!list.isEmpty())
+                else if(!list.isEmpty() || !info.isEmpty())
                     components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
             }
             if(vestigeNumber == 9){

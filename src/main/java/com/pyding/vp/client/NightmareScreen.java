@@ -46,7 +46,7 @@ public class NightmareScreen extends Screen {
         int center = this.width/2 - buttonSize/2;
         int top = this.height - padding - buttonSize;
         LocalPlayer player = Minecraft.getInstance().player;
-        Button nextPage = new ImageButton(
+        Button nextPage = new NiceButton(
                 center + (buttonSize - padding) * 2, top - this.height / 8,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -57,7 +57,7 @@ public class NightmareScreen extends Screen {
                     player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
                 }
         );
-        Button prevPage = new ImageButton(
+        Button prevPage = new NiceButton(
                 center - (buttonSize - padding) * 2, top - this.height / 8,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -71,7 +71,7 @@ public class NightmareScreen extends Screen {
         this.addRenderableWidget(nextPage);
         this.addRenderableWidget(prevPage);
         int right = this.width - padding - buttonSize;
-        Button zoomInButton = new ImageButton(
+        Button zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -79,7 +79,7 @@ public class NightmareScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleGuide.set(Math.min(2.0, ClientConfig.COMMON.guiScaleGuide.get() + 0.1))
         );
-        Button zoomOutButton = new ImageButton(
+        Button zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,

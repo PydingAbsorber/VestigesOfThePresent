@@ -269,7 +269,7 @@
   "vp.ultimate.7": "For the next 5 seconds, healing becomes Over Healing, and instead of receiving damage, it accumulates. \nAfter expiration (all accumulated damage - all accumulated Over Heal) is dealt at once. \nIf HP is less than 30% upon activation, time increases by 15 seconds and damage, healing, speed, attack speed increase by 200%. \nIf HP is higher then 50%, time increases by up to 10 seconds for each stack of Madness",
   "vp.get.7": "Enchant items with curses.",
 
-  "vp.passive.8": "Each point of defense gives 1% evasion (cannot exceed 69%).",
+  "vp.passive.8": "Each point of defense gives 1% evasion (cannot exceed 69%). \nConsumed fish provides a night vision effect.",
   "vp.special.8": "Increases the speed attribute by 1. \nAfter each 0.05 of speed attribute provides +1% evasion to Passive (cannot exceed 69%).",
   "vp.ultimate.8": "For the next 40 seconds, in case of unsuccessful evasion, there will be a chance for a second evasion (1% for every 10 experience levels, up to 90%).",
   "vp.get.8": "Tame all kind of Cats.",

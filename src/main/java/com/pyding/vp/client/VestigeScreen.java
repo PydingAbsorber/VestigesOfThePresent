@@ -44,10 +44,6 @@ public class VestigeScreen extends Screen {
             "textures/gui/scroll.png");
     long time = 0;
     ItemStack stack;
-    Button passive;
-    Button special;
-    Button ultimate;
-    Button stellar;
     Button question;
     Button question2;
     Button question3;
@@ -83,7 +79,7 @@ public class VestigeScreen extends Screen {
         int top = this.height - padding - buttonSize;
         time = System.currentTimeMillis();
         int right = this.width - padding - buttonSize;
-        Button zoomInButton = new ImageButton(
+        Button zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -91,7 +87,7 @@ public class VestigeScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleVestige.set(Math.min(2.0, ClientConfig.COMMON.guiScaleVestige.get() + 0.1))
         );
-        Button zoomOutButton = new ImageButton(
+        Button zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -102,7 +98,7 @@ public class VestigeScreen extends Screen {
         this.addRenderableWidget(zoomInButton);
         this.addRenderableWidget(zoomOutButton);
         buttonSize = 16;
-        question = new ImageButton(
+        question = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -111,7 +107,7 @@ public class VestigeScreen extends Screen {
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(10,stack)))
         );
         this.addRenderableWidget(question);
-        question2 = new ImageButton(
+        question2 = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -120,7 +116,7 @@ public class VestigeScreen extends Screen {
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(1,stack)))
         );
         this.addRenderableWidget(question2);
-        question3 = new ImageButton(
+        question3 = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -129,7 +125,7 @@ public class VestigeScreen extends Screen {
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(9,stack)))
         );
         this.addRenderableWidget(question3);
-        question4 = new ImageButton(
+        question4 = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -138,7 +134,7 @@ public class VestigeScreen extends Screen {
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(1,stack)))
         );
         this.addRenderableWidget(question4);
-        question5 = new ImageButton(
+        question5 = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -147,7 +143,7 @@ public class VestigeScreen extends Screen {
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(7,stack)))
         );
         this.addRenderableWidget(question5);
-        question6 = new ImageButton(
+        question6 = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -162,39 +158,7 @@ public class VestigeScreen extends Screen {
         question4.setTooltip(Tooltip.create(Component.translatable("vp.condition."+vestigeNumber).withStyle(ChatFormatting.GRAY)));
         question5.setTooltip(Tooltip.create(Component.translatable("vp.info.7")));
         buttonSize = 64;
-        passive = new ImageButton(
-                0, 0,
-                buttonSize, buttonSize,
-                0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/info_button.png"),
-                buttonSize, buttonSize,
-                button -> lang = "vp.passive."
-        );
-        special = new ImageButton(
-                0, 0,
-                buttonSize, buttonSize,
-                0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/info_button.png"),
-                buttonSize, buttonSize,
-                button -> lang = "vp.special."
-        );
-        ultimate = new ImageButton(
-                0, 0,
-                buttonSize, buttonSize,
-                0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/info_button.png"),
-                buttonSize, buttonSize,
-                button -> lang = "vp.ultimate."
-        );
-        stellar = new ImageButton(
-                0, 0,
-                buttonSize, buttonSize,
-                0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/info_button.png"),
-                buttonSize, buttonSize,
-                button -> lang = "vp.stellar."
-        );
-        challenge = new ImageButton(
+        challenge = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -220,7 +184,7 @@ public class VestigeScreen extends Screen {
                 }
         );
         this.addRenderableWidget(challenge);
-        leaderboard = new ImageButton(
+        leaderboard = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -472,6 +436,6 @@ public class VestigeScreen extends Screen {
     public void onClose() {
         super.onClose();
         LocalPlayer player = Minecraft.getInstance().player;
-        player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_CLOSE.get(), SoundSource.RECORDS, 1f, 1, false);
+        //player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_CLOSE.get(), SoundSource.RECORDS, 1f, 1, false);
     }
 }

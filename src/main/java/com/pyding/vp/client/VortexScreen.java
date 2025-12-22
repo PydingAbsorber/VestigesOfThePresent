@@ -50,7 +50,7 @@ public class VortexScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
-        zoomInButton = new ImageButton(
+        zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -58,7 +58,7 @@ public class VortexScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleVortex.set(Math.min(2.0, ClientConfig.COMMON.guiScaleVortex.get() + 0.1))
         );
-        zoomOutButton = new ImageButton(
+        zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,

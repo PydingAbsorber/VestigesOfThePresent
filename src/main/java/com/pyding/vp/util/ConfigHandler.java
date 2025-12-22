@@ -124,6 +124,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue expMultiplier;
         public final ForgeConfigSpec.DoubleValue anomalyPlayerTeleportChance;
         public final ForgeConfigSpec.IntValue clearEntities;
+        public final ForgeConfigSpec.ConfigValue clearEntitiesBlacklist;
+        public final ForgeConfigSpec.ConfigValue catFood;
 
         public Common(ForgeConfigSpec.Builder builder) {
             lore = builder.comment("Set false to disable chat messages with Lore").define("lore", true);
@@ -238,6 +240,8 @@ public class ConfigHandler {
             mineralClusterBlacklist = builder.comment("Black list for items in Mineral Cluster: ").define("mineralClusterBlacklist","");
             anomalyPlayerTeleportChance = builder.comment("Chance to teleport to random player on the server from Teleportation Anomaly's Stellar Ultimate").defineInRange("anomalyPlayerTeleportChance", 0.05d, 0, 1);
             clearEntities = builder.comment("Time between entity clearing in ticks, 20t = 1 sec. Turned off by default with 0.").defineInRange("clearEntities", 0, 0, Integer.MAX_VALUE);
+            clearEntitiesBlacklist = builder.comment("Black list for clearing entities: ").define("clearEntitiesBlacklist","spectrum,twilightforest");
+            catFood = builder.comment("Food for Cat Ears that counts as fish: ").define("catFood","fish,salmon,tuna,cod,trout,herring,mackerel,sardine,anchovy,haddock,halibut,sole,flounder,swordfish,marlin,perch,pike,carp,catfish,eel,sturgeon,tilapia,seabass,snapper,grouper,dorado,barracuda,mullet,monkfish,turbot,zander,bream,roach,tench,guppy,goldfish,angelfish,tetra,barb,molly,platy,danio,betta,discus,oscar,cichlid,clownfish,surgeonfish,goby,blenny,pufferfish,lionfish,scorpionfish,stingray,shark,skate,lungfish,coelacanth,arapaima,piranha,arowana,burbot,grayling,char,smelt,capelin,pollock,whiting,hake,ling,bluefish,amberjack,wahoo,mahimahi,pompano,drum,croaker,sheepshead,tarpon,bonefish,permit,barramundi,loach,gudgeon,ide,asp,chub,rudd,dace,minnow,stickleback,sculpin,lumpsucker,gar,bowfin,paddlefish,hagfish,lamprey,anchoveta,sprat");
         }
 
         public int getChallengeReduceByNumber(int number) {

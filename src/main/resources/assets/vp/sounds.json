@@ -418,5 +418,20 @@
     "sounds": [
       "vp:book_page1"
     ]
+  },
+  "vestige_gui_open_1": {
+    "sounds": [
+      "vp:vestige_gui_open_1"
+    ]
+  },
+  "vestige_gui_open_2": {
+    "sounds": [
+      "vp:vestige_gui_open_2"
+    ]
+  },
+  "vestige_gui_button": {
+    "sounds": [
+      "vp:vestige_gui_button"
+    ]
   }
 }

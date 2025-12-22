@@ -76,7 +76,7 @@ public class ChallengeScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
-        zoomInButton = new ImageButton(
+        zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -84,7 +84,7 @@ public class ChallengeScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> ClientConfig.COMMON.guiScaleChallenge.set(Math.min(2.0, ClientConfig.COMMON.guiScaleChallenge.get() + 0.1))
         );
-        zoomOutButton = new ImageButton(
+        zoomOutButton = new NiceButton(
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
@@ -95,7 +95,7 @@ public class ChallengeScreen extends Screen {
         this.addRenderableWidget(zoomInButton);
         this.addRenderableWidget(zoomOutButton);
         buttonSize = 128;
-        back = new ImageButton(
+        back = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
