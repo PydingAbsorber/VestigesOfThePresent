@@ -170,6 +170,7 @@
   "vp.soul.empty": "There is empty inside",
   "vp.devourer": "Collected Souls: ",
   "vp.chance2": "On failure chance +",
+  "vp.challenge.obtain": "Complete challenge to get this Vestige, you will also get cooldown on this challenge after completion. \nThere is a certain chance to get Stellar version of the Vestige when you complete challenge:",
   "vp.alt.atlas": " §7to display found biomes",
   "vp.alt.prism": " §7to display damage subtypes that Warden needs to be killed with left",
   "vp.short": "Short information: ",

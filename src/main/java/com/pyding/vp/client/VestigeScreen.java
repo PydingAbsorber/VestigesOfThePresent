@@ -156,7 +156,6 @@ public class VestigeScreen extends Screen {
                 button -> {}
         );
         this.addRenderableWidget(question6);
-        question6.visible = false;
         question.setTooltip(Tooltip.create(Component.translatable("vp.info.10")));
         question2.setTooltip(Tooltip.create(Component.translatable("vp.info.1")));
         question3.setTooltip(Tooltip.create(Component.translatable("vp.info.9")));
@@ -261,17 +260,14 @@ public class VestigeScreen extends Screen {
         guiGraphics.renderItem(stack, 0, 0);
         poseStack.popPose();
         Component name = stack.getHoverName();
-        double count = 0;
-        for(Byte bytes :name.getString().getBytes())
-            count++;
-        if(count < 12)
-            count /= 4;
-        guiGraphics.drawString(font, name, (int) (x+infoWidth/3.4-count), (int) (y+infoHeight/2.7), vestige.color.getColor());
+        guiGraphics.drawString(font, name, (int) (x+infoWidth/3.1)-font.width(name)/2, (int) (y+infoHeight/2.7), vestige.color.getColor());
 
         double baseX = 2.3;
         double baseY = 2.55+scale/20;
         challenge.setX((int)(x+infoWidth/(baseX-0.725)));
         challenge.setY((int) (y+infoHeight/(baseY-0.1)));
+        question6.setX((int)(x+infoWidth/(baseX-0.725)) + 24);
+        question6.setY((int) (y+infoHeight/(baseY-0.5)) + 16);
         //challenge.setTooltip(Tooltip.create(Component.translatable("vp.get."+vestigeNumber)));
         List<Component> tooltip = new ArrayList<>();
         AtomicInteger challenge = new AtomicInteger();
@@ -282,7 +278,7 @@ public class VestigeScreen extends Screen {
             else if(vestigeNumber == 13)
                 tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
             else if(vestigeNumber == 14){
-                tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).append(".\n").withStyle(ChatFormatting.GRAY));
                 tooltip.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity())).append(".\n"));
                 tooltip.add(Component.translatable("vp.chaos2").withStyle(ChatFormatting.GRAY).append(VPUtil.formatMilliseconds(cap.getChaosTime()+VPUtil.getChaosTime()-System.currentTimeMillis())));
             }
@@ -298,6 +294,23 @@ public class VestigeScreen extends Screen {
             for(Component component: tooltip)
                 tip += component.getString();
             this.challenge.setTooltip(Tooltip.create(Component.literal(tip).withStyle(ChatFormatting.GOLD)));
+            tooltip.clear();
+            double stellarChance = cap.getChance();
+            if(VPUtil.getSet(player) == 9)
+                stellarChance += 5;
+            if(cap.getVip() > System.currentTimeMillis())
+                stellarChance += 10;
+            if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+                stellarChance += 10;
+            Component coldown = Component.empty();
+            if (cap.hasCoolDown(vestigeNumber))
+                coldown = Component.translatable("vp.getText2").append(Component.literal((VPUtil.formatMilliseconds(VPUtil.coolDown(player)-(System.currentTimeMillis() - cap.getTimeCd()))))).withStyle(ChatFormatting.RED);
+            Component component = Component.translatable("vp.challenge.obtain").append("\n")
+                    .append(Component.literal((int)stellarChance+"% ").withStyle(vestige.color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient("Stellar.")).append("\n"))).withStyle(ChatFormatting.GRAY)
+                    .append(Component.translatable("vp.chance2").append(Component.literal(ConfigHandler.COMMON.stellarChanceIncrease.get() + "%.")).append("\n"))
+                    .append(Component.translatable("vp.getText1").append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown(player))+".\n").withStyle(ChatFormatting.GRAY)))
+                            .append(coldown);
+            question6.setTooltip(Tooltip.create(component));
         });
         guiGraphics.drawString(font, Component.translatable("vp.progress").append(challenge.get() + " / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber)), (int)(x+infoWidth/(baseX-0.725)-8),(int) (y+infoHeight/(baseY)), ChatFormatting.GOLD.getColor());
 
