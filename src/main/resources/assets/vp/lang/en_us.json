@@ -264,7 +264,7 @@
   "vp.ultimate.6": "For the next 10 seconds after activation, each Over Healing will increase the Saturation stack by 1 to 1 ratio (%s max). \nStacks reset after recharging Ultimate.",
   "vp.get.6": "Consume all food in the modpack.",
 
-  "vp.passive.7": "Next attack wil duplicate for each stack of Madness. \nIf target has lower then 50% HP stacks doesn't consume with 50% chance.",
+  "vp.passive.7": "Next attack will duplicate for each stack of Madness. \nIf target has lower then 50% HP stacks doesn't consume with 50% chance.",
   "vp.special.7": "Sacrifice 20% HP for 1 stack of Madness up to 10.",
   "vp.ultimate.7": "For the next 5 seconds, healing becomes Over Healing, and instead of receiving damage, it accumulates. \nAfter expiration (all accumulated damage - all accumulated Over Heal) is dealt at once. \nIf HP is less than 30% upon activation, time increases by 15 seconds and damage, healing, speed, attack speed increase by 200%. \nIf HP is higher then 50%, time increases by up to 10 seconds for each stack of Madness",
   "vp.get.7": "Enchant items with curses.",

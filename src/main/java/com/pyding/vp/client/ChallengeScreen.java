@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.EggItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.SmithingTemplateItem;
@@ -238,6 +239,8 @@ public class ChallengeScreen extends Screen {
 
             if(ClientConfig.COMMON.guiScaleChallenge.get() >= 0.8) {
                 Component name = VPUtil.filterAndTranslate(stack.getDescriptionId(), color);
+                if(!stack.getOrCreateTag().getString("EggName").isEmpty())
+                    name = VPUtil.filterAndTranslate(stack.getOrCreateTag().getString("EggName"), color);
                 if (stack.getItem() instanceof SmithingTemplateItem templateItem)
                     name = ((SmitingMixing) templateItem).upgradeDescription();
                 else if (stack.getItem() instanceof RecordItem recordItem)

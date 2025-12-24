@@ -159,6 +159,9 @@ public class ShieldOverlay {
                     if(vestigeNumber == 7){
                         info = String.valueOf(player.getPersistentData().getInt("VPMadness"));
                     }
+                    if(vestigeNumber == 9){
+                        info = stack.getOrCreateTag().getInt("VPKills")+"";
+                    }
                     if(vestigeNumber == 11){
                         info = String.valueOf((int)stack.getOrCreateTag().getFloat("VPArmor"));
                     }

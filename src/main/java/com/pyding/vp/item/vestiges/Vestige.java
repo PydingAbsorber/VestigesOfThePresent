@@ -584,7 +584,7 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 if(hold >= sound && numb > 0){
                     numb = 0;
-                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), event, SoundSource.RECORDS, 1f, 1, false);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), event, SoundSource.NEUTRAL, 1f, 1, false);
                 }
                 if(hold >= 100) {
                     numb = new Random().nextDouble();
@@ -695,16 +695,18 @@ public class Vestige extends Item implements ICurioItem {
                 }
                 player.getPersistentData().putInt("VPHold", hold);
             } else {
-                List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber,player);
-                String info = VPUtil.getChallengeString(vestigeNumber,player,cap);
+                int[] items = {2,6,9,13,15,16,17,20,21,22,24,26};
                 if(stellar && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
                     components.add(Component.translatable("vp.meme."+vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
                 components.add(Component.translatable("vp.hold").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
                 if(vestigeNumber == 3)
                     components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));
-                else if(!list.isEmpty() || !info.isEmpty())
-                    components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
+                else for (int numb : items) {
+                    if (numb == vestigeNumber) {
+                        components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
+                    }
+                }
             }
             if(vestigeNumber == 9){
                 int luck = stack.getOrCreateTag().getInt("VPLuck");

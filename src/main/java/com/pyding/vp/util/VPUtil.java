@@ -76,6 +76,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWit
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -175,7 +176,6 @@ public class VPUtil {
         if(player instanceof ServerPlayer serverPlayer) {
             Set<ResourceKey<Biome>> biomes = level.registryAccess().registryOrThrow(Registries.BIOME).registryKeySet();
             biomeNames.addAll(biomes);
-            //PacketHandler.sendToClient(new PlayerFlyPacket(1), serverPlayer);
         }
     }
     public static List<ResourceLocation> getBiomes(){
@@ -447,7 +447,7 @@ public class VPUtil {
             allList.add(type.toString().trim());
         }
         allList.removeAll(mobsList);
-        player.getPersistentData().putString("VPMonsterClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
+        player.getPersistentData().putString("VPMonsterClient", filterString(allList.toString()));
         return allList;
     }
     public static List<String> getMonsterClient(Player player){
@@ -461,7 +461,7 @@ public class VPUtil {
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
-        player.getPersistentData().putString("VPBossClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
+        player.getPersistentData().putString("VPBossClient", filterString(allList.toString()));
         return allList;
     }
 
@@ -476,7 +476,7 @@ public class VPUtil {
             allList.add(type.toString());
         }
         allList.removeAll(mobsList);
-        player.getPersistentData().putString("VPMobsClient", filterAndTranslate(allList.toString(),ChatFormatting.GRAY).getString());
+        player.getPersistentData().putString("VPMobsClient", filterString(allList.toString()));
         return allList;
     }
 
@@ -4253,67 +4253,7 @@ public class VPUtil {
     public static List<ItemStack> getChallengeList(int vestigeNumber, Player player){
         List<ItemStack> list = new ArrayList<>();
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            String text = "";
-            switch (vestigeNumber) {
-                case 2: {
-                    text = VPUtil.getMonsterClient(player).toString();
-                    break;
-                }
-                case 3: {
-                    text = VPUtil.getBiomesClient(player).toString();
-                    break;
-                }
-                case 6: {
-                    text = VPUtil.getFoodLeft(cap.getFoodEaten()).toString();
-                    break;
-                }
-                case 9: {
-                    text = cap.getGoldenItems();
-                    break;
-                }
-                case 11:{
-                    text = VPUtil.getDamageKindsLeft(cap.getDamageDie()).toString();
-                    break;
-                }
-                case 13:{
-                    text = VPUtil.getRaresClient(player).toString();
-                    break;
-                }
-                case 15: {
-                    text = VPUtil.getBossClient(player).toString();
-                    break;
-                }
-                case 16: {
-                    text = VPUtil.getFlowersLeft(cap.getFlowers()).toString();
-                    break;
-                }
-                case 17: {
-                    text = VPUtil.filterAndTranslate(VPUtil.getEffectsLeft(cap.getEffects()).toString(),ChatFormatting.GRAY).getString();
-                    break;
-                }
-                case 20:{
-                    text = VPUtil.getMobsClient(player).toString();
-                    break;
-                }
-                case 21:{
-                    text = VPUtil.getTemplatesLeft(cap.getTemplates()).toString();
-                    break;
-                }
-                case 22:{
-                    text =  VPUtil.getMusicDisksLeft(cap.getMusic()).toString();
-                    break;
-                }
-                case 24:{
-                    text =  VPUtil.getSeaLeft(cap.getSea()).toString();
-                    break;
-                }
-                case 26:{
-                    text = VPUtil.getOresClient(player).toString();
-                    break;
-                }
-                default:
-                    text = null;
-            }
+            String text = getChallengeString(vestigeNumber,player,cap);
             if(text != null)
                 text = filterString(text);
             int[] items = {6,9,13,16,21,22,24,26};
@@ -4321,11 +4261,27 @@ public class VPUtil {
                 if (numb == vestigeNumber) {
                     for(Item item: VPUtil.getItems()) {
                         for(String id: text.split(",")){
-                            if (item instanceof SmithingTemplateItem templateItem &&  ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
+                            if (item instanceof SmithingTemplateItem templateItem && ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
                                     && translatableContents.getKey().equals(id.trim()))
                                 list.add(new ItemStack(templateItem));
-                            else if(item.getDescriptionId().equals(id.trim()))
+                            else if (item.getDescriptionId().equals(id.trim()))
                                 list.add(new ItemStack(item));
+                        }
+                    }
+                }
+            }
+            if((vestigeNumber == 2 || vestigeNumber == 20 || vestigeNumber == 15) && !text.isEmpty()){
+                for(EntityType<?> type: entities){
+                    for(String id: text.split(",")){
+                        if (type.getDescriptionId().equals(id.trim())) {
+                            ItemStack egg;
+                            if(ForgeSpawnEggItem.fromEntityType(type) != null)
+                                egg = new ItemStack(ForgeSpawnEggItem.fromEntityType(type));
+                            else {
+                                egg = new ItemStack(Items.SKELETON_SPAWN_EGG);
+                            }
+                            egg.getOrCreateTag().putString("EggName",type.getDescriptionId());
+                            list.add(egg);
                         }
                     }
                 }

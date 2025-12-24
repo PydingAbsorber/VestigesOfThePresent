@@ -89,7 +89,7 @@ public class GuideScreen extends Screen {
                 button -> {
                     page = Math.min(maxPages, page + 1);
                     showEverything = false;
-                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.NEUTRAL, 1f, 1, false);
                 }
         );
         Button prevPage = new NiceButton(
@@ -101,7 +101,7 @@ public class GuideScreen extends Screen {
                 button -> {
                     page = Math.max(1, page - 1);
                     showEverything = false;
-                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.NEUTRAL, 1f, 1, false);
                 }
         );
         Button showAll = new NiceButton(
@@ -112,7 +112,7 @@ public class GuideScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> {
                     showEverything = !showEverything;
-                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.RECORDS, 1f, 1, false);
+                    player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_PAGE1.get(), SoundSource.NEUTRAL, 1f, 1, false);
                 }
         );
         this.addRenderableWidget(nextPage);

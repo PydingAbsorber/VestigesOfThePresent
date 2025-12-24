@@ -1078,12 +1078,11 @@ public class EventHandler {
     @SubscribeEvent
     public static void craftEvent(PlayerEvent.ItemCraftedEvent event){
         ItemStack stack = event.getCrafting();
-        if(stack.getItem().getDescriptionId().contains("gold")){
+        String desc = stack.getItem().getDescriptionId();
+        if(desc.contains("gold")){
             Player player = event.getEntity();
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                String name = stack.getItem().getDescriptionId();
-                name = name.replaceAll(",","");
-                cap.addGold(name,player);
+                cap.addGold(desc,player);
             });
         }
     }
@@ -1224,8 +1223,6 @@ public class EventHandler {
         if(event.getEntity() instanceof Player player && event.getEffectInstance() != null){
             if(VPUtil.hasVestige(ModItems.CATALYST.get(),player) && !event.getEffectInstance().getEffect().isBeneficial())
                 VPUtil.addRadiance(Catalyst.class,5,player);
-            if(VPUtil.hasVestige(ModItems.DONUT.get(),player) && VPUtil.getShield(player) > 0 && !event.getEffectInstance().getEffect().isBeneficial())
-                event.setCanceled(true);
         }
     }
 
