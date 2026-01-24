@@ -77,7 +77,7 @@ public record ButtonPressPacket(int id) implements CustomPacketPayload {
                 }
             } else if (msgId == 42) {
                 if (player.hasPermissions(2)) {
-                    ConfigHandler.lootDrops.set(ConfigHandler.DEFAULT_LOOT);
+                    ConfigHandler.lootDrops.set(ConfigHandler.getDefaultLoot());
                     MysteryChest.init();
                 }
             } else {

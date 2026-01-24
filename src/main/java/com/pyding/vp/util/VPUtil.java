@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.pyding.vp.VestigesOfThePresent;
+import com.pyding.vp.capability.ModAttachments;
 import com.pyding.vp.capability.VestigeCap;
 import com.pyding.vp.capability.VestigeCapProvider;
 import com.pyding.vp.client.sounds.SoundRegistry;
@@ -93,6 +94,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class VPUtil {
 
@@ -825,9 +827,11 @@ public class VPUtil {
     }
 
     public static boolean isCustomBoss(EntityType<?> type){
-         for(String types: ConfigHandler.bosses.get().toString().split(","))
-             if(type.toString().contains(types))
-                 return true;
+        if(ConfigHandler.isLoaded()) {
+            for (String types : ConfigHandler.bosses.get().toString().split(","))
+                if (type.toString().contains(types))
+                    return true;
+        }
         return false;
     }
     public static List<String> getMonsterLeft(String list, Player player){
@@ -1052,11 +1056,16 @@ public class VPUtil {
         return types;
     }
 
-    public static EntityType getRandomEntity(){
+    public static EntityType<?> getRandomEntity() {
+        List<EntityType<?>> allEntities = new ArrayList<>();
+        List<EntityType<?>> creatures = getEntitiesListOfType(MobCategory.CREATURE);
+        List<EntityType<?>> monsters = getEntitiesListOfType(MobCategory.MONSTER);
+        if (creatures != null) allEntities.addAll(creatures);
+        if (monsters != null) allEntities.addAll(monsters);
+        if (allEntities.isEmpty()) {
+            return EntityType.PIG;
+        }
         Random random = new Random();
-        List<EntityType> allEntities = new ArrayList<>();
-        allEntities.addAll(getEntitiesListOfType(MobCategory.CREATURE));
-        allEntities.addAll(getEntitiesListOfType(MobCategory.MONSTER));
         return allEntities.get(random.nextInt(allEntities.size()));
     }
 
@@ -1544,55 +1553,64 @@ public class VPUtil {
             player.giveExperiencePoints(totalDamage);
     }
 
-    public static void negativnoEnchant(LivingEntity entity,Player player){
+    public static void negativnoEnchant(LivingEntity entity, Player player) {
         int count = 0;
-        for(ItemStack stack: getAllEquipment(entity)){
-            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-            Set<Enchantment> copy = new HashSet<>(enchantments.keySet());
-            if(!enchantments.isEmpty()){
-                for(Enchantment enchantment: copy){
-                    if(stack.getEnchantmentLevel(enchantment) < 0 || enchantment.isCurse())
+        for (ItemStack stack : getAllEquipment(entity)) {
+            ItemEnchantments currentEnchants = EnchantmentHelper.getEnchantmentsForCrafting(stack);
+            if (!currentEnchants.isEmpty()) {
+                ItemEnchantments.Mutable mutableEnchants = new ItemEnchantments.Mutable(currentEnchants);
+                boolean changed = false;
+                for (Holder<Enchantment> enchantment : currentEnchants.keySet()) {
+                    int lvl = currentEnchants.getLevel(enchantment);
+                    if (lvl < 0 || enchantment.is(EnchantmentTags.CURSE)) {
                         continue;
-                    int lvl = enchantments.get(enchantment);
-                    enchantments.remove(enchantment);
-                    enchantments.put(enchantment,lvl*-1);
+                    }
+                    mutableEnchants.set(enchantment, lvl * -1);
                     count++;
+                    changed = true;
                 }
-                VPUtil.getTag(stack).putBoolean("VPEnchant",true);
+                if (changed) {
+                    EnchantmentHelper.setEnchantments(stack, mutableEnchants.toImmutable());
+                    stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, customData ->
+                            customData.update(tag -> tag.putBoolean("VPEnchant", true))
+                    );
+                }
             }
         }
-        entity.getPersistentData().putLong("VPEnchant",System.currentTimeMillis()+15000);
-        VPUtil.addRadiance(Book.class,count*3,player);
+        entity.getPersistentData().putLong("VPEnchant", System.currentTimeMillis() + 15000);
+        VPUtil.addRadiance(Book.class, count * 3, player);
     }
 
-    public static void negativnoDisenchant(LivingEntity entity){
-        for(ItemStack stack: getAllEquipment(entity)){
-            if(!VPUtil.getTag(stack).getBoolean("VPEnchant"))
+    public static void negativnoDisenchant(LivingEntity entity) {
+        for (ItemStack stack : getAllEquipment(entity)) {
+            if (!getTag(stack).getBoolean("VPEnchant")) {
                 continue;
-            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-            if(!enchantments.isEmpty()){
-                for(Enchantment enchantment: enchantments.keySet()){
-                    if(stack.getEnchantmentLevel(enchantment) < 0 || enchantment.isCurse())
-                        continue;
-                    int lvl = enchantments.get(enchantment);
-                    enchantments.remove(enchantment);
-                    enchantments.put(enchantment,lvl*-1);
+            }
+            ItemEnchantments currentEnchants = EnchantmentHelper.getEnchantmentsForCrafting(stack);
+            if (!currentEnchants.isEmpty()) {
+                ItemEnchantments.Mutable mutableEnchants = new ItemEnchantments.Mutable(currentEnchants);
+                for (Holder<Enchantment> enchantment : currentEnchants.keySet()) {
+                    int lvl = currentEnchants.getLevel(enchantment);
+                    if (lvl > 0 && !enchantment.is(EnchantmentTags.CURSE)) {
+                        mutableEnchants.set(enchantment, lvl * -1);
+                    }
                 }
                 VPUtil.getTag(stack).putBoolean("VPEnchant",false);
             }
         }
     }
 
-    public static void enchantCurseAll(LivingEntity entity){
-        for(ItemStack stack: getAllEquipment(entity)){
-            stack.getEnchantmentTags().clear();
-            List<Enchantment> list = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-            for(Enchantment enchantment: list){
-                if(enchantment.isCurse())
-                    stack.enchant(enchantment,1);
-            }
-            /*stack.enchant(Enchantments.BINDING_CURSE,1);
-            stack.enchant(Enchantments.VANISHING_CURSE,1);*/
+    public static void enchantCurseAll(LivingEntity entity) {
+        var registry = entity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        for (ItemStack stack : getAllEquipment(entity)) {
+            stack.set(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+            ItemEnchantments.Mutable curses = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+            registry.listElements().forEach(enchantmentHolder -> {
+                if (enchantmentHolder.is(EnchantmentTags.CURSE)) {
+                    curses.set(enchantmentHolder, 1);
+                }
+            });
+            EnchantmentHelper.setEnchantments(stack, curses.toImmutable());
         }
     }
 
@@ -1691,10 +1709,6 @@ public class VPUtil {
         if (attacker == null || target == null) {
             return false;
         }
-        if(NoGriefCompat.ngLoaded() && target instanceof LivingEntity livingEntity){
-            if(!NoGriefCompat.canHurt(livingEntity,attacker))
-                return true;
-        }
         if(attacker == target)
             return false;
         if(target instanceof Player player && player.isCreative()) {
@@ -1709,16 +1723,14 @@ public class VPUtil {
         final boolean[] friend = {false};
         if(isFriendlyFireBetween(attacker,target))
             return true;
-        attacker.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            for(String name: cap.getFriends().split(",")){
-                if(!name.isEmpty() && (target.getDisplayName().equals(name)
-                        || target.getType().getDescriptionId().equals(name)
-                        || target.getType().getDescriptionId().contains(name)
-                        || (target.hasCustomName() && target.getCustomName().getString().contains(name)))
-                        || (target instanceof Player targetPlayer && targetPlayer.getName().getString().equals(name)))
-                    friend[0] = true;
-            }
-        });
+        for(String name: getCap(attacker).getFriends().split(",")){
+            if(!name.isEmpty() && (target.getDisplayName().equals(name)
+                    || target.getType().getDescriptionId().equals(name)
+                    || target.getType().getDescriptionId().contains(name)
+                    || (target.hasCustomName() && target.getCustomName().getString().contains(name)))
+                    || (target instanceof Player targetPlayer && targetPlayer.getName().getString().equals(name)))
+                friend[0] = true;
+        }
         return friend[0];
     }
 
@@ -1788,7 +1800,7 @@ public class VPUtil {
             double z = startZ + (endZ - startZ) * random.nextDouble();
             for (LivingEntity entity: getEntitiesAround(player,20,20,20,true)){
                 if(entity instanceof ServerPlayer serverPlayer){
-                    PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ,color1,color2,color3),serverPlayer);
+                    PacketHandler.sendToClient(new ParticlePacket(VPUtilParticles.getParticleId(particle),x,y,z,deltaX,deltaY,deltaZ),serverPlayer);
                 }
             }
         }
@@ -1923,7 +1935,7 @@ public class VPUtil {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
-                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+                PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
         }
         if(tag.getFloat("VPOverShieldMax") < shield || tag.getFloat("VPOverShieldMax") <= 0) {
             tag.putFloat("VPOverShieldMax", shield);
@@ -1955,7 +1967,7 @@ public class VPUtil {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
-                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+                PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
         }
     }
 
@@ -1992,7 +2004,7 @@ public class VPUtil {
             PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
-                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+                PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
         }
         if(stealer.getPersistentData().getFloat("VPOverShieldMax") < shield) {
             stealer.getPersistentData().putFloat("VPOverShieldMax", shield);
@@ -2010,7 +2022,7 @@ public class VPUtil {
     public static HashSet<MobEffect> effects = new HashSet<>();
 
     public static void initEffects(){
-        for(MobEffect effect: BuiltInRegistries.MOB_EFFECTS){
+        for(MobEffect effect: BuiltInRegistries.MOB_EFFECT){
             effects.add(effect);
         }
     }
@@ -2093,7 +2105,7 @@ public class VPUtil {
     public static List<String> getOres(){
         if(ores.isEmpty()) {
             TagKey<Item> forgeOreTag = TagKey.create(
-                    BuiltInRegistries.ITEMS.getRegistryKey(),
+                    BuiltInRegistries.ITEM.key(),
                     ResourceLocation.fromNamespaceAndPath("forge", "ores")
             );
             for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(forgeOreTag)) {
@@ -2133,8 +2145,8 @@ public class VPUtil {
     }
 
     public static EntityType<?> entityTypeFromNbt(CompoundTag nbtTagCompound) {
-        ResourceLocation typeId = ResourceLocation.fromNamespaceAndPath(nbtTagCompound.getString("id"));
-        return BuiltInRegistries.ENTITY_TYPES.getValue(typeId);
+        ResourceLocation typeId = ResourceLocation.parse(nbtTagCompound.getString("id"));
+        return BuiltInRegistries.ENTITY_TYPE.get(typeId);
     }
 
     public static void teleportRandomly(Entity entity, int radius) {
@@ -2383,26 +2395,26 @@ public class VPUtil {
         player.getPersistentData().putInt("VPDevourerHits",0);
         player.getPersistentData().putFloat("VPHealResFlower", 0);
         player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
-        Multimap<Attribute, AttributeModifier> mark = HashMultimap.create();
-        mark.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("4fc18d7a-9353-45b1-ad77-29117c1d9e6f"), "vp:attack_speed_modifier_mark", 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("78cf254b-36df-41d6-be91-ad06220d9dd8"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("54b7f5ed-0851-4745-b98c-e1f08a1a2f67"), "vp:speed_modifier_mark", 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        Multimap<Holder<Attribute>, AttributeModifier> mark = HashMultimap.create();
+        mark.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:attack_speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_mark") , 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_mark") , 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         player.getAttributes().removeAttributeModifiers(mark);
-        Multimap<Attribute, AttributeModifier> mask = HashMultimap.create();
-        mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("ec62548c-5b26-401e-83fd-693e4aafa532"), "vp:attack_speed_modifier", 0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("f4ece564-d2c0-40d2-a96a-dc68b493137c"), "vp:speed_modifier", 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        Multimap<Holder<Attribute>, AttributeModifier> mask = HashMultimap.create();
+        mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:attack_speed_modifier") , 0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier") , 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         player.getAttributes().removeAttributeModifiers(mask);
-        Multimap<Attribute, AttributeModifier> midas = HashMultimap.create();
-        midas.put(Attributes.LUCK, new AttributeModifier(UUID.fromString("f55f3429-0399-4d9e-9f84-0d7156cc0593"), "vp:luck", 0, AttributeModifier.Operation.ADD_VALUE));
+        Multimap<Holder<Attribute>, AttributeModifier> midas = HashMultimap.create();
+        midas.put(Attributes.LUCK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:luck") , 0, AttributeModifier.Operation.ADD_VALUE));
         player.getPersistentData().putInt("VPPrism", 0);
-        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),0, AttributeModifier.Operation.ADD_VALUE,"vp:soulblighter_hp_boost"));
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 0, AttributeModifier.Operation.ADD_VALUE,"vp:soulblighter_hp_boost"));
         player.getPersistentData().putBoolean("VPSweetUlt",false);
         player.getPersistentData().putFloat("VPSaturation",0);
         player.getPersistentData().putFloat("VPHealBonusDonut", 0);
         player.getPersistentData().putFloat("VPShieldBonusDonut", 0);
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",0);
         player.getPersistentData().putFloat("VPTrigonBonus", 0);
-        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:trigon_hp_boost"));
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,  1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:trigon_hp_boost"));
         if(player.isAlive() && player.getHealth() > player.getMaxHealth())
             player.setHealth(player.getMaxHealth());
         sync(player);
@@ -2822,7 +2834,7 @@ public class VPUtil {
     }
 
     public static void vzlomatJopu(float value){
-        final Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(ResourceLocation.fromNamespaceAndPath("generic.max_health"));
+        final Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(ResourceLocation.fromNamespaceAndPath("minecraft","generic.max_health"));
         if (attribute instanceof RangedAttribute ranged) {
             final VzlomJopiMixin vzlom = (VzlomJopiMixin) (Object) attribute;
             if (ranged.getMaxValue() != value)
@@ -2865,10 +2877,10 @@ public class VPUtil {
                 return;
             }
             player.getPersistentData().putFloat("VPIgnis",Math.min(99,stack+5));
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),1, AttributeModifier.Operation.ADD_VALUE,"vp:ignis_hp"));
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),1, AttributeModifier.Operation.ADD_VALUE,"vp:ignis_armor"));
-            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(player,Attributes.MAX_HEALTH,UUID.fromString("4ed92da8-dd60-41a2-9540-cc8816af92e2"),-player.getMaxHealth()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp:ignis_hp"));
-            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(player,Attributes.ARMOR,UUID.fromString("39f598b3-b75c-422f-93fc-8e65dade8730"),-player.getArmorValue()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp:ignis_armor"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,1, AttributeModifier.Operation.ADD_VALUE,"vp:ignis_hp"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR,1, AttributeModifier.Operation.ADD_VALUE,"vp:ignis_armor"));
+            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MAX_HEALTH,-player.getMaxHealth()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp:ignis_hp"));
+            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR,-player.getArmorValue()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp:ignis_armor"));
             player.getPersistentData().putLong("VPIgnisTime",System.currentTimeMillis()+60000);
             player.setHealth(player.getMaxHealth());
         }
@@ -2926,11 +2938,11 @@ public class VPUtil {
     }
 
     public static void boostEntity(LivingEntity livingEntity,float amount, float shields, float overShields){
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MAX_HEALTH, UUID.randomUUID(), amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:1"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR, UUID.randomUUID(), amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:5"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ARMOR_TOUGHNESS, UUID.randomUUID(), amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:6"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.ATTACK_DAMAGE, UUID.randomUUID(), amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:4"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(livingEntity, Attributes.MOVEMENT_SPEED, UUID.randomUUID(), scaleDown(amount,1.25f), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:7"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MAX_HEALTH, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:1"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:5"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR_TOUGHNESS, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:6"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ATTACK_DAMAGE, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:4"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MOVEMENT_SPEED, scaleDown(amount,1.25f), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:7"));
         livingEntity.setHealth(livingEntity.getMaxHealth());
         if(shields > 0) {
             livingEntity.getPersistentData().putFloat("VPShieldInit",shields);
@@ -2942,12 +2954,14 @@ public class VPUtil {
         }
         livingEntity.getPersistentData().putBoolean("VPEmpowered",true);
         syncEntity(livingEntity);
-        for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
-            if (!livingEntity.getItemBySlot(equipmentslot).isEmpty()) {
-                ItemStack stack = livingEntity.getItemBySlot(equipmentslot);
-                List<EnchantmentInstance> possible = EnchantmentHelper.selectEnchantment(RandomSource.create(), stack, 30, false);
-                for(EnchantmentInstance enchantment : possible) {
-                    livingEntity.getItemBySlot(equipmentslot).enchant(enchantment.enchantment, enchantment.level);
+        var registry = livingEntity.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        for (EquipmentSlot equipmentslot : EquipmentSlot.values()) {
+            ItemStack stack = livingEntity.getItemBySlot(equipmentslot);
+            if (!stack.isEmpty()) {
+                Stream<Holder<Enchantment>> enchantmentStream = registry.listElements().map(reference -> reference);
+                List<EnchantmentInstance> possible = EnchantmentHelper.selectEnchantment(livingEntity.getRandom(), stack, 30, enchantmentStream);
+                for (EnchantmentInstance enchantment : possible) {
+                    stack.enchant(enchantment.enchantment, enchantment.level);
                 }
             }
         }
@@ -3158,7 +3172,7 @@ public class VPUtil {
                 double y = player.getY();
                 double z = player.getZ();
                 if(type == 1 && entity.tickCount % (4*20*slow) == 0){
-                    player.setSecondsOnFire(entity.getRemainingFireTicks()+10000);
+                    player.setRemainingFireTicks(entity.getRemainingFireTicks()+10000);
                     player.hurt(entity.damageSources().lava(),attack*0.6f);
                 }
                 if(type == 2 && (entity.tickCount % (10*20*slow)) == 0){
@@ -3358,12 +3372,10 @@ public class VPUtil {
     }
 
     public static void setLuck(Player player){
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            int luck = cap.getPearls();
-            if(hasVestige(ModItems.CHAOS.get(),player))
-                luck += 7;
-            player.getPersistentData().putInt("VPPearlsLuck",luck);
-        });
+        int luck = getCap(player).getPearls();
+        if(hasVestige(ModItems.CHAOS.get(),player))
+            luck += 7;
+        player.getPersistentData().putInt("VPPearlsLuck",luck);
     }
 
     public static int getLuck(Player player){
@@ -3555,12 +3567,11 @@ public class VPUtil {
     public static void bindEntity(LivingEntity entity, long time){
         antiTp(entity,time);
         if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setBindTime(System.currentTimeMillis() + time);
-                cap.setBindX(entity.getX());
-                cap.setBindY(entity.getY());
-                cap.setBindZ(entity.getZ());
-            });
+            VestigeCap cap = getCap(player);
+            cap.setBindTime(System.currentTimeMillis() + time);
+            cap.setBindX(entity.getX());
+            cap.setBindY(entity.getY());
+            cap.setBindZ(entity.getZ());
         } else {
             entity.getPersistentData().putDouble("VPDevourerX", entity.getX());
             entity.getPersistentData().putDouble("VPDevourerY", entity.getY());
@@ -3579,9 +3590,7 @@ public class VPUtil {
         entity.getPersistentData().putLong("VPAntiTP", System.currentTimeMillis() + time);
         syncEntity(entity);
         if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setAntiTp(System.currentTimeMillis() + time);
-            });
+            getCap(player).setAntiTp(System.currentTimeMillis() + time);
         }
     }
 
@@ -3607,25 +3616,22 @@ public class VPUtil {
         }
         AtomicBoolean teleport = new AtomicBoolean(true);
         if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(cap.getAntiTp() > System.currentTimeMillis()) {
-                    teleport.set(false);
-                }
-            });
+            if(getCap(player).getAntiTp() > System.currentTimeMillis()) {
+                teleport.set(false);
+            }
         }
         return teleport.get();
     }
 
     public static void bindTick(LivingEntity livingEntity){
         if(livingEntity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                if(cap.getBindTime() > System.currentTimeMillis()) {
-                    BlockPos pos = new BlockPos((int) cap.getBindX(),(int)cap.getBindY(),(int)cap.getBindZ());
-                    VPUtil.suckToPos(player,pos,1);
-                    if(player instanceof ServerPlayer serverPlayer)
-                        PacketHandler.sendToClient(new PlayerFlyPacket(301),serverPlayer);
-                }
-            });
+            VestigeCap cap = getCap(player);
+            if(cap.getBindTime() > System.currentTimeMillis()) {
+                BlockPos pos = new BlockPos((int) cap.getBindX(),(int)cap.getBindY(),(int)cap.getBindZ());
+                VPUtil.suckToPos(player,pos,1);
+                if(player instanceof ServerPlayer serverPlayer)
+                    PacketHandler.sendToClient(new PlayerFlyPacket(301),serverPlayer);
+            }
         } else if(livingEntity.getPersistentData().getDouble("VPDevourerX") != 0){
             if(livingEntity.getPersistentData().getLong("VPAntiTP") < System.currentTimeMillis()){
                 livingEntity.getPersistentData().putDouble("VPDevourerX", 0);
@@ -3711,9 +3717,7 @@ public class VPUtil {
     }
 
     public static boolean strictOptimization(){
-        if(ConfigHandler.COMMON_SPEC.isLoaded())
-            return ConfigHandler.strictOptimization.get();
-        return false;
+        return ConfigHandler.strictOptimization.get();
     }
 
     public static HashMap<UUID,String> osMap = new HashMap<>();
@@ -3753,9 +3757,7 @@ public class VPUtil {
                 VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
             }
         }
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            cap.addNightmareChallenge(entity.getPersistentData().getInt("VPBossType"),player);
-        });
+        getCap(player).addNightmareChallenge(entity.getPersistentData().getInt("VPBossType"),player);
     }
 
     public static HashMap<UUID,Long> roflan = new HashMap<>();
@@ -3786,48 +3788,41 @@ public class VPUtil {
 
     public static int getSoulIntegrity(LivingEntity entity){
         if(entity instanceof Player player){
-            AtomicInteger soul = new AtomicInteger();
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                soul.set(cap.getSoulIntegrity());
-            });
-            return soul.get();
+            return getCap(player).getSoulIntegrity();
         } else return entity.getPersistentData().getInt("VPSoulIntegrity");
     }
 
     public static int getMaxSoulIntegrity(LivingEntity entity){
         if(!isBoss(entity) && !(entity instanceof Player))
             return 100;
-        AtomicInteger maxSoul = new AtomicInteger(100);
-        maxSoul.addAndGet((int) (Math.log10(entity.getMaxHealth())*100));
+        int maxSoul = 100;
+        maxSoul += (int) (Math.log10(entity.getMaxHealth())*100);
         if(isBoss(entity)) {
-            maxSoul.set(maxSoul.get() * 2);
+            maxSoul *= 2;
             if (isNightmareBoss(entity))
-                maxSoul.set(maxSoul.get() * 4);
+                maxSoul *= 4;
         }
         else if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                maxSoul.addAndGet((int) (cap.getAdvancements()*0.1));
-                maxSoul.addAndGet(cap.getAllLore().split(",").length*25);
-            });
+            maxSoul += (int) (getCap(player).getAdvancements()*0.1);
+            maxSoul += getCap(player).getAllLore().split(",").length*25;
             if(hasStellarVestige(ModItems.SOULBLIGHTER.get(),player)){
                 ItemStack stack = getVestigeStack(SoulBlighter.class,player);
                 if(VPUtil.getTag(stack).contains("entityData"))
-                    maxSoul.addAndGet((int)Math.log10((VPUtil.getTag(stack).getFloat("VPMaxHealth"))*100));
+                    maxSoul += (int)Math.log10((VPUtil.getTag(stack).getFloat("VPMaxHealth"))*100);
             }
-            maxSoul.set(maxSoul.get()*4);
+            maxSoul *= 4;
             if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player)){
-                maxSoul.set((int) (maxSoul.get()*2));
+                maxSoul *= 2;
             }
         }
-        return maxSoul.get();
+        return maxSoul;
     }
 
     public static void modifySoulIntegrity(LivingEntity entity, int number){
         if(entity instanceof Player player){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
-                cap.sync(player);
-            });
+            VestigeCap cap = getCap(player);
+            cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+            cap.sync(player);
         } else {
             entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
             if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)
@@ -3840,14 +3835,13 @@ public class VPUtil {
         if(entity instanceof Player player){
             if(hasVestige(ModItems.SOULBLIGHTER.get(),player))
                 VPUtil.addRadiance(SoulBlighter.class,10,player);
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
-                if(number < 0)
-                    player.getPersistentData().putLong("VPSoulShow",System.currentTimeMillis()+120000);
-                cap.sync(player);
-                if(cap.getSoulIntegrity() <= 0)
-                    deadInside(player,modifier);
-            });
+            VestigeCap cap = getCap(player);
+            cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
+            if(number < 0)
+                player.getPersistentData().putLong("VPSoulShow",System.currentTimeMillis()+120000);
+            cap.sync(player);
+            if(cap.getSoulIntegrity() <= 0)
+                deadInside(player,modifier);
         } else {
             entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
             if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)
@@ -3900,20 +3894,18 @@ public class VPUtil {
     public static void updatePowerList(Player player){
         powerList.remove(player);
         List<Double> list = new ArrayList<>();
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            double basePower = 0;
-            basePower += cap.getCommonChallenges() * ConfigHandler.powerBoost.get();
-            basePower += cap.getStellarChallenges() * ConfigHandler.powerBoost.get() * 2;
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++) {
-                AtomicDouble power = new AtomicDouble(ConfigHandler.powerScale(i));
-                list.add(Math.min(ConfigHandler.maxPower.get(),basePower + power.get()));
-            }
-        });
+        VestigeCap cap = getCap(player);
+        double basePower = 0;
+        basePower += cap.getCommonChallenges() * ConfigHandler.powerBoost.get();
+        basePower += cap.getStellarChallenges() * ConfigHandler.powerBoost.get() * 2;
+        for(int i = 0; i < VestigeCap.totalVestiges; i++) {
+            list.add(Math.min(ConfigHandler.maxPower.get(),basePower + ConfigHandler.powerScale(i)));
+        }
         powerList.put(player,list);
     }
 
     public static double getPower(int challenge, Player player){
-        if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).size() < PlayerCapabilityVP.totalVestiges)
+        if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).size() < VestigeCap.totalVestiges)
             updatePowerList(player);
         double power = powerList.get(player).get(challenge-1);
         if(challenge == 666 || (power < ConfigHandler.maxPower.get() && player.isCreative()))
@@ -3988,193 +3980,163 @@ public class VPUtil {
     public static void useOrb(ItemStack stack, ItemStack orb, Player player){
         if(stack.isEmpty() || orb.isEmpty())
             return;
-        if(orb.getItem() instanceof CorruptFragment){
-            if(isEnchantable(stack) && getCurseAmount(stack) == 0){
-                Random random = new Random();
-                if(random.nextDouble() < getChance(0.8,player)){
-                    List<Enchantment> list = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-                    list.removeIf(Enchantment::isCurse);
-                    Enchantment enchantment = list.get(random.nextInt(list.size()));
-                    if (stack.getEnchantmentLevel(enchantment) >= enchantment.getMaxLevel())
-                        return;
-                    int lvl = stack.getEnchantmentLevel(enchantment);
-                    if (lvl > 0) {
-                        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-                        enchantments.remove(enchantment);
-                        EnchantmentHelper.setEnchantments(enchantments, stack);
-                        if (lvl + 1 > enchantment.getMaxLevel())
-                            lvl--;
-                    }
-                    stack.enchant(enchantment, 1 + lvl);
+        if (orb.getItem() instanceof CorruptFragment) {
+            var registry = player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            if (isEnchantable(stack) && getCurseAmount(stack) == 0) {
+                RandomSource random = player.getRandom();
+                if (random.nextDouble() < getChance(0.8, player)) {
+                    List<Holder<Enchantment>> regularEnchants = registry.listElements().filter(holder -> !holder.is(EnchantmentTags.CURSE)).collect(Collectors.toUnmodifiableList());
+                    if (regularEnchants.isEmpty()) return;
+                    Holder<Enchantment> enchantment = regularEnchants.get(random.nextInt(regularEnchants.size()));
+                    int currentLvl = stack.getEnchantmentLevel(enchantment);
+                    if (currentLvl >= enchantment.value().getMaxLevel()) return;
+                    ItemEnchantments currentEnchants = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+                    ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(currentEnchants);
+                    mutable.set(enchantment, currentLvl + 1);
+                    EnchantmentHelper.setEnchantments(stack, mutable.toImmutable());
                 } else {
-                    List<Enchantment> list = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-                    list.removeIf(enchantment -> !enchantment.isCurse());
-                    Enchantment curse = list.get(new Random().nextInt(list.size()));
-                    stack.enchant(curse,curse.getMaxLevel());
-                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                        cap.setChallenge(7,player);
-                    });
+                    List<Holder<Enchantment>> curses = registry.listElements().filter(holder -> holder.is(EnchantmentTags.CURSE)).collect(Collectors.toUnmodifiableList());
+                    if (!curses.isEmpty()) {
+                        Holder<Enchantment> curse = curses.get(random.nextInt(curses.size()));
+                        ItemEnchantments currentEnchants = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+                        ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(currentEnchants);
+                        mutable.set(curse, curse.value().getMaxLevel());
+                        EnchantmentHelper.setEnchantments(stack, mutable.toImmutable());
+                    }
+                    var cap = player.getData(ModAttachments.PLAYER_DATA.get());
+                    cap.setChallenge(7, player);
                 }
-                orb.split(1);
-                player.getPersistentData().putBoolean("VPBlockHand",true);
+
+                orb.shrink(1);
+                player.getPersistentData().putBoolean("VPBlockHand", true);
             }
         }
-        else if(orb.getItem() instanceof CorruptItem){
-            if(!VPUtil.getTag(stack).getBoolean("VPCursed")){
-                if(VPUtil.isEnchantable(stack)){
+        else if (orb.getItem() instanceof CorruptItem) {
+            boolean isCursed = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getBoolean("VPCursed");
+            if (!isCursed) {
+                if (VPUtil.isEnchantable(stack)) {
+                    var registry = player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+                    RandomSource random = player.getRandom();
                     int modifier = 2;
-                    if(VPUtil.hasVestige(ModItems.BOOK.get(),player))
-                        modifier *= 2;
-                    List<Enchantment> list = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-                    list.removeIf(enchantment -> !enchantment.isCurse());
-                    Enchantment curse = list.get(new Random().nextInt(list.size()));
-                    stack.enchant(curse,curse.getMaxLevel()*modifier);
-                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                        cap.setChallenge(7,player);
-                    });
-                    list = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-                    list.removeIf(Enchantment::isCurse);
-                    int attempts = 0;
-                    while (attempts < 5) {
-                        int random = new Random().nextInt(list.size());
-                        Enchantment enchantment = list.get(random);
-                        int original = stack.getEnchantmentLevel(enchantment);
-                        if(original > 0) {
-                            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-                            enchantments.remove(enchantment);
-                            EnchantmentHelper.setEnchantments(enchantments, stack);
-                        }
-                        stack.enchant(enchantment, enchantment.getMaxLevel() * modifier + original);
-                        attempts++;
+                    if (VPUtil.hasVestige(ModItems.BOOK.get(), player)) modifier *= 2;
+                    List<Holder<Enchantment>> allEnchants = registry.listElements().collect(Collectors.toUnmodifiableList());
+                    List<Holder<Enchantment>> curses = allEnchants.stream().filter(h -> h.is(EnchantmentTags.CURSE)).toList();
+                    List<Holder<Enchantment>> regular = allEnchants.stream().filter(h -> !h.is(EnchantmentTags.CURSE)).toList();
+                    ItemEnchantments currentEnchants = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+                    ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(currentEnchants);
+                    if (!curses.isEmpty()) {
+                        Holder<Enchantment> curse = curses.get(random.nextInt(curses.size()));
+                        mutable.set(curse, curse.value().getMaxLevel() * modifier);
                     }
-                    VPUtil.getTag(stack).putBoolean("VPCursed",true);
-                    orb.split(1);
-                    player.getPersistentData().putBoolean("VPBlockHand",true);
+                    player.getData(ModAttachments.PLAYER_DATA.get()).setChallenge(7, player);
+                    if (!regular.isEmpty()) {
+                        for (int attempts = 0; attempts < 5; attempts++) {
+                            Holder<Enchantment> enchantment = regular.get(random.nextInt(regular.size()));
+                            int originalLevel = mutable.getLevel(enchantment);
+
+                            // Устанавливаем новый уровень (Макс * модификатор + старый уровень)
+                            mutable.set(enchantment, enchantment.value().getMaxLevel() * modifier + originalLevel);
+                        }
+                    }
+                    EnchantmentHelper.setEnchantments(stack, mutable.toImmutable());
+                    stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, data ->
+                            data.update(tag -> tag.putBoolean("VPCursed", true))
+                    );
+                    orb.shrink(1);
+                    player.getPersistentData().putBoolean("VPBlockHand", true);
                 }
-                if(stack.getItem() instanceof Vestige){
-                    if(VPUtil.curseVestige(stack,new Random().nextInt(Vestige.maxCurses)+1,player))
-                        orb.split(1);
+                if (stack.getItem() instanceof Vestige) {
+                    if (VPUtil.curseVestige(stack, player.getRandom().nextInt(Vestige.maxCurses) + 1, player)) {
+                        orb.shrink(1);
+                    }
                 }
             }
         }
         else if(orb.getItem() instanceof ChaosOrb){
-            if(isEnchantable(stack) && !stack.getAllEnchantments().isEmpty()){
-                Random random = new Random();
-                List<Enchantment> cursedList = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-                cursedList.removeIf(enchantment -> !enchantment.isCurse());
-                List<Enchantment> goodEnchant = new ArrayList<>(BuiltInRegistries.ENCHANTMENTS.getValues());
-                goodEnchant.removeIf(Enchantment::isCurse);
-                Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-                for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
-                    if(enchantment.isCurse())
-                        continue;
-                    Enchantment randomEnchant = goodEnchant.get(random.nextInt(goodEnchant.size()));
-                    int lvl = enchantments.get(enchantment);
-                    if(enchantments.containsKey(randomEnchant)){
-                        lvl = lvl+enchantments.get(randomEnchant);
-                        enchantments.remove(enchantment);
-                        enchantments.remove(randomEnchant);
-                        enchantments.put(randomEnchant, lvl);
-                    }
-                    else {
-                        enchantments.remove(enchantment);
-                        enchantments.put(randomEnchant, lvl);
+            if (VPUtil.isEnchantable(stack) && !stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).isEmpty()) {
+                RandomSource random = player.getRandom();
+                var registry = player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+                List<Holder<Enchantment>> allEnchants = registry.listElements().collect(Collectors.toUnmodifiableList());
+                List<Holder<Enchantment>> cursedList = allEnchants.stream().filter(h -> h.is(EnchantmentTags.CURSE)).toList();
+                List<Holder<Enchantment>> goodEnchant = allEnchants.stream().filter(h -> !h.is(EnchantmentTags.CURSE)).toList();
+                ItemEnchantments currentEnchants = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+                ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(currentEnchants);
+                Set<Holder<Enchantment>> keysForChaos = new HashSet<>(mutable.keySet());
+                for (Holder<Enchantment> enchantment : keysForChaos) {
+                    if (enchantment.is(EnchantmentTags.CURSE)) continue;
+
+                    Holder<Enchantment> randomEnchant = goodEnchant.get(random.nextInt(goodEnchant.size()));
+                    int oldLvl = mutable.getLevel(enchantment);
+
+                    if (mutable.getLevel(randomEnchant) > 0 && !randomEnchant.equals(enchantment)) {
+                        int newLvl = oldLvl + mutable.getLevel(randomEnchant);
+                        mutable.removeIf(h -> h.equals(enchantment));
+                        mutable.set(randomEnchant, newLvl);
+                    } else {
+                        mutable.removeIf(h -> h.equals(enchantment));
+                        mutable.set(randomEnchant, oldLvl);
                     }
                 }
-                double negativeChance = 0.02 * (cursedList.size()+1);
-                if(random.nextDouble() < negativeChance) {
-                    int count = 0;
-                    int numba = random.nextInt(enchantments.size());
-                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
-                        if(count == numba){
-                            int original = enchantments.get(enchantment);
-                            if(original > 0)
-                                original *= -1;
-                            enchantments.remove(enchantment);
-                            enchantments.put(enchantment, original);
-                            break;
-                        }
-                        count++;
-                    }
+                double negativeChance = 0.02 * (cursedList.size() + 1);
+                if (random.nextDouble() < negativeChance && !mutable.keySet().isEmpty()) {
+                    List<Holder<Enchantment>> currentKeys = new ArrayList<>(mutable.keySet());
+                    Holder<Enchantment> target = currentKeys.get(random.nextInt(currentKeys.size()));
+                    int original = mutable.getLevel(target);
+                    if (original > 0) original *= -1;
+                    mutable.set(target, original);
                 }
                 double splitChance = 0.05;
-                if(random.nextDouble() < getChance(splitChance,player)) {
-                    int lvl = 0;
-                    int count = 0;
-                    int numba = random.nextInt(enchantments.size());
-                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
-                        if(count == numba){
-                            lvl = enchantments.get(enchantment);
-                            enchantments.remove(enchantment);
-                            break;
-                        }
-                        count++;
+                if (random.nextDouble() < getChance(splitChance, player) && !mutable.keySet().isEmpty()) {
+                    List<Holder<Enchantment>> currentKeys = new ArrayList<>(mutable.keySet());
+                    Holder<Enchantment> target = currentKeys.get(random.nextInt(currentKeys.size()));
+                    int lvlToDistribute = mutable.getLevel(target);
+                    mutable.removeIf(h -> h.equals(target));
+
+                    while (lvlToDistribute > 0 && !mutable.keySet().isEmpty()) {
+                        List<Holder<Enchantment>> remainingKeys = new ArrayList<>(mutable.keySet());
+                        Holder<Enchantment> distTarget = remainingKeys.get(random.nextInt(remainingKeys.size()));
+                        mutable.set(distTarget, mutable.getLevel(distTarget) + 1);
+                        lvlToDistribute--;
                     }
-                    while (lvl > 0){
-                        count = 0;
-                        numba = random.nextInt(enchantments.size());
-                        for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
-                            if(count == numba){
-                                int original = enchantments.get(enchantment);
-                                enchantments.remove(enchantment);
-                                enchantments.put(enchantment, original+1);
-                                lvl--;
-                            }
-                            count++;
-                        }
-                    }
-                    while (lvl < 0){
-                        count = 0;
-                        numba = random.nextInt(enchantments.size());
-                        for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
-                            if(count == numba){
-                                int original = enchantments.get(enchantment);
-                                enchantments.remove(enchantment);
-                                enchantments.put(enchantment, original-1);
-                                lvl++;
-                            }
-                            count++;
-                        }
+                    while (lvlToDistribute < 0 && !mutable.keySet().isEmpty()) {
+                        List<Holder<Enchantment>> remainingKeys = new ArrayList<>(mutable.keySet());
+                        Holder<Enchantment> distTarget = remainingKeys.get(random.nextInt(remainingKeys.size()));
+                        mutable.set(distTarget, mutable.getLevel(distTarget) - 1);
+                        lvlToDistribute++;
                     }
                 }
                 double bookChance = 0.005;
-                if(random.nextDouble() < getChance(bookChance,player)) {
-                    int count = 0;
-                    int numba = random.nextInt(enchantments.size());
-                    for(Enchantment enchantment: new HashSet<>(enchantments.keySet())){
-                        if(count == numba){
-                            ItemStack enchantedBook = new ItemStack(Items.ENCHANTED_BOOK);
-                            EnchantmentHelper.setEnchantments(Map.of(enchantment, enchantments.get(enchantment)), enchantedBook);
-                            giveStack(enchantedBook,player);
-                        }
-                        count++;
-                    }
+                if (random.nextDouble() < getChance(bookChance, player) && !mutable.keySet().isEmpty()) {
+                    List<Holder<Enchantment>> currentKeys = new ArrayList<>(mutable.keySet());
+                    Holder<Enchantment> target = currentKeys.get(random.nextInt(currentKeys.size()));
+                    ItemStack enchantedBook = new ItemStack(Items.ENCHANTED_BOOK);
+                    ItemEnchantments.Mutable bookBuilder = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+                    bookBuilder.set(target, mutable.getLevel(target));
+                    enchantedBook.set(DataComponents.STORED_ENCHANTMENTS, bookBuilder.toImmutable());
+                    giveStack(enchantedBook, player);
                 }
                 double bookEnchantChance = 0.001;
-                if(random.nextDouble() < getChance(bookEnchantChance,player)) {
+                if (random.nextDouble() < getChance(bookEnchantChance, player)) {
                     for (ItemStack inventoryStack : player.getInventory().items) {
                         if (inventoryStack.getItem() instanceof EnchantedBookItem) {
-                            Map<Enchantment, Integer> bookEnchantments = EnchantmentHelper.getEnchantments(inventoryStack);
-                            for (Map.Entry<Enchantment, Integer> entry : bookEnchantments.entrySet()) {
-                                Enchantment enchantment = entry.getKey();
-                                int bookLevel = entry.getValue();
-                                int lvl = enchantments.get(enchantment);
-                                if(lvl > 0){
-                                    lvl = lvl+bookLevel;
-                                    enchantments.remove(enchantment);
-                                    enchantments.put(enchantment, lvl);
-                                }
-                                else {
-                                    enchantments.put(enchantment, bookLevel);
+                            ItemEnchantments bookEnchants = inventoryStack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+                            for (Holder<Enchantment> ench : bookEnchants.keySet()) {
+                                int bookLevel = bookEnchants.getLevel(ench);
+                                int currentLevel = mutable.getLevel(ench);
+
+                                if (currentLevel > 0) {
+                                    mutable.set(ench, currentLevel + bookLevel);
+                                } else {
+                                    mutable.set(ench, bookLevel);
                                 }
                             }
                             break;
                         }
                     }
                 }
-                EnchantmentHelper.setEnchantments(enchantments, stack);
-                orb.split(1);
-                player.getPersistentData().putBoolean("VPBlockHand",true);
+                EnchantmentHelper.setEnchantments(stack, mutable.toImmutable());
+                orb.shrink(1);
+                player.getPersistentData().putBoolean("VPBlockHand", true);
             } else if(stack.getItem() instanceof Vestige vestige && getVestigeCurse(stack) != 0){
                 if(getVestigeCurse(stack) == 6)
                     Vestige.decreaseStars(stack);
@@ -4208,15 +4170,15 @@ public class VPUtil {
     }
 
     public static void clearEntities(MinecraftServer server, boolean ignoreConfig){
-        if(ConfigHandler.COMMON_SPEC.isLoaded()){
+        if(ConfigHandler.isLoaded()) {
             int time = ConfigHandler.clearEntities.get();
-            if(time > 0 || ignoreConfig){
+            if (time > 0 || ignoreConfig) {
                 List<ServerPlayer> players = server.getPlayerList().getPlayers();
                 int ticks = server.getTickCount();
-                if(!ignoreConfig && ticks % time == (int)(time*0.9)){
-                    for(ServerPlayer serverPlayer: players){
-                        if(!serverPlayer.getCommandSenderWorld().isClientSide)
-                            serverPlayer.sendSystemMessage(Component.translatable("vp.entity_clear",(int)(time*0.1)).withStyle(ChatFormatting.GREEN));
+                if (!ignoreConfig && ticks % time == (int) (time * 0.9)) {
+                    for (ServerPlayer serverPlayer : players) {
+                        if (!serverPlayer.getCommandSenderWorld().isClientSide)
+                            serverPlayer.sendSystemMessage(Component.translatable("vp.entity_clear", (int) (time * 0.1)).withStyle(ChatFormatting.GREEN));
                     }
                 }
                 if (ignoreConfig || ticks % time == 0) {
@@ -4227,30 +4189,29 @@ public class VPUtil {
                             serverPlayer.serverLevel().getAllEntities().forEach(list::add);
                         for (Entity entity : list) {
                             boolean blacklist = false;
-                            for(String name: ConfigHandler.clearEntitiesBlacklist.get().toString().split(",")){
-                                if(entity.getType().getDescriptionId().contains(name))
+                            for (String name : ConfigHandler.clearEntitiesBlacklist.get().toString().split(",")) {
+                                if (entity.getType().getDescriptionId().contains(name))
                                     blacklist = true;
                             }
-                            if(blacklist)
+                            if (blacklist)
                                 continue;
-                            if(entity instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame())
+                            if (entity instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame())
                                 continue;
-                            if(entity instanceof Villager || isNpc(entity.getType()) || entity.getType().getDescriptionId().contains("ironspell"))
+                            if (entity instanceof Villager || isNpc(entity.getType()) || entity.getType().getDescriptionId().contains("ironspell"))
                                 continue;
                             if (entity instanceof ItemEntity || entity instanceof Projectile)
                                 entity.kill();
                             else if (entity instanceof LivingEntity livingEntity && !(entity instanceof Player) && !(entity.hasCustomName()) && !VPUtil.isBoss(livingEntity)) {
-                                setHealth(livingEntity,0);
+                                setHealth(livingEntity, 0);
                                 livingEntity.getBrain().clearMemories();
                                 ((EntityVzlom) livingEntity).setPersistentData(null);
-                                livingEntity.invalidateCaps();
                                 ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
                                 count++;
                             }
                         }
-                        for(ServerPlayer serverPlayer: players){
-                            if(!serverPlayer.getCommandSenderWorld().isClientSide)
-                                serverPlayer.sendSystemMessage(Component.translatable("vp.entity_cleared",count).withStyle(ChatFormatting.GREEN));
+                        for (ServerPlayer serverPlayer : players) {
+                            if (!serverPlayer.getCommandSenderWorld().isClientSide)
+                                serverPlayer.sendSystemMessage(Component.translatable("vp.entity_cleared", count).withStyle(ChatFormatting.GREEN));
                         }
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -4327,41 +4288,40 @@ public class VPUtil {
 
     public static List<ItemStack> getChallengeList(int vestigeNumber, Player player){
         List<ItemStack> list = new ArrayList<>();
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-            String text = getChallengeString(vestigeNumber,player,cap);
-            if(text != null)
-                text = filterString(text);
-            int[] items = {6,9,13,16,21,22,24,26};
-            for (int numb : items) {
-                if (numb == vestigeNumber) {
-                    for(Item item: VPUtil.getItems()) {
-                        for(String id: text.split(",")){
-                            if (item instanceof SmithingTemplateItem templateItem && ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
-                                    && translatableContents.getKey().equals(id.trim()))
-                                list.add(new ItemStack(templateItem));
-                            else if (item.getDescriptionId().equals(id.trim()))
-                                list.add(new ItemStack(item));
-                        }
-                    }
-                }
-            }
-            if((vestigeNumber == 2 || vestigeNumber == 20 || vestigeNumber == 15) && !text.isEmpty()){
-                for(EntityType<?> type: entities){
+        String text = getChallengeString(vestigeNumber,player,getCap(player));
+        if(text != null)
+            text = filterString(text);
+        int[] items = {6,9,13,16,21,22,24,26};
+        for (int numb : items) {
+            if (numb == vestigeNumber) {
+                for(Item item: VPUtil.getItems()) {
                     for(String id: text.split(",")){
-                        if (type.getDescriptionId().equals(id.trim())) {
-                            ItemStack egg;
-                            if(ForgeSpawnEggItem.fromEntityType(type) != null)
-                                egg = new ItemStack(ForgeSpawnEggItem.fromEntityType(type));
-                            else {
-                                egg = new ItemStack(Items.SKELETON_SPAWN_EGG);
-                            }
-                            egg.getOrCreateTag().putString("EggName",type.getDescriptionId());
-                            list.add(egg);
-                        }
+                        if (item instanceof SmithingTemplateItem templateItem && ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
+                                && translatableContents.getKey().equals(id.trim()))
+                            list.add(new ItemStack(templateItem));
+                        else if (item.getDescriptionId().equals(id.trim()))
+                            list.add(new ItemStack(item));
                     }
                 }
             }
-        });
+        }
+        if ((vestigeNumber == 2 || vestigeNumber == 20 || vestigeNumber == 15) && !text.isEmpty()) {
+            for (EntityType<?> type : entities) {
+                for (String id : text.split(",")) {
+                    if (type.getDescriptionId().equals(id.trim())) {
+                        ItemStack egg;
+                        SpawnEggItem spawnEgg = SpawnEggItem.byId(type);
+                        if (spawnEgg != null) {
+                            egg = new ItemStack(spawnEgg);
+                        } else {
+                            egg = new ItemStack(Items.SKELETON_SPAWN_EGG);
+                        }
+                        getTag(egg).putString("EggName",type.getDescriptionId());
+                        list.add(egg);
+                    }
+                }
+            }
+        }
         return list;
     }
 }

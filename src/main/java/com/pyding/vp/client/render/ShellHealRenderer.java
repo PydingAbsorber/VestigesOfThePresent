@@ -44,7 +44,7 @@ public class ShellHealRenderer extends EntityRenderer<ShellHealEntity> {
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);
         model.prepareMobModel(player, 50, 50, partialTicks);
         model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURE)),
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, -1);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }

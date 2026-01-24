@@ -430,13 +430,17 @@ public class ShieldOverlay {
             guiGraphics.drawString(fontRenderer,""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080);
             //fontRenderer.(poseStack, ""+Math.round(shield * 100.0f) / 100.0f, x - (129+20 + move), y - 20, 0x808080); //0x000000 for black
         }
-        if(ClientConfig.renderSoulIntegrity.get() && ((soul < maxSoul && player.getPersistentData().getLong("VPSoulShow") > System.currentTimeMillis()) || VPUtil.hasVestige(ModItems.DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player))){
-            int size = 32;
-            RenderSystem.setShaderTexture(0, SOUL);
-            guiGraphics.blit(SOUL, x - (130+80), y - 50, 0, 0, size, size,
-                    size, size);
-            int move = (int) Math.floor(Math.log10(maxSoul))*2 + 1;
-            guiGraphics.drawString(fontRenderer,soul+"/"+maxSoul, x - (129+80 + move), y - 20, 0x808080);
+        try {
+            if(ClientConfig.renderSoulIntegrity.get() && ((soul < maxSoul && player.getPersistentData().getLong("VPSoulShow") > System.currentTimeMillis()) || VPUtil.hasVestige(ModItems.DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player))){
+                int size = 32;
+                RenderSystem.setShaderTexture(0, SOUL);
+                guiGraphics.blit(SOUL, x - (130+80), y - 50, 0, 0, size, size,
+                        size, size);
+                int move = (int) Math.floor(Math.log10(maxSoul))*2 + 1;
+                guiGraphics.drawString(fontRenderer,soul+"/"+maxSoul, x - (129+80 + move), y - 20, 0x808080);
+            }
+        } catch (Exception ignored){
+
         }
     };
 

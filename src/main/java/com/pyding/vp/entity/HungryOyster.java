@@ -82,14 +82,12 @@ public class HungryOyster extends WaterAnimal {
             VPUtil.play(this, SoundEvents.PLAYER_LEVELUP);
             for(LivingEntity entity: VPUtil.getEntitiesAround(this,10,10,10,false)){
                 if(entity instanceof Player player){
-                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                        double chance = 0.01+Math.min(0.1,cap.getPearls()/100d);
-                        if(getPersistentData().getBoolean("VPCool"))
-                            chance *= 5;
-                        if(random.nextDouble() < chance)
-                            VPUtil.giveStack(new ItemStack(ModItems.PINKY_PEARL.get()),player);
-                        else VPUtil.giveStack(new ItemStack(ModItems.HEARTY_PEARL.get()),player);
-                    });
+                    double chance = 0.01+Math.min(0.1,VPUtil.getCap(player).getPearls()/100d);
+                    if(getPersistentData().getBoolean("VPCool"))
+                        chance *= 5;
+                    if(random.nextDouble() < chance)
+                        VPUtil.giveStack(new ItemStack(ModItems.PINKY_PEARL.get()),player);
+                    else VPUtil.giveStack(new ItemStack(ModItems.HEARTY_PEARL.get()),player);
                 }
             }
             this.discard();

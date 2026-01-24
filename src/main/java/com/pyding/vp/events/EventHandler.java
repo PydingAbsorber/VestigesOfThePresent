@@ -90,7 +90,7 @@ import java.util.*;
 @EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void damageEventLowest(LivingIncomingDamageEvent event){
+    public static void damageEventLowest(LivingIncomingDamageEvent event){
         if(!event.isCanceled()) {
             LivingEntity entity = event.getEntity();
             if(VPUtil.isNpc(entity.getType())) {
@@ -470,7 +470,7 @@ public class EventHandler {
         else VPUtil.syncEntity(event.getEntity());
     }
     @SubscribeEvent
-    public void totemUsing(LivingUseTotemEvent event){
+    public static void totemUsing(LivingUseTotemEvent event){
         LivingEntity entity = event.getEntity();
         if(!VPUtil.canResurrect(entity)) {
             event.setCanceled(true);
@@ -481,7 +481,7 @@ public class EventHandler {
         }
     }
     @SubscribeEvent
-    public void attackEvent(LivingIncomingDamageEvent event){
+    public static void attackEvent(LivingIncomingDamageEvent event){
         LivingEntity victim = event.getEntity();
         Random random = new Random();
         if(!VPUtil.strictOptimization() && VPUtil.isNpc(victim.getType())) {
@@ -568,14 +568,14 @@ public class EventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
-    public void attackEventLowest(LivingIncomingDamageEvent event) {
+    public static void attackEventLowest(LivingIncomingDamageEvent event) {
         LivingEntity victim = event.getEntity();
         if(victim instanceof Player player && event.isCanceled() && VPUtil.hasVestige(ModItems.WHIRLPOOL.get(),player))
             VPUtil.addRadiance(Whirlpool.class,6,player);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
-    public void playerSwitching(PlayerEvent.PlayerChangeGameModeEvent event){
+    public static void playerSwitching(PlayerEvent.PlayerChangeGameModeEvent event){
         LeaderboardUtil.setCheating(event.getEntity());
     }
 
@@ -587,7 +587,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
-    public void deathEventLowest(LivingDeathEvent event){
+    public static void deathEventLowest(LivingDeathEvent event){
         Random random = new Random();
         if(event.getEntity().getPersistentData().getLong("VPQueenDeath") <= System.currentTimeMillis()){
             event.getEntity().getPersistentData().putLong("VPQueenDeath",-1);
@@ -799,14 +799,14 @@ public class EventHandler {
                     player.getPersistentData().putLong("VPArchBuff",System.currentTimeMillis()+15*60*1000);
                     AttributeMap map = player.getAttributes();
                     AttributeMap map2 = entity.getAttributes();
-                    List<Attribute> list = VPUtil.attributeList();
+                    List<Holder<Attribute>> list = VPUtil.attributeList();
                     for(int i = 0; i < list.size(); i++){
-                        Holder<Attribute> attribute = VPUtil.wrapAttribute(list.get(i));
-                        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:arch"+list.get(i).getDescriptionId());
+                        Holder<Attribute> attribute = list.get(i);
+                        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:arch"+list.get(i).value().getDescriptionId());
                         if(map.hasAttribute(attribute) && map2.hasAttribute(attribute)) {
                             double amount = VPUtil.scalePower(map2.getValue(attribute) * 0.3,25,player);
                             if (!map.hasModifier(attribute,id) || (map.hasModifier(attribute,id) && map.getModifierValue(attribute,id) < amount))
-                                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(attribute,(float)amount, AttributeModifier.Operation.ADD_VALUE, "vp:arch"+list.get(i).getDescriptionId()));
+                                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(attribute,(float)amount, AttributeModifier.Operation.ADD_VALUE, "vp:arch"+list.get(i).value().getDescriptionId()));
                         }
                     }
                 }
@@ -890,7 +890,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
-    public void onLootDrops(LivingDropsEvent event) {
+    public static void onLootDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (event.getSource().getEntity() instanceof Player player && !event.isCanceled() && VPUtil.getRareDrops(entity) != null && !VPUtil.getRareDrops(entity).isEmpty()){
             for(ItemEntity itemEntity: event.getDrops()){
@@ -1196,7 +1196,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void effectEvent(MobEffectEvent event){
+    public static void effectEvent(MobEffectEvent.Added event){
         if(event.getEntity() instanceof Player player && event.getEffectInstance() != null){
             if(VPUtil.hasVestige(ModItems.CATALYST.get(),player) && !event.getEffectInstance().getEffect().value().isBeneficial())
                 VPUtil.addRadiance(Catalyst.class,5,player);
@@ -1266,7 +1266,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void serverTick(ServerTickEvent event){
+    public static void serverTick(ServerTickEvent.Post event){
         VPUtil.clearEntities(event.getServer(),false);
     }
 
@@ -1306,8 +1306,12 @@ public class EventHandler {
             }
             if (entity.tickCount % 20 == 0 && (VPUtil.getShield(entity) > 0 || VPUtil.getOverShield(entity) > 0))
                 VPUtil.syncEntity(entity);
-            if (ConfigHandler.cruelMode.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:boss_health"))) && VPUtil.isBoss(entity)) {
-                VPUtil.spawnBoss(entity);
+            try {
+                if (ConfigHandler.isLoaded() && ConfigHandler.cruelMode.get() && entity.getAttributes() != null && (!entity.getAttributes().hasModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:boss_health"))) && VPUtil.isBoss(entity)) {
+                    VPUtil.spawnBoss(entity);
+                }
+            }catch (Exception ignored){
+
             }
             if (tag.hasUUID("VPPlayer") && entity instanceof Mob mob && mob.getTarget() != null && mob.getTarget().getUUID() == tag.getUUID("VPPlayer")) {
                 ((MobEntityVzlom) mob).setTarget(null);
@@ -1709,7 +1713,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerPickUp(ItemEntityPickupEvent event){
+    public static void onPlayerPickUp(ItemEntityPickupEvent.Post event){
         Player player = event.getPlayer();
         ItemStack stack = event.getItemEntity().getItem();
         if(stack.getItem() instanceof Vestige vestige){
@@ -1719,7 +1723,7 @@ public class EventHandler {
 
 
     @SubscribeEvent
-    public void onAnvilUse(AnvilRepairEvent event) {
+    public static void onAnvilUse(AnvilRepairEvent event) {
         Player player = event.getEntity();
         ItemStack right = event.getRight();
         for (Holder<Enchantment> enchantment : right.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).keySet()) {
@@ -1740,8 +1744,6 @@ public class EventHandler {
             }
             VPUtil.updateStats(player);
             VPUtil.antiResurrect(player,-1);
-            if(((LivingEntityVzlom)player).isDead())
-                ((LivingEntityVzlom)player).setDead(false);
             if(player.hasEffect(VPEffects.VIP_EFFECT)){
                 player.removeEffect(VPEffects.VIP_EFFECT);
             }
@@ -1757,7 +1759,7 @@ public class EventHandler {
         }
         else if(event.getEntity() instanceof LivingEntity entity) {
             VPUtil.modifySoulIntegrity(entity, 99999);
-            if (ConfigHandler.cruelMode.get() && !entity.level().isClientSide()) {
+            if (ConfigHandler.isLoaded() && ConfigHandler.cruelMode.get() && !entity.level().isClientSide()) {
                 RandomSource random = entity.getRandom();
                 if(ConfigHandler.healthBoost.get() > 1 && !VPUtil.isBoss(entity)) {
                     entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, (float) (ConfigHandler.healthBoost.get() + 0), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:cruel_health"));
@@ -1876,12 +1878,12 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public void onProjectileImpact(ProjectileImpactEvent event) {
-    Projectile proj = event.getProjectile();
-    HitResult ray = event.getRayTraceResult();
-    if (!(ray instanceof EntityHitResult ehr)) return;
-    if (!(ehr.getEntity() instanceof LivingEntity target)) return;
-    if (!(proj.getOwner() instanceof Player player)) return;
+    public static void onProjectileImpact(ProjectileImpactEvent event) {
+        Projectile proj = event.getProjectile();
+        HitResult ray = event.getRayTraceResult();
+        if (!(ray instanceof EntityHitResult ehr)) return;
+        if (!(ehr.getEntity() instanceof LivingEntity target)) return;
+        if (!(proj.getOwner() instanceof Player player)) return;
         double hitY = proj.getY();
         double eyeY = target.getY() + target.getEyeHeight();
         if (hitY >= eyeY) {
@@ -1932,7 +1934,7 @@ public class EventHandler {
 
 
     @SubscribeEvent
-    public void tooltipEvent(ItemTooltipEvent event){
+    public static void tooltipEvent(ItemTooltipEvent event){
         ItemStack stack = event.getItemStack();
         if(VPUtil.getTag(stack).getBoolean("VPMirrored"))
             event.getToolTip().add(Component.translatable("vp.mirrored").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.DARK_AQUA));

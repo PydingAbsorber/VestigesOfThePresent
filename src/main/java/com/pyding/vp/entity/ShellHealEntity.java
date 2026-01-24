@@ -2,6 +2,7 @@ package com.pyding.vp.entity;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +28,7 @@ public class ShellHealEntity extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData() {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
     }
 

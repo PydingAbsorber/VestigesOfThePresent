@@ -117,9 +117,7 @@ public class SoulBlighter extends Vestige{
                     entity.saveWithoutId(saveTag);
                     saveTag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString());
                     stack.set(DataComponents.ENTITY_DATA, CustomData.of(saveTag));
-                    CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-                        tag.putFloat("VPMaxHealth", entity.getMaxHealth());
-                    });
+                    VPUtil.setNbt(stack,"VPMaxHealth",entity.getMaxHealth());
                     VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL, entity.getX(), entity.getY(), entity.getZ(), 8, 0, -0.5, 0);
                     VPUtil.despawn(entity);
                     if (isStellar(stack)) {

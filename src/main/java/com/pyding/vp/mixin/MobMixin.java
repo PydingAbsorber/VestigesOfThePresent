@@ -38,7 +38,7 @@ public abstract class MobMixin {
 
     @Inject(method = "getEquipmentDropChance",at = @At("HEAD"),cancellable = true, require = 1)
     private void getEquipmentDropChanceMixin(EquipmentSlot p_21520_, CallbackInfoReturnable<Float> cir){
-        if(ConfigHandler.cruelMode.get())
+        if(ConfigHandler.isLoaded() && ConfigHandler.cruelMode.get())
             cir.setReturnValue(0f);
     }
 }

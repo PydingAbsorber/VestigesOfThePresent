@@ -46,7 +46,7 @@ public class OysterRenderer extends EntityRenderer<HungryOyster> {
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);
         model.prepareMobModel(player, 50, 50, partialTicks);
         model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(MAIN)),
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, -1);
         PearlModel<LivingEntity> pearl = new PearlModel<>(PearlModel.createBodyLayer().bakeRoot());
         pearl.setupAnim(player, 50, 50, partialTicks, 50, 50);
         pearl.prepareMobModel(player, 50, 50, partialTicks);
@@ -55,7 +55,7 @@ public class OysterRenderer extends EntityRenderer<HungryOyster> {
             texture = PINK_PEARL;
         else texture = PEARL;
         pearl.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(texture)),
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, -1);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }

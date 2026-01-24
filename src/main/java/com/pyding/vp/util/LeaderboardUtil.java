@@ -24,7 +24,7 @@ public class LeaderboardUtil {
     public static boolean exception = false;
 
     public static String getHost() {
-        if(!ConfigHandler.leaderboardHost.get().toString().isEmpty())
+        if(ConfigHandler.isLoaded() && !ConfigHandler.leaderboardHost.get().toString().isEmpty())
             return ConfigHandler.leaderboardHost.get().toString();
         return "www.pyding.org";
     }
@@ -340,6 +340,12 @@ public class LeaderboardUtil {
     }
 
     public static boolean isLeaderboardsActive(Player player){
-        return ConfigHandler.leaderboard.get() && !player.hasPermissions(2);
+        boolean active = false;
+        try {
+            active = ConfigHandler.leaderboard.get() && !player.hasPermissions(2);
+        } catch (Exception e) {
+            return false;
+        }
+        return active;
     }
 }

@@ -37,8 +37,7 @@ public class EarsRender implements ICurioRenderer {
         ears<LivingEntity> model = new ears<>(ears.createBodyLayer().bakeRoot());
         model.setupAnim(livingEntity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         model.prepareMobModel(livingEntity, limbSwing, limbSwingAmount, partialTicks);
-        model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(RenderType.entityTranslucent(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "textures/item/models/ears.png"))),
-                light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(RenderType.entityTranslucent(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "textures/item/models/ears.png"))), light, OverlayTexture.NO_OVERLAY, -1);
         matrixStack.popPose();
     }
 }

@@ -1,7 +1,6 @@
 package com.pyding.vp.util;
 
 import com.pyding.vp.capability.VestigeCap;
-import com.pyding.vp.capability.VestigeCapProvider;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.ArrayList;
@@ -10,9 +9,16 @@ import java.util.List;
 public class ConfigHandler {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    public static final ModConfigSpec SPEC = BUILDER.build();
+    public static boolean isLoaded() {
+        if (SPEC == null) return false;
+        if (!SPEC.isLoaded()) return false;
+        try {
+            return bosses != null && bosses.next() != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-    // --- Общие настройки ---
     public static final ModConfigSpec.BooleanValue lore = BUILDER
             .comment("Set false to disable chat messages with Lore")
             .define("lore", true);
@@ -175,8 +181,7 @@ public class ConfigHandler {
     public static final ModConfigSpec.DoubleValue oysterChance = BUILDER.defineInRange("oysterChance", 0.15d, 0d, 1d);
     public static final ModConfigSpec.DoubleValue seashellChance = BUILDER.defineInRange("seashellChance", 0.15d, 0d, 1d);
 
-    // Предполагается, что DEFAULT_LOOT определен где-то в классе
-    public static final ModConfigSpec.ConfigValue<String> lootDrops = BUILDER.define("lootDrops", "default_value_here");
+    public static final ModConfigSpec.ConfigValue<String> lootDrops = BUILDER.define("lootDrops", getDefaultLoot());
 
     public static final ModConfigSpec.BooleanValue strictOptimization = BUILDER.define("strictOptimization", false);
     public static final ModConfigSpec.DoubleValue mysteryChestAdvancementChance = BUILDER.defineInRange("mysteryChestAdvancementChance", 0.1d, 0d, 1d);
@@ -188,6 +193,9 @@ public class ConfigHandler {
     public static final ModConfigSpec.IntValue clearEntities = BUILDER.defineInRange("clearEntities", 0, 0, Integer.MAX_VALUE);
     public static final ModConfigSpec.ConfigValue<String> clearEntitiesBlacklist = BUILDER.define("clearEntitiesBlacklist", "spectrum,twilightforest");
     public static final ModConfigSpec.ConfigValue<String> catFood = BUILDER.define("catFood", "fish,salmon,tuna,cod,trout,herring,mackerel,sardine,anchovy,haddock,halibut,sole,flounder,swordfish,marlin,perch,pike,carp,catfish,eel,sturgeon,tilapia,seabass,snapper,grouper,dorado,barracuda,mullet,monkfish,turbot,zander,bream,roach,tench,guppy,goldfish,angelfish,tetra,barb,molly,platy,danio,betta,discus,oscar,cichlid,clownfish,surgeonfish,goby,blenny,pufferfish,lionfish,scorpionfish,stingray,shark,skate,lungfish,coelacanth,arapaima,piranha,arowana,burbot,grayling,char,smelt,capelin,pollock,whiting,hake,ling,bluefish,amberjack,wahoo,mahimahi,pompano,drum,croaker,sheepshead,tarpon,bonefish,permit,barramundi,loach,gudgeon,ide,asp,chub,rudd,dace,minnow,stickleback,sculpin,lumpsucker,gar,bowfin,paddlefish,hagfish,lamprey,anchoveta,sprat");
+
+
+    public static final ModConfigSpec SPEC = BUILDER.build();
 
     public static List<Integer> getReduceList(){
         List<Integer> reduceList = new ArrayList<>();
@@ -207,10 +215,11 @@ public class ConfigHandler {
         return reduceChallenges.get().get(number-1);
     }
 
-    public int powerScale(int number) {
+    public static int powerScale(int number) {
         return powerScales.get().get(number);
     }
 
-    public static final String DEFAULT_LOOT = "1<item.vp.corrupted_fragment,item.vp.box_saplings,item.irons_spellbooks.blank_rune4,item.irons_spellbooks.rare_ink5,block.minecraft.wither_skeleton_skull,item.minecraft.end_crystal4,item.minecraft.netherite_scrap2,block.aether.enchanted_gravitite8,item.irons_spellbooks.arcane_salvage,item.minecraft.diamond4,item.botania.black_lotus8,item.bloodmagic.blankslate16,item.bloodmagic.reinforcedslate8,item.bloodmagic.infusedslate4,item.eidolon.soul_shard8,item.alexscaves.darkened_apple,block.minecraft.glass32,block.minecraft.quartz_block16,block.minecraft.gold_block4>0.3<item.vp.corrupted_item,item.minecraft.totem_of_undying,item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment16,item.aquamirae.ship_graveyard_echo4,item.enigmaticlegacy.earth_heart,item.enigmaticlegacy.etherium_ore5,item.skilltree.wisdom_scroll4,block.occultism.storage_stabilizer_tier3,item.celestisynth.supernal_netherite_ingot4,item.enigmaticlegacy.angel_blessing,item.enigmaticlegacy.ocean_stone,item.enigmaticlegacy.blazing_core,item.enigmaticlegacy.eye_of_nebula,item.irons_spellbooks.lightning_upgrade_orb,item.irons_spellbooks.ice_upgrade_orb,item.irons_spellbooks.protection_upgrade_orb,item.irons_spellbooks.mana_upgrade_orb,item.irons_spellbooks.ender_upgrade_orb,item.irons_spellbooks.cooldown_upgrade_orb,item.irons_spellbooks.nature_upgrade_orb,item.irons_spellbooks.evocation_upgrade_orb,item.irons_spellbooks.fire_upgrade_orb,item.irons_spellbooks.holy_upgrade_orb,item.irons_spellbooks.blood_upgrade_orb,item.irons_spellbooks.epic_ink5,item.vp.stellar2,item.vp.stellar3,item.botania.terrasteel_ingot,item.botania.blacker_lotus8,item.bloodmagic.demonslate8,item.bloodmagic.etherealslate4,item.bloodmagic.hellforgedparts4,item.eidolon.lesser_soul_gem4,item.twilightforest.charm_of_life_1,item.twilightforest.charm_of_life_2,item.twilightforest.charm_of_keeping_1>0.05<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item8,item.enigmaticlegacy.cosmic_heart,item.aquamirae.abyssal_amethyst8,item.enigmaticlegacy.astral_fruit,item.enigmaticlegacy.ichor_bottle,item.enigmaticlegacy.void_pearl,item.irons_spellbooks.legendary_ink5,item.vp.stellar10,item.vp.stellar16,block.occultism.storage_stabilizer_tier4,item.vp.chaos_orb,block.minecraft.dragon_egg,item.twilightforest.charm_of_keeping_64,item.vp.box,item.vp.box_eggs2,item.vp.refresher,item.mythicbotany.alfsteel_ingot,block.alexscaves.tremorzilla_egg,item.enigmaticlegacy.soul_crystal,item.enigmaticlegacy.abyssal_heart,item.vp.vip,item.alexsmobs.warped_mixture>0.001<item.vp.chaos_orb64,item.vp.celestial_mirror,item.vp.pinky_pearl20,item.enigmaticlegacy.the_cube>";
-
+    public static final String getDefaultLoot(){
+        return "1<item.vp.corrupted_fragment,item.vp.box_saplings,item.irons_spellbooks.blank_rune4,item.irons_spellbooks.rare_ink5,block.minecraft.wither_skeleton_skull,item.minecraft.end_crystal4,item.minecraft.netherite_scrap2,block.aether.enchanted_gravitite8,item.irons_spellbooks.arcane_salvage,item.minecraft.diamond4,item.botania.black_lotus8,item.bloodmagic.blankslate16,item.bloodmagic.reinforcedslate8,item.bloodmagic.infusedslate4,item.eidolon.soul_shard8,item.alexscaves.darkened_apple,block.minecraft.glass32,block.minecraft.quartz_block16,block.minecraft.gold_block4>0.3<item.vp.corrupted_item,item.minecraft.totem_of_undying,item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment16,item.aquamirae.ship_graveyard_echo4,item.enigmaticlegacy.earth_heart,item.enigmaticlegacy.etherium_ore5,item.skilltree.wisdom_scroll4,block.occultism.storage_stabilizer_tier3,item.celestisynth.supernal_netherite_ingot4,item.enigmaticlegacy.angel_blessing,item.enigmaticlegacy.ocean_stone,item.enigmaticlegacy.blazing_core,item.enigmaticlegacy.eye_of_nebula,item.irons_spellbooks.lightning_upgrade_orb,item.irons_spellbooks.ice_upgrade_orb,item.irons_spellbooks.protection_upgrade_orb,item.irons_spellbooks.mana_upgrade_orb,item.irons_spellbooks.ender_upgrade_orb,item.irons_spellbooks.cooldown_upgrade_orb,item.irons_spellbooks.nature_upgrade_orb,item.irons_spellbooks.evocation_upgrade_orb,item.irons_spellbooks.fire_upgrade_orb,item.irons_spellbooks.holy_upgrade_orb,item.irons_spellbooks.blood_upgrade_orb,item.irons_spellbooks.epic_ink5,item.vp.stellar2,item.vp.stellar3,item.botania.terrasteel_ingot,item.botania.blacker_lotus8,item.bloodmagic.demonslate8,item.bloodmagic.etherealslate4,item.bloodmagic.hellforgedparts4,item.eidolon.lesser_soul_gem4,item.twilightforest.charm_of_life_1,item.twilightforest.charm_of_life_2,item.twilightforest.charm_of_keeping_1>0.05<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item8,item.enigmaticlegacy.cosmic_heart,item.aquamirae.abyssal_amethyst8,item.enigmaticlegacy.astral_fruit,item.enigmaticlegacy.ichor_bottle,item.enigmaticlegacy.void_pearl,item.irons_spellbooks.legendary_ink5,item.vp.stellar10,item.vp.stellar16,block.occultism.storage_stabilizer_tier4,item.vp.chaos_orb,block.minecraft.dragon_egg,item.twilightforest.charm_of_keeping_64,item.vp.box,item.vp.box_eggs2,item.vp.refresher,item.mythicbotany.alfsteel_ingot,block.alexscaves.tremorzilla_egg,item.enigmaticlegacy.soul_crystal,item.enigmaticlegacy.abyssal_heart,item.vp.vip,item.alexsmobs.warped_mixture>0.001<item.vp.chaos_orb64,item.vp.celestial_mirror,item.vp.pinky_pearl20,item.enigmaticlegacy.the_cube>";
+    }
 }

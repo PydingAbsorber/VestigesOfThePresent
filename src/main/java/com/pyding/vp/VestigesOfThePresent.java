@@ -1,10 +1,12 @@
 package com.pyding.vp;
 
 import com.pyding.vp.capability.VestigeCapProvider;
+import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import org.slf4j.Logger;
@@ -37,7 +39,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(VestigesOfThePresent.MODID)
 public class VestigesOfThePresent {
     public static final String MODID = "vp";
@@ -49,11 +50,13 @@ public class VestigesOfThePresent {
         NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
         modContainer.registerConfig(ModConfig.Type.COMMON, ConfigHandler.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         VestigeCapProvider.ATTACHMENT_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
         ModCreativeModTab.register(modEventBus);
         VPEffects.register(modEventBus);
+        SoundRegistry.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

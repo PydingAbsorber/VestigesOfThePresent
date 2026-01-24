@@ -9,6 +9,7 @@ import com.pyding.vp.network.packets.SendEntityNbtToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +20,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,11 @@ public class VortexEntity extends Projectile {
 
     public List<String> items = new ArrayList<>();
     public int frags = 0;
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+
+    }
 
     public VortexEntity(Level pLevel, LivingEntity owner) {
         this(ModEntities.VORTEX.get(), pLevel);
@@ -50,11 +55,6 @@ public class VortexEntity extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-
-    }
-
-    @Override
     public void tick() {
         super.tick();
         if(getCommandSenderWorld().isClientSide)
@@ -68,7 +68,7 @@ public class VortexEntity extends Projectile {
             return;
         }
         if(tickCount <= 2 && !getCommandSenderWorld().isClientSide)
-            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> this), new SendEntityNbtToClient(getPersistentData(),getId()));
+            PacketHandler.sendToAllAround(new SendEntityNbtToClient(getPersistentData(),getId()),player);
         getPersistentData().putLong("VPAntiTP",System.currentTimeMillis()+10000);
         setGlowingTag(true);
         for(ItemEntity itemEntity: getCommandSenderWorld().getEntitiesOfClass(ItemEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){

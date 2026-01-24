@@ -2,6 +2,7 @@ package com.pyding.vp.entity;
 
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +29,7 @@ public class EasterEggEntity extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData() {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
     }
 

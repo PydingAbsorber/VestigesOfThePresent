@@ -51,8 +51,7 @@ public class CloudRenderer extends EntityRenderer<CloudEntity> {
         CloudEntityModel<LivingEntity> model = new CloudEntityModel<>(CloudEntityModel.createBodyLayer().bakeRoot());
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);
         model.prepareMobModel(player, 50, 50, partialTicks);
-        model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURE)),
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURE)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, -1);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }

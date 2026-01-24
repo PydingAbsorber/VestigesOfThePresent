@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.PacketDistributor;
 
 public class BlackHole extends Projectile {
     private static final EntityDataAccessor<Float> DATA_RADIUS = SynchedEntityData.defineId(BlackHole.class, EntityDataSerializers.FLOAT);
@@ -64,8 +63,9 @@ public class BlackHole extends Projectile {
         return EntityDimensions.scalable((1+gravity) * 2.0F, (1+gravity) * 2.0F);
     }
 
-    protected void defineSynchedData() {
-        this.getEntityData().define(DATA_RADIUS, 5F);
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+
     }
 
     @Override
@@ -78,7 +78,7 @@ public class BlackHole extends Projectile {
         if(player == null)
             return;
         if(tickCount <= 2 && !getCommandSenderWorld().isClientSide)
-            PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> this), new SendEntityNbtToClient(getPersistentData(),getId()));
+            PacketHandler.sendToAllAround(new SendEntityNbtToClient(getPersistentData(),getId()),player);
         getPersistentData().putLong("VPAntiTP",System.currentTimeMillis()+10000);
         setGlowingTag(true);
         for(LivingEntity entity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){

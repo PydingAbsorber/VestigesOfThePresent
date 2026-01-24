@@ -4,6 +4,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import com.pyding.vp.util.Vector3;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
@@ -101,10 +102,10 @@ public class Archlinx extends Vestige{
 
     public static void removeModifiers(Player player){
         AttributeMap map = player.getAttributes();
-        List<Attribute> list = VPUtil.attributeList();
+        List<Holder<Attribute>> list = VPUtil.attributeList();
         for(int i = 0; i < list.size(); i++){
-            if(map.hasAttribute(BuiltInRegistries.ATTRIBUTE.wrapAsHolder(list.get(i)))) {
-                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(BuiltInRegistries.ATTRIBUTE.wrapAsHolder(list.get(i)), 0, AttributeModifier.Operation.ADD_VALUE, "vp:arch"+list.get(i).getDescriptionId()));
+            if(map.hasAttribute(list.get(i))) {
+                player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(list.get(i), 0, AttributeModifier.Operation.ADD_VALUE, "arch"+list.get(i).value().getDescriptionId()));
             }
         }
     }

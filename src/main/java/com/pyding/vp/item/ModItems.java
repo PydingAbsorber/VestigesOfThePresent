@@ -70,9 +70,6 @@ public class ModItems {
     public static final DeferredHolder<Item, MineralCluster> MINERAL_CLUSTER = ITEMS.register("mineral_cluster", () -> new MineralCluster());
     public static final DeferredHolder<Item, EventHorizon> EVENT_HORIZON = ITEMS.register("event_horizon", () -> new EventHorizon(new Item.Properties().stacksTo(1)));
 
-    public static final Seashell SEASHELL_HOLDER = (Seashell) SEASHELL.get().asItem();
-    public static final MysteryChest MYSTERY_CHEST_HOLDER = (MysteryChest) MYSTERY_CHEST.get().asItem();
-
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

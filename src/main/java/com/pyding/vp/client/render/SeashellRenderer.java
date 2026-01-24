@@ -45,14 +45,14 @@ public class SeashellRenderer extends EntityRenderer<SillySeashell> {
         model.setupAnim(player, 50, 50, partialTicks, 50, 50);
         model.prepareMobModel(player, 50, 50, partialTicks);
         model.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(MAIN)),
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, -1);
 
         for(int i = 0; i < entity.getPersistentData().getInt("VPPeals");i++) {
             PearlModel<LivingEntity> pearl = new PearlModel<>(PearlModel.createBodyLayer().bakeRoot());
             pearl.setupAnim(player, 50, 50, partialTicks, 50, 50);
             pearl.prepareMobModel(player, 50, 50, partialTicks);
             pearl.renderToBuffer(poseStack, bufferSource.getBuffer(RenderType.entityTranslucent(PEARL)),
-                    LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+                    LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, -1);
             poseStack.translate(0,2+i,0);
         }
         poseStack.popPose();

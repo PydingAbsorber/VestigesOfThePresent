@@ -57,7 +57,7 @@ public class LeaderboardScreen extends Screen {
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/zoom-in.png"),
+                ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "textures/gui/zoom-in.png"),
                 buttonSize, buttonSize,
                 button -> ClientConfig.guiScaleLeaderboard.set(Math.min(2.0, ClientConfig.guiScaleLeaderboard.get() + 0.1))
         );
@@ -65,7 +65,7 @@ public class LeaderboardScreen extends Screen {
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/zoom-out.png"),
+                ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "textures/gui/zoom-out.png"),
                 buttonSize, buttonSize,
                 button -> ClientConfig.guiScaleLeaderboard.set(Math.max(0.1, ClientConfig.guiScaleLeaderboard.get() - 0.1))
         );
@@ -76,7 +76,7 @@ public class LeaderboardScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/back.png"),
+                ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "textures/gui/back.png"),
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new VestigeScreen(stack, getMinecraft().player)))
         );

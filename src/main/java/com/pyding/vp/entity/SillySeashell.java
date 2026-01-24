@@ -8,6 +8,7 @@ import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -114,13 +115,13 @@ public class SillySeashell extends WaterAnimal {
                 List<EntityType> bossList = new ArrayList<>();
                 for(EntityType type: VPUtil.getEntitiesListOfType(MobCategory.MONSTER)){
                     Entity entity = type.create(getCommandSenderWorld());
-                    if(entity instanceof Monster monster && monster.getMobType() == MobType.WATER)
+                    if(entity instanceof Monster monster && monster.getType().is(EntityTypeTags.AQUATIC))
                         list.add(type);
                 }
                 if(wave > 6){
                     for(EntityType type: VPUtil.bossList){
                         Entity entity = type.create(getCommandSenderWorld());
-                        if(entity instanceof Monster monster && monster.getMobType() == MobType.WATER)
+                        if(entity instanceof Monster monster && monster.getType().is(EntityTypeTags.AQUATIC))
                             bossList.add(type);
                     }
                 }
@@ -197,10 +198,7 @@ public class SillySeashell extends WaterAnimal {
                 else list.addAll(VPUtil.getEntitiesList());
                 if(list.get(random.nextInt(list.size())).create(player.getCommandSenderWorld()) instanceof LivingEntity livingEntity)
                     VPUtil.dropEntityLoot(livingEntity,player,false);
-
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.setChallenge(23,player);
-                });
+                VPUtil.getCap(player).setChallenge(23,player);
             }
         }
         this.discard();
