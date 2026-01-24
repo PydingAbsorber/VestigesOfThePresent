@@ -1,0 +1,167 @@
+package com.pyding.vp.mixin;
+
+
+import com.pyding.vp.item.VipActivator;
+import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.VPUtil;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+@Mixin(value = LivingEntity.class, priority = 0)
+public abstract class VPLivingEntityMixin {
+
+    @Inject(method = "getDamageAfterMagicAbsorb",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void fuckEnchantmentsFinallyIHope(DamageSource p_21193_, float p_21194_,CallbackInfoReturnable<Float> info){
+        if(!p_21193_.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)) {
+            for (ItemStack stack : ((LivingEntityVzlom)this).getArmorSlots()) {
+                ItemEnchantments enchantments = stack.getEnchantments();
+                for (Holder<Enchantment> enchantment : enchantments.keySet()) {
+                    if (enchantments.getLevel(enchantment) < 0 && ((Entity)(Object)this).level() instanceof ServerLevel serverLevel) {
+                        float k = EnchantmentHelper.getDamageProtection(serverLevel,(LivingEntity)(Object)this, p_21193_);
+                        info.setReturnValue(p_21194_ * (1.0F - k / 25.0F));
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    @Inject(method = "getHealth",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void getHealth(CallbackInfoReturnable<Float> cir){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(entity instanceof Player player)
+            VPUtil.printTrack("getHealthMix isRoflan: " + VPUtil.isRoflanEbalo(entity),player);
+        if(VPUtil.isRoflanEbalo(entity)){
+            cir.setReturnValue(0f);
+        }
+    }
+
+    @Inject(method = "isAlive",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void isAlive(CallbackInfoReturnable<Boolean> cir){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(entity instanceof Player player)
+            VPUtil.printTrack("isAliveMix isRoflan: " + VPUtil.isRoflanEbalo(entity),player);
+        if(VPUtil.isRoflanEbalo(entity)){
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "setHealth",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void setHealthMix(float amount, CallbackInfo ci){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(VPUtil.isRoflanEbalo(entity)) {
+            ci.cancel();
+            return;
+        }
+        if(entity.getHealth() < amount)
+            return;
+        if(VPUtil.isNpc(entity.getType()) || VPUtil.getOverShield(entity) > 0){
+            ci.cancel();
+            return;
+        }
+        if(ConfigHandler.cruelMode.get() && (VPUtil.isNightmareBoss(entity) || VPUtil.isBoss(entity))){
+            ci.cancel();
+            float damage = VPUtil.dpsAbsorption(entity,entity.getHealth()-amount);
+            ((EntityVzlom)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),entity.getHealth() - damage);
+        }
+    }
+
+    @Inject(method = "getMaxHealth",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void getMaxHealthMix(CallbackInfoReturnable<Float> cir){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(ConfigHandler.cruelMode.get() && ((ConfigHandler.unlockHp.get() || cir.getReturnValue() <= 2048) && VPUtil.isNightmareBoss(entity)) && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
+            float maxHealth = Math.max(600,VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix())) * (float)(ConfigHandler.bossHP.get()+0);
+            if(entity.getAttributes() != null){
+                maxHealth *= 10;
+            }
+            cir.setReturnValue(maxHealth); //i hate this so fucking much, some bullshit server mod locks hp to 2048 and thats it
+        }
+    }
+
+    @Inject(method = "getScale",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void getScaleMix(CallbackInfoReturnable<Float> cir){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(VPUtil.isNightmareBoss(entity)){
+            cir.setReturnValue(3f);
+        }
+    }
+
+    @Inject(method = "die",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void dieMix(DamageSource p_21014_, CallbackInfo ci){
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(VPUtil.isNightmareBoss(entity) && (VPUtil.getOverShield(entity) > 0 || entity.getHealth() > 0) && VPUtil.canResurrect(entity)){
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "dropAllDeathLoot", at = @At("HEAD"), cancellable = true)
+    private void onDropAllDeathLoot(ServerLevel p_level, DamageSource damageSource, CallbackInfo ci) {
+        if((Object)this instanceof LivingEntity livingEntity){
+            livingEntity.getPersistentData().putBoolean("VPWasDrop",true);
+        }
+        if((Object)this instanceof Player player) {
+            if (VPUtil.getCap(player).getVip() > System.currentTimeMillis()) {
+                boolean oneHourOfTortures = VPUtil.isRoflanEbalo(player);
+                if(oneHourOfTortures)
+                    VPUtil.setRoflanEbalo(player,-1);
+                VipActivator.saveInventory(player);
+                ci.cancel();
+                if(oneHourOfTortures)
+                    VPUtil.setRoflanEbalo(player,VPUtil.deathTime+System.currentTimeMillis());
+            }
+        }
+    }
+
+    @Inject(method = "hasEffect",at = @At("RETURN"),cancellable = true, require = 1)
+    private void hasEffect(Holder<MobEffect> effect, CallbackInfoReturnable<Boolean> cir){
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this)))
+            cir.setReturnValue(false);
+    }
+
+    @Inject(method = "getEffect",at = @At("RETURN"),cancellable = true, require = 1)
+    private void getEffect(Holder<MobEffect> effect, CallbackInfoReturnable<MobEffectInstance> cir){
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this)))
+            cir.setReturnValue(new MobEffectInstance(MobEffects.HARM,0,0));
+    }
+
+    @Inject(method = "getActiveEffects",at = @At("RETURN"),cancellable = true, require = 1)
+    private void getEffects(CallbackInfoReturnable<Collection<MobEffectInstance>> cir){
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this))) {
+            Collection<MobEffectInstance> collection = new ArrayList<>();
+            collection.add(new MobEffectInstance(MobEffects.HARM,0,0));
+            cir.setReturnValue(collection);
+        }
+    }
+
+    @Inject(method = "getActiveEffectsMap",at = @At("RETURN"),cancellable = true, require = 1)
+    private void getEffectsMap(CallbackInfoReturnable<Map<MobEffect, MobEffectInstance>> cir){
+        if(VPUtil.isRoflanEbalo(((LivingEntity)(Object)this))) {
+            Map<MobEffect, MobEffectInstance> map = new HashMap<>();
+            map.put(MobEffects.HARM.value(),new MobEffectInstance(MobEffects.HARM,0,0));
+            cir.setReturnValue(map);
+        }
+    }
+}

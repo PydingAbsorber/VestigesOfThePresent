@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DSD",
+    "SAS",
+    "DCD"
+  ],
+  "key": {
+    "S": {
+      "item": "vp:shard"
+    },
+    "A": {
+      "item": "vp:box_saplings"
+    },
+    "C": {
+      "item": "vp:nightmareshard"
+    },
+    "D": {
+      "item": "vp:seashell"
+    }
+  },
+  "result": {
+    "item": "vp:box",
+    "count": 8
+  }
+}

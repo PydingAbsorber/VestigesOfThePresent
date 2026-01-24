@@ -1,0 +1,13 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0":  "vp:item/acs/ring"
+  },
+  "overrides": [
+    {"predicate": {"vp:ring": 1}, "model": "vp:types/ring_hp" },
+    {"predicate": {"vp:ring": 2}, "model": "vp:types/ring_attack" },
+    {"predicate": {"vp:ring": 3}, "model": "vp:types/ring_damage" },
+    {"predicate": {"vp:ring": 4}, "model": "vp:types/ring_heal" },
+    {"predicate": {"vp:ring": 5}, "model": "vp:types/ring_shield" }
+  ]
+}

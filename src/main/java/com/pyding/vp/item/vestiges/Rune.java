@@ -1,0 +1,74 @@
+package com.pyding.vp.item.vestiges;
+
+import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.util.VPUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+import java.util.UUID;
+
+public class Rune extends Vestige{
+    public Rune(){
+        super();
+    }
+
+    @Override
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        super.dataInit(21, ChatFormatting.DARK_PURPLE, 1, 30, 1, 160, 10, 40, false, stack);
+    }
+
+    @Override
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
+        VPUtil.play(player, SoundRegistry.RUNE1.get());
+        VPUtil.spawnParticles(player, ParticleTypes.SMALL_FLAME,5,30,0.1,0.1,0.1,0.5,false);
+        float bonus = 0;
+        if(player.getAttributes().hasAttribute(Attributes.KNOCKBACK_RESISTANCE))
+            bonus += (float) player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
+        bonus += VPUtil.equipmentDurability(20,player,player,false);
+        if (isUltimateActive(stack))
+            bonus /= 2;
+        player.getPersistentData().putFloat("VPRuneBonus",VPUtil.scalePower(bonus/10,21,player));
+        super.doSpecial(seconds, player, level, stack);
+    }
+
+    @Override
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
+        VPUtil.play(player, SoundRegistry.RUNE2.get());
+        for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,20,20,20)){
+            if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
+                continue;
+            VPUtil.spawnSphere(entity,ParticleTypes.FLAME,30,5,1);
+            entity.getPersistentData().putLong("VPRuneUlt",seconds);
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR, VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADD_VALUE,"vp:rune"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR_TOUGHNESS, VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADD_VALUE,"vp:rune2"));
+        }
+        super.doUltimate(seconds, player, level, stack);
+    }
+
+    @Override
+    public void ultimateEnds(Player player, ItemStack stack) {
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp:rune");
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp:rune2");
+        super.ultimateEnds(player, stack);
+    }
+
+    @Override
+    public void specialEnds(Player player, ItemStack stack) {
+        player.getPersistentData().putFloat("VPRuneBonus",0);
+        super.specialEnds(player, stack);
+    }
+
+    @Override
+    public void curioSucks(Player player, ItemStack stack) {
+        player.getPersistentData().putFloat("VPRuneBonus",0);
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp:rune");
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp:rune2");
+        super.curioSucks(player, stack);
+    }
+}

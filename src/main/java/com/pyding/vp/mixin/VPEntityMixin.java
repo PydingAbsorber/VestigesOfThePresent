@@ -1,0 +1,52 @@
+package com.pyding.vp.mixin;
+
+import com.pyding.vp.util.VPUtil;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+@Mixin(value = Entity.class, priority = 0)
+public abstract class VPEntityMixin {
+
+    @Inject(method = "isInBubbleColumn",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void isInBubbleColumn(CallbackInfoReturnable<Boolean> cir){
+        if(((Entity) (Object) this).getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "isInRain",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void isInRain(CallbackInfoReturnable<Boolean> cir){
+        if(((Entity) (Object) this).getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "isInWater",at = @At("RETURN"),cancellable = true, require = 1)
+    protected void isInWater(CallbackInfoReturnable<Boolean> cir){
+        if(((Entity) (Object) this).getPersistentData().getLong("VPWet") > System.currentTimeMillis()){
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "teleportTo*", at = @At("HEAD"), cancellable = true, require = 1)
+    protected void teleportMixin(CallbackInfoReturnable<?> ci) {
+        if (!VPUtil.canTeleport(((Entity) (Object) this))) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "isRemoved",at = @At("HEAD"),cancellable = true, require = 1)
+    protected void isAlive(CallbackInfoReturnable<Boolean> cir){
+        Entity entity = (Entity)(Object)this;
+        if(entity instanceof Player player) {
+            VPUtil.printTrack("isAliveMix isRoflan: " + VPUtil.isRoflanEbalo(player), player);
+            if (VPUtil.isRoflanEbalo(player)) {
+                cir.setReturnValue(true);
+            }
+        }
+    }
+}

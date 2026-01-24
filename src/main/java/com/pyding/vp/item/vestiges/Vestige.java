@@ -1,0 +1,965 @@
+package com.pyding.vp.item.vestiges;
+
+
+import com.pyding.vp.capability.VestigeCap;
+import com.pyding.vp.client.ChallengeScreen;
+import com.pyding.vp.client.VestigeScreen;
+import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.item.ModItems;
+import com.pyding.vp.mixin.BucketVzlom;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.ItemAnimationPacket;
+import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.GradientUtil;
+import com.pyding.vp.util.LeaderboardUtil;
+import com.pyding.vp.util.VPUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurio;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class Vestige extends Item implements ICurioItem {
+    public Vestige() {
+        super(new Properties().stacksTo(1));
+    }
+    public Vestige(Properties properties){
+        super(properties);
+    }
+
+    public static int maxCurses = 5;
+
+    public Boolean damageType;
+    public int ultimateChargesBase;
+    public int specialChargesBase;
+
+    public long ultimateDurationBase;
+    public long specialDurationBase;
+
+    public int specialCdBase;
+    public int ultimateCdBase;
+
+    public int vestigeNumber;
+
+    public ChatFormatting color;
+
+    public float getRadiance(ItemStack stack) {
+        return VPUtil.getTag(stack).getFloat("VPRadiance");
+    }
+
+    public void addRadiance(float number, ItemStack stack, Player player){
+        if(ultimateCharges(stack) > currentChargeUltimate(stack)) {
+            if(isStellar(stack))
+                number *= 1.2f;
+            if(VPUtil.hasVestige(ModItems.TREASURE.get(),player)) {
+                ItemStack vestige = VPUtil.getVestigeStack(Treasure.class,player);
+                if(isUltimateActive(vestige))
+                    VPUtil.getTag(vestige).putInt("VPRadiusOst", (int) (VPUtil.getTag(vestige).getInt("VPRadiusOst") + number));
+            }
+            VPUtil.getTag(stack).putFloat("VPRadiance", Math.min(number + getRadiance(stack), getMaxRadiance(stack)));
+        }
+    }
+
+    public void setRadiance(float number, ItemStack stack) {
+        VPUtil.getTag(stack).putFloat("VPRadiance", Math.min(number,getMaxRadiance(stack)));
+    }
+
+    public float getMaxRadiance(ItemStack stack){
+        return VPUtil.getTag(stack).getFloat("VPMaxRadiance");
+    }
+
+    public void setMaxRadiance(float number, ItemStack stack) {
+        VPUtil.getTag(stack).putFloat("VPMaxRadiance", number);
+    }
+
+    public float getMaxRadianceBase(ItemStack stack){
+        return VPUtil.getTag(stack).getFloat("VPMaxRadianceBase");
+    }
+
+    public void setMaxRadianceBase(float number, ItemStack stack) {
+        VPUtil.getTag(stack).putFloat("VPMaxRadianceBase", number);
+    }
+
+    public int specialCharges(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPSpecialCharges");
+    }
+
+    public void setSpecialCharges(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPSpecialCharges", number);
+    }
+
+    public int ultimateCharges(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPUltimateCharges");
+    }
+
+    public void setUltimateCharges(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPUltimateCharges", number);
+    }
+
+    public int specialCd(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPSpecialCd");
+    }
+
+    public void setSpecialCd(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPSpecialCd", number);
+    }
+
+    /*public int ultimateCd(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPUltimateCd");
+    }
+
+    public void setUltimateCd(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPUltimateCd", number);
+    }*/
+
+    public int cdSpecialActive(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPCdSpecialActive");
+    }
+
+    public void setCdSpecialActive(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPCdSpecialActive", number);
+    }
+
+    /*public int cdUltimateActive(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPCdUltimateActive");
+    }
+
+    public void setCdUltimateActive(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPCdUltimateActive", number);
+    }*/
+
+    public int specialBonusModifier(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPSpecialBonusModifier");
+    }
+
+    public void setSpecialBonusModifier(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPSpecialBonusModifier", number);
+    }
+
+    public int ultimateBonusModifier(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPUltimateBonusModifier");
+    }
+
+    public void setUltimateBonusModifier(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPUltimateBonusModifier", number);
+    }
+
+    public int currentChargeSpecial(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPCurrentChargeSpecial");
+    }
+
+    public void setCurrentChargeSpecial(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPCurrentChargeSpecial", number);
+    }
+
+    public int currentChargeUltimate(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPCurrentChargeUltimate");
+    }
+
+    public void setCurrentChargeUltimate(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPCurrentChargeUltimate", number);
+    }
+
+    public int ultimateChargesBase(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPUltimateChargesBase");
+    }
+
+    public void setUltimateChargesBase(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPUltimateChargesBase", number);
+    }
+
+    public int specialChargesBase(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPSpecialChargesBase");
+    }
+
+    public void setSpecialChargesBase(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPSpecialChargesBase", number);
+    }
+
+    public long ultimateDurationBase(ItemStack stack) {
+        return VPUtil.getTag(stack).getLong("VPUltimateDurationBase");
+    }
+
+    public void setUltimateDurationBase(long number, ItemStack stack) {
+        VPUtil.getTag(stack).putLong("VPUltimateDurationBase", number);
+    }
+
+    public long specialDurationBase(ItemStack stack) {
+        return VPUtil.getTag(stack).getLong("VPSpecialDurationBase");
+    }
+
+    public void setSpecialDurationBase(long number, ItemStack stack) {
+        VPUtil.getTag(stack).putLong("VPSpecialDurationBase", number);
+    }
+
+    public int specialCdBase(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPSpecialCdBase");
+    }
+
+    public void setSpecialCdBase(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPSpecialCdBase", number);
+    }
+
+    /*public int ultimateCdBase(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPUltimateCdBase");
+    }*/
+
+    /*public void setUltimateCdBase(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPUltimateCdBase", number);
+    }*/
+    public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int radiance, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
+        setUltimateChargesBase(ultimateCharges, stack);
+        setSpecialChargesBase(specialCharges, stack);
+        setUltimateCharges(ultimateCharges, stack);
+        //setUltimateCdBase(ultimateCd * 20, stack);
+        //setUltimateCd(ultimateCd * 20, stack);
+        setMaxRadianceBase(radiance,stack);
+        setMaxRadiance(radiance,stack);
+        setSpecialCharges(specialCharges, stack);
+        setSpecialCdBase(specialCd * 20, stack);
+        setSpecialCd(specialCd * 20, stack);
+        this.damageType = hasDamage;
+        this.vestigeNumber = vestigeNumber;
+        setVestigeNumber(vestigeNumber, stack);
+        this.color = color;
+        setSpecialMaxTime((long) specialMaxTime * 1000, stack);
+        setSpecialDurationBase((long) specialMaxTime * 1000, stack);
+        setUltimateMaxTime((long) ultimateMaxTime * 1000, stack);
+        setUltimateDurationBase((long) ultimateMaxTime * 1000, stack);
+        this.ultimateChargesBase = ultimateCharges;
+        this.specialChargesBase = specialCharges;
+        //this.ultimateCdBase = ultimateCd * 20;
+        this.specialCdBase = specialCd * 20;
+        this.specialDurationBase = (long) specialMaxTime * 1000;
+        this.ultimateDurationBase = (long) ultimateMaxTime * 1000;
+    }
+
+    public int getVestigeNumber(ItemStack stack) {
+        return VPUtil.getTag(stack).getInt("VPVestigeNumber");
+    }
+
+    public void setVestigeNumber(int number, ItemStack stack) {
+        VPUtil.getTag(stack).putInt("VPVestigeNumber", number);
+    }
+
+    public static void setStellar(ItemStack stack, Player player) {
+        VPUtil.getTag(stack).putBoolean("Stellar", true);
+        if(stack.getItem() instanceof Vestige vestige)
+            vestige.applyBonus(stack,player);
+    }
+
+    public static boolean isStellar(ItemStack stack) {
+        return VPUtil.getTag(stack).getBoolean("Stellar");
+    }
+
+    public static void setDoubleStellar(ItemStack stack, Player player) {
+        VPUtil.getTag(stack).putBoolean("DoubleStellar", true);
+        if(stack.getItem() instanceof Vestige vestige)
+            vestige.applyBonus(stack,player);
+    }
+
+    public static boolean isDoubleStellar(ItemStack stack) {
+        return VPUtil.getTag(stack).getBoolean("DoubleStellar");
+    }
+
+    public static void setTripleStellar(ItemStack stack, Player player) {
+        VPUtil.getTag(stack).putBoolean("TripleStellar", true);
+        if(stack.getItem() instanceof Vestige vestige)
+            vestige.applyBonus(stack,player);
+    }
+
+    public static boolean isTripleStellar(ItemStack stack) {
+        return VPUtil.getTag(stack).getBoolean("TripleStellar");
+    }
+
+    public static void increaseStars(ItemStack stack, Player player){
+        if(isDoubleStellar(stack))
+            setTripleStellar(stack, player);
+        else if(isStellar(stack))
+            setDoubleStellar(stack,player);
+        else setStellar(stack,player);
+    }
+
+    public static void decreaseStars(ItemStack stack){
+        if(isTripleStellar(stack))
+            VPUtil.getTag(stack).putBoolean("TripleStellar", false);
+        else if(isDoubleStellar(stack))
+            VPUtil.getTag(stack).putBoolean("DoubleStellar", false);
+        else if(isStellar(stack))
+            VPUtil.getTag(stack).putBoolean("Stellar", false);
+    }
+
+    public void init(ItemStack stack) {
+        this.dataInit(0, null, 0, 0, 0, 0, 0, 0, false, stack);
+    }
+
+    public boolean isSpecialActive(ItemStack stack) {
+        return VPUtil.getTag(stack).getBoolean("VPSpecialActive");
+    }
+
+    public void setSpecialActive(boolean state, ItemStack stack) {
+        VPUtil.getTag(stack).putBoolean("VPSpecialActive", state);
+    }
+
+    public boolean isUltimateActive(ItemStack stack) {
+        return VPUtil.getTag(stack).getBoolean("VPUltimateActive");
+    }
+
+    public void setUltimateActive(boolean state, ItemStack stack) {
+        VPUtil.getTag(stack).putBoolean("VPUltimateActive", state);
+    }
+
+    public long time(ItemStack stack) {
+        return VPUtil.getTag(stack).getLong("VPTime");
+    }
+
+    public void setTime(long time, ItemStack stack) {
+        VPUtil.getTag(stack).putLong("VPTime", time);
+    }
+
+    public long timeUlt(ItemStack stack) {
+        return VPUtil.getTag(stack).getLong("VPTimeUlt");
+    }
+
+    public void setTimeUlt(long time, ItemStack stack){
+        VPUtil.getTag(stack).putLong("VPTimeUlt",time);
+    }
+
+    public long specialMaxTime(ItemStack stack){
+        return VPUtil.getTag(stack).getLong("VPSpecialMaxTime");
+    }
+
+    public void setSpecialMaxTime(long time, ItemStack stack){
+        VPUtil.getTag(stack).putLong("VPSpecialMaxTime",time);
+    }
+    public long ultimateMaxTime(ItemStack stack){
+        return VPUtil.getTag(stack).getLong("VPUltimateMaxTime");
+    }
+
+    public void setUltimateMaxTime(long time, ItemStack stack){
+        VPUtil.getTag(stack).putLong("VPUltimateMaxTime",time);
+    }
+
+    public int setSpecialActive(long seconds, Player player, ItemStack stack){
+        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis() && (vestigeNumber != 17 || !isStellar(stack))){
+            if(player instanceof ServerPlayer serverPlayer)
+                PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
+            return 0;
+        }
+        if(currentChargeSpecial(stack) > 0) {
+            if(!player.getCommandSenderWorld().isClientSide) {
+                setTime(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
+                setSpecialActive(true,stack);
+                setCdSpecialActive(cdSpecialActive(stack)+specialCd(stack),stack);     //time until cd recharges in seconds*tps
+                Random random = new Random();
+                if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
+                    setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
+                if(damageType == null)
+                    init(stack);
+                this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
+                player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+ConfigHandler.vestigesCooldown.get());
+                if(VPUtil.hasCurse(player,3)) {
+                    player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
+                }
+            } else this.localSpecial(player);
+        }
+        return 0;
+    }
+
+    public int setUltimateActive(long seconds, Player player, ItemStack stack){
+        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis()){
+            if(player instanceof ServerPlayer serverPlayer)
+                PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
+            return 0;
+        }
+        if(currentChargeUltimate(stack) > 0) {
+            if(!player.getCommandSenderWorld().isClientSide) {
+                setTimeUlt(System.currentTimeMillis() + seconds,stack);  //active time in real seconds
+                setUltimateActive(true,stack);
+                //setCdUltimateActive(cdUltimateActive(stack)+ultimateCd(stack),stack);     //time until cd recharges in seconds*tps
+                Random random = new Random();
+                if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
+                    setCurrentChargeUltimate(currentChargeUltimate(stack)-1,stack);
+                long bonus = 1+(long)player.getPersistentData().getFloat("VPDurationBonusDonut")/1000;
+                if(damageType == null)
+                    init(stack);
+                player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+ConfigHandler.vestigesCooldown.get());
+                if(VPUtil.hasCurse(player,3)) {
+                    player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
+                }
+                this.doUltimate(seconds*bonus, player, player.getCommandSenderWorld(), stack);
+            } else this.localSpecial(player);
+        }
+        return 0;
+    }
+
+    public void applyBonus(ItemStack stack,Player player){
+        float specialTimeBonus = 1;
+        float ultimateTimeBonus = 1;
+        int specialBonus = 0;
+        int ultimateBonus = 0;
+        if(isDoubleStellar(stack)){
+            specialBonus += 1;
+            ultimateBonus += 1;
+        }
+        int spAcsBonus = 0;
+        int ultAcsBonus = 0;
+        float specialCdBonus = 1;
+        float ultimateCdBonus = 1;
+        int set = VPUtil.getSet(player);
+        float curse = VPUtil.getCurseMultiplier(player,6);
+        if(curse > 0){
+            specialCdBonus += curse;
+            ultimateCdBonus += curse;
+        }
+        if(set == 1){
+            spAcsBonus += 1;
+            specialTimeBonus += 0.2f;
+            ultimateTimeBonus += 0.2f;
+        }
+        else if(set == 6){
+            spAcsBonus -= 1;
+        }
+        else if(set == 7){
+            //spAcsBonus += 1;
+            ultAcsBonus += 1;
+            specialTimeBonus -= 0.4f;
+            ultimateTimeBonus -= 0.4f;
+        }
+        else if(set == 8){
+            specialTimeBonus += 1f;
+            ultimateTimeBonus += 1f;
+            specialCdBonus += 0.4f;
+            ultimateCdBonus += 0.4f;
+        }
+        if(player.getPersistentData().getLong("VPJuke") >= System.currentTimeMillis() && VPUtil.hasVestige(ModItems.LYRA.get(), player)){
+            specialTimeBonus += 0.4f;
+            ultimateTimeBonus += 0.4f;
+            specialCdBonus -= 0.4f;
+            ultimateCdBonus -= 0.4f;
+        }
+        if(VPUtil.hasLyra(player,7)){
+            specialCdBonus -= 0.2f;
+            ultimateCdBonus -= 0.2f;
+        }
+        if(VPUtil.isPoisonedByNightmare(player)) {
+            specialTimeBonus -= 0.5f;
+            ultimateTimeBonus -= 0.5f;
+        }
+        setSpecialCd((int) (specialCdBase(stack)*Math.max(0.1,specialCdBonus)),stack); //cauton!!!
+        //setUltimateCd((int) (ultimateCdBase(stack)*Math.max(0.1,ultimateCdBonus)),stack);
+        setMaxRadiance((float) (getMaxRadianceBase(stack)*Math.max(0.1,ultimateCdBonus)),stack);
+        setSpecialMaxTime((int) (specialDurationBase(stack)*Math.max(0.1,specialTimeBonus)),stack);
+        setUltimateMaxTime((int) (ultimateDurationBase(stack)*Math.max(0.1,ultimateTimeBonus)),stack);
+        setSpecialCharges(specialChargesBase(stack)+specialBonus+specialBonusModifier(stack)+spAcsBonus,stack);
+        setUltimateCharges(ultimateChargesBase(stack)+ultimateBonus+ultimateBonusModifier(stack)+ultAcsBonus,stack);
+    }
+
+    @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        if(slotContext.entity() instanceof  Player player && player.getCommandSenderWorld().isClientSide) {
+            ICurioItem.super.curioTick(slotContext, stack);
+            return;
+        }
+        if (color == null || specialCharges(stack) == 0 || ultimateCharges(stack) == 0 || specialCdBase == 0 || ultimateChargesBase == 0 || damageType == null) {
+            this.init(stack);
+        }
+        ServerPlayer playerServer = (ServerPlayer) slotContext.entity();
+        if(playerServer.tickCount % 20 == 0)
+            VPUtil.getTag(stack).putDouble("VPPower",VPUtil.getPower(vestigeNumber,playerServer));
+        if(!isStellar(stack) && playerServer.isCreative())
+            setStellar(stack,playerServer);
+        if(playerServer != null) {
+            if (isSpecialActive(stack))
+                whileSpecial(playerServer, stack);
+            if (isUltimateActive(stack))
+                whileUltimate(playerServer, stack);
+        }
+        if(time(stack) > 0 && time(stack) <= System.currentTimeMillis()) {
+            setTime(0,stack);
+            setSpecialActive(false,stack);
+            if(playerServer != null)
+                specialEnds(playerServer, stack);
+        }
+        if(timeUlt(stack) > 0 && timeUlt(stack) <= System.currentTimeMillis()) {
+            setTimeUlt(0,stack);
+            setUltimateActive(false,stack);
+            if(playerServer != null)
+                ultimateEnds(playerServer, stack);
+        }
+        float curseShieldModifier = VPUtil.getCurseMultiplier(playerServer,3);
+        if (cdSpecialActive(stack) > 0) {
+            setCdSpecialActive(cdSpecialActive(stack)-1,stack);
+            if(curseShieldModifier != 0 && VPUtil.getShield(playerServer) > 10 && VPUtil.getOverShield(playerServer) > 10 && cdSpecialActive(stack) > 0){
+                setCdSpecialActive(cdSpecialActive(stack)-1,stack);
+                playerServer.getPersistentData().putFloat("VPShield", VPUtil.getShield(playerServer)-VPUtil.getShield(playerServer)*curseShieldModifier);
+                playerServer.getPersistentData().putFloat("VPOverShield", VPUtil.getOverShield(playerServer)-VPUtil.getOverShield(playerServer)*curseShieldModifier);
+                VPUtil.sync(playerServer);
+            }
+            if ((this.cdSpecialActive(stack) > this.specialCd(stack) ? (this.cdSpecialActive(stack) % this.specialCd(stack) == 0) : (this.cdSpecialActive(stack) - (this.specialCd(stack)) == 0 || this.cdSpecialActive(stack) == 0)) && this.specialCharges(stack) > this.currentChargeSpecial(stack)) {
+                setCurrentChargeSpecial(currentChargeSpecial(stack)+1,stack);
+                if(playerServer != null)
+                    specialRecharges(playerServer, stack);
+            }
+        }
+        /*if (cdUltimateActive(stack) > 0) {
+            setCdUltimateActive(cdUltimateActive(stack)-1,stack);
+            if ((this.cdUltimateActive(stack) > this.ultimateCd(stack) ? (this.cdUltimateActive(stack) % this.ultimateCd(stack) == 0) : (this.cdUltimateActive(stack) - (this.ultimateCd(stack)) == 0 || this.cdUltimateActive(stack) == 0)) && this.ultimateCharges(stack) > this.currentChargeUltimate(stack)) {
+                setCurrentChargeUltimate(currentChargeUltimate(stack)+1,stack);
+                if(playerServer != null)
+                    ultimateRecharges(playerServer, stack);
+            }
+        }*/
+        if(ultimateCharges(stack) > currentChargeUltimate(stack)){
+            if(getRadiance(stack) >= getMaxRadiance(stack)) {
+                setRadiance(0, stack);
+                setCurrentChargeUltimate(currentChargeUltimate(stack) + 1, stack);
+                if (playerServer != null)
+                    ultimateRecharges(playerServer, stack);
+            }
+            else if(curseShieldModifier != 0 && VPUtil.getShield(playerServer) > 10 && VPUtil.getOverShield(playerServer) > 10){
+                addRadiance(1,stack,playerServer);
+                playerServer.getPersistentData().putFloat("VPShield", VPUtil.getShield(playerServer)-VPUtil.getShield(playerServer)*curseShieldModifier);
+                playerServer.getPersistentData().putFloat("VPOverShield", VPUtil.getOverShield(playerServer)-VPUtil.getOverShield(playerServer)*curseShieldModifier);
+                VPUtil.sync(playerServer);
+            }
+        }
+        if((currentChargeUltimate(stack) == 0) && (currentChargeSpecial(stack) == 0 && cdSpecialActive(stack) == 0) && specialCdBase == 0) {
+            setTime(0, stack);
+            setTimeUlt(0, stack);
+            setSpecialActive(false, stack);
+            setUltimateActive(false, stack);
+            setCurrentChargeSpecial(0, stack);
+            setCurrentChargeUltimate(0, stack);
+            setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
+            //setCdUltimateActive(ultimateCd(stack) * ultimateCharges(stack), stack);
+            curioSucks(playerServer, stack);
+        }
+        ICurioItem.super.curioTick(slotContext, stack);
+    }
+
+    double numb = new Random().nextDouble();
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> components, TooltipFlag flag) {
+        if (color == null || specialCharges(stack) == 0 || ultimateCharges(stack) == 0 || specialCdBase == 0 || ultimateChargesBase == 0 || damageType == null) {
+            this.init(stack);
+        }
+        Player player = Minecraft.getInstance().player;
+        boolean stellar = isStellar(stack);
+        VestigeCap cap = VPUtil.getCap(player);
+        int hold = player.getPersistentData().getInt("VPHold");
+        if (Screen.hasShiftDown()) {
+            hold += 2;
+            components.add(Component.literal(hold/10 + "/" + 10).withStyle(ChatFormatting.GRAY));
+            SoundEvent event;
+            int sound;
+            if(numb < 0.5){
+                event = SoundRegistry.VESTIGE_GUI_OPEN_1.get();
+                sound = 45;
+            } else {
+                event = SoundRegistry.VESTIGE_GUI_OPEN_2.get();
+                sound = 80;
+            }
+            if(hold >= sound && numb > 0){
+                numb = 0;
+                player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), event, SoundSource.NEUTRAL, 1f, 1, false);
+            }
+            if(hold >= 100) {
+                numb = new Random().nextDouble();
+                Minecraft.getInstance().setScreen(new VestigeScreen(stack,player));
+                hold = 0;
+            }
+            player.getPersistentData().putInt("VPHold",hold);
+        } else if (Screen.hasControlDown()) {
+            components.add(Component.translatable("vp.challenge").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient(VPUtil.generateRandomString(7) + " :")));
+            if(vestigeNumber == 9)
+                components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getGoldenChance()+"%").withStyle(ChatFormatting.GRAY)));
+            else if(vestigeNumber == 13)
+                components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
+            else if(vestigeNumber == 14){
+                components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
+                components.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity())));
+                components.add(Component.translatable("vp.chaos2").withStyle(ChatFormatting.GRAY).append(VPUtil.formatMilliseconds(cap.getChaosTime()+VPUtil.getChaosTime()-System.currentTimeMillis())));
+            }
+            else if(vestigeNumber == 16){
+                components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+                if(ConfigHandler.failFlowers.get())
+                    components.add(Component.translatable("vp.get.16.fail").withStyle(ChatFormatting.GRAY));
+            }
+            else {
+                components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY));
+            }
+            int progress = cap.getChallenge(vestigeNumber);
+            if(vestigeNumber == 12)
+                progress = VPUtil.getCurseAmount(player);
+            if(vestigeNumber == 24){
+                boolean fuckThisStupidGame = false;
+                boolean fuckThisStupidGame2 = false;
+                for(MobBucketItem bucketItem: VPUtil.getBuckets()){
+                    List<String> allFish = new ArrayList<>(VPUtil.fishTypesFromBucket(bucketItem));
+                    EntityType<?> type = ((BucketVzlom)bucketItem).getFishSup().get();
+                    List<String> bucketFish = new ArrayList<>();
+                    for(String fish: cap.getSea().split(",")){
+                        for (String name: allFish) {
+                            if (fish.trim().contains(name))
+                                bucketFish.add(fish.trim());
+                        }
+                    }
+                    boolean axolotl = ((BucketVzlom)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.axolotl");
+                    boolean tropic = ((BucketVzlom)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.tropical_fish");
+                    if(axolotl){
+                        if(fuckThisStupidGame)
+                            continue;
+                        else fuckThisStupidGame = true;
+                    }
+                    if(tropic){
+                        if(fuckThisStupidGame2)
+                            continue;
+                        else fuckThisStupidGame2 = true;
+                    }
+                    if(allFish.size() <= 2)
+                        continue;
+                    int bucketProgress = bucketFish.size();
+                    components.add(Component.translatable(type.getDescriptionId()).append(Component.literal(":")).withStyle(color));
+                    components.add(Component.translatable("vp.progress").withStyle(ChatFormatting.GRAY)
+                            .append(Component.literal(" " + bucketProgress))
+                            .append(Component.literal(" / " + VPUtil.fishTypesFromBucket(bucketItem).size())));
+                }
+                components.add(Component.translatable("vp.fish").withStyle(color)
+                        .append(Component.literal(" " + progress))
+                        .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber))));
+            }
+            else if(vestigeNumber == 666){
+                components.add(Component.translatable("vp.progress").withStyle(color)
+                        .append(Component.literal(" " + cap.getNightmareChallenge().split(",").length))
+                        .append(Component.literal(" / " + 7)));
+            }
+            else {
+                components.add(Component.translatable("vp.progress").withStyle(color)
+                        .append(Component.literal(" " + progress))
+                        .append(Component.literal(" / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber))));
+            }
+            double stellarChance = cap.getChance();
+            if(VPUtil.getSet(player) == 9)
+                stellarChance += 5;
+            if(cap.getVip() > System.currentTimeMillis())
+                stellarChance += 10;
+            if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+                stellarChance += 10;
+            components.add(Component.literal((int)stellarChance+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient("Stellar"))));
+            components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY).append(Component.literal(ConfigHandler.stellarChanceIncrease.get() + "%")));
+            components.add(Component.translatable("vp.getText1").withStyle(ChatFormatting.GRAY).append(Component.literal(VPUtil.formatMilliseconds(VPUtil.coolDown(player))+" ").withStyle(ChatFormatting.GRAY)));
+            if (cap.hasCoolDown(vestigeNumber))
+                components.add(Component.translatable("vp.getText2").append(Component.literal((VPUtil.formatMilliseconds(VPUtil.coolDown(player)-(System.currentTimeMillis() - cap.getTimeCd()))))));
+            if(player.isCreative()) {
+                components.add(Component.translatable("vp.creative").withStyle(ChatFormatting.DARK_PURPLE));
+            }
+        } else if (Screen.hasAltDown()) {
+            hold += 2;
+            components.add(Component.literal(hold/10 + "/" + 10).withStyle(ChatFormatting.GRAY));
+            if (hold >= 100) {
+                List<ItemStack> list = VPUtil.getChallengeList(vestigeNumber, player);
+                Object[] data = new Object[3];
+                data[2] = VPUtil.getChallengeString(vestigeNumber,player,cap);
+                if (vestigeNumber == 9)
+                    data[0] = cap.getGoldenChance();
+                else if (vestigeNumber == 24) {
+                    data[0] = VPUtil.filterString(VPUtil.getAxolotlVariantsLeft(cap.getSea()).toString());
+                    data[2] = VPUtil.filterString(VPUtil.getTropiclVariantsLeft(cap.getSea()).toString());
+                }
+                data[1] = " " + cap.getChallenge(vestigeNumber) + " / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber);
+                Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber, list, data));
+                hold = 0;
+            }
+            player.getPersistentData().putInt("VPHold", hold);
+        } else {
+            int[] items = {2,6,9,13,15,16,17,20,21,22,24,26};
+            if(stellar && !Component.translatable("vp.meme."+vestigeNumber).getString().isEmpty())
+                components.add(Component.translatable("vp.meme."+vestigeNumber).withStyle(color));
+            components.add(Component.translatable("vp.short." + vestigeNumber).withStyle(color));
+            components.add(Component.translatable("vp.hold").append(Component.literal("SHIFT").withStyle(color).append(Component.translatable("vp.shift"))));
+            if(vestigeNumber == 3)
+                components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt.atlas"))));
+            else for (int numb : items) {
+                if (numb == vestigeNumber) {
+                    components.add(Component.translatable("vp.hold").append(Component.literal("ALT").withStyle(color).append(Component.translatable("vp.alt"))));
+                }
+            }
+        }
+        if(vestigeNumber == 9){
+            int luck = VPUtil.getTag(stack).getInt("VPLuck");
+            int kills = VPUtil.getTag(stack).getInt("VPKills");
+            components.add(Component.literal("Kills: " + kills).withStyle(color));
+            components.add(Component.literal("Luck: " + luck).withStyle(color));
+        }
+        if(vestigeNumber == 13)
+            components.add(Component.translatable("vp.prism").withStyle(color).append(Component.literal(VPUtil.getTag(stack).getInt("VPPrismKill")+"").withStyle(ChatFormatting.GRAY)));
+        if(vestigeNumber == 15)
+            components.add(Component.translatable("vp.devourer").withStyle(color).append(Component.literal(VPUtil.getTag(stack).getInt("VPDevoured")+"").withStyle(ChatFormatting.GRAY)));
+
+        int curse = VPUtil.getVestigeCurse(stack);
+        if(curse > 0) {
+            int multiplier = 0;
+            if(curse == 1) {
+                multiplier = 90;
+                if(stellar)
+                    multiplier = 75;
+                if(isDoubleStellar(stack))
+                    multiplier = 45;
+                if(isTripleStellar(stack))
+                    multiplier = 35;
+            }
+            else if (curse == 2){
+                multiplier = -80;
+                if(stellar)
+                    multiplier = -65;
+                if(isDoubleStellar(stack))
+                    multiplier = -50;
+                if(isTripleStellar(stack))
+                    multiplier = -40;
+            }
+            else if(curse == 3){
+                multiplier = 3;
+                if(stellar)
+                    multiplier = 2;
+                if(isDoubleStellar(stack))
+                    multiplier = 1;
+                if(isTripleStellar(stack))
+                    multiplier = 1;
+            }
+            else if(curse == 4){
+                multiplier = 40;
+                if(stellar)
+                    multiplier = 70;
+                if(isDoubleStellar(stack))
+                    multiplier = 110;
+                if(isTripleStellar(stack))
+                    multiplier = 160;
+            }
+            else if(curse == 5){
+                multiplier = 50;
+                if(stellar)
+                    multiplier = 125;
+                if(isDoubleStellar(stack))
+                    multiplier = 250;
+                if(isTripleStellar(stack))
+                    multiplier = 350;
+            }
+            else if(curse == 6){
+                multiplier = 60;
+                if(isDoubleStellar(stack))
+                    multiplier = 50;
+                if(isTripleStellar(stack))
+                    multiplier = 40;
+            }
+            components.add(Component.translatable("vp.curse." + curse,multiplier+"%").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+        }
+        super.appendHoverText(stack, context, components, flag);
+    }
+
+    @Override
+    public @NotNull ICurio.DropRule getDropRule(SlotContext slotContext, DamageSource source, boolean recentlyHit, ItemStack stack) {
+        if(isStellar(stack))
+            return ICurio.DropRule.ALWAYS_KEEP;
+        return ICurioItem.super.getDropRule(slotContext, source, recentlyHit, stack);
+    }
+
+    public String originalText;
+
+    public String symbolsRandom(ItemStack stack){
+        char[] starChars = {'*', '\u2731', '\u2606', '\u2605'};
+        Random random = new Random();
+        /*if(!VPUtil.getTag(stack).getString("VPName").equals("")) {
+            originalText = VPUtil.getTag(stack).getString("VPName");
+        }
+        if(originalText == null){
+            StringBuilder result;
+            result = new StringBuilder(stack.getDisplayName().getString());
+            result.deleteCharAt(0);
+            result.deleteCharAt(0);
+            result.deleteCharAt(0);
+            result.deleteCharAt(result.length()-1);
+            originalText = String.valueOf(result);
+            VPUtil.getTag(stack).putString("VPName",originalText);
+        }*/
+        originalText = I18n.get("vp.name."+vestigeNumber).substring(2);
+        int randomNumber = random.nextInt(originalText.length()-1);
+        int randomNumber2 = random.nextInt(originalText.length()-1);
+        /*result = new StringBuilder(originalText);
+        for (int i = 0; i < originalText.length(); i++){
+            if (i == randomNumber)
+                result.setCharAt(i,starChars[random.nextInt(starChars.length)]);
+            if (i == randomNumber2)
+                result.setCharAt(i,starChars[random.nextInt(starChars.length)]);
+        }*/
+        String finalName = "";
+        int counter = 0;
+        for (String element: originalText.split("")){
+            finalName += element;
+            if(counter == randomNumber || counter == randomNumber2)
+                finalName += starChars[random.nextInt(starChars.length)];
+            counter++;
+        }
+        return finalName;
+    }
+
+    public boolean fuckNbt1(Player player){
+        return player.getPersistentData().getBoolean("VPFuckNbt1");
+    }
+    public boolean fuckNbt2(Player player){
+        return player.getPersistentData().getBoolean("VPFuckNbt2");
+    }
+
+    public void fuckNbt(){
+        /*if(vestigePlayer != null) {
+            vestigePlayer.getPersistentData().putBoolean("VPFuckNbt1", true);
+            vestigePlayer.getPersistentData().putBoolean("VPFuckNbt2", true);
+        }*/
+    }
+
+    @Override
+    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
+        return isTripleStellar(stack);
+    }
+
+    public void curioSucks(Player player, ItemStack stack){
+        if(player.getCommandSenderWorld().isClientSide)
+            return;
+        if(!isTripleStellar(stack)){
+            setTime(0, stack);
+            setTimeUlt(0, stack);
+            setSpecialActive(false, stack);
+            setUltimateActive(false, stack);
+            setCurrentChargeSpecial(0, stack);
+            setCurrentChargeUltimate(0, stack);
+            setCdSpecialActive(specialCd(stack) * specialCharges(stack), stack);
+            setRadiance(0,stack);
+        }
+        VPUtil.vestigeNullify(player);
+        applyBonus(stack,player);
+    }
+
+    /*@Override
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
+        if(!fuckNbt1(player)) {
+            setTime(0);
+            setTimeUlt(0);
+            setSpecialActive(false);
+            setUltimateActive(false);
+            setCurrentChargeSpecial(0);
+            setCurrentChargeUltimate(0);
+            setCdSpecialActive(specialCd()*specialCharges());
+            setCdUltimateActive(ultimateCd()*ultimateCharges());
+            player.getPersistentData().putFloat("VPShield", 0);
+            player.getPersistentData().putFloat("VPOverShield", 0);
+        } else player.getPersistentData().putBoolean("VPFuckNbt1",true);
+        ICurioItem.super.onUnequip(slotContext, newStack, stack);
+    }*/
+
+    /*@Override
+    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
+        Player player = (Player) slotContext.entity();
+        if(this.ultimateCharges() == 0 || this.specialCharges() == 0)
+            this.init();
+        if (!isStellar(stack) && player.isCreative()) {
+            setStellar(stack);
+        }
+        if(!fuckNbt2(player)) {
+            setTime(0);
+            setTimeUlt(0);
+            setSpecialActive(false);
+            setUltimateActive(false);
+            setCurrentChargeSpecial(0);
+            setCurrentChargeUltimate(0);
+            setCdSpecialActive(specialCd()*specialCharges());
+            setCdUltimateActive(ultimateCd()*ultimateCharges());
+            player.getPersistentData().putFloat("VPShield", 0);
+            player.getPersistentData().putFloat("VPOverShield", 0);
+            applyBonus(stack);
+        } else player.getPersistentData().putBoolean("VPFuckNbt2",true);
+        ICurioItem.super.onEquip(slotContext, prevStack, stack);
+    }*/
+
+    public void doSpecial(long seconds, Player player, Level level, ItemStack stack){
+        player.getPersistentData().putLong("VPAcsSpecial",System.currentTimeMillis()+5000);
+        applyBonus(stack,player); //cauton!!!
+    }
+    public void doUltimate(long seconds, Player player, Level level, ItemStack stack){
+        player.getPersistentData().putFloat("VPDurationBonusDonut", 0);
+        if(vestigeNumber != 3)
+            player.getPersistentData().putInt("VPGravity",0);
+        applyBonus(stack,player); //cauton!!!
+    }
+    public void specialEnds(Player player, ItemStack stack){
+
+    }
+    public void ultimateEnds(Player player, ItemStack stack){
+
+    }
+
+    public void whileSpecial(Player player, ItemStack stack){
+
+    }
+    public void whileUltimate(Player player, ItemStack stack){
+
+    }
+
+    public void specialRecharges(Player player, ItemStack stack){
+
+    }
+
+    public void ultimateRecharges(Player player, ItemStack stack){
+
+    }
+
+    public ICurio.SoundInfo getEquipSound(SlotContext slotContext, ItemStack stack) {
+        return new ICurio.SoundInfo(SoundEvents.ARMOR_EQUIP_ELYTRA.value(), 1.0f, 1.0f);
+    }
+
+    public void refresh(Player player, ItemStack stack){
+        setCdSpecialActive(0,stack);
+        //setCdUltimateActive(0,stack);
+        setCurrentChargeSpecial(specialCharges(stack),stack);
+        setCurrentChargeUltimate(ultimateCharges(stack),stack);
+        if(!(stack.getItem() instanceof Archlinx))
+            ultimateEnds(player, stack);
+        if(!(stack.getItem() instanceof MaskOfDemon))
+            specialEnds(player, stack);
+        specialRecharges(player, stack);
+        ultimateRecharges(player, stack);
+    }
+
+    public void localSpecial(Player player){
+
+    }
+
+    public void localUltimate(Player player){
+
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "vp:belt_of_broken_memories"
+  },
+  "addition": {
+    "item": "vp:stellar"
+  },
+  "base": {
+    "item": "vp:belt_of_broken_memories"
+  },
+  "result": {
+    "item": "vp:belt_of_broken_memories"
+  }
+}

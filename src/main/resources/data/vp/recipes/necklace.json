@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "vp:necklace_of_tortured_dreams"
+  },
+  "addition": {
+    "item": "vp:stellar"
+  },
+  "base": {
+    "item": "vp:necklace_of_tortured_dreams"
+  },
+  "result": {
+    "item": "vp:necklace_of_tortured_dreams"
+  }
+}
