@@ -22,7 +22,7 @@ public abstract class BucketMixin {
     @Inject(method = "createFilledResult(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"))
     private static void onBucket(ItemStack stack1, Player player, ItemStack stack2, boolean wtf, CallbackInfoReturnable<ItemStack> cir) {
         if(stack1.getItem() instanceof BucketItem && stack2.getItem() instanceof MobBucketItem mobBucketItem){
-            EntityType<?> type = ((BucketVzlom)mobBucketItem).getFishSup().get();
+            EntityType<?> type = VPUtil.getBucketType(mobBucketItem);
             String fish = mobBucketItem.getDescriptionId();
             Entity entity = VPUtil.ray(player,2,10,true).get(0);
             if(entity instanceof Axolotl axolotl)

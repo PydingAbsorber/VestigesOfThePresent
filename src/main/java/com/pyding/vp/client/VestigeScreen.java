@@ -28,7 +28,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @OnlyIn(Dist.CLIENT)
 public class VestigeScreen extends Screen {
@@ -39,6 +38,12 @@ public class VestigeScreen extends Screen {
             "textures/gui/leaderboard_back.png");
     private static final ResourceLocation SCROLL = ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,
             "textures/gui/scroll.png");
+    private static final ResourceLocation ZOOM_IN = ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/zoom-in.png");
+    private static final ResourceLocation ZOOM_OUT = ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/zoom-out.png");
+    private static final ResourceLocation VAPROSI = ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png");
+    private static final ResourceLocation CHALLENGE_BUTTON = ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/challenge_button.png");
+    private static final ResourceLocation LEADERBOARD_BUTTON = ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/leaderboard_button.png");
+
     long time = 0;
     ItemStack stack;
     Button question;
@@ -80,7 +85,7 @@ public class VestigeScreen extends Screen {
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/zoom-in.png"),
+                ZOOM_IN,
                 buttonSize, buttonSize,
                 button -> ClientConfig.guiScaleVestige.set(Math.min(2.0, ClientConfig.guiScaleVestige.get() + 0.1))
         );
@@ -88,7 +93,7 @@ public class VestigeScreen extends Screen {
                 right, top,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/zoom-out.png"),
+                ZOOM_OUT,
                 buttonSize, buttonSize,
                 button -> ClientConfig.guiScaleVestige.set(Math.max(0.1, ClientConfig.guiScaleVestige.get() - 0.1))
         );
@@ -99,7 +104,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png"),
+                VAPROSI,
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(10,stack)))
         );
@@ -108,7 +113,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png"),
+                VAPROSI,
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(1,stack)))
         );
@@ -117,7 +122,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png"),
+                VAPROSI,
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(9,stack)))
         );
@@ -126,7 +131,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png"),
+                VAPROSI,
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(1,stack)))
         );
@@ -135,7 +140,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png"),
+                VAPROSI,
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new GuideScreen(7,stack)))
         );
@@ -144,7 +149,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/vaprosi.png"),
+                VAPROSI,
                 buttonSize, buttonSize,
                 button -> {}
         );
@@ -159,7 +164,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/challenge_button.png"),
+                CHALLENGE_BUTTON,
                 buttonSize, buttonSize,
                 button -> {
                     if(stack.getItem() instanceof Vestige vestige){
@@ -184,7 +189,7 @@ public class VestigeScreen extends Screen {
                 0, 0,
                 buttonSize, buttonSize,
                 0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/leaderboard_button.png"),
+                LEADERBOARD_BUTTON,
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new LeaderboardScreen(stack)))
         );

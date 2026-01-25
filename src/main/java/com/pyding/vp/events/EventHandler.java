@@ -943,7 +943,7 @@ public class EventHandler {
         ItemStack stack = event.getItemStack();
         Player player = event.getEntity();
         if(stack.getItem().components().has(DataComponents.JUKEBOX_PLAYABLE) && player.level().getBlockState(event.getHitVec().getBlockPos()).getBlock() == Blocks.JUKEBOX){
-            VPUtil.getCap(player).addMusic(stack.get(DataComponents.JUKEBOX_PLAYABLE).song().holder().get().value().description().getString(),player);
+            VPUtil.getCap(player).addMusic(VPUtil.getSong(stack,player.level()),player);
         }
     }
     @SubscribeEvent

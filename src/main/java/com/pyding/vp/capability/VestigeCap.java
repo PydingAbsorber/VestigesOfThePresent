@@ -639,127 +639,123 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
     }
 
     public static int getMaximum(int number,Player player){
-        try {
-            boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
-            if(ConfigHandler.reduceChallengesPercent.get()){
-                float reduce = 1 - ((float)ConfigHandler.getChallengeReduceByNumber(number)/100);
-                if(leaderboard && reduce < 0.9)
-                    reduce = 0.9f;
-                switch (number) {
-                    case 1:
-                        return (int) ((float) VPUtil.getEntitiesList().size() / 10 * reduce);
-                    case 2:
-                        return (int) (VPUtil.monsterList.size() * reduce);
-                    case 3:
-                        return (int) (VPUtil.getBiomes().size() * reduce);
-                    case 4:
-                        return (int) (100 * reduce);
-                    case 5:
-                        return (int) (100 * reduce);
-                    case 6:
-                        return (int) (VPUtil.getEdibleItems().size() * reduce);
-                    case 7:
-                        return (int) (15 * reduce);
-                    case 8:
-                        return (int) (11 * reduce);
-                    case 9:
-                        return (int) (8 * reduce);
-                    case 10:
-                        return (int) (20 * reduce);
-                    case 11:
-                        return (int) (VPUtil.getDamageKinds().size() * reduce);
-                    case 12:
-                        return (int) (10 * reduce);
-                    case 13:
-                        return (int) ((float) VPUtil.hashRares.size() * reduce);
-                    case 14:
-                        return (int) (6 * reduce);
-                    case 15:
-                        return (int) (VPUtil.bossList.size() * reduce);
-                    case 16:
-                        return (int) (VPUtil.getFlowers().size() * reduce);
-                    case 17:
-                        return (int) (VPUtil.getEffects().size() * reduce);
-                    case 18:
-                        return (int) (20 * reduce);
-                    case 19:
-                        return (int) (1000000 * reduce);
-                    case 20:
-                        return (int) (VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() * reduce);
-                    case 21:
-                        return (int) (VPUtil.getTemplates().size() * reduce);
-                    case 22:
-                        return (int) (VPUtil.getMusicDisks().size() * reduce);
-                    case 23:
-                        return (int) (8 * reduce);
-                    case 24:
-                        return (int) (VPUtil.getSeaSize() * reduce);
-                    case 25:
-                        return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) * reduce);
-                    case 26:
-                        return (int) (VPUtil.getOres().size() * reduce);
-                }
-            } else {
-                int reduce = ConfigHandler.getChallengeReduceByNumber(number);
-                if(leaderboard && reduce > 3)
-                    reduce = 3;
-                switch (number) {
-                    case 1:
-                        return VPUtil.getEntitiesList().size() / 10 - reduce;
-                    case 2:
-                        return VPUtil.monsterList.size() - reduce;
-                    case 3:
-                        return VPUtil.getBiomes().size() - reduce;
-                    case 4:
-                        return 100 - reduce;
-                    case 5:
-                        return 100 - reduce;
-                    case 6:
-                        return VPUtil.getEdibleItems().size() - reduce;
-                    case 7:
-                        return 15 - reduce;
-                    case 8:
-                        return 11 - reduce;
-                    case 9:
-                        return 8 - reduce;
-                    case 10:
-                        return 20 - reduce;
-                    case 11:
-                        return VPUtil.getDamageKinds().size() - reduce;
-                    case 12:
-                        return 10 - reduce;
-                    case 13:
-                        return (int) ((float) VPUtil.hashRares.size() - reduce);
-                    case 14:
-                        return 6 - reduce;
-                    case 15:
-                        return VPUtil.bossList.size() - reduce;
-                    case 16:
-                        return VPUtil.getFlowers().size() - reduce;
-                    case 17:
-                        return VPUtil.getEffects().size() - reduce;
-                    case 18:
-                        return 20 - reduce;
-                    case 19:
-                        return 1000000 - reduce;
-                    case 20:
-                        return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() - reduce;
-                    case 21:
-                        return VPUtil.getTemplates().size() - reduce;
-                    case 22:
-                        return VPUtil.getMusicDisks().size() - reduce;
-                    case 23:
-                        return 8 - reduce;
-                    case 24:
-                        return VPUtil.getSeaSize() - reduce;
-                    case 25:
-                        return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) - reduce);
-                    case 26:
-                        return (VPUtil.getOres().size() - reduce);
-                }
+        boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
+        if(ConfigHandler.reduceChallengesPercent.get()){
+            float reduce = 1 - ((float)ConfigHandler.getChallengeReduceByNumber(number)/100);
+            if(leaderboard && reduce < 0.9)
+                reduce = 0.9f;
+            switch (number) {
+                case 1:
+                    return (int) ((float) VPUtil.getEntitiesList().size() / 10 * reduce);
+                case 2:
+                    return (int) (VPUtil.monsterList.size() * reduce);
+                case 3:
+                    return (int) (VPUtil.getBiomes().size() * reduce);
+                case 4:
+                    return (int) (100 * reduce);
+                case 5:
+                    return (int) (100 * reduce);
+                case 6:
+                    return (int) (VPUtil.getEdibleItems().size() * reduce);
+                case 7:
+                    return (int) (15 * reduce);
+                case 8:
+                    return (int) (11 * reduce);
+                case 9:
+                    return (int) (8 * reduce);
+                case 10:
+                    return (int) (20 * reduce);
+                case 11:
+                    return (int) (VPUtil.getDamageKinds().size() * reduce);
+                case 12:
+                    return (int) (10 * reduce);
+                case 13:
+                    return (int) ((float) VPUtil.hashRares.size() * reduce);
+                case 14:
+                    return (int) (6 * reduce);
+                case 15:
+                    return (int) (VPUtil.bossList.size() * reduce);
+                case 16:
+                    return (int) (VPUtil.getFlowers().size() * reduce);
+                case 17:
+                    return (int) (VPUtil.getEffects().size() * reduce);
+                case 18:
+                    return (int) (20 * reduce);
+                case 19:
+                    return (int) (1000000 * reduce);
+                case 20:
+                    return (int) (VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() * reduce);
+                case 21:
+                    return (int) (VPUtil.getTemplates().size() * reduce);
+                case 22:
+                    return (int) (VPUtil.getMusicDisks().size() * reduce);
+                case 23:
+                    return (int) (8 * reduce);
+                case 24:
+                    return (int) (VPUtil.getSeaSize() * reduce);
+                case 25:
+                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) * reduce);
+                case 26:
+                    return (int) (VPUtil.getOres().size() * reduce);
             }
-        } catch (Exception e) {
-            return  0;
+        } else {
+            int reduce = ConfigHandler.getChallengeReduceByNumber(number);
+            if(leaderboard && reduce > 3)
+                reduce = 3;
+            switch (number) {
+                case 1:
+                    return VPUtil.getEntitiesList().size() / 10 - reduce;
+                case 2:
+                    return VPUtil.monsterList.size() - reduce;
+                case 3:
+                    return VPUtil.getBiomes().size() - reduce;
+                case 4:
+                    return 100 - reduce;
+                case 5:
+                    return 100 - reduce;
+                case 6:
+                    return VPUtil.getEdibleItems().size() - reduce;
+                case 7:
+                    return 15 - reduce;
+                case 8:
+                    return 11 - reduce;
+                case 9:
+                    return 8 - reduce;
+                case 10:
+                    return 20 - reduce;
+                case 11:
+                    return VPUtil.getDamageKinds().size() - reduce;
+                case 12:
+                    return 10 - reduce;
+                case 13:
+                    return (int) ((float) VPUtil.hashRares.size() - reduce);
+                case 14:
+                    return 6 - reduce;
+                case 15:
+                    return VPUtil.bossList.size() - reduce;
+                case 16:
+                    return VPUtil.getFlowers().size() - reduce;
+                case 17:
+                    return VPUtil.getEffects().size() - reduce;
+                case 18:
+                    return 20 - reduce;
+                case 19:
+                    return 1000000 - reduce;
+                case 20:
+                    return VPUtil.getEntitiesListOfType(MobCategory.CREATURE).size() - reduce;
+                case 21:
+                    return VPUtil.getTemplates().size() - reduce;
+                case 22:
+                    return VPUtil.getMusicDisks().size() - reduce;
+                case 23:
+                    return 8 - reduce;
+                case 24:
+                    return VPUtil.getSeaSize() - reduce;
+                case 25:
+                    return (int) ((float)Math.min(VPUtil.monsterList.size(),(10 + VPUtil.monsterList.size() / 5)) - reduce);
+                case 26:
+                    return (VPUtil.getOres().size() - reduce);
+            }
         }
         return  0;
     }

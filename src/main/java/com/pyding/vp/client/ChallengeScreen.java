@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.pyding.vp.VestigesOfThePresent;
-import com.pyding.vp.mixin.SmitingMixing;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
@@ -237,12 +236,9 @@ public class ChallengeScreen extends Screen {
                 if(!VPUtil.getNbtS(stack,"EggName").isEmpty())
                     name = VPUtil.filterAndTranslate(VPUtil.getNbtS(stack,"EggName"), color);
                 if (stack.getItem() instanceof SmithingTemplateItem templateItem)
-                    name = ((SmitingMixing) templateItem).upgradeDescription();
+                    name = VPUtil.getSmithingDescription(templateItem);
                 else if (stack.has(DataComponents.JUKEBOX_PLAYABLE)) {
-                    var jukeboxComponent = stack.get(DataComponents.JUKEBOX_PLAYABLE);
-                    if (jukeboxComponent != null) {
-                        name = jukeboxComponent.song().holder().get().value().description();
-                    }
+                    name = VPUtil.filterAndTranslate(VPUtil.getSong(stack,Minecraft.getInstance().level));
                 }
 
                 int maxWidth = (int) ((itemSpacing - 8) * scale);

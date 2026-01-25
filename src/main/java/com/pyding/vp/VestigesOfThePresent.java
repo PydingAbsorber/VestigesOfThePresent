@@ -6,9 +6,12 @@ import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
+import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.VPUtilParticles;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -57,6 +60,7 @@ public class VestigesOfThePresent {
         ModCreativeModTab.register(modEventBus);
         VPEffects.register(modEventBus);
         SoundRegistry.register(modEventBus);
+        modEventBus.addListener(this::postInit);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -120,6 +124,16 @@ public class VestigesOfThePresent {
         }
     }
 
+    private void postInit(InterModEnqueueEvent event) {
+        LOGGER.info("Sending messages to Curios API...");
+        VPUtil.initEntities();
+        VPUtil.initItems();
+        VPUtil.initBlocks();
+        VPUtil.initFlowers();
+        VPUtil.initWorlds();
+        VPUtil.initEffects();
+        VPUtilParticles.fillParticleMaps();
+    }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {

@@ -72,17 +72,16 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
@@ -91,7 +90,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -634,11 +633,14 @@ public class VPUtil {
 
     public static HashSet<String> templates = new HashSet<>();
 
-    public static HashSet<String> getTemplates(){
-        if(templates.isEmpty()) {
+    public static HashSet<String> getTemplates() {
+        if (templates.isEmpty()) {
             for (Item item : items) {
-                if (item instanceof SmithingTemplateItem templateItem && ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents)
-                    templates.add(translatableContents.getKey());
+                if (item instanceof SmithingTemplateItem smithingTemplateItem) {
+                    if (getSmithingDescription(smithingTemplateItem).getContents() instanceof TranslatableContents translatableContents) {
+                        templates.add(translatableContents.getKey());
+                    }
+                }
             }
         }
         return templates;
@@ -690,7 +692,7 @@ public class VPUtil {
 
     public static void initBuckets(){
         for(MobBucketItem bucketItem: getBuckets()){
-            EntityType<?> type = ((BucketVzlom)bucketItem).getFishSup().get();
+            EntityType<?> type = VPUtil.getBucketType(bucketItem);
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
                 HashSet<String> tropicalFish = new HashSet<>();
                 for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
@@ -727,7 +729,7 @@ public class VPUtil {
             }
         }
         for(MobBucketItem bucket: buckets){
-            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            EntityType<?> type = VPUtil.getBucketType(bucket);
             if(type.getDescriptionId().contains("entity.minecraft.axolotl") || type.getDescriptionId().contains("entity.minecraft.tropical_fish")){
                 continue;
             }
@@ -736,11 +738,15 @@ public class VPUtil {
         return seaList;
     }
 
+    public static EntityType<?> getBucketType(MobBucketItem bucketItem){
+        return bucketItem.type;
+    }
+
     public static HashSet<String> getAxolotlVariantsLeft(String list){
         HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
         HashSet<String> allList = new HashSet<>();
         for(MobBucketItem bucket: buckets){
-            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            EntityType<?> type = getBucketType(bucket);
             if(type.getDescriptionId().contains("entity.minecraft.axolotl")){
                 allList.addAll(bucketMap.get(bucket));
             }
@@ -753,7 +759,7 @@ public class VPUtil {
         HashSet<String> have = new HashSet<>(Arrays.asList(filterString(list).split(",")));
         HashSet<String> allList = new HashSet<>();
         for(MobBucketItem bucket: buckets){
-            EntityType<?> type = ((BucketVzlom)bucket).getFishSup().get();
+            EntityType<?> type = VPUtil.getBucketType(bucket);
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")){
                 allList.addAll(bucketMap.get(bucket));
             }
@@ -768,7 +774,7 @@ public class VPUtil {
         if(size == 0) {
             size += getSeaList().size();
             for (MobBucketItem bucket : buckets) {
-                EntityType<?> type = ((BucketVzlom) bucket).getFishSup().get();
+                EntityType<?> type = VPUtil.getBucketType(bucket);
                 if (type.getDescriptionId().contains("entity.minecraft.tropical_fish") || type.getDescriptionId().contains("entity.minecraft.axolotl")) {
                     for (String id : bucketMap.get(bucket))
                         size++;
@@ -1462,12 +1468,11 @@ public class VPUtil {
                 LootTable lootTable = server.reloadableRegistries().getLootTable(lootTableKey);
                 if (lootTable == null) continue;
                 List<Item> rareList = new ArrayList<>();
-                for (LootPool pool : ((ILootTable) lootTable).vp$getPools()) {
-                    ILootPool poolAccess = (ILootPool) pool;
-                    for (LootPoolEntryContainer entry : poolAccess.vp$getEntries()) {
+                for (LootPool pool : getPools(lootTable)) {
+                    for (LootPoolEntryContainer entry : pool.entries) {
                         if (entry instanceof LootItem lootItemEntry) {
-                            Item item = ((ILootItem) lootItemEntry).vp$getItem();
-                            for (LootItemCondition condition : poolAccess.vp$getConditions()) {
+                            Item item = lootItemEntry.item.value();
+                            for (LootItemCondition condition : pool.conditions) {
                                 if (condition instanceof LootItemRandomChanceCondition itemCondition) {
                                     NumberProvider provider = ((LootRandomItemMixin) (Object) itemCondition).getChanceProvider();
                                     if (provider instanceof ConstantValue constant) {
@@ -1475,6 +1480,11 @@ public class VPUtil {
                                         if (chance <= ConfigHandler.rareItemChance.get() + 0.001f) {
                                             rareList.add(item);
                                         }
+                                    }
+                                } else if (condition instanceof LootItemRandomChanceWithEnchantedBonusCondition bonusCondition) {
+                                    float chance = bonusCondition.unenchantedChance();
+                                    if (chance <= ConfigHandler.rareItemChance.get() + 0.001f) {
+                                        rareList.add(item);
                                     }
                                 }
                             }
@@ -4296,7 +4306,7 @@ public class VPUtil {
             if (numb == vestigeNumber) {
                 for(Item item: VPUtil.getItems()) {
                     for(String id: text.split(",")){
-                        if (item instanceof SmithingTemplateItem templateItem && ((SmitingMixing) templateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents
+                        if (item instanceof SmithingTemplateItem templateItem && getSmithingDescription(templateItem).getContents() instanceof TranslatableContents translatableContents
                                 && translatableContents.getKey().equals(id.trim()))
                             list.add(new ItemStack(templateItem));
                         else if (item.getDescriptionId().equals(id.trim()))
@@ -4323,5 +4333,19 @@ public class VPUtil {
             }
         }
         return list;
+    }
+
+    public static Component getSmithingDescription(SmithingTemplateItem smithingTemplateItem){
+        return smithingTemplateItem.upgradeDescription;
+    }
+
+    public static List<LootPool> getPools(LootTable lootTable){
+        return lootTable.pools;
+    }
+
+    public static String getSong(ItemStack stack, Level level){
+        AtomicReference<String> name = new AtomicReference<>("");
+        Objects.requireNonNull(stack.get(DataComponents.JUKEBOX_PLAYABLE)).song().unwrap(level.registryAccess()).ifPresent(songHolder -> name.set(songHolder.value().description().getString()));
+        return name.get();
     }
 }

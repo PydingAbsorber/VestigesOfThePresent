@@ -25,7 +25,7 @@ public abstract class SmithingMenuMixin {
     @Inject(method = "onTake",at = @At("HEAD"),cancellable = true, require = 1)
     protected void onTakeMixin(Player player, ItemStack stack, CallbackInfo ci){
         if(((SmithingVzlomMixing)this).getInputSlots().getItem(0).getItem() instanceof SmithingTemplateItem smithingTemplateItem &&
-                ((SmitingMixing) smithingTemplateItem).upgradeDescription().getContents() instanceof TranslatableContents translatableContents) {
+                VPUtil.getSmithingDescription(smithingTemplateItem).getContents() instanceof TranslatableContents translatableContents) {
             VPUtil.getCap(player).addTemplate(translatableContents.getKey(), player);
         }
         if(((SmithingVzlomMixing)this).getInputSlots().getItem(0).getItem() instanceof Accessory accessory)

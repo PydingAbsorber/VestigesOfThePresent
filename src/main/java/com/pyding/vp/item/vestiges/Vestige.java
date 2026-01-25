@@ -6,7 +6,6 @@ import com.pyding.vp.client.ChallengeScreen;
 import com.pyding.vp.client.VestigeScreen;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.mixin.BucketVzlom;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.util.ConfigHandler;
@@ -622,7 +621,7 @@ public class Vestige extends Item implements ICurioItem {
                 boolean fuckThisStupidGame2 = false;
                 for(MobBucketItem bucketItem: VPUtil.getBuckets()){
                     List<String> allFish = new ArrayList<>(VPUtil.fishTypesFromBucket(bucketItem));
-                    EntityType<?> type = ((BucketVzlom)bucketItem).getFishSup().get();
+                    EntityType<?> type = VPUtil.getBucketType(bucketItem);
                     List<String> bucketFish = new ArrayList<>();
                     for(String fish: cap.getSea().split(",")){
                         for (String name: allFish) {
@@ -630,8 +629,8 @@ public class Vestige extends Item implements ICurioItem {
                                 bucketFish.add(fish.trim());
                         }
                     }
-                    boolean axolotl = ((BucketVzlom)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.axolotl");
-                    boolean tropic = ((BucketVzlom)bucketItem).getFishSup().get().getDescriptionId().contains("entity.minecraft.tropical_fish");
+                    boolean axolotl = VPUtil.getBucketType(bucketItem).getDescriptionId().contains("entity.minecraft.axolotl");
+                    boolean tropic = VPUtil.getBucketType(bucketItem).getDescriptionId().contains("entity.minecraft.tropical_fish");
                     if(axolotl){
                         if(fuckThisStupidGame)
                             continue;
