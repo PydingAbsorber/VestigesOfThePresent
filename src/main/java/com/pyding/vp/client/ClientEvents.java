@@ -5,23 +5,31 @@ import com.pyding.vp.client.render.*;
 import com.pyding.vp.client.render.blackhole.BlackHoleRenderer;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.entity.models.Hunter;
+import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.accessories.BeltOfBrokenMemories;
+import com.pyding.vp.item.accessories.EarringOfDeadHopes;
+import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
+import com.pyding.vp.item.accessories.RingOfFallenStar;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
 import com.pyding.vp.util.KeyBinding;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
+import static com.pyding.vp.VestigesOfThePresent.MODID;
 import static com.pyding.vp.client.ShieldOverlay.HUD_SHIELD;
 
 public class ClientEvents {
-    @EventBusSubscriber(modid = VestigesOfThePresent.MODID, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
     public static class ClientForgeEvents {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
@@ -50,7 +58,7 @@ public class ClientEvents {
     }
 
 
-    @EventBusSubscriber(modid = VestigesOfThePresent.MODID, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
     public static class ClientModBusEvents {
         @SubscribeEvent
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {
@@ -64,7 +72,7 @@ public class ClientEvents {
         public static void registerLayers(RegisterGuiLayersEvent event) {
             event.registerAbove(
                     VanillaGuiLayers.PLAYER_HEALTH,
-                    ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "shield_hud"),
+                    ResourceLocation.fromNamespaceAndPath(MODID, "shield_hud"),
                     HUD_SHIELD
             );
         }
@@ -84,6 +92,27 @@ public class ClientEvents {
             event.registerEntityRenderer(ModEntities.OYSTER.get(), OysterRenderer::new);
             event.registerEntityRenderer(ModEntities.SEASHELL.get(), SeashellRenderer::new);
             event.registerEntityRenderer(ModEntities.SHELLHEAL.get(), ShellHealRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            event.enqueueWork(() -> {
+                ItemProperties.register(ModItems.BELT_OF_BROKEN_MEMORIES.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "belt"),
+                        (stack, level, entity, seed) -> (float) BeltOfBrokenMemories.getType(stack));
+
+                ItemProperties.register(ModItems.EARRING_OF_DEAD_HOPES.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "earring"),
+                        (stack, level, entity, seed) -> (float) EarringOfDeadHopes.getType(stack));
+
+                ItemProperties.register(ModItems.RING_OF_FALLEN_STAR.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "ring"),
+                        (stack, level, entity, seed) -> (float) RingOfFallenStar.getType(stack));
+
+                ItemProperties.register(ModItems.NECKLACE_OF_TORTURED_DREAMS.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "necklace"),
+                        (stack, level, entity, seed) -> (float) NecklaceOfTorturedDreams.getType(stack));
+            });
         }
     }
 }

@@ -35,8 +35,8 @@ public class Treasure extends Vestige{
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPTicks",player.tickCount);
-        VPUtil.getTag(stack).putInt("VPEarthquake",0);
+        VPUtil.setNbt(stack,"VPTicks",player.tickCount);
+        VPUtil.setNbt(stack,"VPEarthquake",0);
         super.doSpecial(seconds, player, level, stack);
     }
 
@@ -49,7 +49,7 @@ public class Treasure extends Vestige{
         if((player.tickCount-VPUtil.getTag(stack).getInt("VPTicks")) % 20 == 0){
             int earthquake = VPUtil.getTag(stack).getInt("VPEarthquake");
             if(earthquake < 6)
-                VPUtil.getTag(stack).putInt("VPEarthquake",earthquake+1);
+                VPUtil.setNbt(stack,"VPEarthquake",earthquake+1);
             for(LivingEntity entity: VPUtil.getEntitiesAround(player,Math.max(1,3 * earthquake),Math.max(1,earthquake),Math.max(1,3 * earthquake))){
                 if(entity != player) {
                     VPUtil.dealDamage(entity,player,player.damageSources().inWall(),player.getArmorValue()*(4+earthquake),2,true);
@@ -67,15 +67,15 @@ public class Treasure extends Vestige{
         int radius = VPUtil.getTag(stack).getInt("VPRadiusOst");
         while (radius > 10){
             radius -= 10;
-            VPUtil.getTag(stack).putInt("VPRadius", (VPUtil.getTag(stack).getInt("VPRadius") + 1));
+            VPUtil.setNbt(stack,"VPRadius", (VPUtil.getTag(stack).getInt("VPRadius") + 1));
         }
-        VPUtil.getTag(stack).putInt("VPRadiusOst",radius);
+        VPUtil.setNbt(stack,"VPRadiusOst",radius);
         super.whileUltimate(player, stack);
     }
 
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPRadius",0);
+        VPUtil.setNbt(stack,"VPRadius",0);
         super.doUltimate(seconds, player, level, stack);
     }
 

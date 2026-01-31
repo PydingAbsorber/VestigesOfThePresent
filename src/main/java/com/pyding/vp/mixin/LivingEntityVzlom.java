@@ -1,6 +1,7 @@
 package com.pyding.vp.mixin;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +24,7 @@ public interface LivingEntityVzlom {
     boolean isDead();
 
     @Invoker("dropAllDeathLoot")
-    void invokeDropAllDeathLoot(DamageSource p_21192_);
+    void invokeDropAllDeathLoot(ServerLevel p_level, DamageSource p_21192_);
 
     @Invoker("getArmorSlots")
     Iterable<ItemStack> getArmorSlots();

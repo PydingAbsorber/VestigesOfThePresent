@@ -45,7 +45,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 @Mod(VestigesOfThePresent.MODID)
 public class VestigesOfThePresent {
     public static final String MODID = "vp";
-    public static final String VERSION = "1.20.1:1.6.1";
+    public static final String VERSION = "1.21.1:1.6.2";
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public VestigesOfThePresent(IEventBus modEventBus, ModContainer modContainer) {

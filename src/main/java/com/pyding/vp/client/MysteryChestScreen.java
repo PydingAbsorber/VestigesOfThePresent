@@ -110,7 +110,7 @@ public class MysteryChestScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics,mouseX,mouseY,partialTick);
-        time += partialTick * 0.05f;
+        time += partialTick * 0.015f;
         LocalPlayer player = Minecraft.getInstance().player;
         ItemStack chest = player.getMainHandItem();
         float scaleMultiplier = (float) (ClientConfig.guiScaleChest.get()+0f);
@@ -248,5 +248,10 @@ public class MysteryChestScreen extends Screen {
         VPUtil.setNbt(player.getMainHandItem(),"VPOpen",0);
         player.getPersistentData().putInt("VPSound",10);
         player.getPersistentData().putInt("VPSoundInc",0);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.fillGradient(0, 0, this.width, this.height, 0x80000000, 0x80000000);
     }
 }

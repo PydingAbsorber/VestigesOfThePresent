@@ -37,26 +37,17 @@ public class Accessory extends Item implements ICurioItem {
     public void init(ItemStack stack,Player player){
         Random random = new Random();
         int type = random.nextInt(5)+1;
-        VPUtil.getTag(stack).putInt("VPLvl",0);
-        VPUtil.getTag(stack).putInt("VPType",type);
+        VPUtil.setNbt(stack,"VPLvl",0);
+        VPUtil.setNbt(stack,"VPType",type);
         switch (type) {
-            case 1 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
-            case 2 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2));
-            case 3 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5));
-            case 4 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3));
-            case 5 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4));
+            case 1 -> VPUtil.setNbt(stack,"VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
+            case 2 -> VPUtil.setNbt(stack,"VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2));
+            case 3 -> VPUtil.setNbt(stack,"VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5));
+            case 4 -> VPUtil.setNbt(stack,"VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3));
+            case 5 -> VPUtil.setNbt(stack,"VPStat", (float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4));
             default -> {
             }
         }
-        /*switch (type) {
-            case 1 -> VPUtil.getTag(stack).putFloat("VPStat", random.nextInt(4) + 1);
-            case 2 -> VPUtil.getTag(stack).putFloat("VPStat", random.nextInt(7) + 2);
-            case 3 -> VPUtil.getTag(stack).putFloat("VPStat", random.nextInt(16) + 5);
-            case 4 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (random.nextInt(4) + 1) / 100);
-            case 5 -> VPUtil.getTag(stack).putFloat("VPStat", (float) (random.nextInt(4) + 1) / 100);
-            default -> {
-            }
-        }*/
     }
 
     public boolean lvlUp(ItemStack stack,Player player){
@@ -69,13 +60,13 @@ public class Accessory extends Item implements ICurioItem {
         Random random = new Random();
         if(random.nextDouble() < VPUtil.getChance(baseChance,player)){
             VPUtil.play(player, SoundRegistry.RUNE1.get());
-            VPUtil.getTag(stack).putInt("VPLvl",lvl+1);
+            VPUtil.setNbt(stack,"VPLvl",lvl+1);
             switch (getType(stack)) {
-                case 1 -> VPUtil.getTag(stack).putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
-                case 2 -> VPUtil.getTag(stack).putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2));
-                case 3 -> VPUtil.getTag(stack).putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5));
-                case 4 -> VPUtil.getTag(stack).putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3));
-                case 5 -> VPUtil.getTag(stack).putFloat("VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4));
+                case 1 -> VPUtil.setNbt(stack,"VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*3 + 1));
+                case 2 -> VPUtil.setNbt(stack,"VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*6 + 2));
+                case 3 -> VPUtil.setNbt(stack,"VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*15 + 5));
+                case 4 -> VPUtil.setNbt(stack,"VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*9 + 3));
+                case 5 -> VPUtil.setNbt(stack,"VPStat", getStatAmount(stack)+(float) (VPUtil.getChance(random.nextDouble(),player)*12 + 4));
                 default -> {
                 }
             }
@@ -101,7 +92,6 @@ public class Accessory extends Item implements ICurioItem {
         List<ItemStack> list = VPUtil.getVestigeList(player);
         for(ItemStack itemStack: list){
             if(itemStack.getItem() instanceof Vestige vestige){
-                //vestige.curioSucks(player,itemStack);
                 vestige.applyBonus(stack,player);
             }
         }
@@ -173,18 +163,18 @@ public class Accessory extends Item implements ICurioItem {
                         shields += accessory.getStatAmount(stackAcs);
                 }
             }
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 0, AttributeModifier.Operation.ADD_VALUE, "vp_accessory:health"));
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE,0, AttributeModifier.Operation.ADD_VALUE, "vp_accessory:attack"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 0, AttributeModifier.Operation.ADD_VALUE, "vp_accessory.health"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE,0, AttributeModifier.Operation.ADD_VALUE, "vp_accessory.attack"));
             if(player.isAlive() && player.getHealth() > player.getMaxHealth())
                 player.setHealth(player.getMaxHealth());
-            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, health, AttributeModifier.Operation.ADD_VALUE, "vp_accessory:health"));
-            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE, attack, AttributeModifier.Operation.ADD_VALUE, "vp_accessory:attack"));
+            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, health, AttributeModifier.Operation.ADD_VALUE, "vp_accessory.health"));
+            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE, attack, AttributeModifier.Operation.ADD_VALUE, "vp_accessory.attack"));
             player.getPersistentData().putFloat("VPAcsDamage",damage);
             player.getPersistentData().putFloat("VPAcsHeal",heal);
             player.getPersistentData().putFloat("VPAcsShields",shields);
         } else {
-            VPUtil.removeAttributeModifier(player,Attributes.MAX_HEALTH, "vp_accessory:health");
-            VPUtil.removeAttributeModifier(player,Attributes.ATTACK_DAMAGE, "vp_accessory:attack");
+            VPUtil.removeAttributeModifier(player,Attributes.MAX_HEALTH, "vp_accessory.health");
+            VPUtil.removeAttributeModifier(player,Attributes.ATTACK_DAMAGE, "vp_accessory.attack");
         }
     }
 }

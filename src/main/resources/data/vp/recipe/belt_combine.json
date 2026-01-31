@@ -3,13 +3,13 @@
   "template": {
     "item": "vp:belt_of_broken_memories"
   },
-  "addition": {
+  "base": {
     "item": "vp:stellar"
   },
-  "base": {
+  "addition": {
     "item": "vp:belt_of_broken_memories"
   },
   "result": {
-    "item": "vp:belt_of_broken_memories"
+    "id": "vp:belt_of_broken_memories"
   }
 }

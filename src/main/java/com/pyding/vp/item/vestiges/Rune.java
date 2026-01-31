@@ -45,16 +45,16 @@ public class Rune extends Vestige{
                 continue;
             VPUtil.spawnSphere(entity,ParticleTypes.FLAME,30,5,1);
             entity.getPersistentData().putLong("VPRuneUlt",seconds);
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR, VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADD_VALUE,"vp:rune"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR_TOUGHNESS, VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADD_VALUE,"vp:rune2"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR, VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADD_VALUE,"vp.rune"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR_TOUGHNESS, VPUtil.scalePower(20*(1 + VPUtil.getShieldBonus(entity)),21,player), AttributeModifier.Operation.ADD_VALUE,"vp.rune2"));
         }
         super.doUltimate(seconds, player, level, stack);
     }
 
     @Override
     public void ultimateEnds(Player player, ItemStack stack) {
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp:rune");
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp:rune2");
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp.rune");
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp.rune2");
         super.ultimateEnds(player, stack);
     }
 
@@ -67,8 +67,8 @@ public class Rune extends Vestige{
     @Override
     public void curioSucks(Player player, ItemStack stack) {
         player.getPersistentData().putFloat("VPRuneBonus",0);
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp:rune");
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp:rune2");
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp.rune");
+        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp.rune2");
         super.curioSucks(player, stack);
     }
 }

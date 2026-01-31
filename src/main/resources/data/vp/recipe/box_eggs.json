@@ -26,7 +26,7 @@
     }
   },
   "result": {
-    "item": "vp:box_eggs",
+    "id": "vp:box_eggs",
     "count": 4
   }
 }

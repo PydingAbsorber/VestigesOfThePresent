@@ -55,8 +55,8 @@ public class MaskOfDemon extends Vestige{
         float attackScale = (float) ((missingHealth * attackMultiplier) + 1)/100;
         float speedScale = (float) ((missingHealth * speedMultiplier) + 1)/100;
 
-        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier( ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:attack_speed_modifier"), attackScale, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier( ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier"), speedScale, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier( ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.attack_speed_modifier"), attackScale, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier( ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier"), speedScale, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
 
         return attributesDefault;
     }

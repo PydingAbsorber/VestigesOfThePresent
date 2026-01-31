@@ -36,7 +36,7 @@ public class Refresher extends Item {
                 vestige.refresh(player,itemStack);
         }
         if(player instanceof ServerPlayer serverPlayer)
-            PacketHandler.sendToClient(new ItemAnimationPacket(stack),serverPlayer);
+            PacketHandler.sendToClient(new ItemAnimationPacket(stack.copy()),serverPlayer);
         stack.split(1);
         VPUtil.play(player, SoundEvents.TOTEM_USE);
         VPUtil.spawnParticles(player, ParticleTypes.GLOW, player.getX(), player.getY(), player.getZ(), 8, 0, 0, 0);

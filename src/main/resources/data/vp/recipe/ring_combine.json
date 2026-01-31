@@ -3,13 +3,13 @@
   "template": {
     "item": "vp:ring_of_fallen_star"
   },
-  "addition": {
+  "base": {
     "item": "vp:stellar"
   },
-  "base": {
+  "addition": {
     "item": "vp:ring_of_fallen_star"
   },
   "result": {
-    "item": "vp:ring_of_fallen_star"
+    "id": "vp:ring_of_fallen_star"
   }
 }

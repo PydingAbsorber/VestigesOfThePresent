@@ -301,7 +301,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
                 LeaderboardUtil.addChallenge(player, vp, password);
             if(new Random().nextDouble() < VPUtil.getChance(ConfigHandler.mysteryChestChallengeChance.get(),player)){
                 ItemStack chest = new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(9));
-                VPUtil.getTag(stack).putInt("VPOpen",0);
+                VPUtil.setNbt(stack,"VPOpen",0);
                 VPUtil.giveStack(chest,player);
             }
         }
@@ -1085,6 +1085,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
                 break;
             }
         }
+        if(player instanceof ServerPlayer serverPlayer && !stack.isEmpty())
+            PacketHandler.sendToClient(new ItemAnimationPacket(stack.copy()),serverPlayer);
         double stellarChance = getChance();
         Random random = new Random();
         if(VPUtil.getSet(player) == 9)
@@ -1106,8 +1108,6 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
             setChance();
             addCommonChallenge(player,vp);
         }
-        if(player instanceof ServerPlayer serverPlayer)
-            PacketHandler.sendToClient(new ItemAnimationPacket(stack),serverPlayer);
         return stack;
     }
 

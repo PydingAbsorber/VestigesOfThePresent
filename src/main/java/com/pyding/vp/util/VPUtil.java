@@ -999,7 +999,7 @@ public class VPUtil {
                 ServerLevel serverlevel = (ServerLevel) level;
                 if (entity == null || entity.killedEntity(serverlevel, corpse)) {
                     corpse.gameEvent(GameEvent.ENTITY_DIE);
-                    ((LivingEntityVzlom) corpse).invokeDropAllDeathLoot(source);
+                    ((LivingEntityVzlom) corpse).invokeDropAllDeathLoot(serverlevel,source);
                 }
                 corpse.level().broadcastEntityEvent(corpse, (byte) 3);
             }
@@ -1274,7 +1274,7 @@ public class VPUtil {
         setRoflanEbalo(entity,deathTime+System.currentTimeMillis());
         if(VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
             ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
-            VPUtil.getTag(stack).putFloat("VPSoulPool", VPUtil.getTag(stack).getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth()));
+            VPUtil.setNbt(stack,"VPSoulPool", VPUtil.getTag(stack).getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth()));
         }
         setHealth(entity, 0);
         entity.die(new DamageSource(player.damageSources().genericKill().typeHolder(),player));
@@ -1605,7 +1605,7 @@ public class VPUtil {
                         mutableEnchants.set(enchantment, lvl * -1);
                     }
                 }
-                VPUtil.getTag(stack).putBoolean("VPEnchant",false);
+                VPUtil.setNbt(stack,"VPEnchant",false);
             }
         }
     }
@@ -2406,25 +2406,25 @@ public class VPUtil {
         player.getPersistentData().putFloat("VPHealResFlower", 0);
         player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
         Multimap<Holder<Attribute>, AttributeModifier> mark = HashMultimap.create();
-        mark.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:attack_speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_mark") , 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_mark") , 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        mark.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.attack_speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        mark.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier_mark") , 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        mark.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier_mark") , 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         player.getAttributes().removeAttributeModifiers(mark);
         Multimap<Holder<Attribute>, AttributeModifier> mask = HashMultimap.create();
-        mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:attack_speed_modifier") , 0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier") , 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        mask.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.attack_speed_modifier") , 0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        mask.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier") , 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         player.getAttributes().removeAttributeModifiers(mask);
         Multimap<Holder<Attribute>, AttributeModifier> midas = HashMultimap.create();
-        midas.put(Attributes.LUCK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:luck") , 0, AttributeModifier.Operation.ADD_VALUE));
+        midas.put(Attributes.LUCK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.luck") , 0, AttributeModifier.Operation.ADD_VALUE));
         player.getPersistentData().putInt("VPPrism", 0);
-        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 0, AttributeModifier.Operation.ADD_VALUE,"vp:soulblighter_hp_boost"));
-        player.getPersistentData().putBoolean("VPSweetUlt",false);
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 0, AttributeModifier.Operation.ADD_VALUE,"vp.soulblighter_hp_boost"));
+        player.getPersistentData().putBoolean("VPSweetUlt",false); 
         player.getPersistentData().putFloat("VPSaturation",0);
         player.getPersistentData().putFloat("VPHealBonusDonut", 0);
         player.getPersistentData().putFloat("VPShieldBonusDonut", 0);
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",0);
         player.getPersistentData().putFloat("VPTrigonBonus", 0);
-        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,  1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:trigon_hp_boost"));
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,  1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.trigon_hp_boost"));
         if(player.isAlive() && player.getHealth() > player.getMaxHealth())
             player.setHealth(player.getMaxHealth());
         sync(player);
@@ -2823,16 +2823,16 @@ public class VPUtil {
     }
 
     public static void spawnBoss(LivingEntity entity){
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,(float)(ConfigHandler.bossHP.get()+0), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp:boss_health"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE,(float)(ConfigHandler.bossAttack.get()+0), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp:boss_damage"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR,ConfigHandler.armorCruel.get(), AttributeModifier.Operation.ADD_VALUE,"vp:boss_armor"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR_TOUGHNESS,ConfigHandler.armorCruel.get(), AttributeModifier.Operation.ADD_VALUE,"vp:boss_armor_toughness"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,(float)(ConfigHandler.bossHP.get()+0), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp.boss_health"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE,(float)(ConfigHandler.bossAttack.get()+0), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp.boss_damage"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR,ConfigHandler.armorCruel.get(), AttributeModifier.Operation.ADD_VALUE,"vp.boss_armor"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR_TOUGHNESS,ConfigHandler.armorCruel.get(), AttributeModifier.Operation.ADD_VALUE,"vp.boss_armor_toughness"));
         VPUtil.setHealth(entity,entity.getMaxHealth()); //test
         entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ConfigHandler.shieldCruel.get()));
         entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.overShieldCruel.get()));
         if(VPUtil.isNightmareBoss(entity)){
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp:nightmare.hp"));
-            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE, 10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp:nightmare.attack"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, 10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp.nightmare.hp"));
+            entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE, 10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp.nightmare.attack"));
             entity.setHealth(entity.getMaxHealth());
             entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ConfigHandler.shieldCruel.get()));
             entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.overShieldCruel.get()));
@@ -2887,10 +2887,10 @@ public class VPUtil {
                 return;
             }
             player.getPersistentData().putFloat("VPIgnis",Math.min(99,stack+5));
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,1, AttributeModifier.Operation.ADD_VALUE,"vp:ignis_hp"));
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR,1, AttributeModifier.Operation.ADD_VALUE,"vp:ignis_armor"));
-            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MAX_HEALTH,-player.getMaxHealth()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp:ignis_hp"));
-            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR,-player.getArmorValue()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp:ignis_armor"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,1, AttributeModifier.Operation.ADD_VALUE,"vp.ignis_hp"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.ARMOR,1, AttributeModifier.Operation.ADD_VALUE,"vp.ignis_armor"));
+            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MAX_HEALTH,-player.getMaxHealth()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp.ignis_hp"));
+            player.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR,-player.getArmorValue()*(stack/100f), AttributeModifier.Operation.ADD_VALUE,"vp.ignis_armor"));
             player.getPersistentData().putLong("VPIgnisTime",System.currentTimeMillis()+60000);
             player.setHealth(player.getMaxHealth());
         }
@@ -2948,11 +2948,11 @@ public class VPUtil {
     }
 
     public static void boostEntity(LivingEntity livingEntity,float amount, float shields, float overShields){
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MAX_HEALTH, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:1"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:5"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR_TOUGHNESS, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:6"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ATTACK_DAMAGE, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:4"));
-        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MOVEMENT_SPEED, scaleDown(amount,1.25f), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:boss7:7"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MAX_HEALTH, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.boss7.1"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.boss7.5"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ARMOR_TOUGHNESS, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.boss7.6"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.ATTACK_DAMAGE, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.boss7.4"));
+        livingEntity.getAttributes().addTransientAttributeModifiers(createAttributeMap(Attributes.MOVEMENT_SPEED, scaleDown(amount,1.25f), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.boss7.7"));
         livingEntity.setHealth(livingEntity.getMaxHealth());
         if(shields > 0) {
             livingEntity.getPersistentData().putFloat("VPShieldInit",shields);
@@ -3432,7 +3432,7 @@ public class VPUtil {
                 curse = 6;
                 Vestige.increaseStars(stack,player);
             }
-            VPUtil.getTag(stack).putInt("VPCursed",curse);
+            VPUtil.setNbt(stack,"VPCursed",curse);
             return true;
         }
         return false;
@@ -4152,17 +4152,17 @@ public class VPUtil {
                     Vestige.decreaseStars(stack);
                 if(Math.random() < 0.05) {
                     Vestige.increaseStars(stack,player);
-                    VPUtil.getTag(stack).putInt("VPCursed",6);
-                } else VPUtil.getTag(stack).putInt("VPCursed",new Random().nextInt(Vestige.maxCurses)+1);
+                    VPUtil.setNbt(stack,"VPCursed",6);
+                } else VPUtil.setNbt(stack,"VPCursed",new Random().nextInt(Vestige.maxCurses)+1);
                 orb.split(1);
             } else if(stack.getItem() instanceof Accessory accessory){
                 Random random = new Random();
                 int lvl = accessory.getLvl(stack);
                 if(new Random().nextDouble() < getChance(0.03,player)){
-                    VPUtil.getTag(stack).putInt("VPType",random.nextInt(5)+1);
+                    VPUtil.setNbt(stack,"VPType",random.nextInt(5)+1);
                 }
                 int type = VPUtil.getTag(stack).getInt("VPType");
-                VPUtil.getTag(stack).putFloat("VPStat",0);
+                VPUtil.setNbt(stack,"VPStat",0);
                 float stat = 0;
                 switch (type) {
                     case 1 -> stat = (float) (getChance(3*(lvl+1),player)+1*(lvl+1));
@@ -4173,7 +4173,7 @@ public class VPUtil {
                     default -> {
                     }
                 }
-                VPUtil.getTag(stack).putFloat("VPStat", stat);
+                VPUtil.setNbt(stack,"VPStat", stat);
                 orb.split(1);
             }
         }
@@ -4326,7 +4326,7 @@ public class VPUtil {
                         } else {
                             egg = new ItemStack(Items.SKELETON_SPAWN_EGG);
                         }
-                        getTag(egg).putString("EggName",type.getDescriptionId());
+                        setNbt(egg,"EggName",type.getDescriptionId());
                         list.add(egg);
                     }
                 }

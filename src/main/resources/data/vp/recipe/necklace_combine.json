@@ -3,13 +3,13 @@
   "template": {
     "item": "vp:necklace_of_tortured_dreams"
   },
-  "addition": {
+  "base": {
     "item": "vp:stellar"
   },
-  "base": {
+  "addition": {
     "item": "vp:necklace_of_tortured_dreams"
   },
   "result": {
-    "item": "vp:necklace_of_tortured_dreams"
+    "id": "vp:necklace_of_tortured_dreams"
   }
 }

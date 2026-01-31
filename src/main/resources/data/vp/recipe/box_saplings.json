@@ -26,7 +26,7 @@
       }
     },
     "result": {
-      "item": "vp:box_saplings",
+      "id": "vp:box_saplings",
       "count": 16
     }
 }

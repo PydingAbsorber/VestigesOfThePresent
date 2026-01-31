@@ -38,11 +38,11 @@ public class Anomaly extends Vestige{
         if(player.getMainHandItem().getItem() instanceof EnderEyeItem){
             fuckNbt();
             ItemStack stackInSlot = VPUtil.getVestigeStack(this,player);
-            VPUtil.getTag(stack).putDouble("VPReturnX", player.getX());
-            VPUtil.getTag(stack).putDouble("VPReturnY", player.getY());
-            VPUtil.getTag(stack).putDouble("VPReturnZ", player.getZ());
-            VPUtil.getTag(stack).putString("VPReturnKey", player.getCommandSenderWorld().dimension().location().getPath());
-            VPUtil.getTag(stack).putString("VPReturnDir", player.getCommandSenderWorld().dimension().location().getNamespace());
+            VPUtil.setNbt(stack,"VPReturnX", player.getX());
+            VPUtil.setNbt(stack,"VPReturnY", player.getY());
+            VPUtil.setNbt(stack,"VPReturnZ", player.getZ());
+            VPUtil.setNbt(stack,"VPReturnKey", player.getCommandSenderWorld().dimension().location().getPath());
+            VPUtil.setNbt(stack,"VPReturnDir", player.getCommandSenderWorld().dimension().location().getNamespace());
         } else {
             for(LivingEntity entity: VPUtil.ray(player,3,60,true)){
                 if(player instanceof ServerPlayer serverPlayer){

@@ -1,6 +1,7 @@
 package com.pyding.vp.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -30,9 +31,13 @@ public class NiceButton extends ImageButton {
         ResourceLocation texture = this.sprites.enabled(); // Это твой ресурс-локейшн
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.enableDepthTest();
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(0,0,10);
         guiGraphics.blit(texture, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
         if (this.isHoveredOrFocused()) {
             guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x33FFFFFF);
         }
+        poseStack.popPose();
     }
 }

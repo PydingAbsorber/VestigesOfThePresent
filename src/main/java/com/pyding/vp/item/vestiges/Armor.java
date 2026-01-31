@@ -76,7 +76,7 @@ public class Armor extends Vestige{
         player.hurt(player.damageSources().cactus(),VPUtil.scalePower(VPUtil.getAttack(player,true)*(0.3f + debuffCount),11,player));
         VPUtil.setHealDebt(player,VPUtil.scalePower(VPUtil.getHealDebt(player)+((debuffCount+4)/4*player.getMaxHealth()*0.4f),11,player));
         if(VPUtil.getHealDebt(player) > player.getMaxHealth()*6) {
-            VPUtil.getTag(stack).putFloat("VPArmor", VPUtil.scalePower(getPain(stack) + 40,11,player));
+            VPUtil.setNbt(stack,"VPArmor", VPUtil.scalePower(getPain(stack) + 40,11,player));
             VPUtil.addShield(player,VPUtil.scalePower(VPUtil.getTag(stack).getFloat("VPArmor")*0.1f,11,player),true);
         }
         VPUtil.spawnParticles(player, ParticleTypes.CRIMSON_SPORE,3,1,0,-0.1,0,0,false);
@@ -102,13 +102,13 @@ public class Armor extends Vestige{
     @Override
     public void ultimateEnds(Player player, ItemStack stack) {
         VPUtil.repairAll(player,(int)getPain(stack));
-        VPUtil.getTag(stack).putFloat("VPArmor",0);
+        VPUtil.setNbt(stack,"VPArmor",0);
         super.ultimateEnds(player, stack);
     }
 
     @Override
     public void curioSucks(Player player, ItemStack stack) {
-        VPUtil.getTag(stack).putFloat("VPArmor",0);
+        VPUtil.setNbt(stack,"VPArmor",0);
         super.curioSucks(player, stack);
     }
 

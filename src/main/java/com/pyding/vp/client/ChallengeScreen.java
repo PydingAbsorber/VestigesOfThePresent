@@ -141,7 +141,7 @@ public class ChallengeScreen extends Screen {
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0, -scrollAmount, 0);
-        time += partialTicks * 0.05f;
+        time += partialTicks * 0.008f;
 
         if(data[2] instanceof String && list.isEmpty()){
             List<FormattedCharSequence> lines = font.split(VPUtil.filterAndTranslate((String) data[2]), (int) (this.width/9.4+size/1.6));

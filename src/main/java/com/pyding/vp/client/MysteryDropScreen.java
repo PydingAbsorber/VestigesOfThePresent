@@ -84,7 +84,7 @@ public class MysteryDropScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics,mouseX,mouseY,partialTicks);
-        time += partialTicks * 0.05f;
+        time += partialTicks * 0.01f;
         float scaleMultiplier = (float) (ClientConfig.guiScaleLoot.get()+0f);
         float scale = 1.5f*scaleMultiplier;
         int scaledItemSize = (int)(16 * scale);

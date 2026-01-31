@@ -33,22 +33,22 @@ public class Mark extends Vestige{
 
     private Multimap<Holder<Attribute>, AttributeModifier> createAttributeMap() {
         Multimap<Holder<Attribute>, AttributeModifier> attributesDefault = HashMultimap.create();
-        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:attack_speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.attack_speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier_mark"), 2, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         return attributesDefault;
     }
 
     private Multimap<Holder<Attribute>, AttributeModifier> overdrive(int curses,Player player) {
         Multimap<Holder<Attribute>, AttributeModifier> attributesDefault = HashMultimap.create();
         curses *= VPUtil.scalePower(ConfigHandler.markBonus.get(),7,player);
-        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark1") , curses, AttributeModifier.Operation.ADD_VALUE));
-        attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark2") , curses, AttributeModifier.Operation.ADD_VALUE));
-        attributesDefault.put(Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark3") , curses, AttributeModifier.Operation.ADD_VALUE));
-        attributesDefault.put(Attributes.LUCK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark4") , curses, AttributeModifier.Operation.ADD_VALUE));
-        attributesDefault.put(Attributes.ARMOR, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark5") , curses, AttributeModifier.Operation.ADD_VALUE));
-        attributesDefault.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark6") , curses, AttributeModifier.Operation.ADD_VALUE));
-        attributesDefault.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:mark7") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark1") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark2") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.MAX_HEALTH, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark3") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.LUCK, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark4") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.ARMOR, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark5") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark6") , curses, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.mark7") , curses, AttributeModifier.Operation.ADD_VALUE));
         return attributesDefault;
     }
 

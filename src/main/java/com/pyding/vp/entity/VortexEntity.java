@@ -105,7 +105,7 @@ public class VortexEntity extends Projectile {
                 if(itemEntity.getItem().isDamageableItem()){
                     ItemStack stack = itemEntity.getItem();
                     stack.setDamageValue(0);
-                    VPUtil.getTag(stack).putBoolean("VPUnbreak",true);
+                    VPUtil.setNbt(stack,"VPUnbreak",true);
                     VPUtil.giveStack(stack,player);
                     itemEntity.discard();
                     discard();

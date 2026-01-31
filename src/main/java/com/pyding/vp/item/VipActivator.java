@@ -54,7 +54,7 @@ public class VipActivator extends Item {
     @Override
     public void inventoryTick(ItemStack stack, Level p_41405_, Entity entity, int p_41407_, boolean p_41408_) {
         if(entity instanceof Player player && !VPUtil.getTag(stack).getBoolean("VPTrade") && !player.isCreative() && !VPUtil.getTag(stack).hasUUID("VPPlayer"))
-            VPUtil.getTag(stack).putUUID("VPPlayer",player.getUUID());
+            VPUtil.setNbt(stack,"VPPlayer",player.getUUID());
         super.inventoryTick(stack, p_41405_, entity, p_41407_, p_41408_);
     }
 

@@ -213,8 +213,10 @@ public class VestigeScreen extends Screen {
         Font font = this.font;
         int x = this.width/2 - infoWidth/2;
         int y = this.height/2 - infoHeight/2;
-        guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight,infoWidth,infoHeight);
         PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(0,0,1);
+        guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight,infoWidth,infoHeight);
         poseStack.pushPose();
         double vestigeX = x + infoWidth / 3.9;
         double vestigeY = y + infoHeight / 2.6;
@@ -368,6 +370,7 @@ public class VestigeScreen extends Screen {
 
         renderDescription(guiGraphics,font,components,textX,(int) (textYBase + infoPadding + infoHeight/10),(int) (infoWidth/2), (int) (infoHeight/6),ChatFormatting.GRAY.getColor());
 
+        poseStack.popPose();
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 

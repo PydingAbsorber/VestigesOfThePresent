@@ -54,7 +54,7 @@ public class Trigon extends Vestige{
         int numba = random.nextInt(list.size());
         if(isStellar(stack) && VPUtil.getOverShield(player) > 0 && player.getPersistentData().getFloat("VPOverShieldMax") > 0) {
             float amount = 1+(1-(VPUtil.getOverShield(player)/player.getPersistentData().getFloat("VPOverShieldMax")))/2;
-            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, VPUtil.scalePower(amount,19,player), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp:trigon_hp_boost"));
+            player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH, VPUtil.scalePower(amount,19,player), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.trigon_hp_boost"));
         }
         VPUtil.addOverShield(list.get(numba),overshields,false);
         super.doUltimate(seconds, player, level, stack);
@@ -70,7 +70,7 @@ public class Trigon extends Vestige{
 
     @Override
     public void ultimateRecharges(Player player, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp:trigon_hp_boost"));
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,"vp.trigon_hp_boost"));
         player.setHealth(player.getMaxHealth());
         super.ultimateRecharges(player, stack);
     }

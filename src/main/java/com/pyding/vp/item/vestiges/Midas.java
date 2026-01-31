@@ -43,12 +43,12 @@ public class Midas extends Vestige{
             if (player.isShiftKeyDown()) {
                 if(kills > 9*9){
                     player.addItem(new ItemStack(Items.GOLD_BLOCK, 1));
-                    VPUtil.getTag(stack).putFloat("VPKills",kills-9*9);
+                    VPUtil.setNbt(stack,"VPKills",kills-9*9);
                 }
             } else {
                 if(kills > 9) {
                     player.addItem(new ItemStack(Items.GOLD_INGOT, 1));
-                    VPUtil.getTag(stack).putFloat("VPKills",kills-9);
+                    VPUtil.setNbt(stack,"VPKills",kills-9);
                 }
             }
         }
@@ -69,7 +69,7 @@ public class Midas extends Vestige{
         int kills = VPUtil.getTag(stack).getInt("VPKills");
         Random random = new Random();
         if(random.nextDouble() < VPUtil.getChance((ConfigHandler.midasChance.get())*kills,player)) {
-            VPUtil.getTag(stack).putInt("VPLuck", VPUtil.getTag(stack).getInt("VPLuck") + 1);
+            VPUtil.setNbt(stack,"VPLuck", VPUtil.getTag(stack).getInt("VPLuck") + 1);
             VPUtil.play(player,SoundRegistry.SUCCESS.get());
         } else VPUtil.play(player,SoundEvents.IRON_GOLEM_DEATH);
         while (kills > 0 && isStellar(stack)) {
@@ -87,7 +87,7 @@ public class Midas extends Vestige{
                 kills -= 1;
             }
         }
-        VPUtil.getTag(stack).putInt("VPKills",0);
+        VPUtil.setNbt(stack,"VPKills",0);
 
         super.doUltimate(seconds, player, level, stack);
     }
@@ -95,7 +95,7 @@ public class Midas extends Vestige{
     private Multimap<Holder<Attribute>, AttributeModifier> createAttributeMap(ItemStack stack, Player player) {
         Multimap<Holder<Attribute>, AttributeModifier> attributesDefault = HashMultimap.create();
         int luck = VPUtil.scalePower(VPUtil.getTag(stack).getInt("VPLuck"),9,player);
-        attributesDefault.put(Attributes.LUCK, new AttributeModifier( ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:luck"), luck, AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.LUCK, new AttributeModifier( ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.luck"), luck, AttributeModifier.Operation.ADD_VALUE));
         return attributesDefault;
     }
 

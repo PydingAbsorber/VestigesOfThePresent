@@ -26,7 +26,7 @@ public class CatEars extends Vestige{
 
     private Multimap<Holder<Attribute>, AttributeModifier> createAttributeMap() {
         Multimap<Holder<Attribute>, AttributeModifier> attributesDefault = HashMultimap.create();
-        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:speed_modifier_ears"), ConfigHandler.catSpeed.get(), AttributeModifier.Operation.ADD_VALUE));
+        attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.speed_modifier_ears"), ConfigHandler.catSpeed.get(), AttributeModifier.Operation.ADD_VALUE));
         return attributesDefault;
     }
 

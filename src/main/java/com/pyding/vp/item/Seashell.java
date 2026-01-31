@@ -91,7 +91,7 @@ public class Seashell extends Item {
     public void inventoryTick(ItemStack stack, Level p_41405_, Entity p_41406_, int p_41407_, boolean p_41408_) {
         if(VPUtil.getTag(stack).getInt("VPSType") == 0){
             Random random = new Random();
-            VPUtil.getTag(stack).putInt("VPSType",random.nextInt(5)+1);
+            VPUtil.setNbt(stack,"VPSType",random.nextInt(5)+1);
         }
         super.inventoryTick(stack, p_41405_, p_41406_, p_41407_, p_41408_);
     }

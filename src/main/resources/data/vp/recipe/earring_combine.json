@@ -3,13 +3,13 @@
   "template": {
     "item": "vp:earring_of_dead_hopes"
   },
-  "addition": {
+  "base": {
     "item": "vp:stellar"
   },
-  "base": {
+  "addition": {
     "item": "vp:earring_of_dead_hopes"
   },
   "result": {
-    "item": "vp:earring_of_dead_hopes"
+    "id": "vp:earring_of_dead_hopes"
   }
 }

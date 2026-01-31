@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " F ",
+    "   ",
     "CBD",
     " E "
   ],
@@ -17,12 +17,9 @@
     },
     "E": {
       "item": "minecraft:orange_dye"
-    },
-    "F": {
-      "item": "vp:shard"
     }
   },
   "result": {
-    "item": "vp:nightmare_book"
+    "id": "vp:guide_book"
   }
 }

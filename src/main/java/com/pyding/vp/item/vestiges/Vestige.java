@@ -78,12 +78,12 @@ public class Vestige extends Item implements ICurioItem {
                 if(isUltimateActive(vestige))
                     VPUtil.getTag(vestige).putInt("VPRadiusOst", (int) (VPUtil.getTag(vestige).getInt("VPRadiusOst") + number));
             }
-            VPUtil.getTag(stack).putFloat("VPRadiance", Math.min(number + getRadiance(stack), getMaxRadiance(stack)));
+            VPUtil.setNbt(stack,"VPRadiance", Math.min(number + getRadiance(stack), getMaxRadiance(stack)));
         }
     }
 
     public void setRadiance(float number, ItemStack stack) {
-        VPUtil.getTag(stack).putFloat("VPRadiance", Math.min(number,getMaxRadiance(stack)));
+        VPUtil.setNbt(stack,"VPRadiance", Math.min(number,getMaxRadiance(stack)));
     }
 
     public float getMaxRadiance(ItemStack stack){
@@ -91,7 +91,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setMaxRadiance(float number, ItemStack stack) {
-        VPUtil.getTag(stack).putFloat("VPMaxRadiance", number);
+        VPUtil.setNbt(stack,"VPMaxRadiance", number);
     }
 
     public float getMaxRadianceBase(ItemStack stack){
@@ -99,7 +99,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setMaxRadianceBase(float number, ItemStack stack) {
-        VPUtil.getTag(stack).putFloat("VPMaxRadianceBase", number);
+        VPUtil.setNbt(stack,"VPMaxRadianceBase", number);
     }
 
     public int specialCharges(ItemStack stack) {
@@ -107,7 +107,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialCharges(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPSpecialCharges", number);
+        VPUtil.setNbt(stack,"VPSpecialCharges", number);
     }
 
     public int ultimateCharges(ItemStack stack) {
@@ -115,7 +115,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setUltimateCharges(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPUltimateCharges", number);
+        VPUtil.setNbt(stack,"VPUltimateCharges",number);
     }
 
     public int specialCd(ItemStack stack) {
@@ -123,7 +123,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialCd(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPSpecialCd", number);
+        VPUtil.setNbt(stack,"VPSpecialCd", number);
     }
 
     /*public int ultimateCd(ItemStack stack) {
@@ -131,7 +131,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setUltimateCd(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPUltimateCd", number);
+        VPUtil.setNbt(stack,"VPUltimateCd", number);
     }*/
 
     public int cdSpecialActive(ItemStack stack) {
@@ -139,7 +139,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setCdSpecialActive(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPCdSpecialActive", number);
+        VPUtil.setNbt(stack,"VPCdSpecialActive", number);
     }
 
     /*public int cdUltimateActive(ItemStack stack) {
@@ -147,7 +147,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setCdUltimateActive(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPCdUltimateActive", number);
+        VPUtil.setNbt(stack,"VPCdUltimateActive", number);
     }*/
 
     public int specialBonusModifier(ItemStack stack) {
@@ -155,7 +155,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialBonusModifier(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPSpecialBonusModifier", number);
+        VPUtil.setNbt(stack,"VPSpecialBonusModifier", number);
     }
 
     public int ultimateBonusModifier(ItemStack stack) {
@@ -163,7 +163,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setUltimateBonusModifier(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPUltimateBonusModifier", number);
+        VPUtil.setNbt(stack,"VPUltimateBonusModifier", number);
     }
 
     public int currentChargeSpecial(ItemStack stack) {
@@ -171,7 +171,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setCurrentChargeSpecial(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPCurrentChargeSpecial", number);
+        VPUtil.setNbt(stack,"VPCurrentChargeSpecial", number);
     }
 
     public int currentChargeUltimate(ItemStack stack) {
@@ -179,7 +179,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setCurrentChargeUltimate(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPCurrentChargeUltimate", number);
+        VPUtil.setNbt(stack,"VPCurrentChargeUltimate", number);
     }
 
     public int ultimateChargesBase(ItemStack stack) {
@@ -187,7 +187,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setUltimateChargesBase(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPUltimateChargesBase", number);
+        VPUtil.setNbt(stack,"VPUltimateChargesBase", number);
     }
 
     public int specialChargesBase(ItemStack stack) {
@@ -195,7 +195,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialChargesBase(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPSpecialChargesBase", number);
+        VPUtil.setNbt(stack,"VPSpecialChargesBase", number);
     }
 
     public long ultimateDurationBase(ItemStack stack) {
@@ -203,7 +203,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setUltimateDurationBase(long number, ItemStack stack) {
-        VPUtil.getTag(stack).putLong("VPUltimateDurationBase", number);
+        VPUtil.setNbt(stack,"VPUltimateDurationBase", number);
     }
 
     public long specialDurationBase(ItemStack stack) {
@@ -211,7 +211,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialDurationBase(long number, ItemStack stack) {
-        VPUtil.getTag(stack).putLong("VPSpecialDurationBase", number);
+        VPUtil.setNbt(stack,"VPSpecialDurationBase", number);
     }
 
     public int specialCdBase(ItemStack stack) {
@@ -219,7 +219,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialCdBase(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPSpecialCdBase", number);
+        VPUtil.setNbt(stack,"VPSpecialCdBase", number);
     }
 
     /*public int ultimateCdBase(ItemStack stack) {
@@ -227,7 +227,7 @@ public class Vestige extends Item implements ICurioItem {
     }*/
 
     /*public void setUltimateCdBase(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPUltimateCdBase", number);
+        VPUtil.setNbt(stack,"VPUltimateCdBase", number);
     }*/
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int radiance, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
         setUltimateChargesBase(ultimateCharges, stack);
@@ -261,11 +261,11 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setVestigeNumber(int number, ItemStack stack) {
-        VPUtil.getTag(stack).putInt("VPVestigeNumber", number);
+        VPUtil.setNbt(stack,"VPVestigeNumber", number);
     }
 
     public static void setStellar(ItemStack stack, Player player) {
-        VPUtil.getTag(stack).putBoolean("Stellar", true);
+        VPUtil.setNbt(stack,"Stellar", true);
         if(stack.getItem() instanceof Vestige vestige)
             vestige.applyBonus(stack,player);
     }
@@ -275,7 +275,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public static void setDoubleStellar(ItemStack stack, Player player) {
-        VPUtil.getTag(stack).putBoolean("DoubleStellar", true);
+        VPUtil.setNbt(stack,"DoubleStellar", true);
         if(stack.getItem() instanceof Vestige vestige)
             vestige.applyBonus(stack,player);
     }
@@ -285,7 +285,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public static void setTripleStellar(ItemStack stack, Player player) {
-        VPUtil.getTag(stack).putBoolean("TripleStellar", true);
+        VPUtil.setNbt(stack,"TripleStellar", true);
         if(stack.getItem() instanceof Vestige vestige)
             vestige.applyBonus(stack,player);
     }
@@ -304,11 +304,11 @@ public class Vestige extends Item implements ICurioItem {
 
     public static void decreaseStars(ItemStack stack){
         if(isTripleStellar(stack))
-            VPUtil.getTag(stack).putBoolean("TripleStellar", false);
+            VPUtil.setNbt(stack,"TripleStellar", false);
         else if(isDoubleStellar(stack))
-            VPUtil.getTag(stack).putBoolean("DoubleStellar", false);
+            VPUtil.setNbt(stack,"DoubleStellar", false);
         else if(isStellar(stack))
-            VPUtil.getTag(stack).putBoolean("Stellar", false);
+            VPUtil.setNbt(stack,"Stellar", false);
     }
 
     public void init(ItemStack stack) {
@@ -320,7 +320,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialActive(boolean state, ItemStack stack) {
-        VPUtil.getTag(stack).putBoolean("VPSpecialActive", state);
+        VPUtil.setNbt(stack,"VPSpecialActive", state);
     }
 
     public boolean isUltimateActive(ItemStack stack) {
@@ -328,7 +328,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setUltimateActive(boolean state, ItemStack stack) {
-        VPUtil.getTag(stack).putBoolean("VPUltimateActive", state);
+        VPUtil.setNbt(stack,"VPUltimateActive", state);
     }
 
     public long time(ItemStack stack) {
@@ -336,7 +336,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setTime(long time, ItemStack stack) {
-        VPUtil.getTag(stack).putLong("VPTime", time);
+        VPUtil.setNbt(stack,"VPTime", time);
     }
 
     public long timeUlt(ItemStack stack) {
@@ -344,7 +344,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setTimeUlt(long time, ItemStack stack){
-        VPUtil.getTag(stack).putLong("VPTimeUlt",time);
+        VPUtil.setNbt(stack,"VPTimeUlt",time);
     }
 
     public long specialMaxTime(ItemStack stack){
@@ -352,14 +352,14 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public void setSpecialMaxTime(long time, ItemStack stack){
-        VPUtil.getTag(stack).putLong("VPSpecialMaxTime",time);
+        VPUtil.setNbt(stack,"VPSpecialMaxTime",time);
     }
     public long ultimateMaxTime(ItemStack stack){
         return VPUtil.getTag(stack).getLong("VPUltimateMaxTime");
     }
 
     public void setUltimateMaxTime(long time, ItemStack stack){
-        VPUtil.getTag(stack).putLong("VPUltimateMaxTime",time);
+        VPUtil.setNbt(stack,"VPUltimateMaxTime",time);
     }
 
     public int setSpecialActive(long seconds, Player player, ItemStack stack){
@@ -488,7 +488,7 @@ public class Vestige extends Item implements ICurioItem {
         }
         ServerPlayer playerServer = (ServerPlayer) slotContext.entity();
         if(playerServer.tickCount % 20 == 0)
-            VPUtil.getTag(stack).putDouble("VPPower",VPUtil.getPower(vestigeNumber,playerServer));
+            VPUtil.setNbt(stack,"VPPower",VPUtil.getPower(vestigeNumber,playerServer));
         if(!isStellar(stack) && playerServer.isCreative())
             setStellar(stack,playerServer);
         if(playerServer != null) {
@@ -804,7 +804,7 @@ public class Vestige extends Item implements ICurioItem {
             result.deleteCharAt(0);
             result.deleteCharAt(result.length()-1);
             originalText = String.valueOf(result);
-            VPUtil.getTag(stack).putString("VPName",originalText);
+            VPUtil.setNbt(stack,"VPName",originalText);
         }*/
         originalText = I18n.get("vp.name."+vestigeNumber).substring(2);
         int randomNumber = random.nextInt(originalText.length()-1);

@@ -16,7 +16,7 @@ public record ItemAnimationPacket(ItemStack stack) implements CustomPacketPayloa
     public static final Type<ItemAnimationPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID, "item_animation"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemAnimationPacket> STREAM_CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC, ItemAnimationPacket::stack,
+            ItemStack.OPTIONAL_STREAM_CODEC, ItemAnimationPacket::stack,
             ItemAnimationPacket::new
     );
 

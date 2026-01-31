@@ -2,8 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.pyding.vp.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "refmap": "vp.refmap.json",
+  "compatibilityLevel": "JAVA_21",
   "verbose": true,
   "mixins": [
     "AbstractContainerMixin",
@@ -19,7 +18,6 @@
     "ItemCombinerMenuVzlom",
     "ItemEntityMixin",
     "LivingEntityVzlom",
-    "LootItemMixin",
     "LootRandomItemMixin",
     "MaxDurabilityMixin",
     "MinEnchLvlMixin",

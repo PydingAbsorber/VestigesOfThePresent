@@ -63,7 +63,7 @@ public class SoulBlighter extends Vestige{
                 if(souls > price) {
                     VPUtil.dealDamage(entity, player, player.damageSources().magic(), VPUtil.scalePower(125 + price,20,player), 2);
                     VPUtil.addRadiance(SoulBlighter.class,VPUtil.getRadianceSpecial(),player);
-                    VPUtil.getTag(stack).putFloat("VPSoulPool", VPUtil.getTag(stack).getFloat("VPSoulPool") - price);
+                    VPUtil.setNbt(stack,"VPSoulPool", VPUtil.getTag(stack).getFloat("VPSoulPool") - price);
                     VPUtil.modifySoulIntegrity(entity, player, (int) -price);
                 }
             }
@@ -150,8 +150,8 @@ public class SoulBlighter extends Vestige{
         Player player = (Player) slotContext.entity();
         if(VPUtil.getTag(stack).contains("entityData") && player.tickCount % 20 == 0){
             VPUtil.regenOverShield(player, (float) ((VPUtil.getTag(stack).getFloat("VPMaxHealth")*0.1f) * ConfigHandler.soulBlighterHeal.get()));
-            if(!player.getAttributes().hasModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp:soulblighter_hp_boost"))){
-                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,VPUtil.scalePower(1+VPUtil.getTag(stack).getFloat("VPMaxHealth")*0.3f,20,player), AttributeModifier.Operation.ADD_VALUE,"vp:soulblighter_hp_boost"));
+            if(!player.getAttributes().hasModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.soulblighter_hp_boost"))){
+                player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,VPUtil.scalePower(1+VPUtil.getTag(stack).getFloat("VPMaxHealth")*0.3f,20,player), AttributeModifier.Operation.ADD_VALUE,"vp.soulblighter_hp_boost"));
             }
         }
         boolean found = false;
