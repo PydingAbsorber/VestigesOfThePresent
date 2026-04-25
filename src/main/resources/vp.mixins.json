@@ -49,6 +49,7 @@
   ],
   "client": [
     "AbstractContainerScreenMixin",
+    "GuiScaleMixin",
     "JukeboxMixin",
     "LevelRendererMixin",
     "VPLocalPlayerMixin"
