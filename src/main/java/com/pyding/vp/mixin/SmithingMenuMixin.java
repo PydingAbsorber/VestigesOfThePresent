@@ -65,9 +65,6 @@ public abstract class SmithingMenuMixin {
 
     @Inject(method = "findSlotMatchingIngredient",at = @At("RETURN"),cancellable = true, require = 1)
     private static void findSlotMatchingIngredientMix(SmithingRecipe p_266790_, ItemStack stack, CallbackInfoReturnable<Optional<Integer>> cir){
-        /*if(stack.getItem() instanceof Accessory && ((ItemCombinerMenuVzlom)this).getInputSlots().getItem(0).getItem() instanceof Accessory){
-            cir.setReturnValue(Optional.of(2));
-        }*/
         if (stack.getItem() instanceof Accessory) {
             cir.setReturnValue(Optional.of(0));
         } else if (stack.getItem() instanceof StellarFragment) {

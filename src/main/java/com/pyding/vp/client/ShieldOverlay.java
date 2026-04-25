@@ -347,7 +347,8 @@ public class ShieldOverlay {
             int move = (int) Math.floor(Math.log10(targetHealingDebt))*2 + 1;
             pose.drawString(fontRenderer,(int)(targetHealingDebt/target.getMaxHealth()*100)+"%", x - (40+move), centerHeight + 22, 0xCE5858);
         }
-        if(!targetSoul.isEmpty() && target != null && Integer.parseInt(targetSoul.split("/")[0]) < Integer.parseInt(targetSoul.split("/")[1])){
+        if(ClientConfig.COMMON.renderSoulIntegrity.get() && !targetSoul.isEmpty() && target != null && Integer.parseInt(targetSoul.split("/")[0]) < Integer.parseInt(targetSoul.split("/")[1])
+        && (VPUtil.hasVestige(ModItems.DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player) || VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player))){
             int size = 32;
             RenderSystem.setShaderTexture(0, SOUL);
             pose.blit(SOUL, x + (32), centerHeight-7, 0, 0, size, size,

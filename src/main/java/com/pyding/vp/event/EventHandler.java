@@ -1432,7 +1432,7 @@ public class EventHandler {
         if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.5))
             VPUtil.clearEffects(entity,true);
         if(entity.tickCount % 1200 == 0){
-            VPUtil.modifySoulIntegrity(entity,1);
+            VPUtil.modifySoulIntegrity(entity,10);
         }
         if(entity.getPersistentData().getLong("VPAntiShield") != 0 && entity.getPersistentData().getLong("VPAntiShield") <= System.currentTimeMillis()) {
             entity.getPersistentData().putLong("VPAntiShield", 0);

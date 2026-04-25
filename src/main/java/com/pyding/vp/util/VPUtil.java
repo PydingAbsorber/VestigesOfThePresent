@@ -48,6 +48,8 @@ import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Villager;
@@ -63,6 +65,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -100,6 +103,346 @@ public class VPUtil {
             reduce = 0.9;
         return (long) (ConfigHandler.COMMON.cooldown.get()*60*60*1000*reduce);
     }
+
+    public static List<LivingEntity> getEntities(Player player,double radius,boolean self){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack))
+                radius *= 1+treasure.getRadius(stack)*0.05;
+        }
+        List<LivingEntity> list = new ArrayList<>(player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius)));
+        if(!self)
+            list.remove(player);
+        return list;
+    }
+
+    public static float damagePercentBonus(Player player,int type){
+        float percentBonus = 1;
+        Random random = new Random();
+        if(type == 1)
+            percentBonus += 0;
+        else if(type == 2) {
+            if(VPUtil.getSet(player) == 2)
+                percentBonus += 400;
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
+                percentBonus += 600;
+            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
+            if(hasVestige(ModItems.ANOMALY.get(),player)) {
+                ItemStack stack = getVestigeStack(Anomaly.class, player);
+                percentBonus += stack.getOrCreateTag().getInt("VPTeleports")*20;
+            }
+        }
+        else if(type == 3) {
+            if(VPUtil.getSet(player) == 4)
+                percentBonus += 200;
+            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
+                percentBonus += 600;
+            percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
+        }
+        if(hasLyra(player,4))
+            percentBonus += 50;
+        return percentBonus;
+    }
+
+    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
+        if(isProtectedFromHit(player,entity))
+            return;
+        entity.getPersistentData().putInt("VPDealType",type);
+        entity.invulnerableTime = 0;
+        ItemStack stack = player.getMainHandItem();
+        boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
+        if(hasDurability) {
+            stack.hurtAndBreak(1, player, consumer -> {
+                consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
+            });
+        }
+        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
+        player.getPersistentData().putBoolean("VPAttacked",true);
+        entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
+    }
+
+    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
+        if(isProtectedFromHit(player,entity))
+            return;
+        entity.getPersistentData().putInt("VPDealType",type);
+        if(invulPierce)
+            entity.invulnerableTime = 0;
+        ItemStack stack = player.getMainHandItem();
+        boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
+        if(hasDurability) {
+            stack.hurtAndBreak(1, entity, consumer -> {
+                consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
+            });
+        }
+        float curseMultiplier = getCurseMultiplier(player,4);
+        if(curseMultiplier > 0)
+            damage *= curseMultiplier;
+        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
+        player.getPersistentData().putBoolean("VPAttacked",true);
+        entity.hurt(damageSource,damage*(1 + damagePercentBonus(player,type)/100));
+    }
+
+    public static boolean hasVestige(Item item,Player player){
+        if(!(item instanceof Vestige))
+            return false;
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(item));
+        });
+        return result.size() > 0;
+    }
+
+
+    public static ItemStack getVestigeStack(Vestige vestige,Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() == vestige));
+        });
+        return result.get(0).stack();
+    }
+    public static ItemStack getVestigeStack(Class vestige,Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem().getClass() == vestige));
+        });
+        if(result.size() > 0)
+            return result.get(0).stack();
+        return null;
+    }
+    public static List<ItemStack> getFirstVestige(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            handler.findFirstCurio(itemStack -> itemStack.getItem() instanceof Vestige).ifPresent(result::add);
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
+    }
+    public static List<ItemStack> getVestigeList(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Vestige));
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
+    }
+
+    public static List<ItemStack> getCurioList(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof ICurioItem));
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
+    }
+
+    public static List<ItemStack> getAccessoryList(Player player){
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Accessory));
+        });
+        List<ItemStack> stacks = new ArrayList<>();
+        for(SlotResult hitResult: result){
+            stacks.add(hitResult.stack());
+        }
+        return stacks;
+    }
+
+    public static boolean hasStellarVestige(Item item,Player player){
+        if(!(item instanceof Vestige))
+            return false;
+        List<SlotResult> result = new ArrayList<>();
+        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            result.addAll(handler.findCurios(item));
+        });
+        for(SlotResult stack: result){
+            if(stack.stack().getItem() instanceof Vestige vestige && vestige.isStellar(stack.stack()))
+                return true;
+        }
+        return false;
+    }
+
+    public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
+        return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+    }
+
+    public static List getEntitiesAroundOfType(Class entityClass,Player player,double x, double y, double z,boolean self){
+        if(self)
+            return player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+        else {
+            List list = new ArrayList<>();
+            for(Object entity: player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+                if(entity != player)
+                    list.add(entity);
+            }
+            return list;
+        }
+    }
+
+    public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z,boolean self){
+        if(hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
+        if(self)
+            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+        else {
+            List<LivingEntity> list = new ArrayList<>();
+            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+                if(entity != player)
+                    list.add(entity);
+            }
+            return list;
+        }
+    }
+
+    public static List<LivingEntity> getEntitiesAround(LivingEntity entity,double x, double y, double z,boolean self){
+        if(entity instanceof Player player && hasVestige(ModItems.TREASURE.get(),player)){
+            ItemStack stack = getVestigeStack(Treasure.class,player);
+            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
+                x *= 1 + treasure.getRadius(stack) * 0.05;
+                y *= 1 + treasure.getRadius(stack) * 0.05;
+                z *= 1 + treasure.getRadius(stack) * 0.05;
+            }
+        }
+        if(self)
+            return entity.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(entity.getX()+x,entity.getY()+y,entity.getZ()+z,entity.getX()-x,entity.getY()-y,entity.getZ()-z));
+        else {
+            List<LivingEntity> list = new ArrayList<>();
+            for(LivingEntity livingEntity: entity.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(entity.getX()+x,entity.getY()+y,entity.getZ()+z,entity.getX()-x,entity.getY()-y,entity.getZ()-z))){
+                if(livingEntity != entity)
+                    list.add(livingEntity);
+            }
+            return list;
+        }
+    }
+
+    public static List<LivingEntity> getEntitiesAround(Entity player,double x, double y, double z,boolean self){
+        if(self)
+            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
+        else {
+            List<LivingEntity> list = new ArrayList<>();
+            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
+                if(entity != player)
+                    list.add(entity);
+            }
+            return list;
+        }
+    }
+
+    public static void adaptiveDamageHurt(LivingEntity entity, Player player,float percent){
+        boolean adopted = entity.getPersistentData().getBoolean("VPCrownDR");
+        int damage = entity.getPersistentData().getInt("VPCrownDamage");
+        if(damage >= playerDamageSources(player,player).size())
+            damage = 0;
+        if(adopted){
+            VPUtil.addRadiance(Crown.class,5,player);
+            damage++;
+            if(damage >= playerDamageSources(player,player).size())
+                damage = 0;
+            entity.getPersistentData().putInt("VPCrownDamage", damage);
+        }
+        DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
+        dealDamage(entity,player,source,percent,2);
+        VPUtil.addRadiance(Crown.class,VPUtil.getRadianceSpecial(),player);
+        //this fucking stinky dinky spaggety code wrote by an absolute disgusting imbecile(me lol) didn't work even after 20 tries to fix it
+    }
+
+    public static DamageSource randomizeDamageType(Player player){
+        List<DamageSource> sources = playerDamageSources(player,player);
+        int numba = new Random().nextInt(sources.size());
+        return sources.get(numba);
+    }
+
+    public static float getShieldBonus(LivingEntity entity){
+        float curseMultiplier = 0;
+        if(entity instanceof Player player) {
+            curseMultiplier = getCurseMultiplier(player,2);
+        }
+        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
+                +entity.getPersistentData().getFloat("VPShieldBonusFlower")
+                +entity.getPersistentData().getFloat("VPAcsShields")
+                +entity.getPersistentData().getFloat("VPRuneBonus")
+                -entity.getPersistentData().getFloat("VPIgnis")
+                -curseMultiplier);
+        if(entity.getPersistentData().getLong("VPBallDebuff") > System.currentTimeMillis())
+            shieldBonus -= ConfigHandler.COMMON.ballDebuff.get();
+        if(hasLyra(entity,6))
+            shieldBonus += 70;
+        return shieldBonus;
+    }
+
+    public static void addShield(LivingEntity entity,float amount,boolean add){
+        if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9))
+            return;
+        CompoundTag tag = entity.getPersistentData();
+        float shieldBonus = getShieldBonus(entity);
+        float shield;
+        if(!add) {
+            if(amount*(1 + shieldBonus/100) > tag.getFloat("VPShield"))
+                shield = amount*(1 + shieldBonus/100);
+            else return;
+        }
+        else shield = tag.getFloat("VPShield") + amount*(1 + shieldBonus/100);
+        if(entity instanceof Player player) {
+            float curseShield = getCurseMultiplier(player, 5);
+            if (curseShield != 0) {
+                cursedShield(player, curseShield, shield);
+                return;
+            }
+        }
+        Random random = new Random();
+        if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
+            if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
+                if(random.nextDouble() < getChance(0.2,player))
+                    addOverShield(player,shield*0.05f,false);
+            }
+            tag.putFloat("VPShield", shield);
+            if(entity instanceof Player player && VPUtil.hasVestige(ModItems.DONUT.get(),player))
+                VPUtil.addRadiance(SweetDonut.class,10,player);
+        }
+        if(entity instanceof ServerPlayer player) {
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+        } else {
+            if(!entity.getCommandSenderWorld().isClientSide)
+                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
+        }
+        if(tag.getFloat("VPShieldInit") == 0) {
+            tag.putFloat("VPShieldInit", shield);
+            play(entity,SoundRegistry.SHIELD.get());
+        }
+    }
+
+    public static float getShield(LivingEntity entity){
+        return entity.getPersistentData().getFloat("VPShield");
+    }
+
+    public static float getOverShield(LivingEntity entity){
+        return entity.getPersistentData().getFloat("VPOverShield");
+    }
+
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public static String getRainbowString(String text) {
         StringBuilder coloredText = new StringBuilder();
 
@@ -132,17 +475,6 @@ public class VPUtil {
         return (1 - (entity.getHealth() / entity.getMaxHealth())) * 100;
     }
 
-    public static List<LivingEntity> getEntities(Player player,double radius,boolean self){
-        if(hasVestige(ModItems.TREASURE.get(),player)){
-            ItemStack stack = getVestigeStack(Treasure.class,player);
-            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack))
-                radius *= 1+treasure.getRadius(stack)*0.05;
-        }
-        List<LivingEntity> list = new ArrayList<>(player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+radius,player.getY()+radius,player.getZ()+radius,player.getX()-radius,player.getY()-radius,player.getZ()-radius)));
-        if(!self)
-            list.remove(player);
-        return list;
-    }
 
     public static float getAttack(Player player, boolean hasDurability){
         float attack = (float) player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
@@ -549,72 +881,6 @@ public class VPUtil {
         return formattedTime.toString().trim();
     }
 
-    public static float damagePercentBonus(Player player,int type){
-        float percentBonus = 1;
-        Random random = new Random();
-        if(type == 1)
-            percentBonus += 0;
-        else if(type == 2) {
-            if(VPUtil.getSet(player) == 2)
-                percentBonus += 400;
-            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
-                percentBonus += 600;
-            percentBonus += player.getPersistentData().getFloat("VPTrigonBonus");
-            if(hasVestige(ModItems.ANOMALY.get(),player)) {
-                ItemStack stack = getVestigeStack(Anomaly.class, player);
-                percentBonus += stack.getOrCreateTag().getInt("VPTeleports")*20;
-            }
-        }
-        else if(type == 3) {
-            if(VPUtil.getSet(player) == 4)
-                percentBonus += 200;
-            if(player.getPersistentData().getLong("VPAcsSpecial") >= System.currentTimeMillis() && VPUtil.getSet(player) == 5 && random.nextDouble() < getChance(0.4,player))
-                percentBonus += 600;
-            percentBonus += player.getPersistentData().getInt("VPGravity") * 20;
-        }
-        if(hasLyra(player,4))
-            percentBonus += 50;
-        return percentBonus;
-    }
-
-    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float percent, int type){
-        if(isProtectedFromHit(player,entity))
-            return;
-        entity.getPersistentData().putInt("VPDealType",type);
-        entity.invulnerableTime = 0;
-        ItemStack stack = player.getMainHandItem();
-        boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
-        if(hasDurability) {
-                    stack.hurtAndBreak(1, player, consumer -> {
-                consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
-            });
-        }
-        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
-        player.getPersistentData().putBoolean("VPAttacked",true);
-        entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
-    }
-
-    public static void dealDamage(LivingEntity entity,Player player, DamageSource source, float damage, int type, boolean invulPierce){
-        if(isProtectedFromHit(player,entity))
-            return;
-        entity.getPersistentData().putInt("VPDealType",type);
-        if(invulPierce)
-            entity.invulnerableTime = 0;
-        ItemStack stack = player.getMainHandItem();
-        boolean hasDurability = stack.isDamageableItem() && stack.getDamageValue()+1 < stack.getMaxDamage();
-        if(hasDurability) {
-            stack.hurtAndBreak(1, entity, consumer -> {
-                consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
-            });
-        }
-        float curseMultiplier = getCurseMultiplier(player,4);
-        if(curseMultiplier > 0)
-            damage *= curseMultiplier;
-        DamageSource damageSource = new DamageSource(source.typeHolder(),player);
-        player.getPersistentData().putBoolean("VPAttacked",true);
-        entity.hurt(damageSource,damage*(1 + damagePercentBonus(player,type)/100));
-    }
-
     public static void spawnLightning(ServerLevel world, double x, double y, double z) {
         LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(world);
         if (lightningBolt != null) {
@@ -624,7 +890,7 @@ public class VPUtil {
     }
 
     public static boolean isEvent(Entity entity){
-        if(entity instanceof Player player && player.isCreative())
+        if(entity instanceof Player player && (player.isCreative() || player.isSpectator()))
             return false;
         else return ConfigHandler.COMMON.eventMode.get();
     }
@@ -749,93 +1015,7 @@ public class VPUtil {
         return ConfigHandler.COMMON.chaostime.get()*60*1000;
     }
 
-    public static boolean hasVestige(Item item,Player player){
-        if(!(item instanceof Vestige))
-            return false;
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(item));
-        });
-        return result.size() > 0;
-    }
 
-
-    public static ItemStack getVestigeStack(Vestige vestige,Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() == vestige));
-        });
-        return result.get(0).stack();
-    }
-    public static ItemStack getVestigeStack(Class vestige,Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem().getClass() == vestige));
-        });
-        if(result.size() > 0)
-            return result.get(0).stack();
-        return null;
-    }
-    public static List<ItemStack> getFirstVestige(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            handler.findFirstCurio(itemStack -> itemStack.getItem() instanceof Vestige).ifPresent(result::add);
-        });
-        List<ItemStack> stacks = new ArrayList<>();
-        for(SlotResult hitResult: result){
-            stacks.add(hitResult.stack());
-        }
-        return stacks;
-    }
-    public static List<ItemStack> getVestigeList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Vestige));
-        });
-        List<ItemStack> stacks = new ArrayList<>();
-        for(SlotResult hitResult: result){
-            stacks.add(hitResult.stack());
-        }
-        return stacks;
-    }
-
-    public static List<ItemStack> getCurioList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof ICurioItem));
-        });
-        List<ItemStack> stacks = new ArrayList<>();
-        for(SlotResult hitResult: result){
-            stacks.add(hitResult.stack());
-        }
-        return stacks;
-    }
-
-    public static List<ItemStack> getAccessoryList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof Accessory));
-        });
-        List<ItemStack> stacks = new ArrayList<>();
-        for(SlotResult hitResult: result){
-            stacks.add(hitResult.stack());
-        }
-        return stacks;
-    }
-
-    public static boolean hasStellarVestige(Item item,Player player){
-        if(!(item instanceof Vestige))
-            return false;
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(item));
-        });
-        for(SlotResult stack: result){
-            if(stack.stack().getItem() instanceof Vestige vestige && vestige.isStellar(stack.stack()))
-                return true;
-        }
-        return false;
-    }
     public static void equipmentDurability(float percentage,LivingEntity entity) {
         percentage = percentage / 100;
         for (ItemStack stack2 : entity.getArmorSlots()) {
@@ -1014,177 +1194,6 @@ public class VPUtil {
         else return enemyStats;
     }
 
-    public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z){
-        if(hasVestige(ModItems.TREASURE.get(),player)){
-            ItemStack stack = getVestigeStack(Treasure.class,player);
-            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
-                x *= 1 + treasure.getRadius(stack) * 0.05;
-                y *= 1 + treasure.getRadius(stack) * 0.05;
-                z *= 1 + treasure.getRadius(stack) * 0.05;
-            }
-        }
-        return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
-    }
-
-    public static List getEntitiesAroundOfType(Class entityClass,Player player,double x, double y, double z,boolean self){
-        if(self)
-            return player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
-        else {
-            List list = new ArrayList<>();
-            for(Object entity: player.getCommandSenderWorld().getEntitiesOfClass(entityClass, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
-                if(entity != player)
-                    list.add(entity);
-            }
-            return list;
-        }
-    }
-
-    public static List<LivingEntity> getEntitiesAround(Player player,double x, double y, double z,boolean self){
-        if(hasVestige(ModItems.TREASURE.get(),player)){
-            ItemStack stack = getVestigeStack(Treasure.class,player);
-            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
-                x *= 1 + treasure.getRadius(stack) * 0.05;
-                y *= 1 + treasure.getRadius(stack) * 0.05;
-                z *= 1 + treasure.getRadius(stack) * 0.05;
-            }
-        }
-        if(self)
-            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
-        else {
-            List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
-                if(entity != player)
-                    list.add(entity);
-            }
-            return list;
-        }
-    }
-
-    public static List<LivingEntity> getEntitiesAround(LivingEntity entity,double x, double y, double z,boolean self){
-        if(entity instanceof Player player && hasVestige(ModItems.TREASURE.get(),player)){
-            ItemStack stack = getVestigeStack(Treasure.class,player);
-            if(stack.getItem() instanceof Treasure treasure && treasure.isUltimateActive(stack)) {
-                x *= 1 + treasure.getRadius(stack) * 0.05;
-                y *= 1 + treasure.getRadius(stack) * 0.05;
-                z *= 1 + treasure.getRadius(stack) * 0.05;
-            }
-        }
-        if(self)
-            return entity.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(entity.getX()+x,entity.getY()+y,entity.getZ()+z,entity.getX()-x,entity.getY()-y,entity.getZ()-z));
-        else {
-            List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity livingEntity: entity.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(entity.getX()+x,entity.getY()+y,entity.getZ()+z,entity.getX()-x,entity.getY()-y,entity.getZ()-z))){
-                if(livingEntity != entity)
-                    list.add(livingEntity);
-            }
-            return list;
-        }
-    }
-
-    public static List<LivingEntity> getEntitiesAround(Entity player,double x, double y, double z,boolean self){
-        if(self)
-            return player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z));
-        else {
-            List<LivingEntity> list = new ArrayList<>();
-            for(LivingEntity entity: player.getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(player.getX()+x,player.getY()+y,player.getZ()+z,player.getX()-x,player.getY()-y,player.getZ()-z))){
-                if(entity != player)
-                    list.add(entity);
-            }
-            return list;
-        }
-    }
-
-    public static void adaptiveDamageHurt(LivingEntity entity, Player player,float percent){
-        boolean adopted = entity.getPersistentData().getBoolean("VPCrownDR");
-        int damage = entity.getPersistentData().getInt("VPCrownDamage");
-        if(damage >= playerDamageSources(player,player).size())
-            damage = 0;
-        if(adopted){
-            VPUtil.addRadiance(Crown.class,5,player);
-            damage++;
-            if(damage >= playerDamageSources(player,player).size())
-                damage = 0;
-            entity.getPersistentData().putInt("VPCrownDamage", damage);
-        }
-        DamageSource source = new DamageSource(playerDamageSources(player,entity).get(damage).typeHolder(),player);
-        dealDamage(entity,player,source,percent,2);
-        VPUtil.addRadiance(Crown.class,VPUtil.getRadianceSpecial(),player);
-        //this fucking stinky dinky spaggety code wrote by an absolute disgusting imbecile(me lol) didn't work even after 20 tries to fix it
-    }
-
-    public static DamageSource randomizeDamageType(Player player){
-        List<DamageSource> sources = playerDamageSources(player,player);
-        int numba = new Random().nextInt(sources.size());
-        return sources.get(numba);
-    }
-    
-    public static float getShieldBonus(LivingEntity entity){
-        float curseMultiplier = 0;
-        if(entity instanceof Player player) {
-            curseMultiplier = getCurseMultiplier(player,2);
-        }
-        float shieldBonus = (entity.getPersistentData().getFloat("VPShieldBonusDonut")
-                +entity.getPersistentData().getFloat("VPShieldBonusFlower")
-                +entity.getPersistentData().getFloat("VPAcsShields")
-                +entity.getPersistentData().getFloat("VPRuneBonus")
-                -entity.getPersistentData().getFloat("VPIgnis")
-                -curseMultiplier);
-        if(entity.getPersistentData().getLong("VPBallDebuff") > System.currentTimeMillis())
-            shieldBonus -= ConfigHandler.COMMON.ballDebuff.get();
-        if(hasLyra(entity,6))
-            shieldBonus += 70;
-        return shieldBonus;
-    }
-
-    public static void addShield(LivingEntity entity,float amount,boolean add){
-        if(entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity)*0.9))
-            return;
-        CompoundTag tag = entity.getPersistentData();
-        float shieldBonus = getShieldBonus(entity);
-        float shield;
-        if(!add) {
-            if(amount*(1 + shieldBonus/100) > tag.getFloat("VPShield"))
-                shield = amount*(1 + shieldBonus/100);
-            else return;
-        }
-        else shield = tag.getFloat("VPShield") + amount*(1 + shieldBonus/100);
-        if(entity instanceof Player player) {
-            float curseShield = getCurseMultiplier(player, 5);
-            if (curseShield != 0) {
-                cursedShield(player, curseShield, shield);
-                return;
-            }
-        }
-        Random random = new Random();
-        if(tag.getLong("VPAntiShield") < System.currentTimeMillis()) {
-            if(entity instanceof Player player && hasVestige(ModItems.SOULBLIGHTER.get(), player)){
-                if(random.nextDouble() < getChance(0.2,player))
-                    addOverShield(player,shield*0.05f,false);
-            }
-            tag.putFloat("VPShield", shield);
-            if(entity instanceof Player player && VPUtil.hasVestige(ModItems.DONUT.get(),player))
-                VPUtil.addRadiance(SweetDonut.class,10,player);
-        }
-        if(entity instanceof ServerPlayer player) {
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
-        } else {
-            if(!entity.getCommandSenderWorld().isClientSide)
-                PacketHandler.sendToClients(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()));
-        }
-        if(tag.getFloat("VPShieldInit") == 0) {
-            tag.putFloat("VPShieldInit", shield);
-            play(entity,SoundRegistry.SHIELD.get());
-        }
-    }
-
-    public static float getShield(LivingEntity entity){
-        return entity.getPersistentData().getFloat("VPShield");
-    }
-
-    public static float getOverShield(LivingEntity entity){
-        return entity.getPersistentData().getFloat("VPOverShield");
-    }
-
     public static long deathTime = 60000;
 
     public static void deadInside(LivingEntity entity,Player player){
@@ -1334,9 +1343,7 @@ public class VPUtil {
     }
 
     public static boolean isNpc(EntityType<?> type){
-        if(type.toString().contains("easy_npc"))
-            return true;
-        return false;
+        return type.toString().contains("easy_npc") || type.toString().contains("entity.customnpc.customnpc");
     }
 
     public static boolean isNightmareBoss(Entity entity){
@@ -1390,30 +1397,39 @@ public class VPUtil {
 
     public static void initRareDrops(List<LivingEntity> list, MinecraftServer server){
         for(LivingEntity livingEntity: list){
-            LootTable lootTable = server.getLootData().getLootTable(livingEntity.getLootTable());
-            List<Item> rareList = new ArrayList<>();
-            for(LootPool pool: ((LootTableVzlom)lootTable).getPools()){
-                for (LootPoolEntryContainer entry : ((LootPoolMixin) pool).getEntries()) {
-                    if (entry instanceof LootItem lootItemEntry) {
-                        Item item = ((LootItemMixin) lootItemEntry).getItem();
-                        for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
-                            if (condition instanceof LootItemRandomChanceCondition itemCondition) {
-                                float chance = ((LootRandomItemMixin) itemCondition).getChance();
-                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){ //some wierd shit is going on, so I need a little boost
-                                    rareList.add(item);
-                                }
-                            } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
-                                float chance = ((LootItemEnchantMixin) lootingCondition).getChance();
-                                if(chance <= ConfigHandler.COMMON.rareItemChance.get()+0.001){
-                                    rareList.add(item);
+            ResourceLocation lootTableId = livingEntity.getLootTable();
+            if (lootTableId == null || lootTableId.equals(BuiltInLootTables.EMPTY)) {
+                continue;
+            }
+            try {
+                LootTable lootTable = server.getLootData().getLootTable(livingEntity.getLootTable());
+                List<Item> rareList = new ArrayList<>();
+                for (LootPool pool : ((LootTableVzlom) lootTable).getPools()) {
+                    for (LootPoolEntryContainer entry : ((LootPoolMixin) pool).getEntries()) {
+                        if (entry instanceof LootItem lootItemEntry) {
+                            Item item = ((LootItemMixin) lootItemEntry).getItem();
+                            for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
+                                if (condition instanceof LootItemRandomChanceCondition itemCondition) {
+                                    float chance = ((LootRandomItemMixin) itemCondition).getChance();
+                                    if (chance <= ConfigHandler.COMMON.rareItemChance.get() + 0.001) { //some wierd shit is going on, so I need a little boost
+                                        rareList.add(item);
+                                    }
+                                } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
+                                    float chance = ((LootItemEnchantMixin) lootingCondition).getChance();
+                                    if (chance <= ConfigHandler.COMMON.rareItemChance.get() + 0.001) {
+                                        rareList.add(item);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                rareDrops.put(livingEntity.getType().getDescriptionId(), rareList);
+                hashRares.addAll(rareList);
+            } catch (Exception e) {
+                System.err.println("Vestiges of the Present: Failed to parse loot table for entity: " + livingEntity.getType().getDescriptionId());
+                e.printStackTrace();
             }
-            rareDrops.put(livingEntity.getType().getDescriptionId(),rareList);
-            hashRares.addAll(rareList);
         }
         hashRares.add(ModItems.CORRUPT_FRAGMENT.get());
         hashRares.add(ModItems.CORRUPT_ITEM.get());
@@ -3472,7 +3488,6 @@ public class VPUtil {
         if (number <= cap) {
             return number;
         }
-        System.out.println(number);
         return cap + Math.log((number - cap) + 1);
     }
 
@@ -3840,6 +3855,8 @@ public class VPUtil {
     public static double getPower(int challenge, Player player){
         if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).size() < PlayerCapabilityVP.totalVestiges)
             updatePowerList(player);
+        if(powerList.get(player) == null)
+            return 0;
         double power = powerList.get(player).get(challenge-1);
         if(challenge == 666 || (power < ConfigHandler.COMMON.maxPower.get() && player.isCreative()))
             power = ConfigHandler.COMMON.maxPower.get();
@@ -4158,7 +4175,7 @@ public class VPUtil {
                             }
                             if(blacklist)
                                 continue;
-                            if(entity instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame())
+                            if(entity instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame() || entity instanceof HangingEntity)
                                 continue;
                             if(entity instanceof Villager || isNpc(entity.getType()) || entity.getType().getDescriptionId().contains("ironspell"))
                                 continue;

@@ -129,8 +129,5 @@ public class PlayerFlyPacket {
             BlockPos pos = new BlockPos((int) player.getPersistentData().getDouble("VPDevourerX"),(int)player.getPersistentData().getDouble("VPDevourerY"),(int)player.getPersistentData().getDouble("VPDevourerZ"));
             VPUtil.suckToPos(player,pos,number-300);
         }
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-
-        });
     }
 }

@@ -178,7 +178,9 @@ public class VestigeScreen extends Screen {
                                 data[2] = VPUtil.filterString(VPUtil.getTropiclVariantsLeft(cap.getSea()).toString());
                             }
                             data[1] = " " + cap.getChallenge(vestigeNumber) + " / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber);
-                            Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber,list,data,stack));
+                            Minecraft.getInstance().execute(() -> {
+                                Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber, list, data,stack));
+                            });
                         });
                     }
                 }

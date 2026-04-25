@@ -19,12 +19,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = Entity.class)
 public abstract class MovementMixin {
 
-    @Inject(method = "setDeltaMovement",at = @At("HEAD"),cancellable = true, require = 1)
+    /*@Inject(method = "setDeltaMovement",at = @At("HEAD"),cancellable = true, require = 1)
     private void setDeltaMovement(Vec3 p_20257_, CallbackInfo info){
         if(VPUtil.isNpc(((EntityVzlom)this).getTypeMix())) {
             info.cancel();
         }
-    }
+    }*/
 
     @Inject(method = "moveTo",at = @At("HEAD"),cancellable = true, require = 1)
     private void moveTo(Vec3 p_20257_, CallbackInfo info){

@@ -147,6 +147,7 @@ public class GuideScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new VestigeScreen(stack, getMinecraft().player)))
         );
+        back.visible = false;
         this.addRenderableWidget(back);
     }
 
@@ -154,7 +155,8 @@ public class GuideScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
         double scale = ClientConfig.COMMON.guiScaleGuide.get();
-        back.visible = !showEverything;
+        if(stack != null)
+            back.visible = !showEverything;
         if(!showEverything)
             scale *= 1.5f;
         int infoWidth = (int) (256*scale);
