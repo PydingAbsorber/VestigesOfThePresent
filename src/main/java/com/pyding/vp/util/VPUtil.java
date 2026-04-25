@@ -7,6 +7,7 @@ import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.ModAttachments;
 import com.pyding.vp.capability.VestigeCap;
 import com.pyding.vp.capability.VestigeCapProvider;
+import com.pyding.vp.client.*;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.*;
@@ -16,6 +17,7 @@ import com.pyding.vp.mixin.*;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
@@ -481,7 +483,7 @@ public class VPUtil {
                 VPUtil.addRadiance(SweetDonut.class,10,player);
         }
         if(entity instanceof ServerPlayer player) {
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData().copy()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
@@ -693,6 +695,9 @@ public class VPUtil {
     public static void initBuckets(){
         for(MobBucketItem bucketItem: getBuckets()){
             EntityType<?> type = VPUtil.getBucketType(bucketItem);
+            if (type == null) {
+                continue;
+            }
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
                 HashSet<String> tropicalFish = new HashSet<>();
                 for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
@@ -730,6 +735,9 @@ public class VPUtil {
         }
         for(MobBucketItem bucket: buckets){
             EntityType<?> type = VPUtil.getBucketType(bucket);
+            if (type == null) {
+                continue;
+            }
             if(type.getDescriptionId().contains("entity.minecraft.axolotl") || type.getDescriptionId().contains("entity.minecraft.tropical_fish")){
                 continue;
             }
@@ -747,6 +755,8 @@ public class VPUtil {
         HashSet<String> allList = new HashSet<>();
         for(MobBucketItem bucket: buckets){
             EntityType<?> type = getBucketType(bucket);
+            if(type == null)
+                continue;
             if(type.getDescriptionId().contains("entity.minecraft.axolotl")){
                 allList.addAll(bucketMap.get(bucket));
             }
@@ -760,6 +770,8 @@ public class VPUtil {
         HashSet<String> allList = new HashSet<>();
         for(MobBucketItem bucket: buckets){
             EntityType<?> type = VPUtil.getBucketType(bucket);
+            if(type == null)
+                continue;
             if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")){
                 allList.addAll(bucketMap.get(bucket));
             }
@@ -775,6 +787,8 @@ public class VPUtil {
             size += getSeaList().size();
             for (MobBucketItem bucket : buckets) {
                 EntityType<?> type = VPUtil.getBucketType(bucket);
+                if(type == null)
+                    continue;
                 if (type.getDescriptionId().contains("entity.minecraft.tropical_fish") || type.getDescriptionId().contains("entity.minecraft.axolotl")) {
                     for (String id : bucketMap.get(bucket))
                         size++;
@@ -958,7 +972,7 @@ public class VPUtil {
     }
 
     public static boolean isEvent(Entity entity){
-        if(entity instanceof Player player && player.isCreative())
+        if(entity instanceof Player player && (player.isCreative() || player.isSpectator()))
             return false;
         else return ConfigHandler.eventMode.get();
     }
@@ -1942,7 +1956,7 @@ public class VPUtil {
                 VPUtil.addRadiance(Rune.class,5,player);
         }
         if(entity instanceof ServerPlayer player) {
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData().copy()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
@@ -1974,7 +1988,7 @@ public class VPUtil {
             } else tag.putFloat("VPOverShield", Math.min(tag.getFloat("VPOverShieldMax"), shield));
         }
         if(entity instanceof ServerPlayer player) {
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData().copy()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
@@ -2011,7 +2025,7 @@ public class VPUtil {
             stealer.getPersistentData().putFloat("VPOverShield", overShield);
         }
         if(entity instanceof ServerPlayer player) {
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData()),player);
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), player.getPersistentData().copy()),player);
         } else {
             if(!entity.getCommandSenderWorld().isClientSide)
                 PacketHandler.sendToAllAround(new SendEntityNbtToClient(entity.getPersistentData(),entity.getId()),entity);
@@ -2446,7 +2460,7 @@ public class VPUtil {
                     sendNudes.put(key, player.getPersistentData().get(key));
                 }
             }
-            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), sendNudes), serverPlayer);
+            PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), sendNudes.copy()), serverPlayer);
         }
     }
 
@@ -3953,7 +3967,7 @@ public class VPUtil {
 
     public static void addRadiance(Class clazz, int number, Player player){
         ItemStack stack = getVestigeStack(clazz,player);
-        if(stack.getItem() instanceof Vestige vestige){
+        if(stack != null && stack.getItem() instanceof Vestige vestige){
             int used = player.getPersistentData().getInt("VPRadianceUsed");
             if((player.getPersistentData().getLong("VPRadianceTime") + 100) > System.currentTimeMillis()){
                 number /= 2*(used);
@@ -4318,6 +4332,8 @@ public class VPUtil {
         if ((vestigeNumber == 2 || vestigeNumber == 20 || vestigeNumber == 15) && !text.isEmpty()) {
             for (EntityType<?> type : entities) {
                 for (String id : text.split(",")) {
+                    if(type == null)
+                        continue;
                     if (type.getDescriptionId().equals(id.trim())) {
                         ItemStack egg;
                         SpawnEggItem spawnEgg = SpawnEggItem.byId(type);
@@ -4347,5 +4363,15 @@ public class VPUtil {
         AtomicReference<String> name = new AtomicReference<>("");
         Objects.requireNonNull(stack.get(DataComponents.JUKEBOX_PLAYABLE)).song().unwrap(level.registryAccess()).ifPresent(songHolder -> name.set(songHolder.value().description().getString()));
         return name.get();
+    }
+
+    public static boolean isCoolGui(){
+        return Minecraft.getInstance().screen instanceof VestigeScreen
+                || Minecraft.getInstance().screen instanceof LeaderboardScreen
+                || Minecraft.getInstance().screen instanceof MysteryChestScreen
+                || Minecraft.getInstance().screen instanceof MysteryDropScreen
+                || Minecraft.getInstance().screen instanceof ChallengeScreen
+                || Minecraft.getInstance().screen instanceof GuideScreen
+                || Minecraft.getInstance().screen instanceof NightmareScreen;
     }
 }

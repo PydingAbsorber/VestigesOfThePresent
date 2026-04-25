@@ -1406,7 +1406,7 @@ public class EventHandler {
             if (entity.getPersistentData().getLong("VPSoulRottingStellar") >= System.currentTimeMillis() && VPUtil.getSoulIntegrity(entity) < (VPUtil.getMaxSoulIntegrity(entity) * 0.5))
                 VPUtil.clearEffects(entity, true);
             if (entity.tickCount % 1200 == 0) {
-                VPUtil.modifySoulIntegrity(entity, 1);
+                VPUtil.modifySoulIntegrity(entity, 10);
             }
             if (entity.getPersistentData().getLong("VPAntiShield") != 0 && entity.getPersistentData().getLong("VPAntiShield") <= System.currentTimeMillis()) {
                 entity.getPersistentData().putLong("VPAntiShield", 0);
@@ -1446,7 +1446,7 @@ public class EventHandler {
                             sendNudes.put(key, player.getPersistentData().get(key));
                         }
                     }
-                    PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), sendNudes), player);
+                    PacketHandler.sendToClient(new SendPlayerNbtToClient(player.getUUID(), sendNudes.copy()), player);
                 } else if (VPUtil.isBoss(entity)) {
                     CompoundTag sendNudes = new CompoundTag();
                     for (String key : entity.getPersistentData().getAllKeys()) {
@@ -1701,8 +1701,8 @@ public class EventHandler {
         Player oldPlayer = event.getOriginal();
         Player newPlayer = event.getEntity();
         VipActivator.loadInventory(oldPlayer, newPlayer);
-        VestigeCap oldData = oldPlayer.getData(ModAttachments.PLAYER_DATA.get());
-        VestigeCap newData = newPlayer.getData(ModAttachments.PLAYER_DATA.get());
+        VestigeCap oldData = oldPlayer.getData(ModAttachments.PLAYER_DATA);
+        VestigeCap newData = newPlayer.getData(ModAttachments.PLAYER_DATA);
         if (event.isWasDeath()) {
             newData.copyNBT(oldData);
         }

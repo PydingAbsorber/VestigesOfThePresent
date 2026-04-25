@@ -1,51 +1,33 @@
 package com.pyding.vp;
 
+import com.mojang.logging.LogUtils;
+import com.pyding.vp.capability.ModAttachments;
 import com.pyding.vp.capability.VestigeCapProvider;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.ModEntities;
 import com.pyding.vp.item.ModCreativeModTab;
 import com.pyding.vp.item.ModItems;
-import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import com.pyding.vp.util.VPUtilParticles;
-import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import org.slf4j.Logger;
 
 @Mod(VestigesOfThePresent.MODID)
 public class VestigesOfThePresent {
     public static final String MODID = "vp";
-    public static final String VERSION = "1.21.1:1.6.2";
+    public static final String VERSION = "1.21.1:1.6.6";
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public VestigesOfThePresent(IEventBus modEventBus, ModContainer modContainer) {
@@ -61,6 +43,7 @@ public class VestigesOfThePresent {
         VPEffects.register(modEventBus);
         SoundRegistry.register(modEventBus);
         modEventBus.addListener(this::postInit);
+        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

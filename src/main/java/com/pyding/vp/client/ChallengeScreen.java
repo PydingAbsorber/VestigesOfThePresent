@@ -106,7 +106,7 @@ public class ChallengeScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics,mouseX,mouseY,partialTicks);
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 10);
+        guiGraphics.pose().translate(0, 0, 40);
         Component titleComponent;
         if(challenge == 13)
             titleComponent = Component.translatable("vp.get." + challenge, ConfigHandler.rareItemChance.get()*100+"%").append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);

@@ -692,7 +692,9 @@ public class Vestige extends Item implements ICurioItem {
                     data[2] = VPUtil.filterString(VPUtil.getTropiclVariantsLeft(cap.getSea()).toString());
                 }
                 data[1] = " " + cap.getChallenge(vestigeNumber) + " / " + player.getPersistentData().getInt("VPMaxChallenge" + vestigeNumber);
-                Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber, list, data));
+                Minecraft.getInstance().execute(() -> {
+                    Minecraft.getInstance().setScreen(new ChallengeScreen(vestigeNumber, list, data));
+                });
                 hold = 0;
             }
             player.getPersistentData().putInt("VPHold", hold);

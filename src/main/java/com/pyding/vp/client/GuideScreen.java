@@ -137,14 +137,18 @@ public class GuideScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new VestigeScreen(stack, getMinecraft().player)))
         );
+        back.visible = false;
         this.addRenderableWidget(back);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics,mouseX,mouseY,partialTicks);
+        if(stack != null)
+            back.visible = !showEverything;
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 40);
         double scale = ClientConfig.guiScaleGuide.get();
-        back.visible = !showEverything;
         if(!showEverything)
             scale *= 1.5f;
         int infoWidth = (int) (256*scale);
@@ -175,8 +179,6 @@ public class GuideScreen extends Screen {
             Font font = this.font;
             int x = this.width/2 - infoWidth/2;
             int y = this.height/2 - infoHeight/2;
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 10);
             guiGraphics.blit(FRAME, x, y, 0, 0, infoWidth, infoHeight, infoWidth, infoHeight);
 
 
@@ -256,8 +258,8 @@ public class GuideScreen extends Screen {
                     guiGraphics.blit(pic.get(i), xPos, yPos, 0, 0, size, size, size, size);
                 }
             }
-            guiGraphics.pose().popPose();
         }
+        guiGraphics.pose().popPose();
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
