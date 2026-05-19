@@ -2,6 +2,7 @@ package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.mixin.EntityVzlom;
 import com.pyding.vp.mixin.MobEntityVzlom;
 import com.pyding.vp.mixin.NearestAttackebleTargetMixinVzlom;
 import com.pyding.vp.util.ConfigHandler;
@@ -119,7 +120,7 @@ public class SoulBlighter extends Vestige{
                     stack.set(DataComponents.ENTITY_DATA, CustomData.of(saveTag));
                     VPUtil.setNbt(stack,"VPMaxHealth",entity.getMaxHealth());
                     VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL, entity.getX(), entity.getY(), entity.getZ(), 8, 0, -0.5, 0);
-                    VPUtil.despawn(entity);
+                    despawn(entity);
                     if (isStellar(stack)) {
                         var hpBoostId = ResourceLocation.fromNamespaceAndPath("vp", "soulblighter_hp_boost");
                         float amount = 1 + entity.getMaxHealth() * 0.3f;
@@ -131,6 +132,15 @@ public class SoulBlighter extends Vestige{
             }
         }
         super.doUltimate(seconds, player, level, stack);
+    }
+
+    public static void despawn(LivingEntity livingEntity){
+        if(VPUtil.isNpc(livingEntity.getType()))
+            return;
+        VPUtil.spawnSphere(livingEntity,ParticleTypes.ASH,50,2,0.01f);
+        VPUtil.spawnSphere(livingEntity,ParticleTypes.WHITE_ASH,50,2,0.01f);
+        VPUtil.play(livingEntity,SoundRegistry.DESPAWN.get());
+        ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
     }
 
     @Override

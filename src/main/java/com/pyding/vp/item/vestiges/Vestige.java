@@ -363,7 +363,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setSpecialActive(long seconds, Player player, ItemStack stack){
-        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis() && (vestigeNumber != 17 || !isStellar(stack))){
+        if((player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis() || player.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()) && (vestigeNumber != 17 || !isStellar(stack))){
             if(player instanceof ServerPlayer serverPlayer)
                 PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
             return 0;
@@ -389,7 +389,7 @@ public class Vestige extends Item implements ICurioItem {
     }
 
     public int setUltimateActive(long seconds, Player player, ItemStack stack){
-        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis()){
+        if(player.getPersistentData().getLong("VPForbidden") > System.currentTimeMillis() || player.getPersistentData().getLong("VPBubble") > System.currentTimeMillis()){
             if(player instanceof ServerPlayer serverPlayer)
                 PacketHandler.sendToClient(new ItemAnimationPacket(new ItemStack(Blocks.BARRIER)),serverPlayer);
             return 0;
@@ -602,7 +602,7 @@ public class Vestige extends Item implements ICurioItem {
                 components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
             else if(vestigeNumber == 14){
                 components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
-                components.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity())));
+                components.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity()).withStyle(color)));
                 components.add(Component.translatable("vp.chaos2").withStyle(ChatFormatting.GRAY).append(VPUtil.formatMilliseconds(cap.getChaosTime()+VPUtil.getChaosTime()-System.currentTimeMillis())));
             }
             else if(vestigeNumber == 16){

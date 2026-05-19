@@ -150,11 +150,11 @@ public class EventHandler {
                 if(VPUtil.hasStellarVestige(ModItems.MARK.get(), player) && curses > 0 && !event.getSource().is(DamageTypes.MAGIC)){
                     float healDebt = VPUtil.getHealDebt(player);
                     VPUtil.dealDamage(entity,player,player.damageSources().magic(),VPUtil.scalePower(curses*10+healDebt,7,player),3,true);
-                    VPUtil.setHealDebt(player,VPUtil.getHealDebt(player)+VPUtil.scalePower(healDebt*0.9f,7,player));
+                    VPUtil.setHealDebt(player,healDebt*0.9f);
                     VPUtil.addRadiance(Mark.class,2,player);
                 }
                 if (VPUtil.hasVestige(ModItems.MASK.get(), player))
-                    VPUtil.setHealDebt(entity,(float) (Math.log10(VPUtil.getHealDebt(entity)))*Math.min(100,VPUtil.getHealDebt(entity)/100));
+                    VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)+Math.min(entity.getMaxHealth()*0.1f,(VPUtil.getHealDebt(entity)*0.01f)));
                 if (player.getPersistentData().getInt("VPMadness") > 0 && VPUtil.hasVestige(ModItems.MARK.get(), player)) {
                     //madness duplicate
                     if (entity.getHealth() <= entity.getMaxHealth() * 0.5 && random.nextDouble() < 0.5) {
@@ -165,7 +165,8 @@ public class EventHandler {
                     entity.invulnerableTime = 0;
                     if(curses > 0)
                         VPUtil.setHealDebt(entity,VPUtil.getHealDebt(entity)+10*curses);
-                    player.attack(entity);
+                    event.setAmount(event.getAmount()*2);
+                    player.heal(event.getAmount()*0.03f);
                     VPUtil.addRadiance(Mark.class,5,player);
                 }
                 if(player.getPersistentData().getInt("VPMadness") < 0)
@@ -312,12 +313,10 @@ public class EventHandler {
                     player.getPersistentData().putFloat("VPDamageReduced", event.getAmount() + player.getPersistentData().getFloat("VPDamageReduced"));
                     event.setAmount(0);
                 }
-                if (VPUtil.hasVestige(ModItems.EARS.get(), player)) {
+                if (VPUtil.hasStellarVestige(ModItems.EARS.get(), player)) {
                     float armor = (float) player.getArmorValue();
                     float chance = VPUtil.scalePower(Math.min(ConfigHandler.catEvadeCap.get(), armor) / 100,8,player);
-                    if (VPUtil.hasStellarVestige(ModItems.EARS.get(), player)) {
-                        event.setAmount(event.getAmount() - (event.getAmount() * chance));
-                    }
+                    event.setAmount(event.getAmount() - (event.getAmount() * chance));
                 }
                 if (event.getSource().is(DamageTypeTags.IS_EXPLOSION))
                     VPUtil.getCap(player).failChallenge(18, player);
@@ -503,14 +502,14 @@ public class EventHandler {
                     armor = armor+(specialAddition/0.05f);
                 float chance = VPUtil.scalePower((Math.min(69, armor) / 100),8,player);
                 float secondChance = VPUtil.scalePower(Math.min(90, exp / 10) / 100,8,player);
-                if (random.nextDouble() < VPUtil.getChance(chance,player)) {
+                if (random.nextDouble() < Math.min(0.9f,VPUtil.getChance(chance,player))) {
                     if(player.getPersistentData().getLong("VPSoundCd") < System.currentTimeMillis())
                         VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
                     player.getPersistentData().putLong("VPSoundCd",System.currentTimeMillis()+1000);
                     event.setCanceled(true);
                     VPUtil.addRadiance(CatEars.class,3,player);
                     return;
-                } else if (player.getPersistentData().getBoolean("VPEarsUlt") && random.nextDouble() < VPUtil.getChance(secondChance,player)) {
+                } else if (player.getPersistentData().getBoolean("VPEarsUlt") && random.nextDouble() < Math.min(0.9f,VPUtil.getChance(secondChance,player))) {
                     if(player.getPersistentData().getLong("VPSoundCd") < System.currentTimeMillis())
                         VPUtil.play(player,SoundEvents.ENDER_DRAGON_FLAP);
                     player.getPersistentData().putLong("VPSoundCd",System.currentTimeMillis()+1000);
@@ -528,7 +527,9 @@ public class EventHandler {
                     return;
                 }
             }
-            if (VPUtil.hasVestige(ModItems.CHAOS.get(), player)) {
+            if(player.getPersistentData().getBoolean("VPChaosHit"))
+                player.getPersistentData().putBoolean("VPChaosHit",false);
+            else if (VPUtil.hasVestige(ModItems.CHAOS.get(), player)) {
                 double passiveChance = ConfigHandler.chaosChance.get();
                 boolean hasStellar = VPUtil.hasStellarVestige(ModItems.CHAOS.get(), player);
                 VPUtil.addRadiance(Chaos.class,1,player);
@@ -541,18 +542,20 @@ public class EventHandler {
                         if (random.nextDouble() < 0.5) {
                             amount = (event.getAmount() + VPUtil.scalePower(random.nextInt(ConfigHandler.chaosDamageCap.get()),14,player));
                         } else amount = (event.getAmount() - VPUtil.scalePower(random.nextInt(ConfigHandler.chaosDamageCap.get()),14,player));
+                        player.getPersistentData().putBoolean("VPChaosHit",true);
                         event.setCanceled(true);
                         player.hurt(damageSource,amount);
                     } else {
                         player.invulnerableTime = 0;
                         damageSource = VPUtil.randomizeDamageType(player);
-                        player.hurt(damageSource, event.getAmount());
+                        player.getPersistentData().putBoolean("VPChaosHit",true);
                         event.setCanceled(true);
                         if (random.nextDouble() < VPUtil.getChance(0.3,player) && hasStellar) {
                             for (LivingEntity livingEntity : VPUtil.getEntities(player, 30, false)) {
                                 livingEntity.hurt(damageSource, amount);
                             }
                         }
+                        player.hurt(damageSource, event.getAmount());
                     }
                 }
                 double chance = ConfigHandler.chaosChance.get()*10 + random.nextInt(90);

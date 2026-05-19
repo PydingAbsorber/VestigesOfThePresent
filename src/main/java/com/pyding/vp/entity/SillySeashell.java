@@ -181,28 +181,39 @@ public class SillySeashell extends WaterAnimal {
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,20,5,0.5f);
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,20,4,1f);
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE_COLUMN_UP,20,4,0.2f);
+        int count = 0;
+        Player solo = null;
         for(LivingEntity entity: VPUtil.getEntitiesAround(this,40,40,40,false)){
             if(entity instanceof Player player){
-                Random random = new Random();
-                if(random.nextDouble() < VPUtil.getChance(0.05,player))
-                    VPUtil.giveStack(new ItemStack(ModItems.PEARL.get()),player);
-                VPUtil.giveStack(new ItemStack(ModItems.SEASHELL.get()),player);
-                VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),random.nextInt(4)+4),player);
-                for(int i = 0; i < 20; i++){
-                    VPUtil.giveStack(VPUtil.getFishDrop(player),player);
-                }
-                List<EntityType> list = new ArrayList<>();
-                if(random.nextDouble() < VPUtil.getChance(0.1,player)){
-                    list.addAll(VPUtil.bossList);
-                }
-                else list.addAll(VPUtil.getEntitiesList());
-                if(list.get(random.nextInt(list.size())).create(player.getCommandSenderWorld()) instanceof LivingEntity livingEntity)
-                    VPUtil.dropEntityLoot(livingEntity,player,false);
+                count++;
+                solo = player;
+                randomLoot(player);
                 VPUtil.getCap(player).setChallenge(23,player);
             }
         }
+        if(count == 1 && VPUtil.hasVestige(ModItems.PEARL.get(), solo)){
+            randomLoot(solo);
+        }
         this.discard();
         VPUtil.deadInside(this);
+    }
+
+    public void randomLoot(Player player){
+        Random random = new Random();
+        if(random.nextDouble() < VPUtil.getChance(0.05,player))
+            VPUtil.giveStack(new ItemStack(ModItems.PEARL.get()),player);
+        VPUtil.giveStack(new ItemStack(ModItems.SEASHELL.get()),player);
+        VPUtil.giveStack(new ItemStack(ModItems.STELLAR.get(),random.nextInt(4)+4),player);
+        for(int i = 0; i < 20; i++){
+            VPUtil.giveStack(VPUtil.getFishDrop(player),player);
+        }
+        List<EntityType> list = new ArrayList<>();
+        if(random.nextDouble() < VPUtil.getChance(0.1,player)){
+            list.addAll(VPUtil.bossList);
+        }
+        else list.addAll(VPUtil.getEntitiesList());
+        if(list.get(random.nextInt(list.size())).create(player.getCommandSenderWorld()) instanceof LivingEntity livingEntity)
+            VPUtil.dropEntityLoot(livingEntity,player,false);
     }
 
     @Override

@@ -2888,7 +2888,9 @@ public class VPUtil {
 
     public static void nightmareDamageEvent(LivingEntity boss, Player player, LivingIncomingDamageEvent event){
         Random random = new Random();
-        float attack = (float) boss.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+        float attack = 300;
+        if(boss.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
+            attack += (float) boss.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = boss.getPersistentData().getInt("VPBossType");
         if(boss.getHealth() <= boss.getMaxHealth()*0.5f){
             dealParagonDamage(player,boss,event.getAmount()*0.1f,0,true);
@@ -2916,7 +2918,7 @@ public class VPUtil {
         if(type == 3){
             List<MobEffectInstance> list = getEffectsHas(player,true);
             if(!list.isEmpty()) {
-                MobEffectInstance effectInstance = list.get(random.nextInt(list.size()-1));
+                MobEffectInstance effectInstance = list.get(random.nextInt(list.size()));
                 boss.addEffect(effectInstance);
                 player.removeEffect(effectInstance.getEffect());
             }
