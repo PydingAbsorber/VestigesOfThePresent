@@ -1211,7 +1211,7 @@ public class PlayerCapabilityVP {
     }
 
     public void addOre(String block, Player player){
-        if(VPUtil.notContains(ores,block)){
+        if(VPUtil.notContains(ores,block) && !hasCoolDown(26)){
             ores += block + ",";
             setChallenge(26,player);
         }

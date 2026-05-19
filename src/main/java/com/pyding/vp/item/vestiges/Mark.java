@@ -9,11 +9,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.UUID;
@@ -38,15 +40,39 @@ public class Mark extends Vestige{
 
     private Multimap<Attribute, AttributeModifier> overdrive(int curses,Player player) {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
-        curses *= VPUtil.scalePower(ConfigHandler.COMMON.markBonus.get(),7,player);
-        attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("fd7417d3-ecd6-433c-8d76-6e0cb8bda70a"), "vp:mark1", curses, AttributeModifier.Operation.ADDITION));
+        double finalCurses = curses*VPUtil.scalePower(ConfigHandler.COMMON.markBonus.get(),7,player);
+        int i = 0;
+        for (Attribute attribute : ForgeRegistries.ATTRIBUTES.getValues()) {
+            if (player.getAttributes().hasAttribute(attribute)) {
+                AttributeModifier.Operation operation;
+                if(attribute.equals(Attributes.ATTACK_DAMAGE) ||
+                        attribute.equals(Attributes.ATTACK_SPEED) ||
+                        attribute.equals(Attributes.MAX_HEALTH) ||
+                        attribute.equals(Attributes.LUCK) ||
+                        attribute.equals(Attributes.ARMOR) ||
+                        attribute.equals(Attributes.ARMOR_TOUGHNESS) ||
+                        attribute.equals(Attributes.KNOCKBACK_RESISTANCE)) {
+                    attributesDefault.put(attribute, new AttributeModifier(getAttributeUUID(i), "vp:mark"+i, finalCurses, AttributeModifier.Operation.ADDITION));
+                }
+                else {
+                    attributesDefault.put(attribute, new AttributeModifier(getAttributeUUID(i), "vp:mark"+i, finalCurses/100, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                }
+                i++;
+            }
+        }
+        /*attributesDefault.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(UUID.fromString("fd7417d3-ecd6-433c-8d76-6e0cb8bda70a"), "vp:mark1", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.ATTACK_SPEED, new AttributeModifier(UUID.fromString("f1a19717-72ab-4f79-b8b8-0c0d3df8b7d9"), "vp:mark2", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.MAX_HEALTH, new AttributeModifier(UUID.fromString("d5206e9e-9b3c-4314-a7c2-b6097df335b5"), "vp:mark3", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.LUCK, new AttributeModifier(UUID.fromString("54caeb55-3e90-4661-a2f6-571c5583a629"), "vp:mark4", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.ARMOR, new AttributeModifier(UUID.fromString("a1dd7557-8941-4e78-abba-4a146bf1574f"), "vp:mark5", curses, AttributeModifier.Operation.ADDITION));
         attributesDefault.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(UUID.fromString("0743d5eb-9657-48d6-b7a7-e72055084e16"), "vp:mark6", curses, AttributeModifier.Operation.ADDITION));
-        attributesDefault.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.fromString("5cc193b4-7513-43f3-9724-c3453b7681b2"), "vp:mark7", curses, AttributeModifier.Operation.ADDITION));
+        attributesDefault.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.fromString("5cc193b4-7513-43f3-9724-c3453b7681b2"), "vp:mark7", curses, AttributeModifier.Operation.ADDITION));*/
         return attributesDefault;
+    }
+
+    public static UUID getAttributeUUID(int i) {
+        String seed = "overdrive" + i;
+        return UUID.nameUUIDFromBytes(seed.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     @Override
@@ -76,7 +102,7 @@ public class Mark extends Vestige{
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.RAGE.get());
         int curses = VPUtil.getCurseAmount(player);
-        if(curses > 20 && isStellar(stack)) {
+        if(curses > 9 && isStellar(stack)) {
             player.getPersistentData().putFloat("VPOverdrive", curses);
             player.getAttributes().addTransientAttributeModifiers(this.overdrive(curses,player));
         }

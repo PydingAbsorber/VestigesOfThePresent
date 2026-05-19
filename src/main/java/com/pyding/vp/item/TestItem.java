@@ -1,14 +1,9 @@
 package com.pyding.vp.item;
 
-import com.pyding.vp.client.ChallengeScreen;
-import com.pyding.vp.client.VestigeScreen;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.VPUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

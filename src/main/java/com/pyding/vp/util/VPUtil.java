@@ -2345,6 +2345,7 @@ public class VPUtil {
         player.getPersistentData().putFloat("VPHealBonusDonutPassive",0);
         player.getPersistentData().putFloat("VPTrigonBonus", 0);
         player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("8dac9436-c37f-4b74-bf64-8666258605b9"), 1, AttributeModifier.Operation.MULTIPLY_TOTAL, "vp:trigon_hp_boost"));
+        player.getPersistentData().putInt("VPDebuffDefence",0);
         if(player.isAlive() && player.getHealth() > player.getMaxHealth())
             player.setHealth(player.getMaxHealth());
         sync(player);
@@ -2793,7 +2794,9 @@ public class VPUtil {
 
     public static void nightmareDamageEvent(LivingEntity boss, Player player, LivingDamageEvent event){
         Random random = new Random();
-        float attack = (float) boss.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+        float attack = 300;
+        if(boss.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
+            attack += (float) boss.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = boss.getPersistentData().getInt("VPBossType");
         if(boss.getHealth() <= boss.getMaxHealth()*0.5f){
             dealParagonDamage(player,boss,event.getAmount()*0.1f,0,true);
@@ -2821,7 +2824,7 @@ public class VPUtil {
         if(type == 3){
             List<MobEffectInstance> list = getEffectsHas(player,true);
             if(!list.isEmpty()) {
-                MobEffectInstance effectInstance = list.get(random.nextInt(list.size()-1));
+                MobEffectInstance effectInstance = list.get(random.nextInt(list.size()));
                 boss.addEffect(effectInstance);
                 player.removeEffect(effectInstance.getEffect());
             }
@@ -3835,7 +3838,7 @@ public class VPUtil {
         return new CompoundTag();
     }
 
-    public static HashMap<Player,List<Double>> powerList = new HashMap<>();
+    public static HashMap<UUID,List<Double>> powerList = new HashMap<>();
 
     public static void updatePowerList(Player player){
         powerList.remove(player);
@@ -3849,15 +3852,15 @@ public class VPUtil {
                 list.add(Math.min(ConfigHandler.COMMON.maxPower.get(),basePower + power.get()));
             }
         });
-        powerList.put(player,list);
+        powerList.put(player.getUUID(),list);
     }
 
     public static double getPower(int challenge, Player player){
-        if(powerList.isEmpty() || powerList.get(player) == null || powerList.get(player).size() < PlayerCapabilityVP.totalVestiges)
+        if(powerList.isEmpty() || powerList.get(player.getUUID()) == null || powerList.get(player.getUUID()).size() < PlayerCapabilityVP.totalVestiges)
             updatePowerList(player);
-        if(powerList.get(player) == null)
+        if(powerList.get(player.getUUID()) == null)
             return 0;
-        double power = powerList.get(player).get(challenge-1);
+        double power = powerList.get(player.getUUID()).get(challenge-1);
         if(challenge == 666 || (power < ConfigHandler.COMMON.maxPower.get() && player.isCreative()))
             power = ConfigHandler.COMMON.maxPower.get();
         if((power + 15) < ConfigHandler.COMMON.maxPower.get()){
@@ -3893,7 +3896,7 @@ public class VPUtil {
 
     public static void addRadiance(Class clazz, int number, Player player){
         ItemStack stack = getVestigeStack(clazz,player);
-        if(stack.getItem() instanceof Vestige vestige){
+        if(stack != null && stack.getItem() instanceof Vestige vestige){
             int used = player.getPersistentData().getInt("VPRadianceUsed");
             if((player.getPersistentData().getLong("VPRadianceTime") + 100) > System.currentTimeMillis()){
                 number /= 2*(used);

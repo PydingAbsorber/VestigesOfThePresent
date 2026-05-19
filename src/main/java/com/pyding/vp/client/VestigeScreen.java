@@ -245,7 +245,7 @@ public class VestigeScreen extends Screen {
                 tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
             else if(vestigeNumber == 14){
                 tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).append(".\n").withStyle(ChatFormatting.GRAY));
-                tooltip.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity())).append(".\n"));
+                tooltip.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity()).withStyle(ChatFormatting.DARK_PURPLE)).append(".\n"));
                 tooltip.add(Component.translatable("vp.chaos2").withStyle(ChatFormatting.GRAY).append(VPUtil.formatMilliseconds(cap.getChaosTime()+VPUtil.getChaosTime()-System.currentTimeMillis())));
             }
             else if(vestigeNumber == 16){

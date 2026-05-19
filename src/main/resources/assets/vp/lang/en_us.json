@@ -264,7 +264,7 @@
   "vp.ultimate.6": "For the next 10 seconds after activation, each Over Healing will increase the Saturation stack by 1 to 1 ratio (%s max). \nStacks reset after recharging Ultimate.",
   "vp.get.6": "Consume all food in the modpack.",
 
-  "vp.passive.7": "Next attack will duplicate for each stack of Madness. \nIf target has lower then 50% HP stacks doesn't consume with 50% chance.",
+  "vp.passive.7": "Next attack will deal x2 damage and 3% lifesteal for 1 stack of Madness. \nIf target has lower then 50% HP stacks doesn't consume with 50% chance.",
   "vp.special.7": "Sacrifice 20% HP for 1 stack of Madness up to 10.",
   "vp.ultimate.7": "For the next 5 seconds, healing becomes Over Healing, and instead of receiving damage, it accumulates. \nAfter expiration (all accumulated damage - all accumulated Over Heal) is dealt at once. \nIf HP is less than 30% upon activation, time increases by 15 seconds and damage, healing, speed, attack speed increase by 200%. \nIf HP is higher then 50%, time increases by up to 10 seconds for each stack of Madness",
   "vp.get.7": "Enchant items with curses.",
@@ -352,14 +352,14 @@
   "vp.ultimate.22": "The following 10 seconds all players and peaceful creatures around will be protected from death, unless the wearer has no Healing Debt. \nWhen protected from death, a Healing Debt equal to 300% of the protected entity's max HP is applied.",
   "vp.get.22": "Listen to all discs in the modpack.",
 
-  "vp.passive.23": "Taking damage from drowning will restore 10% of your air supply with a 20% chance. \nEach missing unit of air supply will give a 0.1% chance for double loot from fishing.",
+  "vp.passive.23": "Taking damage from drowning will restore 10% of your air supply. \nEach missing unit of air supply will give a 0.1% chance for double loot from fishing. \nCompleting Silly Seashell defence grants x2 loot if completed solo.",
   "vp.special.23": "Next thrown fishing rod will attract a fish instantly, consuming 30% of your air supply.",
   "vp.ultimate.23": "Next %s caught fish will yield additional loot until cd ends, depending on the current biome.\nMore details can be found with ,,/vestiges fish,, or just by use in hands.",
   "vp.get.23": "Complete underwater Silly Seashell defences",
 
   "vp.passive.24": "Regenerate 5% HP per second while wet.\nEnemies who die from drowning will grant 20 Shields and Over Shields.",
   "vp.special.24": "Grants a water Shield, fully protecting from the next 3 hits.\nThe number of hits increases based on underwater breathing time, up to 10.",
-  "vp.ultimate.24": "Envelops nearby enemies in a bubble where they cannot breathe.\nThe bubble bursts upon taking damage (except drowning) and deals 1000% damage, also making the target 'wet'.",
+  "vp.ultimate.24": "Envelops nearby enemies in a bubble where they cannot breathe and use Vestiges.\nThe bubble bursts upon taking damage (except drowning) and deals 1000% damage, also making the target 'wet'.",
   "vp.get.24": "Collect all types of coral, fish, and axolotl (with matching bucket).",
   "vp.damagetype.24": "drowning",
 
@@ -390,7 +390,7 @@
   "vp.stellar.4": "Passive: also disables teleportation and Shield gathering for 3 minutes.",
   "vp.stellar.5": "Passive and Special: Every 1% -> 0.5% HP\nThe Special will also apply a decay effect to creatures in the area, excluding itself:\nEach instance of Overhealing on a creature under the aura will break all its equipment by 5%.\nWhen the carrier's HP falls below 50%, HP drain will also spread to other creatures. If their HP is insufficient, Guaranteed Death occurs.",
   "vp.stellar.6": "Passive: immunity to any debuffs while you have Shields. \nUltimate: removes all Healing Debt after activation.",
-  "vp.stellar.7": "Ultimate also applies a Healing Debt of 1000% of max HP. Receive 30% of maximum Radiance if the wearer survives after the ultimate. \nActivating Ultimate under 20+ curses will activate Overdrive: \nAlmost all stats will increase by 10 for each curse, attacks will deal additional magic damage with Heal Debt, duplicated attacks will apply 10 Heal Debt for each curse.",
+  "vp.stellar.7": "Ultimate also applies a Healing Debt of 1000% of max HP. Receive 30% of maximum Radiance if the wearer survives after the ultimate. \nActivating Ultimate under 10+ curses will activate Overdrive: \nAll vanilla attributes will increase by 10, and all other by 10% for each curse, attacks will deal additional magic damage with Heal Debt, duplicated attacks will apply 10 Heal Debt for each curse.",
   "vp.stellar.8": "Passive: If the first evasion fails, damage decreases by % of evasion.",
   "vp.stellar.9": "Ultimate: also gives gold like from Passive \nEach luck attribute increases all damage by 10%.",
   "vp.stellar.10": "Ultimate can also teleport to a random player with a 5% chance.",

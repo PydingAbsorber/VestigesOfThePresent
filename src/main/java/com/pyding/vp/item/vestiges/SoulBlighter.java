@@ -1,8 +1,10 @@
 package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.mixin.EntityVzlom;
 import com.pyding.vp.mixin.MobEntityVzlom;
 import com.pyding.vp.mixin.NearestAttackebleTargetMixinVzlom;
+import com.pyding.vp.mixin.PlayerListVzlom;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -10,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -109,7 +112,7 @@ public class SoulBlighter extends Vestige{
                     stack.getOrCreateTag().putFloat("VPMaxHealth",entity.getMaxHealth());
                     VPUtil.spawnParticles(player, ParticleTypes.SCULK_SOUL,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
                     //entity.remove(Entity.RemovalReason.DISCARDED);
-                    VPUtil.despawn(entity);
+                    despawn(entity);
                     if(isStellar(stack))
                         player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.MAX_HEALTH, UUID.fromString("55ebb7f1-2368-4b6f-a123-f3b1a9fa30ea"),1+stack.getOrCreateTag().getFloat("VPMaxHealth")*0.3f, AttributeModifier.Operation.ADDITION,"vp:soulblighter_hp_boost"));
                 }
@@ -118,6 +121,17 @@ public class SoulBlighter extends Vestige{
         }
         super.doUltimate(seconds, player, level, stack);
     }
+
+    public static void despawn(LivingEntity livingEntity){
+        if(VPUtil.isNpc(livingEntity.getType()))
+            return;
+        VPUtil.spawnSphere(livingEntity,ParticleTypes.ASH,50,2,0.01f);
+        VPUtil.spawnSphere(livingEntity,ParticleTypes.WHITE_ASH,50,2,0.01f);
+        VPUtil.play(livingEntity,SoundRegistry.DESPAWN.get());
+        livingEntity.invalidateCaps();
+        ((EntityVzlom) livingEntity).getLevelCallback().onRemove(Entity.RemovalReason.DISCARDED);
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip,
                                 TooltipFlag flagIn) {
