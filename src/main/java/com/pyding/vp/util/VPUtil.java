@@ -219,6 +219,18 @@ public class VPUtil {
         if(hasDurability) {
             stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         }
+        if(hasVestige(ModItems.DEVOURER.get(),player) && player.getPersistentData().getInt("VPDevourerHits") > 0){
+            int soulDamage = 1;
+            if(type == 1)
+                soulDamage = 3;
+            else if(type == 2)
+                soulDamage = 7;
+            else if(type == 3)
+                soulDamage = 10;
+            VPUtil.modifySoulIntegrity(entity,player, (VPUtil.scalePower(soulDamage,15,player)*-1));
+            VPUtil.modifySoulIntegrity(player,player, (VPUtil.scalePower(soulDamage,15,player)*-1));
+            player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
+        }
         DamageSource damageSource = new DamageSource(source.typeHolder(),player);
         player.getPersistentData().putBoolean("VPAttacked",true);
         entity.hurt(damageSource,getAttack(player,hasDurability)*((percent+damagePercentBonus(player,type))/100));
@@ -1290,6 +1302,8 @@ public class VPUtil {
             ItemStack stack = VPUtil.getVestigeStack(SoulBlighter.class,player);
             VPUtil.setNbt(stack,"VPSoulPool", VPUtil.getTag(stack).getFloat("VPSoulPool") + SoulBlighter.getPrice(entity.getMaxHealth()));
         }
+        if(VPUtil.hasVestige(ModItems.DEVOURER.get(),player))
+            modifySoulIntegrity(player,30);
         setHealth(entity, 0);
         entity.die(new DamageSource(player.damageSources().genericKill().typeHolder(),player));
         despawn(entity);
@@ -1716,7 +1730,25 @@ public class VPUtil {
     }
 
     public static boolean isDamagePhysical(DamageSource source){
-        return !source.is(DamageTypes.FELL_OUT_OF_WORLD) && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.LAVA) && !source.is(DamageTypes.LIGHTNING_BOLT) && !source.is(DamageTypes.FREEZE) && !source.is(DamageTypes.IN_FIRE) && !source.is(DamageTypes.MAGIC) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS) && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
+        return !source.is(DamageTypes.FELL_OUT_OF_WORLD)
+                && !source.is(DamageTypes.DROWN)
+                && !source.is(DamageTypes.LAVA)
+                && !source.is(DamageTypes.HOT_FLOOR)
+                && !source.is(DamageTypes.WITHER)
+                && !source.is(DamageTypes.DRAGON_BREATH)
+                && !source.is(DamageTypes.FIREBALL)
+                && !source.is(DamageTypes.UNATTRIBUTED_FIREBALL)
+                && !source.is(DamageTypes.WITHER_SKULL)
+                && !source.is(DamageTypes.INDIRECT_MAGIC)
+                && !source.is(DamageTypes.SONIC_BOOM)
+                && !source.is(DamageTypes.LIGHTNING_BOLT)
+                && !source.is(DamageTypes.FREEZE)
+                && !source.is(DamageTypes.IN_FIRE)
+                && !source.is(DamageTypes.ON_FIRE)
+                && !source.is(DamageTypes.MAGIC)
+                && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                && !source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)
+                && !source.is(DamageTypeTags.BYPASSES_EFFECTS);
     }
 
     public static boolean isFriendlyFireBetween(Entity attacker, Entity target) {

@@ -82,7 +82,7 @@ public class Treasure extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         super.curioTick(slotContext, stack);
-        if(slotContext.entity() instanceof Player player){
+        if(slotContext.entity() instanceof Player player && player.tickCount % 20 == 0){
             if(player.getMainHandItem().getItem() instanceof PickaxeItem || player.getOffhandItem().getItem() instanceof PickaxeItem){
                 float armor = VPUtil.scalePower(getOres(player)/20,26,player);
                 float tough = VPUtil.scalePower(getMinerals(player)/32,26,player);
