@@ -254,7 +254,7 @@
   "vp.get.4": "Explode creatures.",
 
   "vp.passive.5": "Terrifying aura reduces the owner's and all surroundings healing by 1% for every 1% of missing HP, also boosts speed and damage with it. \nEach hit to enemy with Healing Debt will increase it by 1%. \nIf health lower then 50%, Ultimate becomes stronger by 2 times",
-  "vp.special.5": "Switchable \nGradually consumes HP down to 1, increasing damage by 4% for every 1% missing HP. \n Consumes Heal Debt instead of hp if present.",
+  "vp.special.5": "Switchable. \nGradually consumes HP down to 1, increasing damage by 4% for every 1% missing HP. \n Consumes Heal Debt instead of hp if present.",
   "vp.ultimate.5": "Applies a Healing Debt to wearer and all creatures within the 30 blocks afterwards for 300% of the owner's Max HP. \n(Healing Debt prevents healing until depleted, each healing will reduce it 1 to 1). \nAdditionally deals 300% damage.",
   "vp.damagetype.5": "Paragon",
   "vp.get.5": "Kill creatures in the hell, having no more than 1 HP. Creature must have max health or attack damage higher, then yours",
@@ -291,11 +291,10 @@
   "vp.damagetype.11": "cactus",
   "vp.get.11": "Die from each type of damage.",
 
-  "vp.passive.12": "Enemies afflicted by Special become Disenchanted, turn vanilla enchantments negative (e.g., Protection 5 becomes -5). \nUpon expiration, the enchantments return to normal. \nAlso, Disenchanted enemies are more vulnerable to any damage by 50%.",
-  "vp.special.12": "All nearest players become Disenchanted for 15 seconds.",
-  "vp.ultimate.12": "For the next 60 seconds, upon death by Disenchanted player, all their equipment re-enchants into curses.",
+  "vp.passive.12": "Saves from death for 100+25% Soul Integrity, if it is insufficient for salvation or the wearer was killed by Guaranteed Death, the Vestige loses a Star. \nCan be enchanted with every curse of the modpack.",
+  "vp.special.12": "All nearby creatures become Disappointed for 15 seconds: \n-Enchantments on all equipment become negative (e.g., Protection V becomes Protection -V). \n-Enchantments return to normal after Disappointment ends. \n-Disappointed enemies take 50% more damage from all sources, including Paragon Damage and Soul Integrity Damage.",
+  "vp.ultimate.12": "For the next 60 seconds, dying to a Disappointed creature inflicts a Great Curse upon it: \n-Lasts for 24 real-time hours and cannot be removed. \n-All equipment is re-enchanted with curses only upon receiving the effect and whenever an attempt to enchant an item is made. \n-Creatures under this effect are always considered Disappointed.",
   "vp.get.12": "Kill another Player or Warden while wearing equipment with a total of 10 curses (enchantments).",
-  "vp.damagetype.12": "magic",
 
   "vp.passive.13": "Slain monster under the effect of Special grants second loot table. \nEach Mortage (from Ultimate) provides a 1% chance for x4 loot. \nIf the chance triggers, it divides by 10 for x6 loot and so on, also giving Box of Eggs with 1% chance.",
   "vp.special.13": "Empowers the monster you're looking at until Special ends. \nThe monster gains vulnerability to one random damage type while becoming immune to the others.",
@@ -307,13 +306,13 @@
   "vp.ultimate.14": "The next 10-80 incoming projectiles within a 5-block radius over 20 seconds will teleport behind the shooter. \n30% of Heal Debt obtained will be also applied to all nearby entities.",
   "vp.get.14": "Every %s minutes , a random modpack entity will be requested. \nWithin this time this creature must be killed or tamed, failing to comply will reset the progress. \nComplete requests %s times in a row",
 
-  "vp.passive.15": "Every slain boss yields a Soul.",
+  "vp.passive.15": "Every slain boss yields a Soul. \nKills of creatures under Anti Teleportation or Guaranteed Kills restore 30 Soul Integrity. \nDealing damage with Vestiges to creatures with Anti Teleportation will consume an additional charge and deal +3/7/10 Soul Integrity damage; this damage will also be inflicted on the wearer.",
   "vp.special.15": "Binds the soul of the nearest creature or a creature you're looking at for 5 seconds. \n(Each Soul from Passive adds +0.1 second, up to a maximum of 15 seconds). \nThe bound creature cannot move between worlds, teleport and cannot leave a 3x3x3 area.",
-  "vp.ultimate.15": "For the next %s hits, with a certain chance, it will decrease Soul Integrity of the affected creature. \n(Chance depends on accumulated Souls from Passive, +%s chance for each soul).",
+  "vp.ultimate.15": "For the next %s hits, with a certain chance, it will decrease Soul Integrity of the affected creature. \nChance depends on accumulated Souls from Passive, +%s chance for each soul. \nThe number of charges depends on the Ultimate's duration, and Soul Integrity damage is increased by the Ultimate damage bonus/4.",
   "vp.get.15": "Kill all bosses of modpack",
 
-  "vp.passive.16": "Each peaceful creature around reduces the healing received by the wearer by 0.1% for every 1% of HP they are missing.(99% cap). \nHarvesting crops and flowers have 1% chance to award Box of Nature.",
-  "vp.special.16": "For the next 5 seconds during the wearer's healing, all peaceful and tamed creatures, as well as other players in a large radius, will receive Reduced healing. \nReduced healing is what player didn't get because of Healing Reduction and Healing Debt",
+  "vp.passive.16": "Harvesting crops and flowers have 1% chance to award Box of Nature.",
+  "vp.special.16": "Switchable. \nEach peaceful creature around reduces the healing received by the wearer by 0.1% for every 1% of HP they are missing.(99% cap). \nFor the next 5 seconds during the wearer's healing, all peaceful and tamed creatures, as well as other players in a large radius, will receive Reduced healing. \nReduced healing is what player didn't get because of Healing Reduction and Healing Debt",
   "vp.ultimate.16": "Each missing point of armor durability provides a Shield from damage to the wearer, all peaceful and tamed creatures, as well as other players (non-stackable, replaceable). \nThe Shield increases by 10% for every 1% of Healing Reduction.",
   "vp.get.16": "Collect all modpack flowers.",
   "vp.get.16.fail": "If any flower was placed by the player challenge will go on cooldown and reset.",
@@ -348,7 +347,7 @@
   "vp.get.21": "Combine all types of smithing templates with any armor.",
 
   "vp.passive.22": "While music is playing nearby, +40% duration to Specials and Ultimates, -40% cooldown and Radiance. \nIf all songs from Special are playing gives Orchestra effect: \nMerges all songs into one and increases duration by 30 seconds and additionally gives +15% Vestige Power.",
-  "vp.special.22": "Plays random song and grans effects to wearer and all nearby creatures (Max HP +60%/HP regeneration +10 per second/+90% healing bonus/Special and Ultimate damage bonus +50%/+100 armor/Shield Bonus +70%/-20% cooldown and Radiance/damage absorption 95%) for 30 seconds.\nCannot grant an already applied effect. \nSpecial effects cannot be dispelled.",
+  "vp.special.22": "Plays random song and grans effects to wearer and all nearby creatures (Max HP +60%/HP regeneration +10 per second/+90% healing bonus/Special and Ultimate damage bonus +50%/+100 armor/Shield Bonus +70%/-20% cooldown and Radiance/damage absorption 95%) for 60 seconds.\nCannot grant an already applied effect. \nSpecial effects cannot be dispelled.",
   "vp.ultimate.22": "The following 10 seconds all players and peaceful creatures around will be protected from death, unless the wearer has no Healing Debt. \nWhen protected from death, a Healing Debt equal to 300% of the protected entity's max HP is applied.",
   "vp.get.22": "Listen to all discs in the modpack.",
 
@@ -370,7 +369,7 @@
   "vp.damagetype.25": "freeze, magic",
 
   "vp.passive.26": "When mining ore, there's a 6% chance to obtain a Mineral Cluster. \nEvery 20 ore in inventory grants +1 armor, and every 32 minerals grants +1 armor density while holding a pickaxe.",
-  "vp.special.26": "Causes an earthquake, breaking blocks and dealing damage equal to 400% of Armor in a gradually increasing radius.",
+  "vp.special.26": "Causes an earthquake, breaking blocks (if holding pickaxe) and dealing damage equal to 400% of Armor in a gradually increasing radius.",
   "vp.ultimate.26": "For the next 20 seconds, increases mining radius by +1 and Vestiges effect radius by +5% for every 10 Radiance obtained during the duration. (Max 10 stacks)",
   "vp.get.26": "Mine all ore in the modpack.",
   "vp.damagetype.26": "in-wall",
@@ -395,7 +394,7 @@
   "vp.stellar.9": "Ultimate: also gives gold like from Passive \nEach luck attribute increases all damage by 10%.",
   "vp.stellar.10": "Ultimate can also teleport to a random player with a 5% chance.",
   "vp.stellar.11": "Ultimate: while active, any attacker will also take (300+10% from Pain Gauge)% of damage dealt, Paragon damage too.",
-  "vp.stellar.12": "Special: Each damage inflicted on Disappointed creature, which after absorption will be less than 5, accumulates without absorption. \nAfter that, it is added to the next attack that will hurt opponent more then 5 damage, or to the 10th attack.",
+  "vp.stellar.12": "Passive: Upon losing a Star, if a +1 Star curse is present, the curse will be removed instead. \nSpecial: Attacks on Players with the Disappointment effect will steal 1 Radiance from a random equipped Vestige.",
   "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance. \nEntities around without Over Shiels will have reduced max hp for Heal Debt they have and when hp is not enough they will Die Guaranteed.",
   "vp.stellar.15": "Ultimate: Creatures with Soul Integrity lower then 90% from maximum wont be able to get Heal and Shields and OverShields, lower then 50% - clears all buffs. \nThe Soul Integrity reduction on strikes also increases by 1 for each attribute of the wearer exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",
@@ -506,6 +505,7 @@
   "vp.meme.7": "",
   "vp.meme.8": "",
   "vp.meme.9": "",
+  "vp.meme.10": "",
   "vp.meme.11": "",
   "vp.meme.12": "",
   "vp.meme.13": "",

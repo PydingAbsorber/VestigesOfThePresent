@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.Random;
+
 public class Flower extends Vestige{
     public Flower(){
         super();
@@ -18,29 +20,56 @@ public class Flower extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(16, ChatFormatting.DARK_GREEN, 2, 10, 1, 35, 5, 30, hasDamage, stack);
+        super.dataInit(16, ChatFormatting.DARK_GREEN, 2, 10, 1, 35, 666, 30, hasDamage, stack);
     }
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        float healRes = 0;
-        for(LivingEntity entity: VPUtil.getCreaturesAndPlayersAround(player,30,30,30)){
-            healRes += VPUtil.missingHealth(entity)/10;
-            if(isStellar(stack))
-                entity.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
+        if(isSpecialActive(stack)) {
+            float healRes = 0;
+            for (LivingEntity entity : VPUtil.getCreaturesAndPlayersAround(player, 30, 30, 30)) {
+                healRes += VPUtil.missingHealth(entity) / 10;
+                if (isStellar(stack) && isUltimateActive(stack))
+                    entity.getPersistentData().putLong("VPFlowerStellar", System.currentTimeMillis() + 100);
+            }
+            player.getPersistentData().putFloat("VPHealResFlower", -healRes);
+            player.getPersistentData().putFloat("VPShieldBonusFlower", healRes * 10);
+        } else if(player.getPersistentData().getFloat("VPHealResFlower") != 0 || player.getPersistentData().getFloat("VPShieldBonusFlower") != 0){
+            player.getPersistentData().putFloat("VPHealResFlower", 0);
+            player.getPersistentData().putFloat("VPShieldBonusFlower", 0);
         }
-        player.getPersistentData().putFloat("VPHealResFlower",-healRes);
-        player.getPersistentData().putFloat("VPShieldBonusFlower",healRes*10);
-        if(isStellar(stack))
-            player.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+1000);
+        if(isStellar(stack) && isUltimateActive(stack))
+            player.getPersistentData().putLong("VPFlowerStellar",System.currentTimeMillis()+100);
         super.curioTick(slotContext, stack);
+    }
+
+    @Override
+    public int setSpecialActive(long seconds, Player player, ItemStack stack) {
+        if(isSpecialActive(stack) && !player.getCommandSenderWorld().isClientSide) {
+            if(currentChargeSpecial(stack) > 0) {
+                if(!player.getCommandSenderWorld().isClientSide) {
+                    setTime(1,stack);
+                    setSpecialActive(true,stack);
+                    setCdSpecialActive(cdSpecialActive(stack)+specialCd(stack),stack);     //time until cd recharges in seconds*tps
+                    Random random = new Random();
+                    if(!(VPUtil.getSet(player) == 3 && random.nextDouble() < VPUtil.getChance(0.3,player)) || !(VPUtil.getSet(player) == 6 && random.nextDouble() < VPUtil.getChance(0.5,player)) || random.nextDouble() < VPUtil.getChance(player.getPersistentData().getFloat("VPDepth")/10,player))
+                        setCurrentChargeSpecial(currentChargeSpecial(stack) - 1, stack);
+                    if(damageType == null)
+                        init(stack);
+                    this.doSpecial(seconds, player, player.getCommandSenderWorld(), stack);
+                    if(VPUtil.hasCurse(player,3))
+                        player.getPersistentData().putLong("VPForbidden",System.currentTimeMillis()+3000);
+                } else this.localSpecial(player);
+            }
+            return 0;
+        }
+        return super.setSpecialActive(seconds, player, stack);
     }
 
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.HEAL2.get());
-        player.getPersistentData().putLong("VPFlowerSpecial",System.currentTimeMillis()+seconds);
         super.doSpecial(seconds, player, level, stack);
     }
 

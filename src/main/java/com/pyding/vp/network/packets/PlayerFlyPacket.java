@@ -98,7 +98,11 @@ public class PlayerFlyPacket {
             VPUtil.setHealth(player,0);
             player.die(player.damageSources().genericKill());
             VPUtil.despawn(player);
-            Minecraft.getInstance().forceSetScreen(new DeathScreen(Component.literal("Death by Paragon Damage"),false));
+            String message;
+            if(VPUtil.getSoulIntegrity(player) == 0)
+                message = "Death from Soul Integrity";
+            else message = "Death by Paragon Damage";
+            Minecraft.getInstance().forceSetScreen(new DeathScreen(Component.literal(message),false));
         }
         else if(number == 9){
             VPUtil.roflan.put(player.getUUID(),0l);

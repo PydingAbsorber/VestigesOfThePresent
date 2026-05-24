@@ -100,9 +100,8 @@ public class EventHandler {
                 entity.getPersistentData().putBoolean("VPKillerQueen", false);
                 event.setAmount((float) (event.getAmount() * (1+ConfigHandler.COMMON.killerRes.get()/10)));
             }
-            if (entity.getPersistentData().getBoolean("VPFlowerStellar") && VPUtil.isDamagePhysical(event.getSource())) {
+            if (entity.getPersistentData().getLong("VPFlowerStellar") > System.currentTimeMillis() && VPUtil.isDamagePhysical(event.getSource()) && VPUtil.getShield(entity) > 0) {
                 event.setAmount(event.getAmount()*0.1f);
-                entity.getPersistentData().putBoolean("VPFlowerStellar", false);
             }
             if (event.getSource() == null)
                 return;
@@ -180,7 +179,7 @@ public class EventHandler {
                             attributesBetter = VPUtil.compareStats(player, entity, true);
                         double chance = ConfigHandler.COMMON.devourerChance.get() * souls;
                         if (random.nextDouble() < VPUtil.getChance(chance,player))
-                            VPUtil.modifySoulIntegrity(entity,player,VPUtil.scalePower(1 + attributesBetter,15,player)*-1);
+                            VPUtil.modifySoulIntegrity(entity,player, (int) (VPUtil.scalePower((1 + attributesBetter)*(1 + VPUtil.damagePercentBonus(player,3)/400),15,player)*-1));
                         if (VPUtil.hasStellarVestige(ModItems.DEVOURER.get(), player))
                             entity.getPersistentData().putLong("VPSoulRottingStellar", System.currentTimeMillis()+600000);
                         player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
@@ -640,6 +639,8 @@ public class EventHandler {
                 if(VPUtil.hasVestige(ModItems.DEVOURER.get(),player)){
                     if(VPUtil.isBoss(entity))
                         VPUtil.addRadiance(Devourer.class,50,player);
+                    if(!VPUtil.canTeleport(entity))
+                        VPUtil.modifySoulIntegrity(player,30);
                     if(entity.getPersistentData().getDouble("VPDevourerX") != 0)
                         VPUtil.addRadiance(Devourer.class,5,player);
                 }
@@ -1155,7 +1156,8 @@ public class EventHandler {
                 }
             }
             if(entity instanceof Player player) {
-                if(VPUtil.hasVestige(ModItems.FLOWER.get(), player) && player.getPersistentData().getLong("VPFlowerSpecial") > 0){
+                ItemStack flower = VPUtil.getVestigeStack(Flower.class,player);
+                if(flower != null && flower.getItem() instanceof Flower flowerVestige && flowerVestige.isSpecialActive(flower)){
                     for(LivingEntity livingEntity: VPUtil.getCreaturesAround(player,20,20,20)){
                         livingEntity.heal(resedHeal);
                         VPUtil.spawnParticles(player, ParticleTypes.HEART,livingEntity.getX(),livingEntity.getY(),livingEntity.getZ(),4,0,0.5,0);
