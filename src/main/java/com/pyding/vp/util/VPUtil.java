@@ -141,6 +141,10 @@ public class VPUtil {
         }
         if(hasLyra(player,4))
             percentBonus += 50;
+        if(hasVestige(ModItems.CATALYST.get(),player)){
+            for(MobEffectInstance effect: getEffectsHas(player,true))
+                percentBonus += 10;
+        }
         return percentBonus;
     }
 
@@ -156,7 +160,7 @@ public class VPUtil {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
         }
-        if(hasVestige(ModItems.DEVOURER.get(),player) && player.getPersistentData().getInt("VPDevourerHits") > 0){
+        if(hasVestige(ModItems.DEVOURER.get(),player) && player.getPersistentData().getInt("VPDevourerHits") > 0 && !canTeleport(entity)){
             int soulDamage = 1;
             if(type == 1)
                 soulDamage = 3;
@@ -185,6 +189,18 @@ public class VPUtil {
             stack.hurtAndBreak(1, entity, consumer -> {
                 consumer.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
+        }
+        if(hasVestige(ModItems.DEVOURER.get(),player) && player.getPersistentData().getInt("VPDevourerHits") > 0 && !canTeleport(entity)){
+            int soulDamage = 1;
+            if(type == 1)
+                soulDamage = 3;
+            else if(type == 2)
+                soulDamage = 7;
+            else if(type == 3)
+                soulDamage = 10;
+            VPUtil.modifySoulIntegrity(entity,player, (VPUtil.scalePower(soulDamage,15,player)*-1));
+            VPUtil.modifySoulIntegrity(player,player, (VPUtil.scalePower(soulDamage,15,player)*-1));
+            player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
         }
         float curseMultiplier = getCurseMultiplier(player,4);
         if(curseMultiplier > 0)
@@ -1507,6 +1523,16 @@ public class VPUtil {
             player.giveExperiencePoints(totalDamage);
     }
 
+    public static boolean isCursed(LivingEntity entity){
+        AtomicBoolean cursed = new AtomicBoolean(false);
+        if(entity instanceof Player player){
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cursed.set(cap.getBookCurse() > System.currentTimeMillis());
+            });
+        } else return entity.getPersistentData().getLong("VPBookCurse") > System.currentTimeMillis();
+        return cursed.get();
+    }
+
     public static void negativnoEnchant(LivingEntity entity,Player player){
         int count = 0;
         for(ItemStack stack: getAllEquipment(entity)){
@@ -2211,6 +2237,8 @@ public class VPUtil {
                     return;
             }
         }
+        if(isCursed(entity))
+            health *= 1.5f;
         if(overShields > 0) {
             if(entity.getPersistentData().getLong("VPWhirlParagon") > System.currentTimeMillis()) {
                 health *= 8;
@@ -3762,13 +3790,9 @@ public class VPUtil {
     public static int getSoulIntegrity(LivingEntity entity){
         if(entity instanceof Player player){
             AtomicInteger soul = new AtomicInteger();
-            AtomicBoolean capExist = new AtomicBoolean(false);
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 soul.set(cap.getSoulIntegrity());
-                capExist.set(true);
             });
-            if(!capExist.get())
-                player.sendSystemMessage(Component.literal("Warning!!! Player capability is missing. Please send this to Vestiges of the Present Dev: \nClient: " + player.getCommandSenderWorld().isClientSide).withStyle(ChatFormatting.RED));
             return soul.get();
         } else return entity.getPersistentData().getInt("VPSoulIntegrity");
     }
@@ -3815,18 +3839,50 @@ public class VPUtil {
         }
     }
 
+    public static void stealRadiance(Player target, Player player, float amount){
+        Random random = new Random();
+        List<ItemStack> list = VPUtil.getVestigeList(target);
+        ItemStack stack = null;
+        if (list.size() > 1) {
+            if (random.nextDouble() < 0.5)
+                stack = list.get(0);
+            else stack = list.get(1);
+        } else if(!list.isEmpty())
+            stack = list.get(0);
+        if(stack != null && stack.getItem() instanceof Vestige vestige){
+            float radiance = vestige.getRadiance(stack);
+            if(radiance > amount) {
+                vestige.setRadiance(radiance - amount, stack);
+                List<ItemStack> list2 = VPUtil.getVestigeList(player);
+                ItemStack stack2 = null;
+                if (list.size() > 1) {
+                    if (random.nextDouble() < 0.5)
+                        stack2 = list.get(0);
+                    else stack2 = list.get(1);
+                } else if(!list.isEmpty())
+                    stack2 = list.get(0);
+                if(stack2 != null && stack2.getItem() instanceof Vestige vestige2){
+                    vestige2.addRadiance(1,stack2,player);
+                }
+            } else vestige.setRadiance(0, stack);
+        }
+    }
+
     public static void modifySoulIntegrity(LivingEntity entity,Player modifier, int number){
+        if(number < 0 && isCursed(entity))
+            number = (int)(number * 1.5);
         if(entity instanceof Player player){
             if(hasVestige(ModItems.SOULBLIGHTER.get(),player))
                 VPUtil.addRadiance(SoulBlighter.class,10,player);
+            int finalNumber = number;
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
-                if(number < 0)
-                    player.getPersistentData().putLong("VPSoulShow",System.currentTimeMillis()+120000);
+                cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+ finalNumber));
                 cap.sync(player);
                 if(cap.getSoulIntegrity() <= 0)
                     deadInside(player,modifier);
             });
+            if(number < 0)
+                player.getPersistentData().putLong("VPSoulShow",System.currentTimeMillis()+120000);
         } else {
             entity.getPersistentData().putInt("VPSoulIntegrity",Math.min(getMaxSoulIntegrity(entity),entity.getPersistentData().getInt("VPSoulIntegrity")+number));
             if(entity.getPersistentData().getInt("VPSoulIntegrity") <= 0)

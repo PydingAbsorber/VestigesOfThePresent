@@ -1,5 +1,6 @@
 package com.pyding.vp.item.vestiges;
 
+import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
@@ -7,6 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
@@ -27,6 +29,14 @@ public class Book extends Vestige{
             if(VPUtil.isProtectedFromHit(player,entity))
                 continue;
             VPUtil.negativnoEnchant(entity,player);
+            if(entity instanceof Player target){
+                target.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                    if(cap.getBookCurse() < System.currentTimeMillis()+15000)
+                        cap.setBookCurse(System.currentTimeMillis()+15000,target);
+                });
+            } else if(entity.getPersistentData().getLong("VPBookCurse") < System.currentTimeMillis()+15000){
+                entity.getPersistentData().putLong("VPBookCurse",System.currentTimeMillis()+15000);
+            }
         }
         VPUtil.spawnParticles(player, ParticleTypes.ENCHANT,10,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level, stack);
@@ -43,4 +53,27 @@ public class Book extends Vestige{
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         super.curioTick(slotContext, stack);
     }
+
+    public static void loseStar(ItemStack stack, Player player){
+        if(isTripleStellar(stack))
+            stack.getOrCreateTag().putInt("VPCursed",0);
+        if(isStellar(stack)){
+            int soul = (VPUtil.getSoulIntegrity(player) + VPUtil.getMaxSoulIntegrity(player))/4;
+            for(LivingEntity entity: VPUtil.getEntitiesAround(player,30,30,30)){
+                if(entity != player){
+                    VPUtil.modifySoulIntegrity(entity,player,-soul);
+                }
+            }
+        }
+        decreaseStars(stack);
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        if (enchantment.isCurse()) {
+            return true;
+        }
+        return super.canApplyAtEnchantingTable(stack, enchantment);
+    }
+
 }

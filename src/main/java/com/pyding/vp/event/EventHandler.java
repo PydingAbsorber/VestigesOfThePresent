@@ -185,7 +185,7 @@ public class EventHandler {
                         player.getPersistentData().putInt("VPDevourerHits", player.getPersistentData().getInt("VPDevourerHits") - 1);
                     }
                 }
-                if (entity.getPersistentData().getLong("VPEnchant") > 0)
+                if (VPUtil.isCursed(entity))
                     event.setAmount(event.getAmount() * 1.5f);
                 if (VPUtil.hasVestige(ModItems.BALL.get(), player)) {
                     if(event.getAmount() > entity.getHealth() && entity.getPersistentData().getLong("VPBallCd") >= System.currentTimeMillis() && player.getPersistentData().getLong("VPBallCd") >= System.currentTimeMillis()) {
@@ -375,17 +375,8 @@ public class EventHandler {
                     event.setAmount(event.getAmount()*(1+bonus));
                     stack.getOrCreateTag().putInt("VPTeleports",0);
                 }
-                if (VPUtil.hasStellarVestige(ModItems.BOOK.get(), player) && !event.getSource().is(DamageTypes.MAGIC)) {
-                    if (player.getPersistentData().getInt("VPBookHits") < 10 && event.getAmount() <= 5) {
-                        player.getPersistentData().putFloat("VPBookDamage", player.getPersistentData().getInt("VPBookDamage") + event.getAmount());
-                        player.getPersistentData().putInt("VPBookHits", player.getPersistentData().getInt("VPBookHits") + 1);
-                    } else if (player.getPersistentData().getInt("VPBookHits") >= 10) {
-                        VPUtil.dealDamage(entity,player,player.damageSources().magic(),VPUtil.scalePower(event.getAmount() + player.getPersistentData().getInt("VPBookDamage"),12,player),3,true);
-                        player.getPersistentData().putInt("VPBookDamage", 0);
-                        player.getPersistentData().putInt("VPBookHits", 0);
-                        VPUtil.play(player,SoundRegistry.MAGIC_EFFECT1.get());
-                        VPUtil.addRadiance(Book.class,20,player);
-                    }
+                if (VPUtil.hasStellarVestige(ModItems.BOOK.get(), player) && entity instanceof Player target && VPUtil.isCursed(target)) {
+                    VPUtil.stealRadiance(target,player,1);
                 }
                 VPUtil.printDamage(player,event);
             }
@@ -828,15 +819,20 @@ public class EventHandler {
                     challange.addDamageDie(event.getSource().getMsgId(),player);
                     challange.failChallenge(18,player);
                 });
-                if(event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPEnchant") > System.currentTimeMillis() && VPUtil.hasVestige(ModItems.BOOK.get(), player)){
+                if(event.getSource().getEntity() != null && event.getSource().getEntity() instanceof LivingEntity livingEntity && VPUtil.isCursed(livingEntity) && VPUtil.hasVestige(ModItems.BOOK.get(), player)){
                     ItemStack stack = VPUtil.getVestigeStack(Book.class,player);
                     if(stack.getItem() instanceof Book book) {
                         if (book.isUltimateActive(stack)) {
                             if (event.getSource().getEntity() instanceof LivingEntity dealer) {
                                 VPUtil.enchantCurseAll(dealer);
+                                if(livingEntity instanceof Player target){
+                                    target.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                        cap.setBookCurse(System.currentTimeMillis()+24*60*60*1000,target);
+                                    });
+                                } else {
+                                    entity.getPersistentData().putLong("VPBookCurse",System.currentTimeMillis()+24*60*60*1000);
+                                }
                             }
-                        } else if (book.ultimateCharges(stack) != book.currentChargeUltimate(stack)) {
-                            VPUtil.enchantCurseAll(player);
                         }
                     }
                 }
@@ -868,11 +864,21 @@ public class EventHandler {
                         }
                     }
                 }
+                if(VPUtil.hasVestige(ModItems.BOOK.get(),player)){
+                    int cost = 100+VPUtil.getMaxSoulIntegrity(player)/4;
+                    if(VPUtil.getSoulIntegrity(player) > cost){
+                        VPUtil.modifySoulIntegrity(player,player,-cost);
+                        event.setCanceled(true);
+                        return;
+                    } else {
+                        Book.loseStar(VPUtil.getVestigeStack(Book.class,player),player);
+                    }
+                }
             }
             Player playerNear = entity.getCommandSenderWorld().getNearestPlayer(entity,20);
             if(playerNear != null && VPUtil.hasVestige(ModItems.CATALYST.get(), playerNear)) {
                 List<MobEffectInstance> effectList = new ArrayList<>(VPUtil.getEffectsHas(entity,false));
-                for (LivingEntity iterator : VPUtil.getEntitiesAround(entity, 10, 10, 10, false)) {
+                for (LivingEntity iterator : VPUtil.getEntitiesAround(entity, 25, 25, 25, false)) {
                     for(MobEffectInstance instance: effectList){
                         iterator.addEffect(instance);
                         VPUtil.spawnParticles(playerNear, ParticleTypes.BUBBLE_POP,iterator.getX(),iterator.getY(),iterator.getZ(),8,0,-0.5,0);
@@ -1932,11 +1938,11 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onProjectileImpact(ProjectileImpactEvent event) {
-    Projectile proj = event.getProjectile();
-    HitResult ray = event.getRayTraceResult();
-    if (!(ray instanceof EntityHitResult ehr)) return;
-    if (!(ehr.getEntity() instanceof LivingEntity target)) return;
-    if (!(proj.getOwner() instanceof Player player)) return;
+        Projectile proj = event.getProjectile();
+        HitResult ray = event.getRayTraceResult();
+        if (!(ray instanceof EntityHitResult ehr)) return;
+        if (!(ehr.getEntity() instanceof LivingEntity target)) return;
+        if (!(proj.getOwner() instanceof Player player)) return;
         double hitY = proj.getY();
         double eyeY = target.getY() + target.getEyeHeight();
         if (hitY >= eyeY) {
@@ -1992,16 +1998,4 @@ public class EventHandler {
         if(stack.hasTag() && stack.getTag().getBoolean("VPMirrored"))
             event.getToolTip().add(Component.translatable("vp.mirrored").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.DARK_AQUA));
     }
-
-    /*@SubscribeEvent
-    public static void sleep(PlayerSleepInBedEvent event){
-
-        Player player = event.getEntity();
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap ->{
-            cap.addLore(player,2);
-            if(cap.getLore(player,3))
-                cap.addLore(player,5);
-        });
-        //PacketHandler.sendToServer(new ClientToServerPacket());
-    }*/
 }

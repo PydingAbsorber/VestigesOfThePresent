@@ -3,8 +3,11 @@ package com.pyding.vp.mixin;
 import com.pyding.vp.item.ChaosOrb;
 import com.pyding.vp.item.CorruptFragment;
 import com.pyding.vp.item.CorruptItem;
+import com.pyding.vp.item.vestiges.Catalyst;
 import com.pyding.vp.util.VPUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -12,6 +15,9 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,6 +38,15 @@ public abstract class AbstractContainerMixin {
                 ItemStack targetStack = targetSlot.getItem();
                 if (!targetStack.isEmpty() && !(targetStack.getItem() instanceof CorruptFragment || targetStack.getItem() instanceof CorruptItem || targetStack.getItem() instanceof ChaosOrb)) {
                     VPUtil.useOrb(targetStack,carried,player);
+                    ci.cancel();
+                }
+            } else if(!carried.isEmpty()){
+                Potion potion = PotionUtils.getPotion(carried);
+                Slot targetSlot = menu.slots.get(index);
+                ItemStack stack = targetSlot.getItem();
+                if (potion != Potions.EMPTY && stack.getItem() instanceof Catalyst catalyst) {
+                    catalyst.setStoredPotion(stack, potion);
+                    carried.shrink(1);
                     ci.cancel();
                 }
             }

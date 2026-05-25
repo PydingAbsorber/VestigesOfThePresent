@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.item.vestiges.Devourer;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.*;
 import net.minecraft.ChatFormatting;
@@ -352,7 +353,7 @@ public class VestigeScreen extends Screen {
         component.add(Component.literal(" "));
         double textYBase = y+infoHeight/(baseY-0.2);
         if(vestigeNumber == 15){
-            component.add(Component.translatable("vp.ultimate." + vestigeNumber,ConfigHandler.COMMON.devourer.get(),ConfigHandler.COMMON.devourerChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
+            component.add(Component.translatable("vp.ultimate." + vestigeNumber, Devourer.bonusHits(ConfigHandler.COMMON.devourer.get(),vestige.ultimateMaxTime(stack)),ConfigHandler.COMMON.devourerChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
         }
         else if (vestigeNumber == 23){
             component.add(Component.translatable("vp.ultimate." + vestigeNumber,Math.min(30,10+VPUtil.getLuck(player)*5)).withStyle(ChatFormatting.GRAY));

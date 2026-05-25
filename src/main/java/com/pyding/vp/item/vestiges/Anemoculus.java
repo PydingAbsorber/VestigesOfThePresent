@@ -24,7 +24,7 @@ public class Anemoculus extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(1, ChatFormatting.DARK_AQUA, 2, 30, 5, 70, 1, 20, hasDamage, stack);
+        super.dataInit(1, ChatFormatting.DARK_AQUA, 2, 30, 5, 70, 1, 40, hasDamage, stack);
     }
 
     @Override
@@ -57,11 +57,16 @@ public class Anemoculus extends Vestige{
         super.doSpecial(seconds, player, level, stack);
     }
 
+    private static final float VANILLA_FLY_SPEED = 0.05F;
+    private static final float BOOSTED_FLY_SPEED = 0.15F;
+
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.WIND3.get());
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
+        if(player.getAbilities().getFlyingSpeed() < BOOSTED_FLY_SPEED)
+            player.getAbilities().setFlyingSpeed(BOOSTED_FLY_SPEED);
         player.onUpdateAbilities();
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(6),serverPlayer);
@@ -75,6 +80,7 @@ public class Anemoculus extends Vestige{
             return;
         player.getAbilities().mayfly = false;
         player.getAbilities().flying = false;
+        player.getAbilities().setFlyingSpeed(VANILLA_FLY_SPEED);
         player.onUpdateAbilities();
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(2),serverPlayer);

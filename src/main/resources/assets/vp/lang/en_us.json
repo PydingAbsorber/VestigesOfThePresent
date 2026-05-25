@@ -140,6 +140,7 @@
   "curios.identifier.vestige": "Vestige",
   "curios.identifier.earring": "Earring",
   "vp.seconds": " seconds, ",
+  "vp.potion": "Stored Potion: %s",
   "vp.chaos": "Current random entity: ",
   "vp.chaos2": "Time left until reset: ",
   "vp.left": "Challenge elements left: ",
@@ -291,9 +292,9 @@
   "vp.damagetype.11": "cactus",
   "vp.get.11": "Die from each type of damage.",
 
-  "vp.passive.12": "Saves from death for 100+25% Soul Integrity, if it is insufficient for salvation or the wearer was killed by Guaranteed Death, the Vestige loses a Star. \nCan be enchanted with every curse of the modpack.",
+  "vp.passive.12": "Saves from death for 100+25% Soul Integrity, if it is insufficient for salvation or the wearer was killed by Guaranteed Death, the Vestige loses a Star.",
   "vp.special.12": "All nearby creatures become Disappointed for 15 seconds: \n-Enchantments on all equipment become negative (e.g., Protection V becomes Protection -V). \n-Enchantments return to normal after Disappointment ends. \n-Disappointed enemies take 50% more damage from all sources, including Paragon Damage and Soul Integrity Damage.",
-  "vp.ultimate.12": "For the next 60 seconds, dying to a Disappointed creature inflicts a Great Curse upon it: \n-Lasts for 24 real-time hours and cannot be removed. \n-All equipment is re-enchanted with curses only upon receiving the effect and whenever an attempt to enchant an item is made. \n-Creatures under this effect are always considered Disappointed.",
+  "vp.ultimate.12": "For the next 60 seconds, dying to a Disappointed creature inflicts a Great Curse upon it: \n-Lasts for 24 real-time hours and cannot be removed. \n-All equipment is re-enchanted with curses only upon receiving the effect. \n-Creatures under this effect are always considered Disappointed.",
   "vp.get.12": "Kill another Player or Warden while wearing equipment with a total of 10 curses (enchantments).",
 
   "vp.passive.13": "Slain monster under the effect of Special grants second loot table. \nEach Mortage (from Ultimate) provides a 1% chance for x4 loot. \nIf the chance triggers, it divides by 10 for x6 loot and so on, also giving Box of Eggs with 1% chance.",
@@ -306,7 +307,7 @@
   "vp.ultimate.14": "The next 10-80 incoming projectiles within a 5-block radius over 20 seconds will teleport behind the shooter. \n30% of Heal Debt obtained will be also applied to all nearby entities.",
   "vp.get.14": "Every %s minutes , a random modpack entity will be requested. \nWithin this time this creature must be killed or tamed, failing to comply will reset the progress. \nComplete requests %s times in a row",
 
-  "vp.passive.15": "Every slain boss yields a Soul. \nKills of creatures under Anti Teleportation or Guaranteed Kills restore 30 Soul Integrity. \nDealing damage with Vestiges to creatures with Anti Teleportation will consume an additional charge and deal +3/7/10 Soul Integrity damage; this damage will also be inflicted on the wearer.",
+  "vp.passive.15": "Every slain boss yields a Soul. \nKills of creatures under Anti Teleportation or Guaranteed Death restore 30 Soul Integrity. \nDealing damage with Vestiges to creatures with Anti Teleportation will consume an additional charge and deal +3/7/10 Soul Integrity damage; this damage will also be inflicted on the wearer.",
   "vp.special.15": "Binds the soul of the nearest creature or a creature you're looking at for 5 seconds. \n(Each Soul from Passive adds +0.1 second, up to a maximum of 15 seconds). \nThe bound creature cannot move between worlds, teleport and cannot leave a 3x3x3 area.",
   "vp.ultimate.15": "For the next %s hits, with a certain chance, it will decrease Soul Integrity of the affected creature. \nChance depends on accumulated Souls from Passive, +%s chance for each soul. \nThe number of charges depends on the Ultimate's duration, and Soul Integrity damage is increased by the Ultimate damage bonus/4.",
   "vp.get.15": "Kill all bosses of modpack",
@@ -317,10 +318,11 @@
   "vp.get.16": "Collect all modpack flowers.",
   "vp.get.16.fail": "If any flower was placed by the player challenge will go on cooldown and reset.",
 
-  "vp.passive.17": "A creature that dies within a 10-block radius of the wearer will spread all negative effects to nearby creatures within the same radius, including the wearer.",
-  "vp.special.17": "Extends the duration of all debuffs on all nearby creatures by 15%, and also has a 20% chance to increase their level by 1. \nGives random buff of modpack with 1-5 lvl for 60-200 seconds.",
-  "vp.ultimate.17": "Steals all buffs from all nearby creatures whose level does not exceed 4. \nEach stolen buff from a creature applies a random debuff of level 1-4 to it for 10 seconds and gives +10% duration to all wearer buffs.",
+  "vp.passive.17": "Any creature that dies within a 25-block radius of the wearer will spread all its negative effects to nearby creatures within the same radius. \nSpecial and Ultimate damage is increased by 10% for each active buff. \nCan be infused with a potion: by clicking on this item with a potion in your cursor, using a Special will grant the effect of that potion for 10 seconds.",
+  "vp.special.17": "Extends the duration of all debuffs on all surrounding creatures by 100% and increases their level by 5. \nIf a creature already has a level 5+ debuff, that debuff is consumed to apply 2 new random level 1-4 debuffs, deal 400% damage, and summon a Poison Cloud. \nGrants a random buff of level 1-5 for 60-200 seconds.",
+  "vp.ultimate.17": "Steals all buffs of level 4 or lower from all surrounding creatures. \nEach stolen buff inflicts a random level 1-4 debuff on the targeted creature for 10 seconds and extends the duration of all the wearer's buffs by 40% + 40 seconds (up to a maximum of 10 minutes at a time).",
   "vp.get.17": "Get every effect of modpack.",
+  "vp.damagetype.17": "indirect magic",
 
   "vp.passive.18": "Attacks that exceed the current HP of the enemy spread to 3 random hostile creatures within a 15-block area. \nDealing lightning damage will reduce Shields by %s and OverShields by %s from their maximum also applying -%s Shield Bonus debuff.",
   "vp.special.18": "Teleports the wearer to a random point nearby, leaving behind a powerful lightning bolt. \nThe lightning deals 500% damage to everyone (including the wearer) within a 5-block radius and slows down the speed, attack speed of enemies.",
@@ -394,7 +396,7 @@
   "vp.stellar.9": "Ultimate: also gives gold like from Passive \nEach luck attribute increases all damage by 10%.",
   "vp.stellar.10": "Ultimate can also teleport to a random player with a 5% chance.",
   "vp.stellar.11": "Ultimate: while active, any attacker will also take (300+10% from Pain Gauge)% of damage dealt, Paragon damage too.",
-  "vp.stellar.12": "Passive: Upon losing a Star, if a +1 Star curse is present, the curse will be removed instead. \nSpecial: Attacks on Players with the Disappointment effect will steal 1 Radiance from a random equipped Vestige.",
+  "vp.stellar.12": "Passive: Upon losing a Star, deals Soul Integrity damage to all surrounding enemies equal to 25% of the bearer's maximum and current Soul Integrity. \nSpecial: Attacks on Players with the Disappointment effect will steal 1 Radiance from a random equipped Vestige.",
   "vp.stellar.13": "Special: Also affects players but without increased drop rates.",
   "vp.stellar.14": "Passive: The chance for Passive trigger increases by 1% for each luck attribute.\nAfter the Passive triggers, damage is reflected to all within a 30-block radius with a 30% chance. \nEntities around without Over Shiels will have reduced max hp for Heal Debt they have and when hp is not enough they will Die Guaranteed.",
   "vp.stellar.15": "Ultimate: Creatures with Soul Integrity lower then 90% from maximum wont be able to get Heal and Shields and OverShields, lower then 50% - clears all buffs. \nThe Soul Integrity reduction on strikes also increases by 1 for each attribute of the wearer exceeding the attribute of the victim (max. hp, damage, speed, attack speed, flight speed).",

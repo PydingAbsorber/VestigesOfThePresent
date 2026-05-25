@@ -1,19 +1,28 @@
 package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.entity.CloudEntity;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,23 +34,34 @@ public class Catalyst extends Vestige{
 
     @Override
     public void dataInit(int vestigeNumber, ChatFormatting color, int specialCharges, int specialCd, int ultimateCharges, int ultimateCd, int specialMaxTime, int ultimateMaxTime, boolean hasDamage, ItemStack stack) {
-        super.dataInit(17, ChatFormatting.GREEN, 2, 40, 1, 75, 1, 1, hasDamage, stack);
+        super.dataInit(17, ChatFormatting.GREEN, 2, 15, 1, 75, 1, 1, hasDamage, stack);
     }
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundRegistry.CATALYST1.get());
-        for(LivingEntity entity: VPUtil.getEntities(player,20,false)){
+        int clouds = 0;
+        for(LivingEntity entity: VPUtil.getEntities(player,25,false)){
             if(VPUtil.isProtectedFromHit(player,entity))
                 continue;
             List<MobEffectInstance> list = new ArrayList<>(VPUtil.getEffectsHas(entity, false));
             VPUtil.clearEffects(entity,false);
             for(MobEffectInstance effectInstance: list){
-                int duration = (int)(effectInstance.getDuration()*1.15);
-                int amplifier = effectInstance.getAmplifier();
-                Random random = new Random();
-                if(random.nextDouble() < 0.2)
-                    amplifier += 1;
-                entity.addEffect(new MobEffectInstance(effectInstance.getEffect(),duration,amplifier));
+                if(effectInstance.getAmplifier() >= 4){
+                    Random random = new Random();
+                    entity.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false),10*20,random.nextInt(3)));
+                    entity.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(false),10*20,random.nextInt(3)));
+                    VPUtil.dealDamage(entity,player,player.damageSources().indirectMagic(entity,player),400,2);
+                    if(clouds < 3){
+                        CloudEntity cloudEntity = new CloudEntity(player.getCommandSenderWorld(), entity);
+                        cloudEntity.teleportTo(entity.getX(),entity.getY()+3,entity.getZ());
+                        player.getCommandSenderWorld().addFreshEntity(cloudEntity);
+                        clouds++;
+                    }
+                }
+                else {
+                    int duration = (int) (effectInstance.getDuration() * 2);
+                    entity.addEffect(new MobEffectInstance(effectInstance.getEffect(), duration, effectInstance.getAmplifier() + 5));
+                }
                 addRadiance(3,stack,player);
             }
             VPUtil.spawnParticles(player, ParticleTypes.BUBBLE,entity.getX(),entity.getY(),entity.getZ(),8,0,-0.5,0);
@@ -52,6 +72,21 @@ public class Catalyst extends Vestige{
         int duration = random.nextInt(140)+60;
         int power = random.nextInt(5);
         player.addEffect(new MobEffectInstance(VPUtil.getRandomEffect(true),VPUtil.scalePower(duration*20,17,player),VPUtil.scalePower(power,17,player)));
+        if (getStoredPotion(stack) != Potions.EMPTY) {
+            List<MobEffectInstance> effects = getStoredPotion(stack).getEffects();
+            if (!effects.isEmpty()) {
+                for (MobEffectInstance effect : effects) {
+                    MobEffectInstance customEffect = new MobEffectInstance(
+                            effect.getEffect(),
+                            200,
+                            effect.getAmplifier(),
+                            effect.isAmbient(),
+                            effect.isVisible()
+                    );
+                    player.addEffect(customEffect);
+                }
+            }
+        }
         super.doSpecial(seconds, player, level, stack);
     }
 
@@ -87,7 +122,7 @@ public class Catalyst extends Vestige{
                 }
             }
             for(MobEffectInstance effectInstance: list){
-                player.addEffect(new MobEffectInstance(effectInstance.getEffect(),effectInstance.getDuration()*(1+stolen/10),effectInstance.getAmplifier()));
+                player.addEffect(new MobEffectInstance(effectInstance.getEffect(), (int) Math.min((effectInstance.getDuration()*(1+stolen*0.4)+40*20),effectInstance.getDuration()+10*60*20),effectInstance.getAmplifier()));
             }
         }
         super.doUltimate(seconds, player, level, stack);
@@ -121,18 +156,30 @@ public class Catalyst extends Vestige{
         }
         super.curioTick(slotContext, stack);
     }
-    List<MobEffectInstance> effectList = new ArrayList<>();
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand p_41434_) {
-        if(effectList.isEmpty()) {
-            List<MobEffectInstance> list = new ArrayList<>(player.getActiveEffects());
-            effectList = list;
-        } else {
-            for(MobEffectInstance instance: effectList){
-                player.addEffect(instance);
-            }
-            effectList.clear();
+    private static final String POTION_NBT_KEY = "StoredPotion";
+
+    public void setStoredPotion(ItemStack stack, Potion potion) {
+        CompoundTag nbt = stack.getOrCreateTag();
+        nbt.putString(POTION_NBT_KEY, PotionUtils.getPotion(PotionUtils.setPotion(new ItemStack(net.minecraft.world.item.Items.POTION), potion)).toString());
+        net.minecraft.resources.ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.POTION.getKey(potion);
+        nbt.putString(POTION_NBT_KEY, id.toString());
+    }
+
+    private Potion getStoredPotion(ItemStack stack) {
+        if (stack.hasTag() && stack.getTag().contains(POTION_NBT_KEY)) {
+            String potionId = stack.getTag().getString(POTION_NBT_KEY);
+            return net.minecraft.core.registries.BuiltInRegistries.POTION.get(new net.minecraft.resources.ResourceLocation(potionId));
         }
-        return super.use(level,player, p_41434_);
+        return Potions.EMPTY;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        Potion stored = getStoredPotion(stack);
+        String potion = "empty";
+        if (stored != Potions.EMPTY)
+            potion = I18n.get(stored.getName("item.minecraft.potion.effect."));
+        tooltip.add(Component.translatable("vp.potion",potion).withStyle(ChatFormatting.DARK_GREEN));
+        super.appendHoverText(stack, level, tooltip, flag);
     }
 }
