@@ -7,6 +7,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
@@ -55,6 +56,10 @@ public class CloudEntity extends Projectile {
                     livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON,255,255));
                     livingEntity.hurtTime = 0;
                     VPUtil.equipmentDurability(5,livingEntity);
+                    if(entity instanceof Player owner)
+                        VPUtil.dealDamage(livingEntity,owner,owner.damageSources().indirectMagic(livingEntity,owner),60,2);
+                    else if(livingEntity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
+                        livingEntity.hurt(entity.damageSources().magic(), (float) (livingEntity.getAttribute(Attributes.ATTACK_DAMAGE).getValue()*0.5));
                 }
             }
         }

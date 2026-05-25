@@ -86,6 +86,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
     private String nightmareChallenge = "";
     private int soulDeaths = 0;
     private String ores = "";
+    private Long bookCurse = 0L;
 
     public VestigeCap() {
     }
@@ -850,6 +851,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         nightmareChallenge = source.nightmareChallenge;
         soulDeaths = source.soulDeaths;
         ores = source.ores;
+        bookCurse = source.bookCurse;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -900,6 +902,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         nbt.putString("VPNChall",nightmareChallenge);
         nbt.putInt("VPSD",soulDeaths);
         nbt.putString("VPOre",ores);
+        nbt.putLong("VPBookCurse",bookCurse);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -950,6 +953,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         nightmareChallenge = nbt.getString("VPNChall");
         soulDeaths = nbt.getInt("VPSD");
         ores = nbt.getString("VPOre");
+        bookCurse = nbt.getLong("VPBookCurse");
     }
 
     public void sync(Player player){
@@ -1241,5 +1245,14 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
 
     public String getOres(){
         return ores;
+    }
+
+    public Long getBookCurse() {
+        return bookCurse;
+    }
+
+    public void setBookCurse(Long bookCurse, Player player) {
+        this.bookCurse = bookCurse;
+        sync(player);
     }
 }
