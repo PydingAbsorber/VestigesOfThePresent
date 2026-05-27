@@ -67,11 +67,11 @@ public class VPCommands {
                         .then(Commands.literal("enable").requires(sender -> sender.hasPermission(2))
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    if (ConfigHandler.leaderboard.get()) {
-                                        ConfigHandler.leaderboard.set(false);
+                                    if (ServerConfig.leaderboard.get()) {
+                                        ServerConfig.leaderboard.set(false);
                                         player.sendSystemMessage(Component.literal("Leaderboard disabled.").withStyle(ChatFormatting.DARK_RED));
                                     } else {
-                                        ConfigHandler.leaderboard.set(true);
+                                        ServerConfig.leaderboard.set(true);
                                         player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
                                     }
                                     return Command.SINGLE_SUCCESS;
@@ -94,7 +94,7 @@ public class VPCommands {
                         )
                         .then(Commands.literal("showYourself")
                                 .executes(context -> {
-                                    if(!ConfigHandler.leaderboard.get()){
+                                    if(!ServerConfig.leaderboard.get()){
                                         context.getSource().getPlayerOrException().sendSystemMessage(Component.literal("Leaderboard is disabled"));
                                         return Command.SINGLE_SUCCESS;
                                     } else LeaderboardUtil.printYourself(context.getSource().getPlayerOrException());
@@ -309,13 +309,13 @@ public class VPCommands {
                 .then(Commands.literal("enableCruel").requires(sender -> sender.hasPermission(2))
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
-                            if(ConfigHandler.cruelMode.get()) {
-                                ConfigHandler.cruelMode.set(false);
+                            if(ServerConfig.cruelMode.get()) {
+                                ServerConfig.cruelMode.set(false);
                                 player.sendSystemMessage(Component.literal("Cruel mode §4disabled."));
                             }
                             else {
-                                ConfigHandler.cruelMode.set(true);
-                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7All bosses max hp now is §cx" + ConfigHandler.bossHP.get() + " §7and attack is §cx" + ConfigHandler.bossHP.get() + " §7armor and armor toughness is §cx" + ConfigHandler.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ConfigHandler.shieldCruel.get() + " §7and Over Shields §cx" + ConfigHandler.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ConfigHandler.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ConfigHandler.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ConfigHandler.healthBoost.get() + " max health and chance to spawn with random armor."));
+                                ServerConfig.cruelMode.set(true);
+                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7All bosses max hp now is §cx" + ServerConfig.bossHP.get() + " §7and attack is §cx" + ServerConfig.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.healthBoost.get() + " max health and chance to spawn with random armor."));
                             }
                             return Command.SINGLE_SUCCESS;
                         })
@@ -331,7 +331,7 @@ public class VPCommands {
                                     return 0;
                                 }
                                 ServerPlayer player = context.getSource().getPlayerOrException();
-                                ConfigHandler.reduceChallenges.get().set(challenge-1,amount);
+                                ServerConfig.reduceChallenges.get().set(challenge-1,amount);
                                 player.sendSystemMessage(Component.literal("Progress maximum for challenge " + challenge + " has been reduced for " + amount));
                                 return Command.SINGLE_SUCCESS;
                             })

@@ -8,10 +8,7 @@ import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
-import com.pyding.vp.util.ConfigHandler;
-import com.pyding.vp.util.GradientUtil;
-import com.pyding.vp.util.LeaderboardUtil;
-import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -519,7 +516,8 @@ public class Vestige extends Item implements ICurioItem {
                 VPUtil.sync(playerServer);
             }
             if ((this.cdSpecialActive(stack) > this.specialCd(stack) ? (this.cdSpecialActive(stack) % this.specialCd(stack) == 0) : (this.cdSpecialActive(stack) - (this.specialCd(stack)) == 0 || this.cdSpecialActive(stack) == 0)) && this.specialCharges(stack) > this.currentChargeSpecial(stack)) {
-                setCurrentChargeSpecial(currentChargeSpecial(stack)+1,stack);
+                if(vestigeNumber != 666)
+                    setCurrentChargeSpecial(currentChargeSpecial(stack)+1,stack);
                 if(playerServer != null)
                     specialRecharges(playerServer, stack);
             }
@@ -599,7 +597,7 @@ public class Vestige extends Item implements ICurioItem {
             if(vestigeNumber == 9)
                 components.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getGoldenChance()+"%").withStyle(ChatFormatting.GRAY)));
             else if(vestigeNumber == 13)
-                components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
+                components.add(Component.translatable("vp.get." + vestigeNumber, ServerConfig.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
             else if(vestigeNumber == 14){
                 components.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).withStyle(ChatFormatting.GRAY));
                 components.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity()).withStyle(color)));
@@ -851,7 +849,7 @@ public class Vestige extends Item implements ICurioItem {
     public void curioSucks(Player player, ItemStack stack){
         if(player.getCommandSenderWorld().isClientSide)
             return;
-        if(!isTripleStellar(stack)){
+        if(!isTripleStellar(stack) && !(stack.getItem() instanceof NightmareDevourer)){
             setTime(0, stack);
             setTimeUlt(0, stack);
             setSpecialActive(false, stack);

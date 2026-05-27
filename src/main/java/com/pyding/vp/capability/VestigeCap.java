@@ -9,6 +9,7 @@ import com.pyding.vp.network.packets.LorePacket;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
 import com.pyding.vp.util.ConfigHandler;
 import com.pyding.vp.util.LeaderboardUtil;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
@@ -641,8 +642,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
 
     public static int getMaximum(int number,Player player){
         boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
-        if(ConfigHandler.reduceChallengesPercent.get()){
-            float reduce = 1 - ((float)ConfigHandler.getChallengeReduceByNumber(number)/100);
+        if(ServerConfig.reduceChallengesPercent.get()){
+            float reduce = 1 - ((float)ServerConfig.getChallengeReduceByNumber(number)/100);
             if(leaderboard && reduce < 0.9)
                 reduce = 0.9f;
             switch (number) {
@@ -700,7 +701,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
                     return (int) (VPUtil.getOres().size() * reduce);
             }
         } else {
-            int reduce = ConfigHandler.getChallengeReduceByNumber(number);
+            int reduce = ServerConfig.getChallengeReduceByNumber(number);
             if(leaderboard && reduce > 3)
                 reduce = 3;
             switch (number) {

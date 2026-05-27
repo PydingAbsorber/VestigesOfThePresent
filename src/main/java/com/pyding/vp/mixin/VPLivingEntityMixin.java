@@ -3,6 +3,7 @@ package com.pyding.vp.mixin;
 
 import com.pyding.vp.item.VipActivator;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -82,7 +83,7 @@ public abstract class VPLivingEntityMixin {
             ci.cancel();
             return;
         }
-        if(ConfigHandler.isLoaded() && ConfigHandler.cruelMode.get() && (VPUtil.isNightmareBoss(entity) || VPUtil.isBoss(entity))){
+        if(ConfigHandler.isLoaded() && ServerConfig.cruelMode.get() && (VPUtil.isNightmareBoss(entity) || VPUtil.isBoss(entity))){
             ci.cancel();
             float damage = VPUtil.dpsAbsorption(entity,entity.getHealth()-amount);
             ((EntityVzlom)this).getEntityData().set(((LivingEntityVzlom)this).getDataHealth(),entity.getHealth() - damage);
@@ -92,8 +93,8 @@ public abstract class VPLivingEntityMixin {
     @Inject(method = "getMaxHealth",at = @At("RETURN"),cancellable = true, require = 1)
     protected void getMaxHealthMix(CallbackInfoReturnable<Float> cir){
         LivingEntity entity = (LivingEntity)(Object)this;
-        if(ConfigHandler.isLoaded() && ConfigHandler.cruelMode.get() && ((ConfigHandler.unlockHp.get() || cir.getReturnValue() <= 2048) && VPUtil.isNightmareBoss(entity)) && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
-            float maxHealth = Math.max(600,VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix())) * (float)(ConfigHandler.bossHP.get()+0);
+        if(ConfigHandler.isLoaded() && ServerConfig.cruelMode.get() && ((ConfigHandler.unlockHp.get() || cir.getReturnValue() <= 2048) && VPUtil.isNightmareBoss(entity)) && VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix()) != 0){
+            float maxHealth = Math.max(600,VPUtil.getBaseHealth(((EntityVzlom)this).getTypeMix())) * (float)(ServerConfig.bossHP.get()+0);
             if(entity.getAttributes() != null){
                 maxHealth *= 10;
             }

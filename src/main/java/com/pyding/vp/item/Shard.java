@@ -1,6 +1,7 @@
 package com.pyding.vp.item;
 
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -42,7 +43,7 @@ public class Shard extends Item {
         }
         if(p_41432_.isClientSide)
             return super.use(p_41432_, player, p_41434_);
-        if(!ConfigHandler.cruelMode.get()){
+        if(!ServerConfig.cruelMode.get()){
             player.sendSystemMessage(Component.literal("Cruel mode is disabled!"));
             return super.use(p_41432_, player, p_41434_);
         }
@@ -58,8 +59,8 @@ public class Shard extends Item {
                 entity.getPersistentData().putBoolean("VPNightmareBoss",true);
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "nightmare_hp"));
                 entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.ATTACK_DAMAGE,10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "nightmare_attack"));
-                VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ConfigHandler.shieldCruel.get()),false);
-                entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.overShieldCruel.get()));
+                VPUtil.addShield(entity, (float) (entity.getMaxHealth()*ServerConfig.shieldCruel.get()),false);
+                entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ServerConfig.overShieldCruel.get()));
                 entity.setGlowingTag(true);
                 entity.getPersistentData().putInt("VPBossType",random.nextInt(7)+1);
                 entity.refreshDimensions();

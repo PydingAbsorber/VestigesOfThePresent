@@ -63,12 +63,4 @@ public class Rune extends Vestige{
         player.getPersistentData().putFloat("VPRuneBonus",0);
         super.specialEnds(player, stack);
     }
-
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getPersistentData().putFloat("VPRuneBonus",0);
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp.rune");
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp.rune2");
-        super.curioSucks(player, stack);
-    }
 }

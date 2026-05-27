@@ -1,9 +1,11 @@
 package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -120,6 +122,7 @@ public class Lyra extends Vestige{
                 if(entity instanceof Player && !VPUtil.isFriendlyFireBetween(player,entity) && !VPUtil.isProtectedFromHit(player,entity))
                     continue;
                 entity.getPersistentData().putLong("VPOrchestra",System.currentTimeMillis()+seconds*2);
+                entity.addEffect(new MobEffectInstance(VPEffects.ORCHESTRA, (int) (seconds*2/1000*20)));
                 addRadiance(60,stack,player);
                 for(int i = 1; i < 9; i++){
                     entity.getPersistentData().putLong("VPLyra"+i,System.currentTimeMillis()+seconds*2);

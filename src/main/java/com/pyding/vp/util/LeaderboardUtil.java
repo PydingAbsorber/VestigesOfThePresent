@@ -342,7 +342,7 @@ public class LeaderboardUtil {
     public static boolean isLeaderboardsActive(Player player){
         boolean active = false;
         try {
-            active = ConfigHandler.leaderboard.get() && !player.hasPermissions(2);
+            active = ServerConfig.leaderboard.get() && !player.hasPermissions(2);
         } catch (Exception e) {
             return false;
         }

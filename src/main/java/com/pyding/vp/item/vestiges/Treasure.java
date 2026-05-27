@@ -95,13 +95,6 @@ public class Treasure extends Vestige{
         }
     }
 
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        super.curioSucks(player, stack);
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR,"vp.treasure.armor");
-        VPUtil.removeAttributeModifier(player,Attributes.ARMOR_TOUGHNESS,"vp.treasure.armor_tough");
-    }
-
     public static float getOres(Player player){
         float ores = 0;
         for(ItemStack stack: player.getInventory().items){

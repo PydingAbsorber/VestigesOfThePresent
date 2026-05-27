@@ -65,6 +65,7 @@ public class ModItems {
     public static final DeferredHolder<Item, ChaosOrb> CHAOS_ORB = ITEMS.register("chaos_orb", ChaosOrb::new);
     public static final DeferredHolder<Item, CelestialMirror> CELESTIAL_MIRROR = ITEMS.register("celestial_mirror", CelestialMirror::new);
     public static final DeferredHolder<Item, VipActivator> VIPACTIVATOR = ITEMS.register("vip", () -> new VipActivator(new Item.Properties().stacksTo(1)));
+    public static final DeferredHolder<Item, WelcomeBook> WELCOME_BOOK = ITEMS.register("welcome_book", () -> new WelcomeBook(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<Item, GuideBook> GUIDE_BOOK = ITEMS.register("guide_book", () -> new GuideBook(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<Item, NightmareBook> NIGHTMARE_BOOK = ITEMS.register("nightmare_book", () -> new NightmareBook(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<Item, MineralCluster> MINERAL_CLUSTER = ITEMS.register("mineral_cluster", () -> new MineralCluster());

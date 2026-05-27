@@ -7,6 +7,7 @@ import com.mojang.math.Axis;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -109,7 +110,7 @@ public class ChallengeScreen extends Screen {
         guiGraphics.pose().translate(0, 0, 40);
         Component titleComponent;
         if(challenge == 13)
-            titleComponent = Component.translatable("vp.get." + challenge, ConfigHandler.rareItemChance.get()*100+"%").append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);
+            titleComponent = Component.translatable("vp.get." + challenge, ServerConfig.rareItemChance.get()*100+"%").append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);
         else titleComponent = Component.translatable("vp.get."+challenge).append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);
         if(challenge != 9) {
             List<FormattedCharSequence> lines = font.split(titleComponent, this.width / 2);

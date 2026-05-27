@@ -1,9 +1,11 @@
 package com.pyding.vp.item.vestiges;
 
 import com.pyding.vp.client.sounds.SoundRegistry;
+import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -34,6 +36,7 @@ public class Book extends Vestige{
             } else if(entity.getPersistentData().getLong("VPBookCurse") < System.currentTimeMillis()+15000){
                 entity.getPersistentData().putLong("VPBookCurse",System.currentTimeMillis()+15000);
             }
+            entity.addEffect(new MobEffectInstance(VPEffects.DISAPPOINED, (15*20)));
         }
         VPUtil.spawnParticles(player, ParticleTypes.ENCHANT,10,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level, stack);

@@ -13,6 +13,7 @@ public class ClientConfig {
     public static final ModConfigSpec.DoubleValue guiScaleLeaderboard = BUILDER.comment("Gui scale").defineInRange("guiScaleVestige", 1, 0.01, 10);
     public static final ModConfigSpec.DoubleValue guiScaleVestige = BUILDER.comment("Gui scale").defineInRange("guiScaleLeaderboard", 1, 0.01, 10);
     public static final ModConfigSpec.BooleanValue renderSoulIntegrity = BUILDER.comment("Should Soul Integrity be rendered?").define("renderSoulIntegrity", true);
+    public static final ModConfigSpec.DoubleValue guiScaleWelcome = BUILDER.comment("Gui scale").defineInRange("guiScaleWelcome", 1.4, 0.01, 10);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
     

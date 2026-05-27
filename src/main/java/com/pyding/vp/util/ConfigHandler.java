@@ -27,75 +27,6 @@ public class ConfigHandler {
             .comment("Cooldown in milliseconds for any Vestiges abilities. 100 is 0.1 sec.")
             .defineInRange("vestigesCooldown", 50L, 0L, Long.MAX_VALUE);
 
-    public static final ModConfigSpec.ConfigValue<List<Integer>> reduceChallenges = BUILDER
-            .comment("Those are numbers for each Challenge to reduce their maximum")
-            .define("reduceChallenges", getReduceList());
-
-    public static final ModConfigSpec.BooleanValue reduceChallengesPercent = BUILDER
-            .comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum")
-            .define("reduceChallengesPercent", false);
-
-    public static final ModConfigSpec.DoubleValue maxPower = BUILDER
-            .comment("Maximum power of Vestiges.")
-            .defineInRange("maxPower", 100d, 1d, 2100000000d);
-
-    public static final ModConfigSpec.ConfigValue<List<Integer>> powerScales = BUILDER
-            .comment("Each Vestige Power Scale in percents.")
-            .define("powerScales",getSacleList());
-
-    public static final ModConfigSpec.DoubleValue powerBoost = BUILDER
-            .comment("Power Scale increase by completing new challenges.")
-            .defineInRange("powerBoost", 5d, 1d, 2100000000d);
-
-    // --- Cruel Mode ---
-    public static final ModConfigSpec.BooleanValue cruelMode = BUILDER
-            .comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%")
-            .define("cruelMode", false);
-
-    public static final ModConfigSpec.DoubleValue bossHP = BUILDER
-            .comment("Cruel mode Hp scale")
-            .defineInRange("bossHP", 1.5d, 1d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue bossAttack = BUILDER
-            .comment("Cruel mode attack scale")
-            .defineInRange("bossAttack", 3d, 1d, 2100000000d);
-
-    public static final ModConfigSpec.IntValue armorCruel = BUILDER
-            .comment("Cruel mode armor and armor toughness")
-            .defineInRange("armorCruel", 60, 1, 2100000000);
-
-    public static final ModConfigSpec.DoubleValue damageCruel = BUILDER
-            .comment("Cruel mode damage percent from maximum hp when starving, drowning. Set 0 to disable.")
-            .defineInRange("damageCruel", 0.15d, 0d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue absorbCruel = BUILDER
-            .comment("Cruel mode DPS cap from max health %, 0.1 is 10%")
-            .defineInRange("absorbCruel", 0.4d, 0d, (double) Integer.MAX_VALUE);
-
-    public static final ModConfigSpec.DoubleValue shieldCruel = BUILDER
-            .comment("Cruel mode Shield from hp percent 1 is 100%")
-            .defineInRange("shieldCruel", 0.75d, 0.1d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue overShieldCruel = BUILDER
-            .comment("Cruel mode Over Shield from hp percent")
-            .defineInRange("overShieldCruel", 0.25d, 0.1d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue healPercent = BUILDER
-            .comment("Cruel mode Heal percent from max hp")
-            .defineInRange("healPercent", 0.005d, 0d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue expMultiplier = BUILDER
-            .comment("Exp base multiplier from bosses in Cruel mode")
-            .defineInRange("expMultiplier", 10d, 1d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue empoweredChance = BUILDER
-            .comment("Chance to spawn Empowered mob in Hardcore mode")
-            .defineInRange("empoweredChance", 0.01d, 0d, 2100000000d);
-
-    public static final ModConfigSpec.DoubleValue healthBoost = BUILDER
-            .comment("Health Boost for all monsters in Cruel Mode. Leave at 1.0 to disable.")
-            .defineInRange("healthBoost", 2.0d, 0d, 2100000000d);
-
     // --- Nightmare ---
     public static final ModConfigSpec.DoubleValue nightmareBoxChance = BUILDER
             .comment("Nightmare Bosses boxes chance 0.5 is 50%")
@@ -168,7 +99,6 @@ public class ConfigHandler {
     public static final ModConfigSpec.DoubleValue nightmareDpsCap = BUILDER.defineInRange("nightmareDpsCap", 0.01d, 0d, (double) Float.MAX_VALUE);
     public static final ModConfigSpec.BooleanValue unlockHp = BUILDER.define("unlockHp", false);
     public static final ModConfigSpec.BooleanValue eventMode = BUILDER.define("eventMode", false);
-    public static final ModConfigSpec.DoubleValue rareItemChance = BUILDER.defineInRange("rareItemChance", 0.025d, 0.0001d, 1d);
     public static final ModConfigSpec.ConfigValue<String> debuffBlacklist = BUILDER.define("debuffBlacklist", "crystallized,");
     public static final ModConfigSpec.ConfigValue<String> cloneBlackList = BUILDER.define("cloneBlackList2", "bundle,pouch,bag,backpack,chest,box,pocket,store,storage,satchel,knapsack,cargo,vault,locker,crate,trunk,barrel,bin,safe,drawer,compartment,cache,case,basket,haversack,receptacle,container,ghostly_pickaxe,soul_gem,horse_flute,sack,broom,jar,bottle");
     public static final ModConfigSpec.ConfigValue<String> cloneWhiteList = BUILDER.define("cloneWhiteList", "chestplate,box_eggs,box_saplings,item.vp.box,item.vp.mystery_chest");
@@ -176,7 +106,6 @@ public class ConfigHandler {
     public static final ModConfigSpec.ConfigValue<String> dupersList = BUILDER.define("dupersList", "");
     public static final ModConfigSpec.ConfigValue<String> leaderboardHost = BUILDER.define("leaderboardHost", "");
     public static final ModConfigSpec.ConfigValue<String> leaderboardPort = BUILDER.define("leaderboardPort", "");
-    public static final ModConfigSpec.BooleanValue leaderboard = BUILDER.define("leaderboard", false);
     public static final ModConfigSpec.DoubleValue chaosCoreStellarHpRes = BUILDER.defineInRange("chaosCoreStellarHpRes", 10d, 0d, 2100000000d);
     public static final ModConfigSpec.DoubleValue oysterChance = BUILDER.defineInRange("oysterChance", 0.15d, 0d, 1d);
     public static final ModConfigSpec.DoubleValue seashellChance = BUILDER.defineInRange("seashellChance", 0.15d, 0d, 1d);
@@ -196,28 +125,6 @@ public class ConfigHandler {
 
 
     public static final ModConfigSpec SPEC = BUILDER.build();
-
-    public static List<Integer> getReduceList(){
-        List<Integer> reduceList = new ArrayList<>();
-        for (int i = 0; i < VestigeCap.totalVestiges; i++)
-            reduceList.add(0);
-        return reduceList;
-    }
-
-    public static List<Integer> getSacleList(){
-        List<Integer> scaleList = new ArrayList<>();
-        for(int i = 0; i < VestigeCap.totalVestiges; i++)
-            scaleList.add(30);
-        return scaleList;
-    }
-
-    public static int getChallengeReduceByNumber(int number) {
-        return reduceChallenges.get().get(number-1);
-    }
-
-    public static int powerScale(int number) {
-        return powerScales.get().get(number);
-    }
 
     public static final String getDefaultLoot(){
         return "1<item.vp.corrupted_fragment,item.vp.box_saplings,item.irons_spellbooks.blank_rune4,item.irons_spellbooks.rare_ink5,block.minecraft.wither_skeleton_skull,item.minecraft.end_crystal4,item.minecraft.netherite_scrap2,block.aether.enchanted_gravitite8,item.irons_spellbooks.arcane_salvage,item.minecraft.diamond4,item.botania.black_lotus8,item.bloodmagic.blankslate16,item.bloodmagic.reinforcedslate8,item.bloodmagic.infusedslate4,item.eidolon.soul_shard8,item.alexscaves.darkened_apple,block.minecraft.glass32,block.minecraft.quartz_block16,block.minecraft.gold_block4>0.3<item.vp.corrupted_item,item.minecraft.totem_of_undying,item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment16,item.aquamirae.ship_graveyard_echo4,item.enigmaticlegacy.earth_heart,item.enigmaticlegacy.etherium_ore5,item.skilltree.wisdom_scroll4,block.occultism.storage_stabilizer_tier3,item.celestisynth.supernal_netherite_ingot4,item.enigmaticlegacy.angel_blessing,item.enigmaticlegacy.ocean_stone,item.enigmaticlegacy.blazing_core,item.enigmaticlegacy.eye_of_nebula,item.irons_spellbooks.lightning_upgrade_orb,item.irons_spellbooks.ice_upgrade_orb,item.irons_spellbooks.protection_upgrade_orb,item.irons_spellbooks.mana_upgrade_orb,item.irons_spellbooks.ender_upgrade_orb,item.irons_spellbooks.cooldown_upgrade_orb,item.irons_spellbooks.nature_upgrade_orb,item.irons_spellbooks.evocation_upgrade_orb,item.irons_spellbooks.fire_upgrade_orb,item.irons_spellbooks.holy_upgrade_orb,item.irons_spellbooks.blood_upgrade_orb,item.irons_spellbooks.epic_ink5,item.vp.stellar2,item.vp.stellar3,item.botania.terrasteel_ingot,item.botania.blacker_lotus8,item.bloodmagic.demonslate8,item.bloodmagic.etherealslate4,item.bloodmagic.hellforgedparts4,item.eidolon.lesser_soul_gem4,item.twilightforest.charm_of_life_1,item.twilightforest.charm_of_life_2,item.twilightforest.charm_of_keeping_1>0.05<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item8,item.enigmaticlegacy.cosmic_heart,item.aquamirae.abyssal_amethyst8,item.enigmaticlegacy.astral_fruit,item.enigmaticlegacy.ichor_bottle,item.enigmaticlegacy.void_pearl,item.irons_spellbooks.legendary_ink5,item.vp.stellar10,item.vp.stellar16,block.occultism.storage_stabilizer_tier4,item.vp.chaos_orb,block.minecraft.dragon_egg,item.twilightforest.charm_of_keeping_64,item.vp.box,item.vp.box_eggs2,item.vp.refresher,item.mythicbotany.alfsteel_ingot,block.alexscaves.tremorzilla_egg,item.enigmaticlegacy.soul_crystal,item.enigmaticlegacy.abyssal_heart,item.vp.vip,item.alexsmobs.warped_mixture>0.001<item.vp.chaos_orb64,item.vp.celestial_mirror,item.vp.pinky_pearl20,item.enigmaticlegacy.the_cube>";

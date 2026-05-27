@@ -3,6 +3,7 @@ package com.pyding.vp.item;
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -40,7 +41,7 @@ public class Seashell extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level p_41432_, Player player, InteractionHand p_41434_) {
-        System.out.println(ConfigHandler.reduceChallenges.get());
+        System.out.println(ServerConfig.reduceChallenges.get());
         ItemStack stack = player.getItemInHand(p_41434_);
         VPUtil.spawnSphere(player, ParticleTypes.BUBBLE,30,3,0.5f);
         switch (VPUtil.getTag(stack).getInt("VPSType")){
