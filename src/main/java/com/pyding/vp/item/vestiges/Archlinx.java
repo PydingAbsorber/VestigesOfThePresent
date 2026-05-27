@@ -105,12 +105,6 @@ public class Archlinx extends Vestige{
         super.ultimateEnds(player, stack);
     }
 
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        removeModifiers(player);
-        super.curioSucks(player, stack);
-    }
-
     public static void removeModifiers(Player player){
         AttributeMap map = player.getAttributes();
         List<Attribute> list = VPUtil.attributeList();

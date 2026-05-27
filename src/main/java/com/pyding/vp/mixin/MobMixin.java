@@ -2,6 +2,7 @@ package com.pyding.vp.mixin;
 
 import com.pyding.vp.item.ModItems;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,7 +40,7 @@ public abstract class MobMixin {
 
     @Inject(method = "getEquipmentDropChance",at = @At("HEAD"),cancellable = true, require = 1)
     private void getEquipmentDropChanceMixin(EquipmentSlot p_21520_, CallbackInfoReturnable<Float> cir){
-        if(ConfigHandler.COMMON_SPEC.isLoaded() && ConfigHandler.COMMON.cruelMode.get())
+        if(ConfigHandler.COMMON_SPEC.isLoaded() && ServerConfig.COMMON.cruelMode.get())
             cir.setReturnValue(0f);
     }
 }

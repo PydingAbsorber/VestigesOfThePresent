@@ -19,7 +19,8 @@ public abstract class GuiScaleMixin {
                 || Minecraft.getInstance().screen instanceof MysteryDropScreen
                 || Minecraft.getInstance().screen instanceof ChallengeScreen
                 || Minecraft.getInstance().screen instanceof GuideScreen
-                || Minecraft.getInstance().screen instanceof NightmareScreen;
+                || Minecraft.getInstance().screen instanceof NightmareScreen
+                || Minecraft.getInstance().screen instanceof WelcomeScreen;
     }
 
     @Inject(method = "getGuiScaledHeight", at = @At("HEAD"), cancellable = true)

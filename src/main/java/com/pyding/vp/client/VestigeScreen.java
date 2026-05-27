@@ -243,7 +243,7 @@ public class VestigeScreen extends Screen {
             if(vestigeNumber == 9)
                 tooltip.add(Component.translatable("vp.get." + vestigeNumber).withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getGoldenChance()+"%").withStyle(ChatFormatting.GRAY)));
             else if(vestigeNumber == 13)
-                tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable("vp.get." + vestigeNumber,ServerConfig.COMMON.rareItemChance.get()*100+"%").withStyle(ChatFormatting.GRAY));
             else if(vestigeNumber == 14){
                 tooltip.add(Component.translatable("vp.get." + vestigeNumber,ConfigHandler.COMMON.chaostime.get(),player.getPersistentData().getInt("VPMaxChallenge"+vestigeNumber)).append(".\n").withStyle(ChatFormatting.GRAY));
                 tooltip.add(Component.translatable("vp.chaos").withStyle(ChatFormatting.GRAY).append(Component.literal(cap.getRandomEntity()).withStyle(ChatFormatting.DARK_PURPLE)).append(".\n"));

@@ -57,16 +57,15 @@ public class Anemoculus extends Vestige{
         super.doSpecial(seconds, player, level, stack);
     }
 
-    private static final float VANILLA_FLY_SPEED = 0.05F;
-    private static final float BOOSTED_FLY_SPEED = 0.15F;
+    public static final float VANILLA_FLY_SPEED = 0.05F;
+    public static final float BOOSTED_FLY_SPEED = 0.15F;
 
     @Override
     public void doUltimate(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player,SoundRegistry.WIND3.get());
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
-        if(player.getAbilities().getFlyingSpeed() < BOOSTED_FLY_SPEED)
-            player.getAbilities().setFlyingSpeed(BOOSTED_FLY_SPEED);
+
         player.onUpdateAbilities();
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(6),serverPlayer);
@@ -80,7 +79,6 @@ public class Anemoculus extends Vestige{
             return;
         player.getAbilities().mayfly = false;
         player.getAbilities().flying = false;
-        player.getAbilities().setFlyingSpeed(VANILLA_FLY_SPEED);
         player.onUpdateAbilities();
         if(player instanceof ServerPlayer serverPlayer)
             PacketHandler.sendToClient(new PlayerFlyPacket(2),serverPlayer);
@@ -91,6 +89,10 @@ public class Anemoculus extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
+        if(player.tickCount % 20 == 0 && player.getAbilities().getFlyingSpeed() < BOOSTED_FLY_SPEED) {
+            player.getAbilities().setFlyingSpeed(BOOSTED_FLY_SPEED);
+            player.onUpdateAbilities();
+        }
         super.curioTick(slotContext, stack);
     }
 }

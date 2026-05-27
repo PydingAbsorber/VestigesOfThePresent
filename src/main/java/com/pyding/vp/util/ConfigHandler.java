@@ -22,21 +22,12 @@ public class ConfigHandler {
 
     public static class Common {
         public final ForgeConfigSpec.LongValue vestigesCooldown;
-        public final ForgeConfigSpec.BooleanValue cruelMode;
-        public final ForgeConfigSpec.IntValue armorCruel;
-        public final ForgeConfigSpec.DoubleValue damageCruel;
-        public final ForgeConfigSpec.DoubleValue absorbCruel;
-        public final ForgeConfigSpec.DoubleValue shieldCruel;
-        public final ForgeConfigSpec.DoubleValue overShieldCruel;
         public final ForgeConfigSpec.BooleanValue easter;
         public final ForgeConfigSpec.DoubleValue ballShield;
         public final ForgeConfigSpec.DoubleValue ballOverShield;
         public final ForgeConfigSpec.DoubleValue ballDebuff;
-        public final ForgeConfigSpec.DoubleValue healPercent;
         public final ForgeConfigSpec.BooleanValue anomaly;
         public final ForgeConfigSpec.IntValue cooldown;
-        public final ForgeConfigSpec.DoubleValue bossHP;
-        public final ForgeConfigSpec.DoubleValue bossAttack;
         public final ForgeConfigSpec.IntValue chaostime;
         public final ForgeConfigSpec.IntValue devourer;
         public final ForgeConfigSpec.IntValue blackhole;
@@ -89,16 +80,10 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue nightmareBoxesMin;
         public final ForgeConfigSpec.IntValue eatingMinutes;
         public final ForgeConfigSpec.BooleanValue failFlowers;
-        public final ForgeConfigSpec.ConfigValue<List<Integer>> reduceChallenges;
-        public final ForgeConfigSpec.ConfigValue<List<Integer>> powerScales;
-        public final ForgeConfigSpec.BooleanValue reduceChallengesPercent;
         public final ForgeConfigSpec.ConfigValue fishObjects;
         public final ForgeConfigSpec.DoubleValue nightmareDpsCap;
         public final ForgeConfigSpec.BooleanValue unlockHp;
         public final ForgeConfigSpec.BooleanValue eventMode;
-        public final ForgeConfigSpec.DoubleValue rareItemChance;
-        public final ForgeConfigSpec.DoubleValue empoweredChance;
-        public final ForgeConfigSpec.DoubleValue healthBoost;
         public final ForgeConfigSpec.ConfigValue debuffBlacklist;
         public final ForgeConfigSpec.ConfigValue cloneBlackList;
         public final ForgeConfigSpec.ConfigValue cloneWhiteList;
@@ -107,7 +92,6 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.ConfigValue leaderboardHost;
         public final ForgeConfigSpec.ConfigValue leaderboardPort;
-        public final ForgeConfigSpec.BooleanValue leaderboard;
         public final ForgeConfigSpec.DoubleValue chaosCoreStellarHpRes;
         public final ForgeConfigSpec.DoubleValue oysterChance;
         public final ForgeConfigSpec.DoubleValue seashellChance;
@@ -119,9 +103,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.ConfigValue mineralCluster;
         public final ForgeConfigSpec.ConfigValue mineralClusterBlacklist;
         public final ForgeConfigSpec.BooleanValue lore;
-        public final ForgeConfigSpec.DoubleValue maxPower;
-        public final ForgeConfigSpec.DoubleValue powerBoost;
-        public final ForgeConfigSpec.DoubleValue expMultiplier;
         public final ForgeConfigSpec.DoubleValue anomalyPlayerTeleportChance;
         public final ForgeConfigSpec.IntValue clearEntities;
         public final ForgeConfigSpec.ConfigValue clearEntitiesBlacklist;
@@ -130,30 +111,6 @@ public class ConfigHandler {
         public Common(ForgeConfigSpec.Builder builder) {
             lore = builder.comment("Set false to disable chat messages with Lore").define("lore", true);
             vestigesCooldown = builder.comment("Cooldown in milliseconds for any Vestiges abilities. 100 is 0.1 sec.").defineInRange("vestigesCooldown", 50, 0, Long.MAX_VALUE);
-            List<Integer> reduceList = new ArrayList<>();
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                reduceList.add(0);
-            reduceChallenges = builder.comment("Those are numbers for each Challenge to reduce their maximum").define("reduceChallenges",reduceList);
-            reduceChallengesPercent = builder.comment("If true, numbers above for reducing Challenges maximum number will count as Percent from maximum").define("reduceChallengesPercent", false);
-            maxPower = builder.comment("Maximum power of Vestiges.").defineInRange("maxPower", 100d, 1d, 2100000000d);
-            List<Integer> scaleList = new ArrayList<>();
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                scaleList.add(30);
-            powerScales = builder.comment("Each Vestige Power Scale in percents.").define("powerScales",scaleList);
-            powerBoost = builder.comment("Power Scale increase by completing new challenges.").defineInRange("powerBoost", 5d, 1d, 2100000000d);
-
-            cruelMode = builder.comment("Enables Cruel mode: all bosses will have x4 hp, x2 damage, 100 armor, Shields and Over Shield, Healing, damage absorption 90%").define("cruelMode", false);
-            bossHP = builder.comment("Cruel mode Hp scale").defineInRange("bossHP", 1.5d, 1, 2100000000);
-            bossAttack = builder.comment("Cruel mode attack scale").defineInRange("bossAttack", 3d, 1, 2100000000);
-            armorCruel = builder.comment("Cruel mode armor and armor toughness").defineInRange("armorCruel", 60, 1, 2100000000);
-            damageCruel = builder.comment("Cruel mode damage percent from maximum hp when starving, drowning. Set 0 to disable.").defineInRange("damageCruel", 0.15d, 0, 2100000000);
-            absorbCruel = builder.comment("Cruel mode DPS cap from max health %, 0.1 is 10%").defineInRange("absorbCruel", 0.4, 0, Integer.MAX_VALUE);
-            shieldCruel = builder.comment("Cruel mode Shield from hp percent 1 is 100%").defineInRange("shieldCruel", 0.75d, 0.1, 2100000000);
-            overShieldCruel = builder.comment("Cruel mode Over Shield from hp percent").defineInRange("overShieldCruel", 0.25, 0.1, 2100000000);
-            healPercent = builder.comment("Cruel mode Heal percent from max hp").defineInRange("healPercent", 0.005, 0, 2100000000);
-            expMultiplier = builder.comment("Exp base multiplier from bosses in Cruel mode").defineInRange("expMultiplier", 10d, 1d, 2100000000);
-            empoweredChance = builder.comment("Chance to spawn Empowered mob in Hardcore mode").defineInRange("empoweredChance", 0.01, 0, 2100000000);
-            healthBoost = builder.comment("Health Boost for all monsters in Cruel Mode. Leave at 1.0 to disable.").defineInRange("healthBoost", 2.0, 0, 2100000000);
 
             nightmareBoxChance = builder.comment("Nightmare Bosses boxes chance 0.5 is 50%").defineInRange("nightmareAllBoxChance", 1d, 0, 1);
             nightmareRefresherChance = builder.comment("Nightmare Bosses Refresher chance 0.1 is 10%").defineInRange("nightmareRefresherChance", 0.1, 0, 1);
@@ -197,7 +154,6 @@ public class ConfigHandler {
             devourerCdTime = builder.comment("Devourer cooldown time between rotting hits. 1000 is 1 sec").defineInRange("devourerCdTime", 200, 1, Long.MAX_VALUE);
             markBonus = builder.comment("Amount of stats per Curse for Mark's Overdrive").defineInRange("markBonus", 10, 1, Integer.MAX_VALUE);
 
-
             devourer = builder.comment("How many hits can cause Soul Rotting from Devourer").defineInRange("devourer", 30, 0, 2100000000);
             blackhole = builder.comment("How many ticks must pass before Black Hole hits").defineInRange("blackhole", 4, 0, 2100000000);
             anomaly = builder.comment("Should anomaly teleport only living entities").define("anomaly", false);
@@ -219,7 +175,6 @@ public class ConfigHandler {
             nightmareDpsCap = builder.comment("Damage per second cap for Nightmare Bosses in max hp % -> 0.01 is 1%").defineInRange("nightmareDpsCap", 0.01,0,Float.MAX_VALUE);
             unlockHp = builder.comment("For servers with maxed out desync and hp lock to 2048 or if you just have problems with MaxHp.").define("unlockHp", false);
             eventMode = builder.comment("Event mode that disables all teleportations and fly.").define("eventMode", false);
-            rareItemChance = builder.comment("Chance for Item to define as rare for Prism challenge. For example carrot has 0.025 chance to drop from zobmie").defineInRange("rareItemChance", 0.025d, 0.0001, 1);
             debuffBlacklist = builder.comment("Defines blacklist for random potion effects as from Heirloom's Special: ").define("debuffBlacklist","crystallized,levitation,divinity,ascension,");
             cloneBlackList = builder.comment("Defines blacklist for items that cannot be cloned with Celestial Mirror: ").define("cloneBlackList2","bundle,pouch,bag,backpack,chest,box,pocket,store,storage,satchel,knapsack,cargo,vault,locker,crate,trunk,barrel,bin,safe,drawer,compartment,cache,case,basket,haversack,receptacle,container,ghostly_pickaxe,soul_gem,horse_flute,sack,broom,jar,bottle");
             cloneWhiteList = builder.comment("Defines whitelist for items that can be cloned with Celestial Mirror with highest priority. F.e. chestplate to not be blocked by chest in blacklist: ").define("cloneWhiteList","chestplate,box_eggs,box_saplings,item.vp.box,item.vp.mystery_chest");
@@ -227,7 +182,6 @@ public class ConfigHandler {
             dupersList = builder.comment("List of dupers: ").define("dupersList","");
             leaderboardHost = builder.comment("Ip address for leaderboard: ").define("leaderboardHost","");
             leaderboardPort = builder.comment("Ip port for leaderboard: ").define("leaderboardPort","");
-            leaderboard = builder.comment("Defines if Leaderboard should be enabled: ").define("leaderboard",false);
             chaosCoreStellarHpRes = builder.comment("Reduce modifier for Chaos Core Stellar ability of max hp lowering from Healing Debt").defineInRange("chaosCoreStellarHpRes", 10d, 0, 2100000000);
             oysterChance = builder.comment("Base chance for spawning Hungry Oyster per 8000 ticks").defineInRange("oysterChance", 0.15d, 0, 1);
             seashellChance = builder.comment("Base chance for spawning Silly Seashell per 8000 ticks").defineInRange("seashellChance", 0.15d, 0, 1);
@@ -242,14 +196,6 @@ public class ConfigHandler {
             clearEntities = builder.comment("Time between entity clearing in ticks, 20t = 1 sec. Turned off by default with 0.").defineInRange("clearEntities", 0, 0, Integer.MAX_VALUE);
             clearEntitiesBlacklist = builder.comment("Black list for clearing entities: ").define("clearEntitiesBlacklist","spectrum,twilightforest");
             catFood = builder.comment("Food for Cat Ears that counts as fish: ").define("catFood","fish,salmon,tuna,cod,trout,herring,mackerel,sardine,anchovy,haddock,halibut,sole,flounder,swordfish,marlin,perch,pike,carp,catfish,eel,sturgeon,tilapia,seabass,snapper,grouper,dorado,barracuda,mullet,monkfish,turbot,zander,bream,roach,tench,guppy,goldfish,angelfish,tetra,barb,molly,platy,danio,betta,discus,oscar,cichlid,clownfish,surgeonfish,goby,blenny,pufferfish,lionfish,scorpionfish,stingray,shark,skate,lungfish,coelacanth,arapaima,piranha,arowana,burbot,grayling,char,smelt,capelin,pollock,whiting,hake,ling,bluefish,amberjack,wahoo,mahimahi,pompano,drum,croaker,sheepshead,tarpon,bonefish,permit,barramundi,loach,gudgeon,ide,asp,chub,rudd,dace,minnow,stickleback,sculpin,lumpsucker,gar,bowfin,paddlefish,hagfish,lamprey,anchoveta,sprat");
-        }
-
-        public int getChallengeReduceByNumber(int number) {
-            return reduceChallenges.get().get(number-1);
-        }
-
-        public int powerScale(int number) {
-            return powerScales.get().get(number);
         }
 
         public static final String DEFAULT_LOOT = "1<item.vp.corrupted_fragment,item.vp.box_saplings,item.irons_spellbooks.blank_rune4,item.irons_spellbooks.rare_ink5,block.minecraft.wither_skeleton_skull,item.minecraft.end_crystal4,item.minecraft.netherite_scrap2,block.aether.enchanted_gravitite8,item.irons_spellbooks.arcane_salvage,item.minecraft.diamond4,item.botania.black_lotus8,item.bloodmagic.blankslate16,item.bloodmagic.reinforcedslate8,item.bloodmagic.infusedslate4,item.eidolon.soul_shard8,item.alexscaves.darkened_apple,block.minecraft.glass32,block.minecraft.quartz_block16,block.minecraft.gold_block4,item.cisco_mod.brightsteel_ingot8,item.cisco_mod.champion_coin20,item.cisco_mod.brilliant_diamond>0.3<item.vp.corrupted_item,item.minecraft.totem_of_undying,item.vp.shard,item.vp.stellar,item.vp.corrupted_fragment16,item.aquamirae.ship_graveyard_echo4,item.enigmaticlegacy.earth_heart,item.enigmaticlegacy.etherium_ore5,item.skilltree.wisdom_scroll4,block.occultism.storage_stabilizer_tier3,item.celestisynth.supernal_netherite_ingot4,item.enigmaticlegacy.angel_blessing,item.enigmaticlegacy.ocean_stone,item.enigmaticlegacy.blazing_core,item.enigmaticlegacy.eye_of_nebula,item.irons_spellbooks.lightning_upgrade_orb,item.irons_spellbooks.ice_upgrade_orb,item.irons_spellbooks.protection_upgrade_orb,item.irons_spellbooks.mana_upgrade_orb,item.irons_spellbooks.ender_upgrade_orb,item.irons_spellbooks.cooldown_upgrade_orb,item.irons_spellbooks.nature_upgrade_orb,item.irons_spellbooks.evocation_upgrade_orb,item.irons_spellbooks.fire_upgrade_orb,item.irons_spellbooks.holy_upgrade_orb,item.irons_spellbooks.blood_upgrade_orb,item.irons_spellbooks.epic_ink5,item.vp.stellar2,item.vp.stellar3,item.botania.terrasteel_ingot,item.botania.blacker_lotus8,item.bloodmagic.demonslate8,item.bloodmagic.etherealslate4,item.bloodmagic.hellforgedparts4,item.eidolon.lesser_soul_gem4,item.twilightforest.charm_of_life_1,item.twilightforest.charm_of_life_2,item.twilightforest.charm_of_keeping_1,item.cisco_mod.darksteel4,item.cisco_mod.bright_essence8,item.cisco_mod.ancient_essence8,item.cisco_mod.unattuned_core,item.cisco_mod.ember_core,item.cisco_mod.thunder_core,item.cisco_mod.glacial_core,item.cisco_mod.light_core,item.cisco_mod.wind_core,item.cisco_mod.dark_core>0.05<item.vp.hearty_pearl,item.vp.vortex,item.vp.seashell,item.vp.corrupted_item8,item.enigmaticlegacy.cosmic_heart,item.aquamirae.abyssal_amethyst8,item.enigmaticlegacy.astral_fruit,item.enigmaticlegacy.ichor_bottle,item.enigmaticlegacy.void_pearl,item.irons_spellbooks.legendary_ink5,item.vp.stellar10,item.vp.stellar16,block.occultism.storage_stabilizer_tier4,item.vp.chaos_orb,block.minecraft.dragon_egg,item.twilightforest.charm_of_keeping_64,item.vp.box,item.vp.box_eggs2,item.vp.refresher,item.mythicbotany.alfsteel_ingot,block.alexscaves.tremorzilla_egg,item.enigmaticlegacy.soul_crystal,item.enigmaticlegacy.abyssal_heart,item.vp.vip,item.alexsmobs.warped_mixture,item.cisco_mod.true_dragons_breath,item.cisco_mod.champion_loot_bag3>0.001<item.vp.chaos_orb64,item.vp.celestial_mirror,item.vp.pinky_pearl20,item.enigmaticlegacy.the_cube,item.cisco_mod.radiant_sunshard,item.cisco_mod.temporal_core,item.cisco_mod.radiant_ruby>";

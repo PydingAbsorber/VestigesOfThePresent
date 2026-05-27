@@ -103,15 +103,6 @@ public class Treasure extends Vestige{
         }
     }
 
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        super.curioSucks(player, stack);
-        if(player.getAttributes().hasModifier(Attributes.ARMOR,UUID.fromString("e6fdfccb-e294-481c-bd65-f464a9982e3f"))){
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR, UUID.fromString("e6fdfccb-e294-481c-bd65-f464a9982e3f"),0, AttributeModifier.Operation.ADDITION,"vp.treasure.armor"));
-            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR_TOUGHNESS, UUID.fromString("c692ceea-e05b-441f-8c98-0ff7842fa89e"),0, AttributeModifier.Operation.ADDITION,"vp.treasure.armor"));
-        }
-    }
-
     public static float getOres(Player player){
         float ores = 0;
         for(ItemStack stack: player.getInventory().items){

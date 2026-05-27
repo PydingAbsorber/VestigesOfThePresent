@@ -1,10 +1,16 @@
 package com.pyding.vp.mixin;
 
+import com.pyding.vp.item.ModItems;
+import com.pyding.vp.item.vestiges.NightmareDevourer;
+import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Entity.class, priority = 0)
 public abstract class VPEntityMixin {
+
+    @Shadow public abstract void playerTouch(Player p_20081_);
 
     @Inject(method = "isInBubbleColumn",at = @At("RETURN"),cancellable = true, require = 1)
     protected void isInBubbleColumn(CallbackInfoReturnable<Boolean> cir){
@@ -50,6 +58,21 @@ public abstract class VPEntityMixin {
             VPUtil.printTrack("isAliveMix isRoflan: " + VPUtil.isRoflanEbalo(player), player);
             if (VPUtil.isRoflanEbalo(player)) {
                 cir.setReturnValue(true);
+            }
+        }
+    }
+
+    @Inject(method = "getBoundingBox", at = @At("HEAD"), cancellable = true)
+    private void getBoundingBoxMixin(CallbackInfoReturnable<AABB> cir) {
+        Entity entity = (Entity) (Object) this;
+        if (entity instanceof Player player) {
+            if (VPUtil.hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player)) {
+                ItemStack stack = VPUtil.getVestigeStack(NightmareDevourer.class,player);
+                if(stack.getItem() instanceof NightmareDevourer nightmareDevourer && Vestige.isTripleStellar(stack) && nightmareDevourer.isUltimateActive(stack))
+                    cir.setReturnValue(new AABB(
+                            player.getX(), player.getY(), player.getZ(),
+                            player.getX(), player.getY(), player.getZ()
+                    ));
             }
         }
     }

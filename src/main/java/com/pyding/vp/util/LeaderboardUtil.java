@@ -346,6 +346,6 @@ public class LeaderboardUtil {
     }
 
     public static boolean isLeaderboardsActive(Player player){
-        return ConfigHandler.COMMON.leaderboard.get() && !player.hasPermissions(2);
+        return ServerConfig.COMMON.leaderboard.get() && !player.hasPermissions(2);
     }
 }

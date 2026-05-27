@@ -19,7 +19,7 @@ public abstract class VPCreativeTabMixin {
 
     @Inject(method = "getDisplayName",at = @At("HEAD"),cancellable = true, require = 1)
     private void descMixin(CallbackInfoReturnable<Component> cir){
-        if(ModItems.LOGO.isPresent() && getIconItem().is(ModItems.LOGO.get())) {
+        if(ModItems.STELLAR.isPresent() && getIconItem().is(ModItems.STELLAR.get())) {
             cir.setReturnValue(GradientUtil.customGradient(Component.translatable("itemGroup.vptab").getString().substring(2),GradientUtil.PURPLE_DARK_PURPLE));
         }
     }

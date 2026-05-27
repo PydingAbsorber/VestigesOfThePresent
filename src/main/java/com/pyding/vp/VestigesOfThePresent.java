@@ -14,10 +14,7 @@ import com.pyding.vp.item.accessories.EarringOfDeadHopes;
 import com.pyding.vp.item.accessories.NecklaceOfTorturedDreams;
 import com.pyding.vp.item.accessories.RingOfFallenStar;
 import com.pyding.vp.network.PacketHandler;
-import com.pyding.vp.util.ClientConfig;
-import com.pyding.vp.util.ConfigHandler;
-import com.pyding.vp.util.VPUtil;
-import com.pyding.vp.util.VPUtilParticles;
+import com.pyding.vp.util.*;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,7 +40,7 @@ public class VestigesOfThePresent
 {
     public static final String MODID = "vp";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final String VERSION = "1.20.1:1.6.3";
+    public static final String VERSION = "1.20.1:1.7.0";
 
     public static EventHandler eventHandler;
 
@@ -64,6 +61,7 @@ public class VestigesOfThePresent
         MinecraftForge.EVENT_BUS.register(PROXY);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.COMMON_SPEC);
         ModCreativeModTab.register(modEventBus);
         modEventBus.addListener(this::addCreative);
         VPUtil.vzlomatJopu(Float.MAX_VALUE);
@@ -170,6 +168,7 @@ public class VestigesOfThePresent
             event.accept(ModItems.CORRUPT_ITEM);
             event.accept(ModItems.CHAOS_ORB);
             event.accept(ModItems.CELESTIAL_MIRROR);
+            event.accept(ModItems.WELCOME_BOOK);
             event.accept(ModItems.GUIDE_BOOK);
             event.accept(ModItems.NIGHTMARE_BOOK);
             event.accept(ModItems.EVENT_HORIZON);

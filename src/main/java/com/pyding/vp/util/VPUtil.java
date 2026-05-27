@@ -8,6 +8,7 @@ import com.pyding.vp.capability.PlayerCapabilityProviderVP;
 import com.pyding.vp.capability.PlayerCapabilityVP;
 import com.pyding.vp.client.sounds.SoundRegistry;
 import com.pyding.vp.compat.NoGriefCompat;
+import com.pyding.vp.effects.VPEffects;
 import com.pyding.vp.entity.*;
 import com.pyding.vp.item.*;
 import com.pyding.vp.item.accessories.Accessory;
@@ -96,7 +97,7 @@ import java.util.stream.Collectors;
 
 public class VPUtil {
     public static long coolDown(Player player){
-        if(ConfigHandler.COMMON.leaderboard.get())
+        if(ServerConfig.COMMON.leaderboard.get())
             return 12*60*60*1000;
         double reduce = 1;
         if(getSet(player) == 10)
@@ -145,6 +146,8 @@ public class VPUtil {
             for(MobEffectInstance effect: getEffectsHas(player,true))
                 percentBonus += 10;
         }
+        if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player))
+            percentBonus += player.getPersistentData().getInt("VPNDevour");
         return percentBonus;
     }
 
@@ -411,6 +414,7 @@ public class VPUtil {
                 +entity.getPersistentData().getFloat("VPShieldBonusFlower")
                 +entity.getPersistentData().getFloat("VPAcsShields")
                 +entity.getPersistentData().getFloat("VPRuneBonus")
+                +entity.getPersistentData().getInt("VPNDevour")
                 -entity.getPersistentData().getFloat("VPIgnis")
                 -curseMultiplier);
         if(entity.getPersistentData().getLong("VPBallDebuff") > System.currentTimeMillis())
@@ -1247,6 +1251,8 @@ public class VPUtil {
         }
         if(VPUtil.hasVestige(ModItems.DEVOURER.get(),player))
             modifySoulIntegrity(player,30);
+        if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(), player))
+            modifySoulIntegrity(player, (int) (getMaxSoulIntegrity(player)*0.15));
         setHealth(entity, 0);
         entity.die(new DamageSource(player.damageSources().genericKill().typeHolder(),player));
         despawn(entity);
@@ -1343,6 +1349,7 @@ public class VPUtil {
                 +tag.getFloat("VPHealBonusDonut")
                 +tag.getFloat("VPHealBonusDonutPassive")
                 +tag.getFloat("VPAcsHeal")
+                +entity.getPersistentData().getInt("VPNDevour")
                 -entity.getPersistentData().getFloat("VPIgnis")
                 -poison);
         if(entity.getPersistentData().getLong("VPLyra3") > System.currentTimeMillis())
@@ -1441,12 +1448,12 @@ public class VPUtil {
                             for (LootItemCondition condition : ((LootPoolMixin) pool).getConditions()) {
                                 if (condition instanceof LootItemRandomChanceCondition itemCondition) {
                                     float chance = ((LootRandomItemMixin) itemCondition).getChance();
-                                    if (chance <= ConfigHandler.COMMON.rareItemChance.get() + 0.001) { //some wierd shit is going on, so I need a little boost
+                                    if (chance <= ServerConfig.COMMON.rareItemChance.get() + 0.001) { //some wierd shit is going on, so I need a little boost
                                         rareList.add(item);
                                     }
                                 } else if (condition instanceof LootItemRandomChanceWithLootingCondition lootingCondition) {
                                     float chance = ((LootItemEnchantMixin) lootingCondition).getChance();
-                                    if (chance <= ConfigHandler.COMMON.rareItemChance.get() + 0.001) {
+                                    if (chance <= ServerConfig.COMMON.rareItemChance.get() + 0.001) {
                                         rareList.add(item);
                                     }
                                 }
@@ -2408,6 +2415,20 @@ public class VPUtil {
         player.getPersistentData().putInt("VPDebuffDefence",0);
         if(player.isAlive() && player.getHealth() > player.getMaxHealth())
             player.setHealth(player.getMaxHealth());
+        if(player.getAttributes().hasModifier(Attributes.ARMOR,UUID.fromString("e6fdfccb-e294-481c-bd65-f464a9982e3f"))){
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR, UUID.fromString("e6fdfccb-e294-481c-bd65-f464a9982e3f"),0, AttributeModifier.Operation.ADDITION,"vp.treasure.armor"));
+            player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR_TOUGHNESS, UUID.fromString("c692ceea-e05b-441f-8c98-0ff7842fa89e"),0, AttributeModifier.Operation.ADDITION,"vp.treasure.armor"));
+        }
+        player.getPersistentData().putFloat("VPRuneBonus",0);
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR, UUID.fromString("4cfa176b-4d5b-43bf-bd9b-9d717ffd7689"),20*(1 + VPUtil.getShieldBonus(player)), AttributeModifier.Operation.ADDITION,"vp:rune"));
+        player.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(player, Attributes.ARMOR_TOUGHNESS, UUID.fromString("16c73772-b469-4600-ae01-946807a719f7"),20*(1 + VPUtil.getShieldBonus(player)), AttributeModifier.Operation.ADDITION,"vp:rune2"));
+        player.getAttributes().removeAttributeModifiers(CatEars.createAttributeMap());
+        player.getPersistentData().putInt("VPNDevour",0);
+        player.getPersistentData().putBoolean("VPEarsSpecial",false);
+        player.getPersistentData().putBoolean("VPEarsUlt",false);
+        Archlinx.removeModifiers(player);
+        player.getAbilities().setFlyingSpeed(Anemoculus.VANILLA_FLY_SPEED);
+        player.onUpdateAbilities();
         sync(player);
         if (player.isCreative()) {
             return;
@@ -2803,19 +2824,19 @@ public class VPUtil {
     }
 
     public static void spawnBoss(LivingEntity entity){
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),(float)(ConfigHandler.COMMON.bossHP.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),(float)(ConfigHandler.COMMON.bossAttack.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ConfigHandler.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
-        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ConfigHandler.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.MAX_HEALTH,UUID.fromString("ee3a5be4-dfe5-4756-b32b-3e3206655f47"),(float)(ServerConfig.COMMON.bossHP.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_health"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ATTACK_DAMAGE,UUID.fromString("c87d7c0e-8804-4ada-aa26-8109a1af8b31"),(float)(ServerConfig.COMMON.bossAttack.get()+0), AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:boss_damage"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR,UUID.fromString("5cb61d4f-d008-40d9-8353-d2d2c302503a"),ServerConfig.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor"));
+        entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity,Attributes.ARMOR_TOUGHNESS,UUID.fromString("fe739733-3069-41af-93af-321759771f52"),ServerConfig.COMMON.armorCruel.get(), AttributeModifier.Operation.ADDITION,"vp:boss_armor_toughness"));
         VPUtil.setHealth(entity,entity.getMaxHealth()); //test
-        entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()));
-        entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldCruel.get()));
+        entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ServerConfig.COMMON.shieldCruel.get()));
+        entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ServerConfig.COMMON.overShieldCruel.get()));
         if(VPUtil.isNightmareBoss(entity)){
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("534c53b9-3c22-4c34-bdcd-f255a9694b34"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.hp"));
             entity.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.ATTACK_DAMAGE, UUID.fromString("1d665861-143f-4906-9ab0-e511ad377783"),10, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp:nightmare.attack"));
             entity.setHealth(entity.getMaxHealth());
-            entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.shieldCruel.get()));
-            entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ConfigHandler.COMMON.overShieldCruel.get()));
+            entity.getPersistentData().putFloat("VPShield", (float) (entity.getMaxHealth()*ServerConfig.COMMON.shieldCruel.get()));
+            entity.getPersistentData().putFloat("VPOverShield", (float) (entity.getMaxHealth()*ServerConfig.COMMON.overShieldCruel.get()));
             AABB boundingBox = entity.getBoundingBox();
             AABB scaledBoundingBox = boundingBox.inflate(boundingBox.getXsize(), boundingBox.getYsize(), boundingBox.getZsize());
             entity.setBoundingBox(scaledBoundingBox);
@@ -3014,7 +3035,7 @@ public class VPUtil {
             clearEffects(entity,false);
         if(!entity.isCurrentlyGlowing())
             entity.setGlowingTag(true);
-        float attack = (float)(100*ConfigHandler.COMMON.damageCruel.get());
+        float attack = (float)(100*ServerConfig.COMMON.damageCruel.get());
         if(entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
             attack = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
         int type = entity.getPersistentData().getInt("VPBossType");
@@ -3569,6 +3590,8 @@ public class VPUtil {
             entity.getPersistentData().putDouble("VPDevourerY", entity.getY());
             entity.getPersistentData().putDouble("VPDevourerZ", entity.getZ());
         }
+        entity.addEffect(new MobEffectInstance(VPEffects.BOUND.get(), (int) (time/1000*20)));
+        entity.addEffect(new MobEffectInstance(VPEffects.ANTI_TELEPORT.get(), (int) (time/1000*20)));
     }
 
     public static void antiTp(LivingEntity entity, long time){
@@ -3754,6 +3777,14 @@ public class VPUtil {
                     VPUtil.giveStack(new ItemStack(ModItems.BOX_SAPLINGS.get(),random.nextInt(Math.max(1,max-min))+min),killer);
                 }
                 VPUtil.giveStack(new ItemStack(ModItems.NIGHTMARESHARD.get()),player);
+                for(ItemStack stack: player.getInventory().items){
+                    if(stack.getItem() instanceof NightmareDevourer nightmareDevourer)
+                        nightmareDevourer.refresh(player,stack);
+                }
+                for(ItemStack stack: VPUtil.getVestigeList(player)){
+                    if(stack.getItem() instanceof NightmareDevourer nightmareDevourer)
+                        nightmareDevourer.refresh(player,stack);
+                }
             }
         }
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
@@ -3819,7 +3850,10 @@ public class VPUtil {
             }
             maxSoul.set(maxSoul.get()*4);
             if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(),player)){
-                maxSoul.set((int) (maxSoul.get()*2));
+                double bonus = 1.4;
+                if(hasVestige(ModItems.SOULBLIGHTER.get(),player) || hasVestige(ModItems.DEVOURER.get(),player) || hasVestige(ModItems.BOOK.get(),player))
+                    bonus = 1.8;
+                maxSoul.set((int) (maxSoul.get()*bonus));
             }
         }
         return maxSoul.get();
@@ -3937,11 +3971,11 @@ public class VPUtil {
         List<Double> list = new ArrayList<>();
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             double basePower = 0;
-            basePower += cap.getCommonChallenges() * ConfigHandler.COMMON.powerBoost.get();
-            basePower += cap.getStellarChallenges() * ConfigHandler.COMMON.powerBoost.get() * 2;
+            basePower += cap.getCommonChallenges() * ServerConfig.COMMON.powerBoost.get();
+            basePower += cap.getStellarChallenges() * ServerConfig.COMMON.powerBoost.get() * 2;
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++) {
-                AtomicDouble power = new AtomicDouble(ConfigHandler.COMMON.powerScale(i));
-                list.add(Math.min(ConfigHandler.COMMON.maxPower.get(),basePower + power.get()));
+                AtomicDouble power = new AtomicDouble(ServerConfig.COMMON.powerScale(i));
+                list.add(Math.min(ServerConfig.COMMON.maxPower.get(),basePower + power.get()));
             }
         });
         powerList.put(player.getUUID(),list);
@@ -3952,10 +3986,13 @@ public class VPUtil {
             updatePowerList(player);
         if(powerList.get(player.getUUID()) == null)
             return 0;
-        double power = powerList.get(player.getUUID()).get(challenge-1);
-        if(challenge == 666 || (power < ConfigHandler.COMMON.maxPower.get() && player.isCreative()))
-            power = ConfigHandler.COMMON.maxPower.get();
-        if((power + 15) < ConfigHandler.COMMON.maxPower.get()){
+        double power;
+        if(challenge == 666)
+            power = ServerConfig.COMMON.maxPower.get();
+        else power = powerList.get(player.getUUID()).get(challenge-1);
+        if((power < ServerConfig.COMMON.maxPower.get() && player.isCreative()))
+            power = ServerConfig.COMMON.maxPower.get();
+        if((power + 15) < ServerConfig.COMMON.maxPower.get()){
             for(ItemStack stack: getVestigeList(player)){
                 if(stack.getItem() instanceof Vestige vestige && vestige.vestigeNumber == challenge && Vestige.isStellar(stack)){
                     power += 15;

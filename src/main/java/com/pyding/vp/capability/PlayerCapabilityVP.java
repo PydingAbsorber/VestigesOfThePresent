@@ -6,10 +6,7 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ItemAnimationPacket;
 import com.pyding.vp.network.packets.LorePacket;
 import com.pyding.vp.network.packets.SendPlayerCapaToClient;
-import com.pyding.vp.util.ConfigHandler;
-import com.pyding.vp.util.GradientUtil;
-import com.pyding.vp.util.LeaderboardUtil;
-import com.pyding.vp.util.VPUtil;
+import com.pyding.vp.util.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -620,8 +617,8 @@ public class PlayerCapabilityVP {
 
     public static int getMaximum(int number,Player player){
         boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
-        if(ConfigHandler.COMMON.reduceChallengesPercent.get()){
-            float reduce = 1 - ((float)ConfigHandler.COMMON.getChallengeReduceByNumber(number)/100);
+        if(ServerConfig.COMMON.reduceChallengesPercent.get()){
+            float reduce = 1 - ((float)ServerConfig.COMMON.getChallengeReduceByNumber(number)/100);
             if(leaderboard && reduce < 0.9)
                 reduce = 0.9f;
             switch (number) {
@@ -679,7 +676,7 @@ public class PlayerCapabilityVP {
                     return (int) (VPUtil.getOres().size() * reduce);
             }
         } else {
-            int reduce = ConfigHandler.COMMON.getChallengeReduceByNumber(number);
+            int reduce = ServerConfig.COMMON.getChallengeReduceByNumber(number);
             if(leaderboard && reduce > 3)
                 reduce = 3;
             switch (number) {

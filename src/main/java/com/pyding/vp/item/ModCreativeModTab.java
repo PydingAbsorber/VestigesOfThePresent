@@ -19,7 +19,7 @@ public class ModCreativeModTab {
 
     public static RegistryObject<CreativeModeTab> VP_TAB = CREATIVE_MOD_TABS.register("vp_tab",()->
         CreativeModeTab.builder()
-                .icon(() ->  new ItemStack(ModItems.LOGO.get()))
+                .icon(() ->  new ItemStack(ModItems.STELLAR.get()))
                 .title(Component.translatable("itemGroup.vptab"))
                 .withBackgroundLocation(new ResourceLocation("vp", "textures/gui/background.png"))
                 .withTabsImage(new ResourceLocation("vp", "textures/gui/logo.png"))

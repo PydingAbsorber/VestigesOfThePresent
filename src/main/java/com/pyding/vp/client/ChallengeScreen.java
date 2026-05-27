@@ -11,6 +11,7 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.ButtonPressPacket;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.ConfigHandler;
+import com.pyding.vp.util.ServerConfig;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -115,7 +116,7 @@ public class ChallengeScreen extends Screen {
         guiGraphics.pose().translate(0, 0, 10);
         Component titleComponent;
         if(challenge == 13)
-            titleComponent = Component.translatable("vp.get." + challenge, ConfigHandler.COMMON.rareItemChance.get()*100+"%").append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);
+            titleComponent = Component.translatable("vp.get." + challenge, ServerConfig.COMMON.rareItemChance.get()*100+"%").append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);
         else titleComponent = Component.translatable("vp.get."+challenge).append(Component.literal((String)data[1])).withStyle(ChatFormatting.GRAY);
         if(challenge != 9) {
             List<net.minecraft.util.FormattedCharSequence> lines = font.split(titleComponent, this.width / 2);
@@ -190,26 +191,6 @@ public class ChallengeScreen extends Screen {
         }
         guiGraphics.pose().popPose();
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
-    }
-
-    private void renderDescription(GuiGraphics guiGraphics, Font font, List<Component> components, int x, int y, int maxWidth, int maxHeight, int color) {
-        Minecraft mc = Minecraft.getInstance();
-        Window window = mc.getWindow();
-        int scale = (int) window.getGuiScale();
-        RenderSystem.enableScissor(x * scale, (window.getGuiScaledHeight() - (y + maxHeight)) * scale, maxWidth * scale, maxHeight * scale);
-        List<FormattedCharSequence> lines = new ArrayList<>();
-        for (Component component : components) {
-            lines.addAll(font.split(component, maxWidth));
-        }
-        int drawY = (int) (y - scrollAmount);
-        for (FormattedCharSequence line : lines) {
-            if (drawY + font.lineHeight >= y && drawY <= y + maxHeight) {
-                guiGraphics.drawString(font, line, x, drawY, color);
-            }
-            drawY += font.lineHeight;
-        }
-        RenderSystem.disableScissor();
-        guiGraphics.blit(SCROLL, (int) (x + maxWidth*0.95), (int) (y+maxHeight/3 - 20), 0, 0, 64, 64,64,64);
     }
 
     private void renderCategory(GuiGraphics guiGraphics, String title, ChatFormatting color,

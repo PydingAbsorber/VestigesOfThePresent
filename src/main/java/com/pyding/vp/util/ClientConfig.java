@@ -29,6 +29,7 @@ public class ClientConfig {
         public final ForgeConfigSpec.DoubleValue guiScaleLeaderboard;
         public final ForgeConfigSpec.DoubleValue guiScaleVestige;
         public final ForgeConfigSpec.BooleanValue renderSoulIntegrity;
+        public final ForgeConfigSpec.DoubleValue guiScaleWelcome;
 
         public Common(ForgeConfigSpec.Builder builder) {
             guiScaleChest = builder.comment("Gui scale").defineInRange("guiScaleChest", 1, 0.01, 10);
@@ -39,6 +40,7 @@ public class ClientConfig {
             guiScaleVestige = builder.comment("Gui scale").defineInRange("guiScaleVestige", 1, 0.01, 10);
             guiScaleLeaderboard = builder.comment("Gui scale").defineInRange("guiScaleLeaderboard", 1, 0.01, 10);
             renderSoulIntegrity = builder.comment("Should Soul Integrity be rendered?").define("renderSoulIntegrity", true);
+            guiScaleWelcome = builder.comment("Gui scale").defineInRange("guiScaleWelcome", 1.4, 0.01, 10);
         }
     }
 }

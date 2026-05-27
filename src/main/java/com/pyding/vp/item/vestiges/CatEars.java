@@ -21,7 +21,7 @@ public class CatEars extends Vestige{
         super();
     }
 
-    private Multimap<Attribute, AttributeModifier> createAttributeMap() {
+    public static Multimap<Attribute, AttributeModifier> createAttributeMap() {
         Multimap<Attribute, AttributeModifier> attributesDefault = HashMultimap.create();
         attributesDefault.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.fromString("5171148b-064a-4810-a7c0-1dcbf781ffdc"), "vp:speed_modifier_ears", ConfigHandler.COMMON.catSpeed.get(), AttributeModifier.Operation.ADDITION));
         return attributesDefault;
@@ -35,7 +35,7 @@ public class CatEars extends Vestige{
     @Override
     public void doSpecial(long seconds, Player player, Level level, ItemStack stack) {
         VPUtil.play(player, SoundEvents.CAT_STRAY_AMBIENT);
-        player.getAttributes().addTransientAttributeModifiers(this.createAttributeMap());
+        player.getAttributes().addTransientAttributeModifiers(createAttributeMap());
         player.getPersistentData().putBoolean("VPEarsSpecial",true);
         VPUtil.spawnParticles(player, ParticleTypes.POOF,4,1,0,-0.1,0,1,false);
         super.doSpecial(seconds, player, level, stack);
@@ -51,7 +51,7 @@ public class CatEars extends Vestige{
 
     @Override
     public void specialEnds(Player player, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
+        player.getAttributes().removeAttributeModifiers(createAttributeMap());
         player.getPersistentData().putBoolean("VPEarsSpecial",false);
         super.specialEnds(player, stack);
     }
@@ -60,13 +60,5 @@ public class CatEars extends Vestige{
     public void ultimateEnds(Player player, ItemStack stack) {
         player.getPersistentData().putBoolean("VPEarsUlt",false);
         super.ultimateEnds(player, stack);
-    }
-
-    @Override
-    public void curioSucks(Player player, ItemStack stack) {
-        player.getAttributes().removeAttributeModifiers(this.createAttributeMap());
-        player.getPersistentData().putBoolean("VPEarsSpecial",false);
-        player.getPersistentData().putBoolean("VPEarsUlt",false);
-        super.curioSucks(player, stack);
     }
 }
