@@ -81,6 +81,10 @@ public class ServerConfig {
             .comment("Health Boost for all monsters in Cruel Mode. Leave at 1.0 to disable.")
             .defineInRange("healthBoost", 2.0d, 0d, 2100000000d);
 
+    public static final ModConfigSpec.DoubleValue cruelItemChance = BUILDER
+            .comment("Base chance for Cruel Mode exclusive item to drop, like Orb of Chaos or Mirror.")
+            .defineInRange("cruelItemChance", 0.001d, 0.0001d, 1d);
+
     public static final ModConfigSpec.DoubleValue rareItemChance = BUILDER.defineInRange("rareItemChance", 0.025d, 0.0001d, 1d);
 
     public static final ModConfigSpec.BooleanValue leaderboard = BUILDER.define("leaderboard", false);

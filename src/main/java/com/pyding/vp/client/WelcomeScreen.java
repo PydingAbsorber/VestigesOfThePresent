@@ -47,7 +47,6 @@ public class WelcomeScreen extends Screen {
     private Button choseButton31;
     private Button choseButton32;
     private Button choseButton33;
-    private Button choseButton34;
     int worldDifficulty = 1;
     private Button exit;
 
@@ -88,13 +87,7 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> {
-                    challengeDifficulty = 1;
-                    if(worldDifficulty == 3)
-                        worldDifficulty = 1;
-                    else if(worldDifficulty == 4)
-                        worldDifficulty = 2;
-                }
+                button -> challengeDifficulty = 1
         );
         this.addWidget(choseButton1);
         choseButton2 = new NiceButton(
@@ -103,13 +96,7 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> {
-                    challengeDifficulty = 2;
-                    if(worldDifficulty == 3)
-                        worldDifficulty = 1;
-                    else if(worldDifficulty == 4)
-                        worldDifficulty = 2;
-                }
+                button -> challengeDifficulty = 2
         );
         this.addWidget(choseButton2);
         choseButton3 = new NiceButton(
@@ -181,30 +168,9 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> {
-                    if(player != null && !player.isCreative()) {
-                        worldDifficulty = 3;
-                        if(challengeDifficulty < 3)
-                            challengeDifficulty = 3;
-                    }
-                }
+                button -> worldDifficulty = 3
         );
         this.addWidget(choseButton33);
-        choseButton34 = new NiceButton(
-                0, 0,
-                buttonSize, buttonSize,
-                0, 0, 0,
-                ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
-                buttonSize, buttonSize,
-                button -> {
-                    if(player != null && !player.isCreative()) {
-                        worldDifficulty = 4;
-                        if(challengeDifficulty < 3)
-                            challengeDifficulty = 3;
-                    }
-                }
-        );
-        this.addWidget(choseButton34);
         exit = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
@@ -223,8 +189,7 @@ public class WelcomeScreen extends Screen {
         choseButton13.setTooltip(Tooltip.create(Component.translatable("vp.vpower.strong").withStyle(ChatFormatting.RED)));
         choseButton31.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.default").withStyle(ChatFormatting.GREEN)));
         choseButton32.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.cruel").withStyle(ChatFormatting.RED).append(Component.literal("\n§7You take additional Paragon Damage from your max health when you take drowning, lava, starving and void damage.\n§7All bosses max hp is §cx" + ServerConfig.bossHP.get() + " §7and attack is §cx" + ServerConfig.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.healthBoost.get() + " max health and chance to spawn with random armor."))));
-        choseButton33.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard").withStyle(ChatFormatting.RED)));
-        choseButton34.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard_cruel").withStyle(ChatFormatting.DARK_PURPLE)));
+        choseButton33.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.extra_cruel").withStyle(ChatFormatting.RED)));
     }
 
     @Override
@@ -468,19 +433,7 @@ public class WelcomeScreen extends Screen {
             guiGraphics.blit(STELLAR, b3X + (btnWidth / 2) - (font.width(t3) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
 
-        guiGraphics.pose().translate(0,0,-40);
-        choseButton34.setX(b4X);
-        choseButton34.setY(currentY - (int)scrollAmount);
-        choseButton34.setY(currentY);
-        choseButton34.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
-        guiGraphics.pose().translate(0,0,40);
-        t4 = "Cruel+Leaderboard";
-        guiGraphics.drawString(font, t4, b4X + (btnWidth / 2) - (font.width(t4) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         currentY += btnHeight;
-        if (worldDifficulty == 4) {
-            guiGraphics.blit(STELLAR, b4X + (btnWidth / 2) - (font.width(t4) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY - btnHeight, 0, 0, iconSize, iconSize, iconSize, iconSize);
-        }
-
         this.totalContentHeight = currentY - scissorTop;
         guiGraphics.pose().popPose();
         guiGraphics.disableScissor();
@@ -517,46 +470,6 @@ public class WelcomeScreen extends Screen {
     }
 
     public void onExit(){
-        List<Integer> reduceList = new ArrayList<>();
-        ServerConfig.reduceChallengesPercent.set(true);
-        if (challengeDifficulty == 1){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                reduceList.add(50);
-        } else if (challengeDifficulty == 2){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                reduceList.add(25);
-        } else if (challengeDifficulty == 3){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                reduceList.add(10);
-        } else if (challengeDifficulty == 4){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                reduceList.add(0);
-        }
-        ServerConfig.reduceChallenges.set(reduceList);
-        List<Integer> scaleList = new ArrayList<>();
-        if(vestigePower == 1){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                scaleList.add(5);
-            ServerConfig.powerBoost.set(2D);
-        } else if(vestigePower == 2){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                scaleList.add(30);
-            ServerConfig.powerBoost.set(5D);
-        }else if(vestigePower == 3){
-            for(int i = 0; i < VestigeCap.totalVestiges; i++)
-                scaleList.add(100);
-            ServerConfig.powerBoost.set(0D);
-        }
-        ServerConfig.powerScales.set(scaleList);
-        if(worldDifficulty == 2){
-            ServerConfig.cruelMode.set(true);
-        } else if(worldDifficulty == 3){
-            ServerConfig.leaderboard.set(true);
-        } else if(worldDifficulty == 4){
-            ServerConfig.cruelMode.set(true);
-            ServerConfig.leaderboard.set(true);
-        }
-        ServerConfig.SPEC.save();
-        PacketHandler.sendToServer(new SendClientDataToServerPacket(2,""));
+        PacketHandler.sendToServer(new SendClientDataToServerPacket(2,challengeDifficulty+","+vestigePower+","+worldDifficulty));
     }
 }

@@ -570,14 +570,14 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void playerSwitching(PlayerEvent.PlayerChangeGameModeEvent event){
-        LeaderboardUtil.setCheating(event.getEntity());
+        //LeaderboardUtil.setCheating(event.getEntity());
     }
 
     @SubscribeEvent
     public static void commandEvent(CommandEvent event){
-        if(ServerConfig.leaderboard.get() && event.getParseResults().getContext().getSource().getEntity() instanceof Player player && event.getParseResults().getContext().getSource().hasPermission(2)){
+        /*if(ServerConfig.leaderboard.get() && event.getParseResults().getContext().getSource().getEntity() instanceof Player player && event.getParseResults().getContext().getSource().hasPermission(2)){
             LeaderboardUtil.setCheating(player);
-        }
+        }*/
     }
 
     @SubscribeEvent(priority = EventPriority.LOW,receiveCanceled = true)
@@ -723,10 +723,11 @@ public class EventHandler {
                 Holder<Enchantment> lootingHolder = registry.getOrThrow(Enchantments.LOOTING);
                 Holder<Enchantment> fortuneHolder = registry.getOrThrow(Enchantments.FORTUNE);
                 double looting = VPUtil.scaleDown((double) player.getMainHandItem().getEnchantmentLevel(lootingHolder) / 10.0 + (double) player.getMainHandItem().getEnchantmentLevel(fortuneHolder) / 20.0 + 1.0, 20);
-                double corruptedFragmentChance = 0.001*looting;
-                double corruptedItemChance = 0.0001*looting;
-                double orbChance = 0.00001*looting;
-                double mirrorChance = 0.0000001*looting;
+                double baseChance = ServerConfig.cruelItemChance.get();
+                double corruptedFragmentChance = baseChance*looting;
+                double corruptedItemChance = baseChance/10*looting;
+                double orbChance = baseChance/100*looting;
+                double mirrorChance = baseChance/10000*looting;
                 double multiplier = 1;
                 if(VPUtil.isNightmareBoss(entity)) {
                     VPUtil.dropStack(new ItemStack(ModItems.CORRUPT_FRAGMENT.get(),random.nextInt(20)+20),entity);
@@ -937,7 +938,8 @@ public class EventHandler {
             if(player.getCommandSenderWorld().isClientSide)
                 return;
             VestigeCap challange = VPUtil.getCap(player);
-            challange.addFood(event.getItem().getDescriptionId(), player);
+            if(event.getItem().getItem().components().has(DataComponents.FOOD))
+                challange.addFood(event.getItem().getDescriptionId(), player);
             if (event.getItem().getItem().getDescriptionId().contains("enchanted_golden_apple")) {
                 Random random = new Random();
                 int numba = random.nextInt(100);
@@ -1085,15 +1087,14 @@ public class EventHandler {
         cap.sync(player);
         VPUtil.resync(cap,player);
         VPUtil.updateStats(player);
-        LeaderboardUtil.printVersion(player);
         if(player instanceof ServerPlayer serverPlayer) {
-            LeaderboardUtil.refreshTopPlayers();
+            LeaderboardUtil.forceReloadAsync();
             PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
-            if(LeaderboardUtil.isLeaderboardsActive(player)) {
+            /*if(LeaderboardUtil.isLeaderboardsActive(player)) {
                 if (player.isCreative())
                     LeaderboardUtil.setCheating(player);
             } else if(Math.random() < 0.1)
-                player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));
+                player.sendSystemMessage(Component.translatable("vp.leaderboard.chat"));*/
         }
         MysteryChest.init();
         Vortex.init();
@@ -1110,7 +1111,6 @@ public class EventHandler {
     @SubscribeEvent
     public static void loginOut(PlayerEvent.PlayerLoggedOutEvent event){
         Player player = event.getEntity();
-        LeaderboardUtil.exception = false;
         VPUtil.getCap(player).sync(player);
     }
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -1472,6 +1472,12 @@ public class EventHandler {
                     }
                     if (!entity.getCommandSenderWorld().isClientSide)
                         PacketHandler.sendToAllAround(new SendEntityNbtToClient(sendNudes, entity.getId()),entity);
+                }
+            }
+            if(event.getEntity() instanceof ServerPlayer serverPlayer){
+                if(entity.tickCount % 6000 == 0){
+                    LeaderboardUtil.reloadAsync();
+                    PacketHandler.sendToClient(new PlayerFlyPacket(15),serverPlayer);
                 }
             }
             if (entity.tickCount % 20 == 0 && entity instanceof ServerPlayer playerServer) {

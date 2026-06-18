@@ -99,7 +99,7 @@ public class PlayerFlyPacket implements CustomPacketPayload {
                 player.onUpdateAbilities();
             }
             else if (number == 7) {
-                LeaderboardUtil.refreshTopPlayers();
+                LeaderboardUtil.forceReloadAsync();
             }
             else if (number == 8) {
                 if (Minecraft.getInstance().screen != null) {
@@ -134,6 +134,9 @@ public class PlayerFlyPacket implements CustomPacketPayload {
             }
             else if (number == 14) {
                 Minecraft.getInstance().setScreen(new LeaderboardScreen());
+            }
+            else if (number == 15) {
+                LeaderboardUtil.reloadAsync();
             }
             else if (number == 278) {
                 if (Minecraft.getInstance().level != null) {

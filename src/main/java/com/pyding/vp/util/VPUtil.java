@@ -867,7 +867,7 @@ public class VPUtil {
     }
 
     public static boolean isBlacklistBoss(EntityType<?> type,Player player){
-        if(LeaderboardUtil.isLeaderboardsActive(player)){
+        /*if(LeaderboardUtil.isLeaderboardsActive(player)){
             int count = 0;
             for (String types : ConfigHandler.blacklistBosses.get().toString().split(",")) {
                 count++;
@@ -877,10 +877,10 @@ public class VPUtil {
                     return true;
             }
         } else {
-            for (String types : ConfigHandler.blacklistBosses.get().toString().split(","))
-                if (type.toString().contains(types))
-                    return true;
-        }
+        }*/
+        for (String types : ConfigHandler.blacklistBosses.get().toString().split(","))
+            if (type.toString().contains(types))
+                return true;
         return false;
     }
 
