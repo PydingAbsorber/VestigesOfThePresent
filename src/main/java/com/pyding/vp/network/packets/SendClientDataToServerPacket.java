@@ -45,7 +45,8 @@ public class SendClientDataToServerPacket {
             if(msg.id == 1){
                 VPUtil.osMap.put(player.getUUID(),msg.message);
             } else if(msg.id == 2){
-                if(player.getMainHandItem().getItem() instanceof WelcomeBook){
+                if((!ServerConfig.COMMON.usedBook.get() || player.isCreative())){
+                    ServerConfig.COMMON.usedBook.set(true);
                     int challengeDifficulty = 0;
                     int vestigePower = 0;
                     int worldDifficulty = 0;
@@ -106,7 +107,6 @@ public class SendClientDataToServerPacket {
                         ServerConfig.COMMON.healPercent.set(0.01d);
                         ServerConfig.COMMON.cruelItemChance.set(0.002d);
                     }
-                    player.getMainHandItem().shrink(1);
                 }
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                     cap.initMaximum(player);
