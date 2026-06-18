@@ -400,8 +400,10 @@ public class WelcomeScreen extends Screen {
         guiGraphics.pose().translate(0,0,-40);
         choseButton31.setX(b1X);
         choseButton31.setY(currentY - (int)scrollAmount);
+        int backupY31 = choseButton31.getY();
         choseButton31.setY(currentY);
         choseButton31.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
+        choseButton31.setY(backupY31);
         guiGraphics.pose().translate(0,0,40);
         t1 = "Default";
         guiGraphics.drawString(font, t1, b1X + (btnWidth / 2) - (font.width(t1) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0x78BE21, false);
@@ -412,8 +414,10 @@ public class WelcomeScreen extends Screen {
         guiGraphics.pose().translate(0,0,-40);
         choseButton32.setX(b2X);
         choseButton32.setY(currentY - (int)scrollAmount);
+        int backupY32 = choseButton32.getY();
         choseButton32.setY(currentY);
         choseButton32.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
+        choseButton32.setY(backupY32);
         guiGraphics.pose().translate(0,0,40);
         t2 = "Cruel";
         guiGraphics.drawString(font, t2, b2X + (btnWidth / 2) - (font.width(t2) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xFC4C02, false);
@@ -424,8 +428,10 @@ public class WelcomeScreen extends Screen {
         guiGraphics.pose().translate(0,0,-40);
         choseButton33.setX(b3X);
         choseButton33.setY(currentY - (int)scrollAmount);
+        int backupY33 = choseButton33.getY();
         choseButton33.setY(currentY);
         choseButton33.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
+        choseButton33.setY(backupY33);
         guiGraphics.pose().translate(0,0,40);
         t3 = "Leaderboard";
         guiGraphics.drawString(font, t3, b3X + (btnWidth / 2) - (font.width(t3) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);

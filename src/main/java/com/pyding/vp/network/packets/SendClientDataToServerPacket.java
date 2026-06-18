@@ -38,7 +38,8 @@ public record SendClientDataToServerPacket(int id, String message) implements Cu
                 if (payload.id() == 1) {
                     VPUtil.osMap.put(player.getUUID(), payload.message());
                 } else if(payload.id() == 2){
-                    if(player.getMainHandItem().getItem() instanceof WelcomeBook){
+                    if((!ServerConfig.usedBook.get() || player.isCreative())){
+                        ServerConfig.usedBook.set(true);
                         int challengeDifficulty = 0;
                         int vestigePower = 0;
                         int worldDifficulty = 0;
