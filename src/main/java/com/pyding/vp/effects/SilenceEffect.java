@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class SilenceEffect extends MobEffect {
 
     public SilenceEffect() {
-        super(MobEffectCategory.HARMFUL, 0xffd700);
+        super(MobEffectCategory.NEUTRAL, 0xffd700);
     }
 
     @Override

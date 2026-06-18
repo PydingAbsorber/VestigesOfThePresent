@@ -2106,6 +2106,14 @@ public class VPUtil {
 
     public static void initEffects(){
         for(MobEffect effect: BuiltInRegistries.MOB_EFFECT){
+            if(effect.equals(VPEffects.ANTI_SHIELD.get()) ||
+                    effect.equals(VPEffects.ANTI_TELEPORT.get()) ||
+                    effect.equals(VPEffects.BOUND.get()) ||
+                    effect.equals(VPEffects.VIP_EFFECT.get()) ||
+                    effect.equals(VPEffects.SILENCE.get()) ||
+                    effect.equals(VPEffects.ORCHESTRA.get()) ||
+                    effect.equals(VPEffects.DISAPPOINED.get()))
+                continue;
             effects.add(effect);
         }
     }
@@ -3965,8 +3973,8 @@ public class VPUtil {
         if(isCursed(entity))
             number = (int) (number * 1.5);
         if(entity instanceof Player player){
-            if(hasVestige(ModItems.SOULBLIGHTER.get(),player))
-                VPUtil.addRadiance(SoulBlighter.class,10,player);
+            if(hasVestige(ModItems.SOULBLIGHTER.get(),modifier))
+                VPUtil.addRadiance(SoulBlighter.class,10,modifier);
             VestigeCap cap = getCap(player);
             cap.setSoulIntegrity(Math.min(getMaxSoulIntegrity(entity),cap.getSoulIntegrity()+number));
             if(number < 0)

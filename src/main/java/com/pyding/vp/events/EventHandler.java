@@ -1722,12 +1722,6 @@ public class EventHandler {
                     if (cap.getLore(player, 3))
                         cap.addLore(player, 5);
                 }
-                Iterator<MobEffectInstance> iterator = player.getActiveEffects().iterator();
-                while (iterator.hasNext()) {
-                    MobEffectInstance effectInstance = iterator.next();
-                    MobEffect effect = effectInstance.getEffect().value();
-                    cap.addEffect(effect.getDescriptionId(), player);
-                }
             } else if (entity.tickCount < 20) {
                 VPUtil.modifySoulIntegrity(entity, 99999);
             }
@@ -1978,4 +1972,10 @@ public class EventHandler {
             event.getToolTip().add(Component.translatable("vp.mirrored").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.DARK_AQUA));
     }
 
+    @SubscribeEvent
+    public static void onEffect(MobEffectEvent.Added event){
+        if(event.getEntity() instanceof Player player) {
+            VPUtil.getCap(player).addEffect(event.getEffectInstance().getDescriptionId(), player);
+        }
+    }
 }

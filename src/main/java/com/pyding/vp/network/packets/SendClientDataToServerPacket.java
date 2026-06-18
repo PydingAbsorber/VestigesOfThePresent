@@ -1,6 +1,7 @@
 package com.pyding.vp.network.packets;
 
 import com.pyding.vp.VestigesOfThePresent;
+import com.pyding.vp.capability.VestigeCap;
 import com.pyding.vp.util.VPUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,6 +32,11 @@ public record SendClientDataToServerPacket(int id, String message) implements Cu
             if (context.player() instanceof ServerPlayer player) {
                 if (payload.id() == 1) {
                     VPUtil.osMap.put(player.getUUID(), payload.message());
+                } else if(payload.id() == 2){
+                    VestigeCap cap = VPUtil.getCap(player);
+                    cap.initMaximum(player);
+                    cap.sync(player);
+                    VPUtil.sync(player);
                 }
             }
         });

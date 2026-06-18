@@ -35,9 +35,6 @@ public class NiceButton extends ImageButton {
         poseStack.pushPose();
         poseStack.translate(0,0,10);
         guiGraphics.blit(texture, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-        if (this.isHoveredOrFocused()) {
-            guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x33FFFFFF);
-        }
         poseStack.popPose();
     }
 }

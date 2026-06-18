@@ -106,15 +106,15 @@ public class PlayerFlyPacket implements CustomPacketPayload {
                     Minecraft.getInstance().screen.onClose();
                 }
                 long deathTime = System.currentTimeMillis() + VPUtil.deathTime;
+                String message;
+                if(VPUtil.getSoulIntegrity(player) == 0)
+                    message = "Death from Soul Integrity";
+                else message = "Death by Paragon Damage";
                 VPUtil.antiResurrect(player, deathTime);
                 VPUtil.setRoflanEbalo(player, deathTime);
                 VPUtil.setHealth(player, 0);
                 player.die(player.damageSources().genericKill());
                 VPUtil.despawn(player);
-                String message;
-                if(VPUtil.getSoulIntegrity(player) == 0)
-                    message = "Death from Soul Integrity";
-                else message = "Death by Paragon Damage";
                 Minecraft.getInstance().forceSetScreen(new DeathScreen(Component.literal(message),false));
             }
             else if (number == 9) {

@@ -8,6 +8,7 @@ import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.ServerConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -60,6 +62,7 @@ public class WelcomeScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
+        Player player = Minecraft.getInstance().player;
         zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
@@ -85,7 +88,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> challengeDifficulty = 1
+                button -> {
+                    challengeDifficulty = 1;
+                    if(worldDifficulty == 3)
+                        worldDifficulty = 1;
+                    else if(worldDifficulty == 4)
+                        worldDifficulty = 2;
+                }
         );
         this.addWidget(choseButton1);
         choseButton2 = new NiceButton(
@@ -94,7 +103,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> challengeDifficulty = 2
+                button -> {
+                    challengeDifficulty = 2;
+                    if(worldDifficulty == 3)
+                        worldDifficulty = 1;
+                    else if(worldDifficulty == 4)
+                        worldDifficulty = 2;
+                }
         );
         this.addWidget(choseButton2);
         choseButton3 = new NiceButton(
@@ -166,7 +181,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> worldDifficulty = 3
+                button -> {
+                    if(player != null && !player.isCreative()) {
+                        worldDifficulty = 3;
+                        if(challengeDifficulty < 3)
+                            challengeDifficulty = 3;
+                    }
+                }
         );
         this.addWidget(choseButton33);
         choseButton34 = new NiceButton(
@@ -175,7 +196,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 ResourceLocation.fromNamespaceAndPath("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> worldDifficulty = 4
+                button -> {
+                    if(player != null && !player.isCreative()) {
+                        worldDifficulty = 4;
+                        if(challengeDifficulty < 3)
+                            challengeDifficulty = 3;
+                    }
+                }
         );
         this.addWidget(choseButton34);
         exit = new NiceButton(
@@ -187,6 +214,17 @@ public class WelcomeScreen extends Screen {
                 button -> onClose()
         );
         this.addWidget(exit);
+        choseButton1.setTooltip(Tooltip.create(Component.translatable("vp.chdif.easy").withStyle(ChatFormatting.GREEN)));
+        choseButton2.setTooltip(Tooltip.create(Component.translatable("vp.chdif.normal").withStyle(ChatFormatting.GOLD)));
+        choseButton3.setTooltip(Tooltip.create(Component.translatable("vp.chdif.hard").withStyle(ChatFormatting.RED)));
+        choseButton4.setTooltip(Tooltip.create(Component.translatable("vp.chdif.original").withStyle(ChatFormatting.DARK_PURPLE)));
+        choseButton11.setTooltip(Tooltip.create(Component.translatable("vp.vpower.weak").withStyle(ChatFormatting.GREEN)));
+        choseButton12.setTooltip(Tooltip.create(Component.translatable("vp.vpower.normal").withStyle(ChatFormatting.GOLD)));
+        choseButton13.setTooltip(Tooltip.create(Component.translatable("vp.vpower.strong").withStyle(ChatFormatting.RED)));
+        choseButton31.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.default").withStyle(ChatFormatting.GREEN)));
+        choseButton32.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.cruel").withStyle(ChatFormatting.RED).append(Component.literal("\n§7You take additional Paragon Damage from your max health when you take drowning, lava, starving and void damage.\n§7All bosses max hp is §cx" + ServerConfig.bossHP.get() + " §7and attack is §cx" + ServerConfig.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.healthBoost.get() + " max health and chance to spawn with random armor."))));
+        choseButton33.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard").withStyle(ChatFormatting.RED)));
+        choseButton34.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard_cruel").withStyle(ChatFormatting.DARK_PURPLE)));
     }
 
     @Override
@@ -259,13 +297,15 @@ public class WelcomeScreen extends Screen {
         choseButton1.setY(currentY);
         choseButton1.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton1.setY(backupY1);
+
+        guiGraphics.pose().translate(0,0,40);
         String t1 = "Easy";
         guiGraphics.drawString(font, t1, b1X + (btnWidth / 2) - (font.width(t1) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0x78BE21, false);
         if (challengeDifficulty == 1) {
             guiGraphics.blit(STELLAR, b1X + (btnWidth / 2) - (font.width(t1) / 2) + stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2) + stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton1.setTooltip(Tooltip.create(Component.translatable("vp.chdif.easy").withStyle(ChatFormatting.GREEN)));
 
+        guiGraphics.pose().translate(0,0,-40);
         int b2X = startRowX + btnWidth + spacing;
         choseButton2.setX(b2X);
         choseButton2.setY(currentY - (int)scrollAmount);
@@ -273,13 +313,14 @@ public class WelcomeScreen extends Screen {
         choseButton2.setY(currentY);
         choseButton2.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton2.setY(backupY2);
+        guiGraphics.pose().translate(0,0,40);
         String t2 = "Normal";
         guiGraphics.drawString(font, t2, b2X + (btnWidth / 2) - (font.width(t2) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xFC4C02, false);
         if (challengeDifficulty == 2) {
             guiGraphics.blit(STELLAR, b2X + (btnWidth / 2) - (font.width(t2) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton2.setTooltip(Tooltip.create(Component.translatable("vp.chdif.normal").withStyle(ChatFormatting.GOLD)));
 
+        guiGraphics.pose().translate(0,0,-40);
         int b3X = startRowX + (btnWidth + spacing) * 2;
         choseButton3.setX(b3X);
         choseButton3.setY(currentY - (int)scrollAmount);
@@ -287,13 +328,14 @@ public class WelcomeScreen extends Screen {
         choseButton3.setY(currentY);
         choseButton3.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton3.setY(backupY3);
+        guiGraphics.pose().translate(0,0,40);
         String t3 = "Hard";
         guiGraphics.drawString(font, t3, b3X + (btnWidth / 2) - (font.width(t3) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         if (challengeDifficulty == 3) {
             guiGraphics.blit(STELLAR, b3X + (btnWidth / 2) - (font.width(t3) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton3.setTooltip(Tooltip.create(Component.translatable("vp.chdif.hard").withStyle(ChatFormatting.RED)));
 
+        guiGraphics.pose().translate(0,0,-40);
         int b4X = startRowX + (btnWidth + spacing) * 3;
         choseButton4.setX(b4X);
         choseButton4.setY(currentY - (int)scrollAmount);
@@ -301,13 +343,13 @@ public class WelcomeScreen extends Screen {
         choseButton4.setY(currentY);
         choseButton4.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton4.setY(backupY4);
+        guiGraphics.pose().translate(0,0,40);
         String t4 = "Original";
         guiGraphics.drawString(font, t4, b4X + (btnWidth / 2) - (font.width(t4) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0x8031A7, false);
         currentY += btnHeight;
         if (challengeDifficulty == 4) {
             guiGraphics.blit(STELLAR, b4X + (btnWidth / 2) - (font.width(t4) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY - btnHeight, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton4.setTooltip(Tooltip.create(Component.translatable("vp.chdif.original").withStyle(ChatFormatting.DARK_PURPLE)));
 
         Component component = Component.translatable("vp.welcome.7");
         int textX = (this.width / 2) - (component.getString().length()*2);
@@ -328,45 +370,48 @@ public class WelcomeScreen extends Screen {
         }
         currentY += font.lineHeight;
 
+        guiGraphics.pose().translate(0,0,-40);
         choseButton11.setX(b1X);
         choseButton11.setY(currentY - (int)scrollAmount);
         int backupY11 = choseButton11.getY();
         choseButton11.setY(currentY);
         choseButton11.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton11.setY(backupY11);
+        guiGraphics.pose().translate(0,0,40);
         t1 = "Weak";
         guiGraphics.drawString(font, t1, b1X + (btnWidth / 2) - (font.width(t1) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0x78BE21, false);
         if (vestigePower == 1) {
             guiGraphics.blit(STELLAR, b1X + (btnWidth / 2) - (font.width(t1) / 2) + stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2) + stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton11.setTooltip(Tooltip.create(Component.translatable("vp.vpower.weak").withStyle(ChatFormatting.GREEN)));
 
+        guiGraphics.pose().translate(0,0,-40);
         choseButton12.setX(b2X);
         choseButton12.setY(currentY - (int)scrollAmount);
         int backupY12 = choseButton12.getY();
         choseButton12.setY(currentY);
         choseButton12.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton12.setY(backupY12);
+        guiGraphics.pose().translate(0,0,40);
         t2 = "Normal";
         guiGraphics.drawString(font, t2, b2X + (btnWidth / 2) - (font.width(t2) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xFC4C02, false);
         if (vestigePower == 2) {
             guiGraphics.blit(STELLAR, b2X + (btnWidth / 2) - (font.width(t2) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton12.setTooltip(Tooltip.create(Component.translatable("vp.vpower.normal").withStyle(ChatFormatting.GOLD)));
 
+        guiGraphics.pose().translate(0,0,-40);
         choseButton13.setX(b3X);
         choseButton13.setY(currentY - (int)scrollAmount);
         int backupY13 = choseButton13.getY();
         choseButton13.setY(currentY);
         choseButton13.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton13.setY(backupY13);
+        guiGraphics.pose().translate(0,0,40);
         t3 = "Strong";
         guiGraphics.drawString(font, t3, b3X + (btnWidth / 2) - (font.width(t3) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         currentY += btnHeight;
         if (vestigePower == 3) {
             guiGraphics.blit(STELLAR, b3X + (btnWidth / 2) - (font.width(t3) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY - btnHeight, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton13.setTooltip(Tooltip.create(Component.translatable("vp.vpower.strong").withStyle(ChatFormatting.RED)));
 
         component = Component.translatable("vp.welcome.8");
         textX = (this.width / 2) - (component.getString().length()*2);
@@ -387,68 +432,64 @@ public class WelcomeScreen extends Screen {
         }
         currentY += font.lineHeight;
 
-        actualYForMouse = currentY;
+        guiGraphics.pose().translate(0,0,-40);
         choseButton31.setX(b1X);
         choseButton31.setY(currentY - (int)scrollAmount);
-        int backupY31 = choseButton31.getY();
         choseButton31.setY(currentY);
         choseButton31.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
-        choseButton31.setY(backupY31);
+        guiGraphics.pose().translate(0,0,40);
         t1 = "Default";
         guiGraphics.drawString(font, t1, b1X + (btnWidth / 2) - (font.width(t1) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0x78BE21, false);
         if (worldDifficulty == 1) {
             guiGraphics.blit(STELLAR, b1X + (btnWidth / 2) - (font.width(t1) / 2) + stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2) + stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton31.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.default").withStyle(ChatFormatting.GREEN)));
 
+        guiGraphics.pose().translate(0,0,-40);
         choseButton32.setX(b2X);
         choseButton32.setY(currentY - (int)scrollAmount);
-        int backupY32 = choseButton32.getY();
         choseButton32.setY(currentY);
         choseButton32.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
-        choseButton32.setY(backupY32);
+        guiGraphics.pose().translate(0,0,40);
         t2 = "Cruel";
         guiGraphics.drawString(font, t2, b2X + (btnWidth / 2) - (font.width(t2) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xFC4C02, false);
         if (worldDifficulty == 2) {
             guiGraphics.blit(STELLAR, b2X + (btnWidth / 2) - (font.width(t2) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton32.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.cruel").withStyle(ChatFormatting.RED).append(Component.literal("\n§7All bosses max hp is §cx" + ServerConfig.bossHP.get() + " §7and attack is §cx" + ServerConfig.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.healthBoost.get() + " max health and chance to spawn with random armor."))));
 
+        guiGraphics.pose().translate(0,0,-40);
         choseButton33.setX(b3X);
         choseButton33.setY(currentY - (int)scrollAmount);
-        int backupY33 = choseButton33.getY();
         choseButton33.setY(currentY);
         choseButton33.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
-        choseButton33.setY(backupY33);
+        guiGraphics.pose().translate(0,0,40);
         t3 = "Leaderboard";
         guiGraphics.drawString(font, t3, b3X + (btnWidth / 2) - (font.width(t3) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         if (worldDifficulty == 3) {
             guiGraphics.blit(STELLAR, b3X + (btnWidth / 2) - (font.width(t3) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton33.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard").withStyle(ChatFormatting.RED)));
 
+        guiGraphics.pose().translate(0,0,-40);
         choseButton34.setX(b4X);
         choseButton34.setY(currentY - (int)scrollAmount);
-        int backupY34 = choseButton34.getY();
         choseButton34.setY(currentY);
         choseButton34.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
-        choseButton34.setY(backupY34);
+        guiGraphics.pose().translate(0,0,40);
         t4 = "Cruel+Leaderboard";
         guiGraphics.drawString(font, t4, b4X + (btnWidth / 2) - (font.width(t4) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         currentY += btnHeight;
         if (worldDifficulty == 4) {
             guiGraphics.blit(STELLAR, b4X + (btnWidth / 2) - (font.width(t4) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY - btnHeight, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton34.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard_cruel").withStyle(ChatFormatting.DARK_PURPLE)));
 
         this.totalContentHeight = currentY - scissorTop;
         guiGraphics.pose().popPose();
         guiGraphics.disableScissor();
 
-        guiGraphics.pose().translate(15, 0, 0);
+        guiGraphics.pose().translate(15, 0, -40);
         exit.setX(this.width/2 - exit.getWidth()/2);
-        exit.setY((int) (scissorBottom + exit.getHeight()/1.5));
+        exit.setY((int) (scissorBottom));
         exit.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
+        guiGraphics.pose().translate(0,0,40);
         t3 = "Exit";
         guiGraphics.drawString(font, t3, exit.getX() + (btnWidth / 2) - (font.width(t3) / 2), exit.getY() - (font.lineHeight / 2) + (btnHeight / 2), 0xE10600, false);
 

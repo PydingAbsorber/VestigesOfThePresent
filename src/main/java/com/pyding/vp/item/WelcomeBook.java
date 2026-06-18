@@ -35,6 +35,8 @@ public class WelcomeBook extends Item {
         if (!ServerConfig.usedBook.get() || player.isCreative()) {
             Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new WelcomeScreen()));
             player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_OPEN.get(), SoundSource.MASTER, 1, 1, false);
+            ServerConfig.usedBook.set(true);
+            ServerConfig.SPEC.save();
         }
         player.getItemInHand(hand).shrink(1);
         return super.use(level, player, hand);

@@ -92,6 +92,8 @@ public class NightmareScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics,mouseX,mouseY,partialTicks);
         double scale = ClientConfig.guiScaleGuide.get();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0,0,40);
         int infoWidth = (int) (512*scale);
         int infoHeight = (int) (512*scale);
         int infoPadding = (int) (60*scale);
@@ -114,6 +116,7 @@ public class NightmareScreen extends Screen {
             guiGraphics.blit(SHARD, xPos-size, yPos, 0, 0, size, size, size, size);
             guiGraphics.blit(NIGHTMARE_SHARD, xPos+size, yPos, 0, 0, size, size, size, size);
         }
+        guiGraphics.pose().popPose();
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 

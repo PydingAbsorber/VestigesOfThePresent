@@ -11,6 +11,7 @@ import com.pyding.vp.item.MysteryChest;
 import com.pyding.vp.item.vestiges.Vestige;
 import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.PlayerFlyPacket;
+import com.pyding.vp.network.packets.SendClientDataToServerPacket;
 import com.pyding.vp.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
@@ -74,6 +75,7 @@ public class VPCommands {
                                         ServerConfig.leaderboard.set(true);
                                         player.sendSystemMessage(Component.literal("Leaderboard enabled.").withStyle(ChatFormatting.DARK_GREEN));
                                     }
+                                    ServerConfig.SPEC.save();
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -315,8 +317,9 @@ public class VPCommands {
                             }
                             else {
                                 ServerConfig.cruelMode.set(true);
-                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7All bosses max hp now is §cx" + ServerConfig.bossHP.get() + " §7and attack is §cx" + ServerConfig.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.healthBoost.get() + " max health and chance to spawn with random armor."));
+                                player.sendSystemMessage(Component.literal("§7Cruel mode §aenabled! \n§7You take additional Paragon Damage from your max health when you take drowning, lava, starving and void damage.\n§7All bosses max hp now is §cx" + ServerConfig.bossHP.get() + " §7and attack is §cx" + ServerConfig.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.healthBoost.get() + " max health and chance to spawn with random armor."));
                             }
+                            ServerConfig.SPEC.save();
                             return Command.SINGLE_SUCCESS;
                         })
                 )
@@ -332,6 +335,8 @@ public class VPCommands {
                                 }
                                 ServerPlayer player = context.getSource().getPlayerOrException();
                                 ServerConfig.reduceChallenges.get().set(challenge-1,amount);
+                                ServerConfig.SPEC.save();
+                                PacketHandler.sendToServer(new SendClientDataToServerPacket(2,""));
                                 player.sendSystemMessage(Component.literal("Progress maximum for challenge " + challenge + " has been reduced for " + amount));
                                 return Command.SINGLE_SUCCESS;
                             })
