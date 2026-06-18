@@ -35,6 +35,7 @@ public class ServerConfig {
         public final ForgeConfigSpec.DoubleValue bossHP;
         public final ForgeConfigSpec.DoubleValue bossAttack;
         public final ForgeConfigSpec.DoubleValue healPercent;
+        public final ForgeConfigSpec.DoubleValue cruelItemChance;
 
         public final ForgeConfigSpec.DoubleValue maxPower;
         public final ForgeConfigSpec.DoubleValue powerBoost;
@@ -59,6 +60,7 @@ public class ServerConfig {
             expMultiplier = builder.comment("Exp base multiplier from bosses in Cruel mode").defineInRange("expMultiplier", 10d, 1d, 2100000000);
             empoweredChance = builder.comment("Chance to spawn Empowered mob in Hardcore mode").defineInRange("empoweredChance", 0.01, 0, 2100000000);
             healthBoost = builder.comment("Health Boost for all monsters in Cruel Mode. Leave at 1.0 to disable.").defineInRange("healthBoost", 2.0, 0, 2100000000);
+            cruelItemChance = builder.comment("Base chance for Cruel Mode exclusive item to drop, like Orb of Chaos or Mirror.").defineInRange("cruelItemChance", 0.001, 0, 2100000000);
 
             List<Integer> reduceList = new ArrayList<>();
             for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)

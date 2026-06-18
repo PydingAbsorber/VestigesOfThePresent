@@ -577,6 +577,5 @@
   "vp.vpower.strong": "遗骸初始拥有 100% 的遗骸强度，最高 100%。",
   "vp.worldfid.default": "无变化，原版难度。",
   "vp.worldfid.cruel": "启用残酷模式：\n",
-  "vp.worldfid.leaderboard": "启用排行榜：在无作弊的世界中参与受配置限制的排行榜。更多信息请使用 /vestiges leaderboard info",
-  "vp.worldfid.leaderboard_cruel": "残酷模式+排行榜。来吧，测试你的实力！"
+  "vp.worldfid.extra_cruel": "额外残酷模式：+100% 强化几率，属性缩放，Boss经验值，残酷模式专属物品的基础掉落率。\nBoss的每秒伤害上限为其生命值的10%。"
 }

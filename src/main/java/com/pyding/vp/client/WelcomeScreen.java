@@ -48,7 +48,6 @@ public class WelcomeScreen extends Screen {
     private Button choseButton31;
     private Button choseButton32;
     private Button choseButton33;
-    private Button choseButton34;
     int worldDifficulty = 1;
     private Button exit;
 
@@ -91,10 +90,6 @@ public class WelcomeScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> {
                     challengeDifficulty = 1;
-                    if(worldDifficulty == 3)
-                        worldDifficulty = 1;
-                    else if(worldDifficulty == 4)
-                        worldDifficulty = 2;
                 }
         );
         this.addWidget(choseButton1);
@@ -106,10 +101,6 @@ public class WelcomeScreen extends Screen {
                 buttonSize, buttonSize,
                 button -> {
                     challengeDifficulty = 2;
-                    if(worldDifficulty == 3)
-                        worldDifficulty = 1;
-                    else if(worldDifficulty == 4)
-                        worldDifficulty = 2;
                 }
         );
         this.addWidget(choseButton2);
@@ -182,30 +173,9 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> {
-                    if(player != null && !player.isCreative()) {
-                        worldDifficulty = 3;
-                        if(challengeDifficulty < 3)
-                            challengeDifficulty = 3;
-                    }
-                }
+                button -> worldDifficulty = 3
         );
         this.addWidget(choseButton33);
-        choseButton34 = new NiceButton(
-                0, 0,
-                buttonSize, buttonSize,
-                0, 0, 0,
-                new ResourceLocation("vp", "textures/gui/info_button.png"),
-                buttonSize, buttonSize,
-                button -> {
-                    if(player != null && !player.isCreative()) {
-                        worldDifficulty = 4;
-                        if(challengeDifficulty < 3)
-                            challengeDifficulty = 3;
-                    }
-                }
-        );
-        this.addWidget(choseButton34);
         exit = new NiceButton(
                 0, 0,
                 buttonSize, buttonSize,
@@ -448,14 +418,14 @@ public class WelcomeScreen extends Screen {
         choseButton33.setY(currentY);
         choseButton33.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton33.setY(backupY33);
-        t3 = "Leaderboard";
+        t3 = "Extra Cruel";
         guiGraphics.drawString(font, t3, b3X + (btnWidth / 2) - (font.width(t3) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         if (worldDifficulty == 3) {
             guiGraphics.blit(STELLAR, b3X + (btnWidth / 2) - (font.width(t3) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton33.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard").withStyle(ChatFormatting.RED)));
+        choseButton33.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.extra_cruel").withStyle(ChatFormatting.RED)));
 
-        choseButton34.setX(b4X);
+        /*choseButton34.setX(b4X);
         choseButton34.setY(currentY - (int)scrollAmount);
         int backupY34 = choseButton34.getY();
         choseButton34.setY(currentY);
@@ -463,12 +433,12 @@ public class WelcomeScreen extends Screen {
         choseButton34.setY(backupY34);
         t4 = "Cruel+Leaderboard";
         guiGraphics.drawString(font, t4, b4X + (btnWidth / 2) - (font.width(t4) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
-        currentY += btnHeight;
+
         if (worldDifficulty == 4) {
             guiGraphics.blit(STELLAR, b4X + (btnWidth / 2) - (font.width(t4) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY - btnHeight, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton34.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard_cruel").withStyle(ChatFormatting.DARK_PURPLE)));
-
+        choseButton34.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.leaderboard_cruel").withStyle(ChatFormatting.DARK_PURPLE)));*/
+        currentY += btnHeight;
         this.totalContentHeight = currentY - scissorTop;
         guiGraphics.pose().popPose();
         guiGraphics.disableScissor();
@@ -499,45 +469,6 @@ public class WelcomeScreen extends Screen {
     }
 
     public void onExit(){
-        List<Integer> reduceList = new ArrayList<>();
-        ServerConfig.COMMON.reduceChallengesPercent.set(true);
-        if (challengeDifficulty == 1){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                reduceList.add(50);
-        } else if (challengeDifficulty == 2){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                reduceList.add(25);
-        } else if (challengeDifficulty == 3){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                reduceList.add(10);
-        } else if (challengeDifficulty == 4){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                reduceList.add(0);
-        }
-        ServerConfig.COMMON.reduceChallenges.set(reduceList);
-        List<Integer> scaleList = new ArrayList<>();
-        if(vestigePower == 1){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                scaleList.add(5);
-            ServerConfig.COMMON.powerBoost.set(2D);
-        } else if(vestigePower == 2){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                scaleList.add(30);
-            ServerConfig.COMMON.powerBoost.set(5D);
-        }else if(vestigePower == 3){
-            for(int i = 0; i < PlayerCapabilityVP.totalVestiges; i++)
-                scaleList.add(100);
-            ServerConfig.COMMON.powerBoost.set(0D);
-        }
-        ServerConfig.COMMON.powerScales.set(scaleList);
-        if(worldDifficulty == 2){
-            ServerConfig.COMMON.cruelMode.set(true);
-        } else if(worldDifficulty == 3){
-            ServerConfig.COMMON.leaderboard.set(true);
-        } else if(worldDifficulty == 4){
-            ServerConfig.COMMON.cruelMode.set(true);
-            ServerConfig.COMMON.leaderboard.set(true);
-        }
-        PacketHandler.sendToServer(new SendClientDataToServerPacket(2,""));
+        PacketHandler.sendToServer(new SendClientDataToServerPacket(2,challengeDifficulty+","+vestigePower+","+worldDifficulty));
     }
 }

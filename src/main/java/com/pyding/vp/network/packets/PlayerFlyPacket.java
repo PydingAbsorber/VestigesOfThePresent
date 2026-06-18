@@ -87,7 +87,7 @@ public class PlayerFlyPacket {
             player.onUpdateAbilities();
         }
         else if(number == 7){
-            LeaderboardUtil.refreshTopPlayers();
+            LeaderboardUtil.forceReloadAsync();
         }
         else if(number == 8){
             if (Minecraft.getInstance().screen != null){
@@ -122,6 +122,9 @@ public class PlayerFlyPacket {
         else if(number == 14){
             Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new LeaderboardScreen()));
             //player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_OPEN.get(), SoundSource.MASTER, 1, 1, false);
+        }
+        else if(number == 15){
+            LeaderboardUtil.reloadAsync();
         }
         else if(number == 278){
             if(Minecraft.getInstance().level != null) {

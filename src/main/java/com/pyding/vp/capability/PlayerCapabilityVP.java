@@ -273,8 +273,8 @@ public class PlayerCapabilityVP {
             ItemStack stack = vestige(vp, player);
             VPUtil.giveStack(stack,player);
             VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
-            if(!password.isEmpty())
-                LeaderboardUtil.addChallenge(player, vp, password);
+            /*if(!password.isEmpty())
+                LeaderboardUtil.addChallenge(player, vp, password);*/
             if(new Random().nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.mysteryChestChallengeChance.get(),player)){
                 ItemStack chest = new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(9));
                 stack.getOrCreateTag().putInt("VPOpen",0);
@@ -616,11 +616,11 @@ public class PlayerCapabilityVP {
     }
 
     public static int getMaximum(int number,Player player){
-        boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
+        //boolean leaderboard = LeaderboardUtil.isLeaderboardsActive(player);
         if(ServerConfig.COMMON.reduceChallengesPercent.get()){
             float reduce = 1 - ((float)ServerConfig.COMMON.getChallengeReduceByNumber(number)/100);
-            if(leaderboard && reduce < 0.9)
-                reduce = 0.9f;
+            /*if(leaderboard && reduce < 0.9)
+                reduce = 0.9f;*/
             switch (number) {
                 case 1:
                     return (int) ((float) VPUtil.getEntitiesList().size() / 10 * reduce);
@@ -677,8 +677,8 @@ public class PlayerCapabilityVP {
             }
         } else {
             int reduce = ServerConfig.COMMON.getChallengeReduceByNumber(number);
-            if(leaderboard && reduce > 3)
-                reduce = 3;
+            /*if(leaderboard && reduce > 3)
+                reduce = 3;*/
             switch (number) {
                 case 1:
                     return VPUtil.getEntitiesList().size() / 10 - reduce;
@@ -1191,8 +1191,8 @@ public class PlayerCapabilityVP {
                 ItemStack stack = vestige(666, player);
                 VPUtil.giveStack(stack,player);
                 VPUtil.play(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
-                if(!password.isEmpty())
-                    LeaderboardUtil.addChallenge(player, 666, password);
+                /*if(!password.isEmpty())
+                    LeaderboardUtil.addChallenge(player, 666, password);*/
                 if(new Random().nextDouble() < VPUtil.getChance(ConfigHandler.COMMON.mysteryChestChallengeChance.get(),player)){
                     ItemStack chest = new ItemStack(ModItems.MYSTERY_CHEST.get(),1 + new Random().nextInt(63));
                     stack.getOrCreateTag().putInt("VPOpen",0);

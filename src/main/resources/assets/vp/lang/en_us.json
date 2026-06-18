@@ -581,6 +581,5 @@
   "vp.vpower.strong": "Vestiges start with 100% Vestige Power, 100% maximum.",
   "vp.worldfid.default": "No changes, vanilla difficulty.",
   "vp.worldfid.cruel": "Enables Cruel mode: \n",
-  "vp.worldfid.leaderboard": "Enables Leaderboard (Can't be enabled with Creative): participate in Leaderboard with config limitations in world without cheating. More information in /vestiges leaderboard info",
-  "vp.worldfid.leaderboard_cruel": "Cruel+Leaderboard. Cmon test your strength!"
+  "vp.worldfid.extra_cruel": "Extra Cruel Mode: +100% empower chance, stat scaling, exp from Bosses, base drop rate of Cruel Mode exclusive items.\nDps cap on Bosses is 10% of their max health."
 }
