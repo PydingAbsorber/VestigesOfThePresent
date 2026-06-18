@@ -93,15 +93,15 @@ public class PlayerFlyPacket {
             if (Minecraft.getInstance().screen != null){
                 Minecraft.getInstance().screen.onClose();
             }
+            String message;
+            if(VPUtil.getSoulIntegrity(player) == 0)
+                message = "Death from Soul Integrity";
+            else message = "Death by Paragon Damage";
             VPUtil.antiResurrect(player,System.currentTimeMillis()+VPUtil.deathTime);
             VPUtil.setRoflanEbalo(player,System.currentTimeMillis()+VPUtil.deathTime);
             VPUtil.setHealth(player,0);
             player.die(player.damageSources().genericKill());
             VPUtil.despawn(player);
-            String message;
-            if(VPUtil.getSoulIntegrity(player) == 0)
-                message = "Death from Soul Integrity";
-            else message = "Death by Paragon Damage";
             Minecraft.getInstance().forceSetScreen(new DeathScreen(Component.literal(message),false));
         }
         else if(number == 9){

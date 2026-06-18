@@ -63,8 +63,5 @@ public abstract class ServerGamePacketListenerMixin {
             case REQUEST_STATS:
                 this.player.getStats().sendStats(this.player);
         }
-        /*if(packet.getAction() == ServerboundClientCommandPacket.Action.PERFORM_RESPAWN){
-
-        }*/
     }
 }

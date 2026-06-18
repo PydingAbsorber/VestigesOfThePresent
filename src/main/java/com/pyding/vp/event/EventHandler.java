@@ -951,7 +951,7 @@ public class EventHandler {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
                 if(player.getCommandSenderWorld().isClientSide)
                     return;
-                challange.addFood(event.getItem().toString().replaceAll("[0-9]", "").trim(), player);
+                challange.addFood(event.getItem().getDescriptionId().toString().replaceAll("[0-9]", "").trim(), player);
                 if (event.getItem().getItem() instanceof EnchantedGoldenAppleItem) {
                     Random random = new Random();
                     int numba = random.nextInt(100);
@@ -1754,12 +1754,6 @@ public class EventHandler {
                     if(cap.getLore(player,3))
                         cap.addLore(player,5);
                 }
-                Iterator<MobEffectInstance> iterator = player.getActiveEffects().iterator();
-                while (iterator.hasNext()) {
-                    MobEffectInstance effectInstance = iterator.next();
-                    MobEffect effect = effectInstance.getEffect();
-                    cap.addEffect(effect.getDescriptionId(),player);
-                }
             });
         } else if(entity.tickCount < 20){
             VPUtil.modifySoulIntegrity(entity, 99999);
@@ -2030,5 +2024,14 @@ public class EventHandler {
         ItemStack stack = event.getItemStack();
         if(stack.hasTag() && stack.getTag().getBoolean("VPMirrored"))
             event.getToolTip().add(Component.translatable("vp.mirrored").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.DARK_AQUA));
+    }
+
+    @SubscribeEvent
+    public static void onEffect(MobEffectEvent.Added event){
+        if(event.getEntity() instanceof Player player) {
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.addEffect(event.getEffectInstance().getDescriptionId(), player);
+            });
+        }
     }
 }

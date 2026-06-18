@@ -49,7 +49,7 @@ public class Box extends Item {
                 accessory = new ItemStack(ModItems.NECKLACE_OF_TORTURED_DREAMS.get());
             }
         }
-        player.addItem(accessory);
+        VPUtil.giveStack(accessory,player);
         return super.use(level, player, p_41434_);
     }
 

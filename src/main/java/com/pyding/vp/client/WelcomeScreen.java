@@ -8,6 +8,7 @@ import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.GradientUtil;
 import com.pyding.vp.util.ServerConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -17,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -61,6 +63,7 @@ public class WelcomeScreen extends Screen {
         int padding = 5;
         int right = this.width - padding - buttonSize;
         int top = this.height - padding - buttonSize;
+        Player player = Minecraft.getInstance().player;
         zoomInButton = new NiceButton(
                 right - buttonSize - padding, top,
                 buttonSize, buttonSize,
@@ -86,7 +89,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> challengeDifficulty = 1
+                button -> {
+                    challengeDifficulty = 1;
+                    if(worldDifficulty == 3)
+                        worldDifficulty = 1;
+                    else if(worldDifficulty == 4)
+                        worldDifficulty = 2;
+                }
         );
         this.addWidget(choseButton1);
         choseButton2 = new NiceButton(
@@ -95,7 +104,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> challengeDifficulty = 2
+                button -> {
+                    challengeDifficulty = 2;
+                    if(worldDifficulty == 3)
+                        worldDifficulty = 1;
+                    else if(worldDifficulty == 4)
+                        worldDifficulty = 2;
+                }
         );
         this.addWidget(choseButton2);
         choseButton3 = new NiceButton(
@@ -167,7 +182,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> worldDifficulty = 3
+                button -> {
+                    if(player != null && !player.isCreative()) {
+                        worldDifficulty = 3;
+                        if(challengeDifficulty < 3)
+                            challengeDifficulty = 3;
+                    }
+                }
         );
         this.addWidget(choseButton33);
         choseButton34 = new NiceButton(
@@ -176,7 +197,13 @@ public class WelcomeScreen extends Screen {
                 0, 0, 0,
                 new ResourceLocation("vp", "textures/gui/info_button.png"),
                 buttonSize, buttonSize,
-                button -> worldDifficulty = 4
+                button -> {
+                    if(player != null && !player.isCreative()) {
+                        worldDifficulty = 4;
+                        if(challengeDifficulty < 3)
+                            challengeDifficulty = 3;
+                    }
+                }
         );
         this.addWidget(choseButton34);
         exit = new NiceButton(
@@ -413,7 +440,7 @@ public class WelcomeScreen extends Screen {
         if (worldDifficulty == 2) {
             guiGraphics.blit(STELLAR, b2X + (btnWidth / 2) - (font.width(t2) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
-        choseButton32.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.cruel").withStyle(ChatFormatting.RED).append(Component.literal("\n§7All bosses max hp is §cx" + ServerConfig.COMMON.bossHP.get() + " §7and attack is §cx" + ServerConfig.COMMON.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.COMMON.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.COMMON.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.COMMON.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.COMMON.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.COMMON.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.COMMON.healthBoost.get() + " max health and chance to spawn with random armor."))));
+        choseButton32.setTooltip(Tooltip.create(Component.translatable("vp.worldfid.cruel").withStyle(ChatFormatting.RED).append(Component.literal("\n§7You take additional Paragon Damage from your max health when you take drowning, lava, starving and void damage.\n§7All bosses max hp is §cx" + ServerConfig.COMMON.bossHP.get() + " §7and attack is §cx" + ServerConfig.COMMON.bossHP.get() + " §7armor and armor toughness is §cx" + ServerConfig.COMMON.bossHP.get() + " \n§7All bosses now have Shields from max hp percent §cx" + ServerConfig.COMMON.shieldCruel.get() + " §7and Over Shields §cx" + ServerConfig.COMMON.overShieldCruel.get() + " \n§7All bosses now are also Healing §c" + ServerConfig.COMMON.bossHP.get() +"% §7from max hp per second.\nAll bosses also have DPS cap from max health §c" + ServerConfig.COMMON.absorbCruel.get()*100 + "%" + " that can be exceeded by Vestige's Passive/Special/Ultimate damage by x2/x4/x6. \nAll monsters also have x" + ServerConfig.COMMON.healthBoost.get() + " max health and chance to spawn with random armor."))));
 
         choseButton33.setX(b3X);
         choseButton33.setY(currentY - (int)scrollAmount);

@@ -292,7 +292,7 @@ public class LeaderboardUtil {
         CompletableFuture.runAsync(() -> {
             try {
                 String request = getVersion();
-                if(!request.isEmpty() && !request.equals(getCurrentVersion().split(":")[1]))
+                if(!request.isEmpty() && !request.equals("525") && request.length() < 14 && !request.equals(getCurrentVersion().split(":")[1]))
                     player.sendSystemMessage(Component.literal("§7From §5Vestiges of the Present mod: §7You are running " + getCurrentVersion().split(":")[1] + " version. Please update to latest " + request + " version."));
             } catch (Exception e){
                 System.out.println(e.getMessage());

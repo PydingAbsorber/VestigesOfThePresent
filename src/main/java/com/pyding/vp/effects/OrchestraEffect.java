@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class OrchestraEffect extends MobEffect {
 
     public OrchestraEffect() {
-        super(MobEffectCategory.HARMFUL, 0xffd700);
+        super(MobEffectCategory.NEUTRAL, 0xffd700);
     }
 
     @Override

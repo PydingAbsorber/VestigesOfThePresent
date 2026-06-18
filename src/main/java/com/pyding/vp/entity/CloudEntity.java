@@ -44,9 +44,9 @@ public class CloudEntity extends Projectile {
         LivingEntity entity = (LivingEntity) getOwner();
         double r = 10;
         Player player = null;
-        if(tickCount % 20 == 0) {
+        if(tickCount % 20 == 0 && entity != null) {
             for(LivingEntity livingEntity: getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, new AABB(getX()+r,getY()+r,getZ()+r,getX()-r,getY()-r,getZ()-r))){
-                if(livingEntity != entity){
+                if(livingEntity != entity && livingEntity != null){
                     if(livingEntity instanceof Player player1) {
                         player = player1;
                         if(player.isCreative())
@@ -57,8 +57,8 @@ public class CloudEntity extends Projectile {
                     VPUtil.equipmentDurability(5,livingEntity);
                     if(entity instanceof Player owner)
                         VPUtil.dealDamage(livingEntity,owner,owner.damageSources().indirectMagic(livingEntity,owner),60,2);
-                    else if(livingEntity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
-                        livingEntity.hurt(entity.damageSources().magic(), (float) (livingEntity.getAttribute(Attributes.ATTACK_DAMAGE).getValue()*0.5));
+                    else if(entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE))
+                        livingEntity.hurt(entity.damageSources().magic(), (float) (entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue()*0.5));
                 }
             }
         }
