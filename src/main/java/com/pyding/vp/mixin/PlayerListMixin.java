@@ -15,7 +15,8 @@ public class PlayerListMixin {
     @Inject(method = "respawn",at = @At("HEAD"),cancellable = true, require = 1)
     private void respawn(ServerPlayer player, boolean keepInventory, Entity.RemovalReason reason, CallbackInfoReturnable<ServerPlayer> cir){
         VPUtil.printTrack("Was Revive",player);
-        if(VPUtil.isRoflanEbalo(player))
+        if(VPUtil.isRoflanEbalo(player)) {
             cir.cancel();
+        }
     }
 }

@@ -433,7 +433,7 @@ public class WelcomeScreen extends Screen {
         choseButton33.render(guiGraphics, mouseX, mouseY + (int)scrollAmount, partialTicks);
         choseButton33.setY(backupY33);
         guiGraphics.pose().translate(0,0,40);
-        t3 = "Leaderboard";
+        t3 = "Extra Cruel";
         guiGraphics.drawString(font, t3, b3X + (btnWidth / 2) - (font.width(t3) / 2), currentY + (btnHeight / 2) - (font.lineHeight / 2), 0xE10600, false);
         if (worldDifficulty == 3) {
             guiGraphics.blit(STELLAR, b3X + (btnWidth / 2) - (font.width(t3) / 2)+ stellarX, currentY + (btnHeight / 2) - (font.lineHeight / 2)+ stellarY, 0, 0, iconSize, iconSize, iconSize, iconSize);

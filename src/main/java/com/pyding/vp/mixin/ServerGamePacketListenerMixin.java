@@ -44,7 +44,13 @@ public abstract class ServerGamePacketListenerMixin {
                     if (this.player.getHealth() > 0.0F) {
                         return;
                     }
-
+                    VPUtil.printTrack("Was Command Revive",player);
+                    if(!VPUtil.canTeleport(player))
+                        VPUtil.antiTp(player,-1);
+                    if(!VPUtil.canResurrect(player))
+                        VPUtil.antiResurrect(player,-1);
+                    if(VPUtil.isRoflanEbalo(player))
+                        VPUtil.setRoflanEbalo(player,-1);
                     this.player = server.getPlayerList().respawn(this.player, false, Entity.RemovalReason.KILLED);
                     if (server.isHardcore()) {
                         this.player.setGameMode(GameType.SPECTATOR);
