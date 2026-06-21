@@ -49,6 +49,7 @@ import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -1252,9 +1253,14 @@ public class VPUtil {
             modifySoulIntegrity(player,30);
         if(hasVestige(ModItems.NIGHTMARE_DEVOURER.get(), player))
             modifySoulIntegrity(player, (int) (getMaxSoulIntegrity(player)*0.15));
-        setHealth(entity, 0);
-        entity.die(new DamageSource(player.damageSources().genericKill().typeHolder(),player));
-        despawn(entity);
+        if(entity instanceof EnderDragon dragon){
+            dragon.die(player.damageSources().playerAttack(player));
+        }
+        else {
+            setHealth(entity, 0);
+            entity.die(new DamageSource(player.damageSources().genericKill().typeHolder(), player));
+            despawn(entity);
+        }
     }
 
     public static void deadInside(LivingEntity entity){
@@ -1273,9 +1279,14 @@ public class VPUtil {
         entity.hurt(entity.damageSources().genericKill(),0);
         antiResurrect(entity,deathTime+System.currentTimeMillis());
         setRoflanEbalo(entity,deathTime+System.currentTimeMillis());
-        setHealth(entity, 0);
-        entity.die(entity.damageSources().genericKill());
-        despawn(entity);
+        if(entity instanceof EnderDragon dragon){
+            dragon.kill();
+        }
+        else {
+            setHealth(entity, 0);
+            entity.die(entity.damageSources().genericKill());
+            despawn(entity);
+        }
     }
 
     public static List<LivingEntity> ray(Player player, float range, int maxDist, boolean stopWhenFound) {
