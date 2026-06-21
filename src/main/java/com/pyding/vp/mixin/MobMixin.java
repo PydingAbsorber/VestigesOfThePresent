@@ -20,7 +20,8 @@ public abstract class MobMixin {
 
     @Inject(method = "setTarget",at = @At("HEAD"),cancellable = true, require = 1)
     private void setTargetMixin(LivingEntity livingEntity, CallbackInfo ci){
-        if(livingEntity instanceof Player player && player.getPersistentData().hasUUID("VPSlave") && player.getUUID().compareTo(((Mob)(Object)this).getPersistentData().getUUID("VPSlave")) == 0 && VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)){
+        if(livingEntity instanceof Player player && player.getPersistentData().hasUUID("VPSlave") && VPUtil.hasVestige(ModItems.SOULBLIGHTER.get(),player)
+                && ((Mob)(Object)this).getUUID().compareTo(player.getPersistentData().getUUID("VPSlave")) == 0){
             ci.cancel();
         }
     }
