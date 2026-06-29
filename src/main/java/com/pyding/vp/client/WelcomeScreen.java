@@ -6,6 +6,7 @@ import com.pyding.vp.network.PacketHandler;
 import com.pyding.vp.network.packets.SendClientDataToServerPacket;
 import com.pyding.vp.util.ClientConfig;
 import com.pyding.vp.util.GradientUtil;
+import com.pyding.vp.util.LeaderboardUtil;
 import com.pyding.vp.util.ServerConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -212,6 +213,12 @@ public class WelcomeScreen extends Screen {
         list.add(Component.translatable("vp.welcome.2"));
         list.add(Component.translatable("vp.welcome.3"));
         list.add(Component.translatable("vp.welcome.4"));
+        Component support;
+        Player player = Minecraft.getInstance().player;
+        if(player != null && LeaderboardUtil.isSupporter(player.getName().getString(),player))
+            support = Component.translatable("vp.supporter");
+        else support = Component.translatable("vp.support");
+        list.add(support);
         list.add(Component.literal("========================================================"));
         list.add(Component.translatable("vp.welcome.5"));
         list.add(Component.translatable("vp.welcome.6"));
@@ -232,7 +239,7 @@ public class WelcomeScreen extends Screen {
                     guiGraphics.drawString(font, line, textX, currentY - 1, secondColor, false);
                     guiGraphics.drawString(font, line, textX, currentY + 1, secondColor, false);
                 }
-                if(number >= 5)
+                if(number >= 6)
                     mainColor = 0xC5B4E3;
                 guiGraphics.drawString(font, line, textX, currentY, mainColor, false); //0xC5B4E3   0xFFB673
                 currentY += font.lineHeight + 2;

@@ -1,0 +1,31 @@
+{
+    "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "ABA",
+        "VCV",
+        "SDS"
+      ],
+      "key": {
+        "A": {
+          "item": "minecraft:brain_coral"
+        },
+        "B": {
+          "item": "minecraft:sea_pickle"
+        },
+        "D": {
+          "item": "minecraft:prismarine_crystals"
+        },
+        "S": {
+          "item": "minecraft:tube_coral"
+        },
+        "C": {
+          "item": "vp:flirty_jellyfish"
+        },
+        "V": {
+          "item": "minecraft:heart_of_the_sea"
+        }
+      },
+      "result": {
+        "item": "vp:hungry_oyster_summoner"
+      }
+}

@@ -46,6 +46,7 @@ public class VestigesOfThePresent
 
     public VestigesOfThePresent()
     {
+        LeaderboardUtil.forceReloadAsync();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
         ModItems.register(modEventBus);
@@ -162,6 +163,9 @@ public class VestigesOfThePresent
             }
             event.accept(ModItems.HEARTY_PEARL);
             event.accept(ModItems.SEASHELL);
+            event.accept(ModItems.FLIRTY_JELLYFISH);
+            event.accept(ModItems.OYSTER_SUMMONER);
+            event.accept(ModItems.SEASHELL_SUMMONER);
             event.accept(ModItems.CORRUPT_FRAGMENT);
             event.accept(ModItems.CORRUPT_ITEM);
             event.accept(ModItems.CHAOS_ORB);

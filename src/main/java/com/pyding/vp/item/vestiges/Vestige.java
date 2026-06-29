@@ -667,7 +667,7 @@ public class Vestige extends Item implements ICurioItem {
                     stellarChance += 5;
                 if(cap.getVip() > System.currentTimeMillis())
                     stellarChance += 10;
-                if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+                if(LeaderboardUtil.hasGoldenName(player.getUUID(),player))
                     stellarChance += 10;
                 components.add(Component.literal((int)stellarChance+"% ").withStyle(color).append(Component.translatable("vp.chance").withStyle(ChatFormatting.GRAY).append(GradientUtil.stellarGradient("Stellar"))));
                 components.add(Component.translatable("vp.chance2").withStyle(ChatFormatting.GRAY).append(Component.literal(ConfigHandler.COMMON.stellarChanceIncrease.get() + "%")));

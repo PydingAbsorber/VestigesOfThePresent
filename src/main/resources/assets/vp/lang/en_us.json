@@ -77,6 +77,9 @@
   "item.vp.hearty_pearl": "§9Hearty Pearl",
   "item.vp.pinky_pearl": "§dPinky Pearl",
   "item.vp.seashell": "§9Adorned Seashell",
+  "item.vp.flirty_jellyfish": "§9Flirty Jellyfish",
+  "item.vp.hungry_oyster_summoner": "§9Hungry Oyster Summoner",
+  "item.vp.silly_seashell_summoner": "§9Silly Seashell Summoner",
   "vp.obtain": "How to obtain:",
   "vp.mirrored": "Mirrored.",
   "vp.hearty_pearl.obtain": "Drops when you feed 3 \"Well-Fed Fish\" to a Hungry Oyster.\nHungry Oysters can spawn in the ocean and warm ocean, with the chance being 3 times higher in warm ocean.\nAround a Hungry Oyster, within a 30-block radius, 3 Skinny Fish will appear. These fish need to be protected while they fatten up.\nAll nearby creatures will try to eat the Skinny Fish, and the fattening process takes %s mins.\nOnce the fish are well-fed, you need to lead them back to the Hungry Oyster to feed them.",
@@ -524,7 +527,7 @@
   "vp.meme.15": "Best Vestige? Say that to his older brother.",
   "vp.meme.16": "",
   "vp.meme.17": "",
-  "vp.meme.18": "",
+  "vp.meme.18": "My attacks have no effect on you? Who decided that? The one who gets to decide... is me.",
   "vp.meme.19": "",
   "vp.meme.20": "",
   "vp.meme.21": "",
@@ -581,5 +584,7 @@
   "vp.vpower.strong": "Vestiges start with 100% Vestige Power, 100% maximum.",
   "vp.worldfid.default": "No changes, vanilla difficulty.",
   "vp.worldfid.cruel": "Enables Cruel mode: \n",
-  "vp.worldfid.extra_cruel": "Extra Cruel Mode: +100% empower chance, stat scaling, exp from Bosses, base drop rate of Cruel Mode exclusive items.\nDps cap on Bosses is 10% of their max health."
+  "vp.worldfid.extra_cruel": "Extra Cruel Mode: +100% empower chance, stat scaling, exp from Bosses, base drop rate of Cruel Mode exclusive items.\nDps cap on Bosses is 10% of their max health.",
+  "vp.support": "You can also support me on vestiges.pyding.org.",
+  "vp.supporter": "Thank you for support!"
 }

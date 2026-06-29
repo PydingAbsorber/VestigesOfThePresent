@@ -82,6 +82,8 @@ public class PlayerCapabilityVP {
     private int soulDeaths = 0;
     private String ores = "";
     private long bookCurse = 0;
+    private int[] colorNick = {};
+    private int[] colorChat = {};
 
     public void setSleep(boolean slept){
         sleep = slept;
@@ -828,6 +830,8 @@ public class PlayerCapabilityVP {
         soulDeaths = source.soulDeaths;
         ores = source.ores;
         bookCurse = source.bookCurse;
+        colorNick = source.colorNick;
+        colorChat = source.colorChat;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -879,6 +883,8 @@ public class PlayerCapabilityVP {
         nbt.putInt("VPSD",soulDeaths);
         nbt.putString("VPOre",ores);
         nbt.putLong("VPBookCurse",bookCurse);
+        nbt.putIntArray("VPColorN",colorNick);
+        nbt.putIntArray("VPColorC",colorChat);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -930,6 +936,8 @@ public class PlayerCapabilityVP {
         soulDeaths = nbt.getInt("VPSD");
         ores = nbt.getString("VPOre");
         bookCurse = nbt.getLong("VPBookCurse");
+        colorNick = nbt.getIntArray("VPColorN");
+        colorChat = nbt.getIntArray("VPColorC");
     }
 
     public void sync(Player player){
@@ -1071,7 +1079,7 @@ public class PlayerCapabilityVP {
             stellarChance += 5;
         if(getVip() > System.currentTimeMillis())
             stellarChance += 10;
-        if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+        if(LeaderboardUtil.hasGoldenName(player.getUUID(),player))
             stellarChance += 10;
         if(random.nextDouble() < VPUtil.getChance(stellarChance/100,player)){
             if(stellarChance >= 200){
@@ -1230,5 +1238,21 @@ public class PlayerCapabilityVP {
     public void setBookCurse(long bookCurse,Player player) {
         this.bookCurse = bookCurse;
         sync(player);
+    }
+
+    public int[] getColorNick() {
+        return colorNick;
+    }
+
+    public void setColorNick(int[] colorNick) {
+        this.colorNick = colorNick;
+    }
+
+    public int[] getColorChat() {
+        return colorChat;
+    }
+
+    public void setColorChat(int[] colorChat) {
+        this.colorChat = colorChat;
     }
 }

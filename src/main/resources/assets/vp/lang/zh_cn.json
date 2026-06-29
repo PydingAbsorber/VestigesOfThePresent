@@ -77,6 +77,9 @@
   "item.vp.hearty_pearl": "§9丰饶珍珠",
   "item.vp.pinky_pearl": "§d粉红珍珠",
   "item.vp.seashell": "§9缀饰海贝",
+  "item.vp.flirty_jellyfish": "§9调情水母",
+  "item.vp.hungry_oyster_summoner": "§9饥饿牡蛎召唤者",
+  "item.vp.silly_seashell_summoner": "§9俏皮贝壳召唤者",
   "vp.obtain": "如何获取：",
   "vp.mirrored": "已镜像。",
   "vp.hearty_pearl.obtain": "向饥饿牡蛎喂食 3 条“饱腹鱼”时掉落。\n饥饿牡蛎可在海洋和暖海中生成，在暖海中的生成几率是海洋的 3 倍。\n饥饿牡蛎周围 30 格半径内会出现 3 条瘦小鱼。需要保护这些鱼，同时它们会逐渐长肥。\n附近的所有生物都会试图吃掉瘦小鱼，增肥过程需要 %s 分钟。\n一旦鱼长肥，您需要将它们引回饥饿牡蛎处进行喂食。",
@@ -577,5 +580,7 @@
   "vp.vpower.strong": "遗骸初始拥有 100% 的遗骸强度，最高 100%。",
   "vp.worldfid.default": "无变化，原版难度。",
   "vp.worldfid.cruel": "启用残酷模式：\n",
-  "vp.worldfid.extra_cruel": "额外残酷模式：+100% 强化几率，属性缩放，Boss经验值，残酷模式专属物品的基础掉落率。\nBoss的每秒伤害上限为其生命值的10%。"
+  "vp.worldfid.extra_cruel": "额外残酷模式：+100% 强化几率，属性缩放，Boss经验值，残酷模式专属物品的基础掉落率。\nBoss的每秒伤害上限为其生命值的10%。",
+  "vp.support": "此外，您也可以在 vestiges.pyding.org 上支持我。",
+  "vp.supporter": "感谢您的支持！"
 }
