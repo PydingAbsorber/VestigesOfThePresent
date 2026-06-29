@@ -70,6 +70,9 @@ public class ModItems {
     public static final DeferredHolder<Item, NightmareBook> NIGHTMARE_BOOK = ITEMS.register("nightmare_book", () -> new NightmareBook(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<Item, MineralCluster> MINERAL_CLUSTER = ITEMS.register("mineral_cluster", () -> new MineralCluster());
     public static final DeferredHolder<Item, EventHorizon> EVENT_HORIZON = ITEMS.register("event_horizon", () -> new EventHorizon(new Item.Properties().stacksTo(1)));
+    public static final DeferredHolder<Item, Item> FLIRTY_JELLYFISH = ITEMS.register("flirty_jellyfish", () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final DeferredHolder<Item, OysterSummon> OYSTER_SUMMONER = ITEMS.register("hungry_oyster_summoner", () -> new OysterSummon(new Item.Properties().stacksTo(1)));
+    public static final DeferredHolder<Item, SeashellSummon> SEASHELL_SUMMONER = ITEMS.register("silly_seashell_summoner", () -> new SeashellSummon(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

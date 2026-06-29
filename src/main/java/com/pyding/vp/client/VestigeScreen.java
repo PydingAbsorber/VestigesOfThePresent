@@ -268,7 +268,7 @@ public class VestigeScreen extends Screen {
             stellarChance += 5;
         if(cap.getVip() > System.currentTimeMillis())
             stellarChance += 10;
-        if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+        if(LeaderboardUtil.hasGoldenName(player.getUUID(),player))
             stellarChance += 10;
         Component coldown = Component.empty();
         if (cap.hasCoolDown(vestigeNumber))

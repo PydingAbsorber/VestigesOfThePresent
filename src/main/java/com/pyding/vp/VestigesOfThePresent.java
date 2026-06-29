@@ -28,6 +28,7 @@ public class VestigesOfThePresent {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public VestigesOfThePresent(IEventBus modEventBus, ModContainer modContainer) {
+        LeaderboardUtil.forceReloadAsync();
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
@@ -95,6 +96,9 @@ public class VestigesOfThePresent {
             }
             event.accept(ModItems.HEARTY_PEARL.get());
             event.accept(ModItems.SEASHELL.get());
+            event.accept(ModItems.FLIRTY_JELLYFISH.get());
+            event.accept(ModItems.OYSTER_SUMMONER.get());
+            event.accept(ModItems.SEASHELL_SUMMONER.get());
             event.accept(ModItems.CORRUPT_FRAGMENT.get());
             event.accept(ModItems.CORRUPT_ITEM.get());
             event.accept(ModItems.CHAOS_ORB.get());

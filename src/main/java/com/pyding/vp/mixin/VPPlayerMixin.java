@@ -24,10 +24,17 @@ public class VPPlayerMixin {
     private void getNameMixin(CallbackInfoReturnable<Component> cir){
         Player player = ((Player)(Object)this);
         String name = cir.getReturnValue().getString();
-        if(LeaderboardUtil.hasSpecialName(name))
-            cir.setReturnValue(GradientUtil.customGradient(name,GradientUtil.PURPLE_DARK_PURPLE));
-        if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+        if(LeaderboardUtil.isSupporter(name,player)) {
+            cir.setReturnValue(GradientUtil.customGradient(name, GradientUtil.getSupporterNick(player)));
+            return;
+        }
+        if(LeaderboardUtil.hasSpecialName(name,player)) {
+            cir.setReturnValue(GradientUtil.customGradient(name, GradientUtil.PURPLE_DARK_PURPLE));
+            return;
+        }
+        if(LeaderboardUtil.hasGoldenName(player.getUUID(),player)) {
             cir.setReturnValue(GradientUtil.goldenGradient(name));
+        }
     }
 
     @Inject(method = "getInventory",at = @At("HEAD"),cancellable = true, require = 1)

@@ -1,6 +1,9 @@
 package com.pyding.vp.util;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.pyding.vp.VestigesOfThePresent;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -9,6 +12,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.ServerChatEvent;
 
+import java.util.Map;
+
 @EventBusSubscriber(modid = VestigesOfThePresent.MODID)
 public class GradientUtil {
 
@@ -16,10 +21,11 @@ public class GradientUtil {
     public static void onServerChat(ServerChatEvent event) {
         if(event.getPlayer() != null) {
             Player player = event.getPlayer();
-            if(LeaderboardUtil.hasGoldenName(player.getUUID())) {
-                String originalText = event.getMessage().getString();
-                Component gradientMessage = goldenGradient(originalText);
-                event.setMessage(gradientMessage);
+            if(LeaderboardUtil.isSupporter(player.getName().getString(),player)) {
+                event.setMessage(customGradient(event.getMessage().getString(), getSupporterChat(player)));
+            }
+            else if(LeaderboardUtil.hasGoldenName(player.getUUID(),player)) {
+                event.setMessage(goldenGradient(event.getMessage().getString()));
             }
         }
     }
@@ -94,6 +100,112 @@ public class GradientUtil {
         }
 
         return result;
+    }
+
+    public static int[] SUPPORTER_NICK = {};
+
+    public static int[] SUPPORTER_CHAT = {};
+
+    public static int[] getSupporterNick(Player player){
+        if(SUPPORTER_NICK.length == 0){
+            SUPPORTER_NICK = VPUtil.getCap(player).getColorNick();
+        }
+        return SUPPORTER_NICK;
+    }
+
+    public static int[] getSupporterChat(Player player) {
+        if(SUPPORTER_CHAT.length == 0){
+            SUPPORTER_CHAT = VPUtil.getCap(player).getColorChat();
+        }
+        return SUPPORTER_CHAT;
+    }
+
+    public static void setSupporterChat(int[] supporterChat, Player player) {
+        SUPPORTER_CHAT = supporterChat;
+        if(player == null)
+            return;
+        VPUtil.getCap(player).setColorChat(supporterChat);
+        VPUtil.getCap(player).sync(player);
+    }
+
+    public static void setSupporterNick(int[] supporterNick, Player player) {
+        SUPPORTER_NICK = supporterNick;
+        if(player == null)
+            return;
+        VPUtil.getCap(player).setColorNick(supporterNick);
+        VPUtil.getCap(player).sync(player);
+    }
+
+    public static int setGradient(CommandContext<CommandSourceStack> ctx, int steps, int id) {
+        Player player = ctx.getSource().getPlayer();
+        if(player == null)
+            return 0;
+        int[] colors = GradientUtil.parseColors(StringArgumentType.getString(ctx, "colors"));
+        if (colors.length < 2) {
+            ctx.getSource().sendFailure(Component.literal("Need at least 2 colors"));
+            return 0;
+        }
+        if(id == 1)
+            setSupporterNick(GradientUtil.makeLoopGradient(steps, colors),player);
+        else setSupporterChat(GradientUtil.makeLoopGradient(steps, colors),player);
+        ctx.getSource().sendSuccess(() -> Component.literal("Gradient updated: " + colors.length + " colors"), true);
+        return 1;
+    }
+
+    public static final Map<String, Integer> COLORS = Map.ofEntries(
+            Map.entry("black", 0x000000),
+            Map.entry("white", 0xFFFFFF),
+            Map.entry("red", 0xFF0000),
+            Map.entry("green", 0x00FF00),
+            Map.entry("blue", 0x0000FF),
+            Map.entry("yellow", 0xFFFF00),
+            Map.entry("orange", 0xFF8800),
+            Map.entry("purple", 0xAA00FF),
+            Map.entry("pink", 0xFF66CC),
+            Map.entry("cyan", 0x00FFFF),
+            Map.entry("lime", 0x00FF00),
+            Map.entry("dark_green", 0x002000),
+            Map.entry("dark_purple", 0x1A0030)
+    );
+
+    public static int parseColor(String color) {
+        color = color.toLowerCase();
+
+        if (COLORS.containsKey(color))
+            return COLORS.get(color);
+
+        return Integer.parseInt(color.replace("#", "").replace("0x", ""), 16) & 0xFFFFFF;
+    }
+
+    public static int[] parseColors(String raw) {
+        String[] split = raw.trim().split("\\s+");
+        int[] colors = new int[split.length];
+
+        for (int i = 0; i < split.length; i++)
+            colors[i] = parseColor(split[i]);
+
+        return colors;
+    }
+
+    public static int[] makeLoopGradient(int steps, int... colors) {
+        int[] result = new int[(colors.length - 1) * steps * 2];
+        int i = 0;
+
+        for (int c = 0; c < colors.length - 1; c++)
+            for (int s = 0; s < steps; s++)
+                result[i++] = lerpColor(colors[c], colors[c + 1], s / (float) steps);
+
+        for (int c = colors.length - 1; c > 0; c--)
+            for (int s = 0; s < steps; s++)
+                result[i++] = lerpColor(colors[c], colors[c - 1], s / (float) steps);
+
+        return result;
+    }
+
+    private static int lerpColor(int a, int b, float t) {
+        return ((int) ((a >> 16 & 255) + ((b >> 16 & 255) - (a >> 16 & 255)) * t) << 16)
+                | ((int) ((a >> 8 & 255) + ((b >> 8 & 255) - (a >> 8 & 255)) * t) << 8)
+                | (int) ((a & 255) + ((b & 255) - (a & 255)) * t);
     }
 
     public static final int[] RAINBOW_COLORS = {

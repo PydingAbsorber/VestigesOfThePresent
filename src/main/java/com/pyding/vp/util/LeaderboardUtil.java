@@ -1,6 +1,10 @@
 package com.pyding.vp.util;
 
 import com.google.gson.*;
+import com.pyding.vp.network.PacketHandler;
+import com.pyding.vp.network.packets.PlayerFlyPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class LeaderboardUtil {
     public static String topPlayers = "";
     public static String specialPlayers = "";
+    public static String supporters = "";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String DATA_URL = "https://raw.githubusercontent.com/PydingAbsorber/VestigesOfThePresent/master/file.json";
     private static volatile String allPlayers = "";
@@ -97,6 +102,10 @@ public class LeaderboardUtil {
         if (json.has("specialPlayers")) {
             specialPlayers = parseStringOrArray(json.get("specialPlayers"));
         }
+
+        if (json.has("supporters")) {
+            supporters = parseStringOrArray(json.get("supporters"));
+        }
     }
 
     private static String parseAllPlayers(JsonElement element) {
@@ -131,20 +140,42 @@ public class LeaderboardUtil {
         return "";
     }
 
-    public static boolean hasGoldenName(UUID uuid){
-        if(topPlayers.isEmpty())
-            return false;
-        for(String player: topPlayers.split(",")){
-            if(uuid.equals(UUID.fromString(player)))
+    public static boolean hasGoldenName(UUID uuid, Player player){
+        if(topPlayers.isEmpty()) {
+            if(player instanceof ServerPlayer serverPlayer) {
+                LeaderboardUtil.forceReloadAsync();
+                PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
+            }
+        }
+        for(String id: topPlayers.split(",")){
+            if(uuid.equals(UUID.fromString(id)))
                 return true;
         }
         return false;
     }
 
-    public static boolean hasSpecialName(String name){
-        if(specialPlayers.isEmpty())
-            return false;
+    public static boolean hasSpecialName(String name, Player player){
+        if(specialPlayers.isEmpty()){
+            if(player instanceof ServerPlayer serverPlayer) {
+                LeaderboardUtil.forceReloadAsync();
+                PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
+            }
+        }
         for(String nick: specialPlayers.split(",")){
+            if(nick.equals(name))
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isSupporter(String name, Player player){
+        if(supporters.isEmpty()){
+            if(player instanceof ServerPlayer serverPlayer) {
+                LeaderboardUtil.forceReloadAsync();
+                PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
+            }
+        }
+        for(String nick: supporters.split(",")){
             if(nick.equals(name))
                 return true;
         }

@@ -88,6 +88,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
     private int soulDeaths = 0;
     private String ores = "";
     private Long bookCurse = 0L;
+    private int[] colorNick = {};
+    private int[] colorChat = {};
 
     public VestigeCap() {
     }
@@ -853,6 +855,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         soulDeaths = source.soulDeaths;
         ores = source.ores;
         bookCurse = source.bookCurse;
+        colorNick = source.colorNick;
+        colorChat = source.colorChat;
     }
 
     public void saveNBT(CompoundTag nbt){
@@ -904,6 +908,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         nbt.putInt("VPSD",soulDeaths);
         nbt.putString("VPOre",ores);
         nbt.putLong("VPBookCurse",bookCurse);
+        nbt.putIntArray("VPColorN",colorNick);
+        nbt.putIntArray("VPColorC",colorChat);
     }
 
     public void loadNBT(CompoundTag nbt){
@@ -955,6 +961,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         soulDeaths = nbt.getInt("VPSD");
         ores = nbt.getString("VPOre");
         bookCurse = nbt.getLong("VPBookCurse");
+        colorNick = nbt.getIntArray("VPColorN");
+        colorChat = nbt.getIntArray("VPColorC");
     }
 
     public void sync(Player player){
@@ -1098,7 +1106,7 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
             stellarChance += 5;
         if(getVip() > System.currentTimeMillis())
             stellarChance += 10;
-        if(LeaderboardUtil.hasGoldenName(player.getUUID()))
+        if(LeaderboardUtil.hasGoldenName(player.getUUID(),player))
             stellarChance += 10;
         if(random.nextDouble() < VPUtil.getChance(stellarChance/100,player)){
             if(stellarChance >= 200){
@@ -1255,5 +1263,21 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
     public void setBookCurse(Long bookCurse, Player player) {
         this.bookCurse = bookCurse;
         sync(player);
+    }
+
+    public int[] getColorNick() {
+        return colorNick;
+    }
+
+    public void setColorNick(int[] colorNick) {
+        this.colorNick = colorNick;
+    }
+
+    public int[] getColorChat() {
+        return colorChat;
+    }
+
+    public void setColorChat(int[] colorChat) {
+        this.colorChat = colorChat;
     }
 }

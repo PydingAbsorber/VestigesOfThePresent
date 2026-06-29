@@ -1,0 +1,31 @@
+{
+    "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "AVA",
+        "BCB",
+        "SDS"
+      ],
+      "key": {
+        "A": {
+          "item": "minecraft:scute"
+        },
+        "B": {
+          "item": "minecraft:nautilus_shell"
+        },
+        "D": {
+          "item": "vp:stellar"
+        },
+        "S": {
+          "item": "minecraft:bubble_coral"
+        },
+        "C": {
+          "item": "vp:flirty_jellyfish"
+        },
+        "V": {
+          "item": "minecraft:heart_of_the_sea"
+        }
+      },
+      "result": {
+        "item": "vp:silly_seashell_summoner"
+      }
+}

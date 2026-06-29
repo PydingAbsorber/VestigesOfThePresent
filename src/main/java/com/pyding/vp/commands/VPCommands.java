@@ -22,6 +22,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -408,6 +409,115 @@ public class VPCommands {
                                     player.sendSystemMessage(Component.literal("Is Halloween: " + VPUtil.isHalloween()));
                                     return Command.SINGLE_SUCCESS;
                                 })
+                        )
+                        .then(Commands.literal("isEaster")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    player.sendSystemMessage(Component.literal("Is Easter: " + VPUtil.isEasterEvent()));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("color")
+                        .then(Commands.literal("changeNick")
+                                .then(Commands.literal("steps")
+                                        .then(Commands.argument("steps", IntegerArgumentType.integer(2, 100))
+                                                .then(Commands.argument("colors", StringArgumentType.greedyString())
+                                                        .executes(ctx -> GradientUtil.setGradient(ctx, IntegerArgumentType.getInteger(ctx, "steps"),1)))))
+                                .then(Commands.literal("preset")
+                                        .then(Commands.literal("supporter").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterNick(GradientUtil.makeLoopGradient(15, 0xE0B0FF, 0x1A0030, 0x002000, 0x00FF00),player);
+                                            if(player != null)
+                                                player.sendSystemMessage(Component.literal("Re-join world to apply."));
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: supporter"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("stellar").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterNick(GradientUtil.RAINBOW_COLORS,player);
+                                            if(player != null)
+                                                player.sendSystemMessage(Component.literal("Re-join world to apply."));
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: stellar"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("mystery").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterNick(GradientUtil.MYSTERY,player);
+                                            if(player != null)
+                                                player.sendSystemMessage(Component.literal("Re-join world to apply."));
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: mystery"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("calmStellar").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterNick(GradientUtil.PURPLE_DARK_PURPLE,player);
+                                            if(player != null)
+                                                player.sendSystemMessage(Component.literal("Re-join world to apply."));
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: calmStellar"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("blue").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterNick(GradientUtil.BLUE_LIGHT_BLUE,player);
+                                            if(player != null)
+                                                player.sendSystemMessage(Component.literal("Re-join world to apply."));
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: blue"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("fire").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterNick(GradientUtil.makeLoopGradient(15, 0xFF0000, 0xFF8800, 0xFFFF00),player);
+                                            if(player != null)
+                                                player.sendSystemMessage(Component.literal("Re-join world to apply."));
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: fire"), true);
+                                            return 1;
+                                        }))
+                                )
+                        )
+                        .then(Commands.literal("changeChat")
+                                .then(Commands.literal("steps")
+                                        .then(Commands.argument("steps", IntegerArgumentType.integer(2, 100))
+                                                .then(Commands.argument("colors", StringArgumentType.greedyString())
+                                                        .executes(ctx -> GradientUtil.setGradient(ctx, IntegerArgumentType.getInteger(ctx, "steps"),2)))))
+                                .then(Commands.literal("preset")
+                                        .then(Commands.literal("supporter").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterChat(GradientUtil.makeLoopGradient(15, 0xE0B0FF, 0x1A0030, 0x002000, 0x00FF00),player);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: supporter"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("stellar").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterChat(GradientUtil.RAINBOW_COLORS,player);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: stellar"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("mystery").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterChat(GradientUtil.MYSTERY,player);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: mystery"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("calmStellar").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterChat(GradientUtil.PURPLE_DARK_PURPLE,player);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: calmStellar"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("blue").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterChat(GradientUtil.BLUE_LIGHT_BLUE,player);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: blue"), true);
+                                            return 1;
+                                        }))
+                                        .then(Commands.literal("fire").executes(ctx -> {
+                                            Player player = ctx.getSource().getPlayer();
+                                            GradientUtil.setSupporterChat(GradientUtil.makeLoopGradient(15, 0xFF0000, 0xFF8800, 0xFFFF00),player);
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Gradient preset: fire"), true);
+                                            return 1;
+                                        }))
+                                )
                         )
                 )
         );

@@ -41,6 +41,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -2238,12 +2239,13 @@ public class VPUtil {
     }
 
     public static double calculateCatchChance(float playerHealth, float entityMaxHealth, float entityHealth){
-        double probability;
-        float base = (0.6f+(1-(entityHealth/entityMaxHealth)));
-        if(playerHealth >= entityMaxHealth)
-            probability = base;
-        else probability = (base * (float) Math.pow(0.95f, Math.abs(playerHealth - entityMaxHealth) / 10));
-        return probability*ConfigHandler.soulBlighterChance.get();
+        if (entityMaxHealth <= 0.0F) return 0.0D;
+        double hpPercent = Mth.clamp(entityHealth / entityMaxHealth, 0.0D, 1.0D);
+        double missingHp = 1.0D - hpPercent;
+        double power = Math.tanh(playerHealth / entityMaxHealth);
+        double baseChance = 0.04D * (0.65D + 0.35D * power);
+        double lowHpBonus = 0.86D * Math.pow(missingHp, 1.35D) * (0.10D + 0.90D * power);
+        return Mth.clamp(baseChance + lowHpBonus, 0.01D, 0.95D)*ConfigHandler.soulBlighterChance.get();
     }
 
     public static EntityType<?> entityTypeFromNbt(CompoundTag nbtTagCompound) {
