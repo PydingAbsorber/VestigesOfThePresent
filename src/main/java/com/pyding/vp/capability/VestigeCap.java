@@ -174,6 +174,8 @@ public class VestigeCap implements INBTSerializable<CompoundTag> {
         if(VPUtil.notContains(sea,seaElement) && !hasCoolDown(24)) {
             this.sea += seaElement + ",";
             setChallenge(24,player);
+            if(player.getRandom().nextDouble() < VPUtil.getChance(0.01d,player))
+                VPUtil.giveStack(new ItemStack(ModItems.FLIRTY_JELLYFISH.get()),player);
         }
     }
 

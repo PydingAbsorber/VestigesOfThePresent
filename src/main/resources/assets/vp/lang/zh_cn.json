@@ -44,6 +44,7 @@
   "item.vip.desc2": "VIP 状态使您死亡时保留物品和经验，获得 4 倍经验值，并为以下物品提供 +10% 永久额外几率：",
   "item.vip.desc2.2": "若在 VIP 已激活时使用，将延长当前 VIP 状态的剩余时间。",
   "item.vip.desc3": "此激活器与您绑定，其他任何人都无法使用。",
+  "vp.flirty_jellyfish.1": "可通过击杀水生动物时以0.1%的几率获得，或在漩涡挑战中推进时以1%的几率获得。",
   "item.vp.event_horizon": "事件视界",
   "vp.event_horizon.desc": "仅创造模式。\n挥动会强制看到的生物即刻死亡。\n使用时，会强制清除世界中所有已加载的实体；若潜行使用，则清除自身。",
   "item.vp.corrupted_fragment": "§4腐化祈愿",
@@ -77,6 +78,9 @@
   "item.vp.hearty_pearl": "§9丰饶珍珠",
   "item.vp.pinky_pearl": "§d粉红珍珠",
   "item.vp.seashell": "§9缀饰海贝",
+  "item.vp.flirty_jellyfish": "§9调情水母",
+  "item.vp.hungry_oyster_summoner": "§9饥饿牡蛎召唤者",
+  "item.vp.silly_seashell_summoner": "§9俏皮贝壳召唤者",
   "vp.obtain": "如何获取：",
   "vp.mirrored": "已镜像。",
   "vp.hearty_pearl.obtain": "向饥饿牡蛎喂食 3 条“饱腹鱼”时掉落。\n饥饿牡蛎可在海洋和暖海中生成，在暖海中的生成几率是海洋的 3 倍。\n饥饿牡蛎周围 30 格半径内会出现 3 条瘦小鱼。需要保护这些鱼，同时它们会逐渐长肥。\n附近的所有生物都会试图吃掉瘦小鱼，增肥过程需要 %s 分钟。\n一旦鱼长肥，您需要将它们引回饥饿牡蛎处进行喂食。",
@@ -577,5 +581,7 @@
   "vp.vpower.strong": "遗骸初始拥有 100% 的遗骸强度，最高 100%。",
   "vp.worldfid.default": "无变化，原版难度。",
   "vp.worldfid.cruel": "启用残酷模式：\n",
-  "vp.worldfid.extra_cruel": "额外残酷模式：+100% 强化几率，属性缩放，Boss经验值，残酷模式专属物品的基础掉落率。\nBoss的每秒伤害上限为其生命值的10%。"
+  "vp.worldfid.extra_cruel": "额外残酷模式：+100% 强化几率，属性缩放，Boss经验值，残酷模式专属物品的基础掉落率。\nBoss的每秒伤害上限为其生命值的10%。",
+  "vp.support": "此外，您也可以在 vestiges.pyding.org 上支持我。",
+  "vp.supporter": "感谢您的支持！"
 }

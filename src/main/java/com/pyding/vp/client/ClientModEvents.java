@@ -16,7 +16,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-@EventBusSubscriber(modid = "your_mod_id")
+@EventBusSubscriber(modid = "vp")
 public class ClientModEvents {
 
     @SubscribeEvent

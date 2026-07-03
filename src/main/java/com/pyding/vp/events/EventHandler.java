@@ -55,6 +55,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.TropicalFish;
+import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
@@ -637,6 +638,8 @@ public class EventHandler {
                     VPUtil.setNbt(stack,"VPSoulPool", (float) (VPUtil.getTag(stack).getFloat("VPSoulPool") + Math.min(Integer.MAX_VALUE,Math.log10(entity.getMaxHealth())*10)));
                     VPUtil.addRadiance(SoulBlighter.class,40,player);
                 }
+                if(entity instanceof WaterAnimal && random.nextDouble() < VPUtil.getChance(0.001d,player))
+                    VPUtil.giveStack(new ItemStack(ModItems.FLIRTY_JELLYFISH.get()),player);
                 VestigeCap challange = VPUtil.getCap(player);
                 CompoundTag tag = entity.getPersistentData();
                 if (player.getCommandSenderWorld().dimension() == Level.NETHER && player.getHealth() <= 1.5) {
