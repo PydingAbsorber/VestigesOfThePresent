@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -139,6 +140,8 @@ public class PlayerCapabilityVP {
         if(VPUtil.notContains(sea,seaElement) && !hasCoolDown(24)) {
             this.sea += seaElement + ",";
             setChallenge(24,player);
+            if(player.getRandom().nextDouble() < VPUtil.getChance(0.01d,player))
+                VPUtil.giveStack(new ItemStack(ModItems.FLIRTY_JELLYFISH.get()),player);
         }
     }
 

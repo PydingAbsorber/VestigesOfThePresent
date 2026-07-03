@@ -44,6 +44,7 @@
   "item.vip.desc2": "VIP 状态使您死亡时保留物品和经验，获得 4 倍经验值，并为以下物品提供 +10% 永久额外几率：",
   "item.vip.desc2.2": "若在 VIP 已激活时使用，将延长当前 VIP 状态的剩余时间。",
   "item.vip.desc3": "此激活器与您绑定，其他任何人都无法使用。",
+  "vp.flirty_jellyfish.1": "可通过击杀水生动物时以0.1%的几率获得，或在漩涡挑战中推进时以1%的几率获得。",
   "item.vp.event_horizon": "事件视界",
   "vp.event_horizon.desc": "仅创造模式。\n挥动会强制看到的生物即刻死亡。\n使用时，会强制清除世界中所有已加载的实体；若潜行使用，则清除自身。",
   "item.vp.corrupted_fragment": "§4腐化祈愿",

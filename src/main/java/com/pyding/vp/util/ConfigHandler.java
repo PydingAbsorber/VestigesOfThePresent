@@ -142,7 +142,7 @@ public class ConfigHandler {
             maskRotAmount = builder.comment("Mask of Demon's Special hp consumption value in max health %").defineInRange("maskRotAmount", 10, 0, Integer.MAX_VALUE);
             midasChance = builder.comment("Chance for Midas getting luck from Ultimate per 1 gold nugget.").defineInRange("midasChance", 0.0001d, 0, 1);
             prismChance = builder.comment("Prism loot chance multiplier").defineInRange("prismChance", 1d, 0, Integer.MAX_VALUE);
-            soulBlighterChance = builder.comment("Soul Blighter's Ultimate catch chance multiplier").defineInRange("soulBlighterChance", 1d, 0, Integer.MAX_VALUE);
+            soulBlighterChance = builder.comment("Soul Blighter's Ultimate catch chance multiplier").defineInRange("soulBlighterChance", 0.3d, 0, Integer.MAX_VALUE);
             soulBlighterHeal = builder.comment("Soul Blighter Over Shield heal multiplier").defineInRange("soulBlighterHeal", 1d, 0, Integer.MAX_VALUE);
             trigonHeal = builder.comment("Trigon Over Shield heal multiplier").defineInRange("trigonHeal", 1d, 0, Integer.MAX_VALUE);
             donutMaxSaturation = builder.comment("Sweet Donut max Saturation stacks.").defineInRange("donutMaxSaturation", 400, 0, Integer.MAX_VALUE);
