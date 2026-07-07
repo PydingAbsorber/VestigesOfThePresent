@@ -190,7 +190,7 @@ public class ShieldOverlay {
                     }
                     String durationUlt = "";
                     String durationSpecial = "";
-                    int[] ultTime = {1,2,4,8,12,13,20,22,26};
+                    int[] ultTime = {1,2,4,8,12,13,22,26};
                     for(int id: ultTime){
                         if(id == vestigeNumber){
                             int number = Math.round(timeUlt-System.currentTimeMillis())/1000;

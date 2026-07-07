@@ -146,8 +146,8 @@ public class SoulBlighter extends Vestige{
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        if (VPUtil.getTag(stack).contains("entityData")) {
-            EntityType<?> type = VPUtil.entityTypeFromNbt(VPUtil.getTag(stack).getCompound("entityData"));
+        if (stack.get(DataComponents.ENTITY_DATA) != null) {
+            EntityType<?> type = VPUtil.entityTypeFromNbt(stack.get(DataComponents.ENTITY_DATA).copyTag());
             tooltip.add(Component.translatable("vp.soul.exist").withStyle(color)
                     .append(type.getDescription()).withStyle(color));
         } else {
@@ -158,7 +158,7 @@ public class SoulBlighter extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         Player player = (Player) slotContext.entity();
-        if(VPUtil.getTag(stack).contains("entityData") && player.tickCount % 20 == 0){
+        if(stack.get(DataComponents.ENTITY_DATA) != null && player.tickCount % 20 == 0){
             VPUtil.regenOverShield(player, (float) ((VPUtil.getTag(stack).getFloat("VPMaxHealth")*0.1f) * ConfigHandler.soulBlighterHeal.get()));
             if(!player.getAttributes().hasModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(VestigesOfThePresent.MODID,"vp.soulblighter_hp_boost"))){
                 player.getAttributes().addTransientAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,VPUtil.scalePower(1+VPUtil.getTag(stack).getFloat("VPMaxHealth")*0.3f,20,player), AttributeModifier.Operation.ADD_VALUE,"vp.soulblighter_hp_boost"));

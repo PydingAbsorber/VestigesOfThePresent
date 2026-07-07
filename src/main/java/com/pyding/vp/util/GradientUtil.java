@@ -12,6 +12,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.ServerChatEvent;
 
+import java.awt.*;
 import java.util.Map;
 
 @EventBusSubscriber(modid = VestigesOfThePresent.MODID)
@@ -107,15 +108,25 @@ public class GradientUtil {
     public static int[] SUPPORTER_CHAT = {};
 
     public static int[] getSupporterNick(Player player){
-        if(SUPPORTER_NICK.length == 0){
-            SUPPORTER_NICK = VPUtil.getCap(player).getColorNick();
+        if (SUPPORTER_NICK == null || SUPPORTER_NICK.length == 0) {
+            int[] color = VPUtil.getCap(player).getColorNick();
+            if (color == null || color.length == 0) {
+                SUPPORTER_NICK = new int[]{255, 255, 255};
+            } else {
+                SUPPORTER_NICK = color;
+            }
         }
         return SUPPORTER_NICK;
     }
 
     public static int[] getSupporterChat(Player player) {
-        if(SUPPORTER_CHAT.length == 0){
-            SUPPORTER_CHAT = VPUtil.getCap(player).getColorChat();
+        if (SUPPORTER_CHAT == null || SUPPORTER_CHAT.length == 0) {
+            int[] color = VPUtil.getCap(player).getColorNick();
+            if (color == null || color.length == 0) {
+                SUPPORTER_CHAT = new int[]{255, 255, 255};
+            } else {
+                SUPPORTER_CHAT = color;
+            }
         }
         return SUPPORTER_CHAT;
     }

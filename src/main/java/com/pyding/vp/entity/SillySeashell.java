@@ -61,8 +61,10 @@ public class SillySeashell extends WaterAnimal {
             if (stack.getItem() instanceof HeartyPearl && getPersistentData().getInt("VPPearls") < 3) {
                 stack.shrink(1);
                 getPersistentData().putInt("VPPearls", getPersistentData().getInt("VPPearls") + 1);
-                getPersistentData().putInt("VPWave", 1);
-                VPUtil.addShield(this, 100, true);
+                if(getPersistentData().getInt("VPPearls") == 3){
+                    getPersistentData().putInt("VPWave", 1);
+                    VPUtil.addShield(this, 100, true);
+                }
                 VPUtil.syncEntity(this);
             }
         }
