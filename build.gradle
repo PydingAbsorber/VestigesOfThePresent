@@ -94,8 +94,6 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 mixin {
-    println("Damn Deniel...")
-
     add sourceSets.main, "vp.refmap.json"
     config "vp.mixins.json"
 }

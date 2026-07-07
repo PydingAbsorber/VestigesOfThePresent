@@ -24,7 +24,7 @@ public class FlirtyJellyfish extends Item {
         if(Screen.hasShiftDown()) {
             components.add(Component.translatable("vp.flirty_jellyfish.1").withStyle(ChatFormatting.GRAY));
         } else {
-            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.YELLOW).append(Component.translatable("vp.ctrl"))));
+            components.add(Component.translatable("vp.press").append(Component.literal("SHIFT").withStyle(ChatFormatting.BLUE).append(Component.translatable("vp.ctrl"))));
         }
         super.appendHoverText(stack, level, components, flag);
     }

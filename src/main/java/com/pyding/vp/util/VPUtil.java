@@ -2732,6 +2732,12 @@ public class VPUtil {
     }
 
     public static boolean isRare(ItemStack stack){
+        if(stack.getDescriptionId().equals("item.vp.hearty_pearl")
+                || stack.getDescriptionId().equals("item.vp.seashell")
+                || stack.getDescriptionId().equals("item.vp.flirty_jellyfish")
+                || stack.getDescriptionId().equals("item.vp.hungry_oyster_summoner")
+                || stack.getDescriptionId().equals("item.vp.silly_seashell_summoner"))
+            return true;
         for(String name: ConfigHandler.COMMON.rareItems.get().toString().split(",")) {
             if (stack.getDescriptionId().contains(name))
                 return true;

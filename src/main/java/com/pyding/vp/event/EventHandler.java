@@ -615,10 +615,7 @@ public class EventHandler {
                 for(LivingEntity livingEntity: VPUtil.getEntitiesAround(entity,40,40,40,false)) {
                     if (livingEntity instanceof SillySeashell sillySeashell) {
                         sillySeashell.getPersistentData().putInt("VPWaveKilled",sillySeashell.getPersistentData().getInt("VPWaveKilled")+1);
-                        for(LivingEntity living: VPUtil.getEntitiesAround(sillySeashell,40,40,40,false)) {
-                            if(living.getPersistentData().getBoolean("VPWaved"))
-                                living.discard();
-                        }
+                        break;
                     }
                 }
                 entity.discard();
