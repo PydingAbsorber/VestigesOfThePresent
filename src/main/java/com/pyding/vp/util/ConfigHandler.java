@@ -92,7 +92,7 @@ public class ConfigHandler {
     public static final ModConfigSpec.BooleanValue easter = BUILDER.define("easter", false);
     public static final ModConfigSpec.IntValue easterChance = BUILDER.defineInRange("easterChance", 0, 0, Integer.MAX_VALUE);
     public static final ModConfigSpec.ConfigValue<String> fishObjects = BUILDER.define("fishObjects", "fish,shell,pearl,boot,treasure,sunken,drown,lure,prismarin,water,ocean,coral,shark,whale,manta,rain,abyss,deep,sea,pirate,ship,bottle,wet,river");
-    public static final ModConfigSpec.ConfigValue<String> rareItems = BUILDER.define("rareItems", "item.vp.hearty_pearl,item.vp.seashell,abyssal_heart,ichor_bottle,boot");
+    public static final ModConfigSpec.ConfigValue<String> rareItems = BUILDER.define("rareItems", "abyssal_heart,ichor_bottle,boot");
     public static final ModConfigSpec.ConfigValue<String> fishingBlacklist = BUILDER.define("fishingBlacklist", "bottle_of_forfeiture");
     public static final ModConfigSpec.DoubleValue rareFishingDropChance = BUILDER.defineInRange("rareFishingDropChance", 0.001d, 0d, 1d);
     public static final ModConfigSpec.BooleanValue failFlowers = BUILDER.define("failFlowers", false);

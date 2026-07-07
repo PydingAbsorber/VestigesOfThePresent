@@ -56,11 +56,13 @@ public class SillySeashell extends WaterAnimal {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if(!player.getCommandSenderWorld().isClientSide) {
+        if(!player.level().isClientSide) {
             ItemStack stack = player.getMainHandItem();
             if (stack.getItem() instanceof HeartyPearl && getPersistentData().getInt("VPPearls") < 3) {
                 stack.shrink(1);
                 getPersistentData().putInt("VPPearls", getPersistentData().getInt("VPPearls") + 1);
+                getPersistentData().putInt("VPWave", 1);
+                VPUtil.addShield(this, 100, true);
                 VPUtil.syncEntity(this);
             }
         }
@@ -89,61 +91,13 @@ public class SillySeashell extends WaterAnimal {
                 }
             }
         }
-        if(getPersistentData().getInt("VPPearls") == 3) {
-            if(getPersistentData().getInt("VPWave") == 0) {
-                getPersistentData().putInt("VPWave", 1);
-                VPUtil.addShield(this, 100, true);
-            }
+        if(getPersistentData().getInt("VPWave") > 0) {
             int wave = getPersistentData().getInt("VPWave");
             int entitiesPerWave = 3+wave;
             if(!getPersistentData().getBoolean("VPActivated")) {
                 getPersistentData().putBoolean("VPActivated",true);
-                int shellHeals = 0;
-                int radius = 25;
-                for(Object entity: getCommandSenderWorld().getEntitiesOfClass(ShellHealEntity.class, new AABB(getX()+radius,getY()+radius,getZ()+radius,getX()-radius,getY()-radius,getZ()-radius))){
-                    shellHeals++;
-                }
-                if(shellHeals < 10) {
-                    for (int i = 0; i < random.nextInt(7) + 10; i++) {
-                        ShellHealEntity shell = new ShellHealEntity(getCommandSenderWorld());
-                        shell.setPos(getX(), getY(), getZ());
-                        if(VPUtil.teleportRandomly(shell, 20, true))
-                            getCommandSenderWorld().addFreshEntity(shell);
-                    }
-                }
-                List<EntityType> list = new ArrayList<>();
-                List<EntityType> bossList = new ArrayList<>();
-                for(EntityType type: VPUtil.getEntitiesListOfType(MobCategory.MONSTER)){
-                    Entity entity = type.create(getCommandSenderWorld());
-                    if(entity instanceof Monster monster && monster.getType().is(EntityTypeTags.AQUATIC))
-                        list.add(type);
-                }
-                if(wave > 6){
-                    for(EntityType type: VPUtil.bossList){
-                        Entity entity = type.create(getCommandSenderWorld());
-                        if(entity instanceof Monster monster && monster.getType().is(EntityTypeTags.AQUATIC))
-                            bossList.add(type);
-                    }
-                }
-                for (int i = 0; i < entitiesPerWave; i++) {
-                    Entity entity = list.get(random.nextInt(list.size())).create(getCommandSenderWorld());
-                    if (entity == null)
-                        continue;
-                    if(wave > 6 && random.nextDouble() < 0.1 && !bossList.isEmpty())
-                        entity = bossList.get(random.nextInt(bossList.size())).create(getCommandSenderWorld());
-                    entity.setPos(getX(),getY(),getZ());
-                    VPUtil.teleportRandomly(entity,15,true);
-                    getCommandSenderWorld().addFreshEntity(entity);
-                    entity.getPersistentData().putBoolean("VPWaved",true);
-                    if(entity instanceof Monster monster){
-                        monster.addEffect(new MobEffectInstance(MobEffects.GLOWING,99999));
-                        monster.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, SillySeashell.class, true));
-                        monster.setTarget(this);
-                        monster.setLastHurtByMob(this);
-                        if(random.nextDouble() < 0.1 && !VPUtil.isBoss(monster))
-                            VPUtil.boostEntity(monster,2,200,100);
-                    }
-                }
+                startWave(wave,entitiesPerWave);
+                VPUtil.syncEntity(this);
             } else if(getPersistentData().getInt("VPWaveKilled") >= entitiesPerWave){
                 if(wave == 10){
                     dropLoot();
@@ -151,32 +105,90 @@ public class SillySeashell extends WaterAnimal {
                 }
                 getPersistentData().putInt("VPWaveKilled",0);
                 getPersistentData().putInt("VPWave",wave+1);
+                clearWave();
                 getPersistentData().putBoolean("VPActivated",false);
-            } else if(getPersistentData().getInt("VPWaveKilled") < entitiesPerWave){
-                int count = 0;
-                for(LivingEntity entity: VPUtil.getEntitiesAround(this,40,40,40,false)){
-                    if(entity.getPersistentData().getBoolean("VPWaved"))
-                        count++;
+                VPUtil.syncEntity(this);
+            } else if((getWaveEntities().size()+getPersistentData().getInt("VPWaveKilled")) < entitiesPerWave) {
+                clearWave();
+                for(LivingEntity livingEntity: VPUtil.getEntitiesAround(this,25,25,25,false)){
+                    if(livingEntity instanceof Player player)
+                        player.sendSystemMessage(Component.literal("Not enough monsters to complete the wave, restarting..."));
                 }
-                if(count < (entitiesPerWave-getPersistentData().getInt("VPWaveKilled"))){
-                    for(LivingEntity entity: VPUtil.getEntitiesAround(this,20,20,20,false)) {
-                        if (entity instanceof Player player) {
-                            if(player.getPersistentData().getLong("VPErrorCd") < System.currentTimeMillis()) {
-                                player.sendSystemMessage(Component.translatable("vp.seashell.fail"));
-                                player.getPersistentData().putLong("VPErrorCd",System.currentTimeMillis()+10000);
-                            }
-                            getPersistentData().putBoolean("VPActivated",false);
-                        } else if(entity.getPersistentData().getBoolean("VPWaved")){
-                            entity.discard();
-                            VPUtil.deadInside(entity);
-                        }
-                    }
-                }
+                startWave(wave,entitiesPerWave);
+            }
+        }
+    }
+
+    public List<LivingEntity> getWaveEntities(){
+        List<LivingEntity> list = new ArrayList<>();
+        for(LivingEntity entity: VPUtil.getEntitiesAround(this,40,40,40,false)){
+            if(entity.getPersistentData().getBoolean("VPWaved"))
+                list.add(entity);
+        }
+        return list;
+    }
+
+    public void clearWave(){
+        for(LivingEntity livingEntity: getWaveEntities())
+            livingEntity.discard();
+        double radius = 40;
+        for(Object entity: getCommandSenderWorld().getEntitiesOfClass(ShellHealEntity.class, new AABB(getX()+radius,getY()+radius,getZ()+radius,getX()-radius,getY()-radius,getZ()-radius))){
+            if(entity instanceof ShellHealEntity shellHealEntity)
+                shellHealEntity.discard();
+        }
+    }
+
+    public void startWave(int wave, int entitiesPerWave){
+        int shellHeals = 0;
+        int radius = 25;
+        for(Object entity: getCommandSenderWorld().getEntitiesOfClass(ShellHealEntity.class, new AABB(getX()+radius,getY()+radius,getZ()+radius,getX()-radius,getY()-radius,getZ()-radius))){
+            shellHeals++;
+        }
+        if(shellHeals < 10) {
+            for (int i = 0; i < random.nextInt(7) + 10; i++) {
+                ShellHealEntity shell = new ShellHealEntity(getCommandSenderWorld());
+                shell.setPos(getX(), getY(), getZ());
+                if(VPUtil.teleportRandomly(shell, 20, true))
+                    getCommandSenderWorld().addFreshEntity(shell);
+            }
+        }
+        List<EntityType> list = new ArrayList<>();
+        List<EntityType> bossList = new ArrayList<>();
+        for(EntityType type: VPUtil.getEntitiesListOfType(MobCategory.MONSTER)){
+            Entity entity = type.create(getCommandSenderWorld());
+            if(entity instanceof Monster monster && monster.getType().is(EntityTypeTags.AQUATIC))
+                list.add(type);
+        }
+        if(wave > 6){
+            for(EntityType type: VPUtil.bossList){
+                Entity entity = type.create(getCommandSenderWorld());
+                if(entity instanceof Monster monster && monster.getType().is(EntityTypeTags.AQUATIC))
+                    bossList.add(type);
+            }
+        }
+        for (int i = 0; i < entitiesPerWave; i++) {
+            Entity entity = list.get(random.nextInt(list.size())).create(getCommandSenderWorld());
+            if (entity == null)
+                continue;
+            if(wave > 6 && random.nextDouble() < 0.1 && !bossList.isEmpty())
+                entity = bossList.get(random.nextInt(bossList.size())).create(getCommandSenderWorld());
+            entity.setPos(getX(),getY(),getZ());
+            VPUtil.teleportRandomly(entity,15,true);
+            entity.getPersistentData().putBoolean("VPWaved",true);
+            getCommandSenderWorld().addFreshEntity(entity);
+            if(entity instanceof Monster monster){
+                monster.addEffect(new MobEffectInstance(MobEffects.GLOWING,99999));
+                monster.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, SillySeashell.class, true));
+                monster.setTarget(this);
+                monster.setLastHurtByMob(this);
+                if(random.nextDouble() < 0.1 && !VPUtil.isBoss(monster))
+                    VPUtil.boostEntity(monster,2,200,100);
             }
         }
     }
 
     public void dropLoot(){
+        clearWave();
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,20,3,0.2f);
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,20,5,0.5f);
         VPUtil.spawnSphere(this,ParticleTypes.BUBBLE,20,4,1f);
