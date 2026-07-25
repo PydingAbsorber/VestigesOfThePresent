@@ -66,6 +66,8 @@ public class VipActivator extends Item {
         components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc1",stack.getOrCreateTag().getInt("VPDays")).getString()));
         components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc2").getString()).copy().append(GradientUtil.stellarGradient("Stellar")));
         components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc2.2").getString()));
+        if(stack.getOrCreateTag().getBoolean("VPIncrease"))
+            components.add(GradientUtil.goldenGradient(Component.translatable("item.vip.desc2.3").getString()));
         if(stack.getOrCreateTag().hasUUID("VPPlayer"))
             components.add(Component.translatable("item.vip.desc3").withStyle(ChatFormatting.DARK_RED));
         super.appendHoverText(stack, level, components, flag);

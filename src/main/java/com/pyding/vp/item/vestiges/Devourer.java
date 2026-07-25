@@ -59,6 +59,7 @@ public class Devourer extends Vestige{
     }
 
     public static int bonusHits(int charges, long ultTime) {
+        ultTime /= 1000;
         final double BASE = 130;
         if (ultTime == BASE) {
             return charges;

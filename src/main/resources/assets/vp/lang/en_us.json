@@ -43,6 +43,7 @@
   "item.vip.desc1": "Activates VIP status for %s days.",
   "item.vip.desc2": "VIP status gives you keep inventory and exp, x4 experience and +10% permanent chance for ",
   "item.vip.desc2.2": "If used while VIP is already activated it will increase current VIP.",
+  "item.vip.desc2.3": "Increases maximum amount and range of Zones created by NoGrief and Homes created by TeleportHome.",
   "item.vip.desc3": "This activator is bound with you, nobody else can use it.",
   "item.vp.event_horizon": "Event Horizon",
   "vp.event_horizon.desc": "Creative only. \nSwing forces the creature to Die Guaranteed upon sight. \nOn use forces Despawn of all loaded entities in the world or yourself if crouching.",

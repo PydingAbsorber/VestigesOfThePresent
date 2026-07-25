@@ -156,9 +156,11 @@ public class LeaderboardUtil {
                 PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
             }
         }
-        for(String id: topPlayers.split(",")){
-            if(uuid.equals(UUID.fromString(id)))
-                return true;
+        if(!topPlayers.isEmpty()) {
+            for (String id : topPlayers.split(",")) {
+                if (uuid.equals(UUID.fromString(id)))
+                    return true;
+            }
         }
         return false;
     }
@@ -170,9 +172,11 @@ public class LeaderboardUtil {
                 PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
             }
         }
-        for(String nick: specialPlayers.split(",")){
-            if(nick.equals(name))
-                return true;
+        if(!specialPlayers.isEmpty()) {
+            for (String nick : specialPlayers.split(",")) {
+                if (nick.equals(name))
+                    return true;
+            }
         }
         return false;
     }
@@ -184,9 +188,11 @@ public class LeaderboardUtil {
                 PacketHandler.sendToClient(new PlayerFlyPacket(7),serverPlayer);
             }
         }
-        for(String nick: supporters.split(",")){
-            if(nick.equals(name))
-                return true;
+        if(!supporters.isEmpty()) {
+            for (String nick : supporters.split(",")) {
+                if (nick.equals(name))
+                    return true;
+            }
         }
         return false;
     }

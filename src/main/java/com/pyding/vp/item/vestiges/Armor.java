@@ -91,8 +91,14 @@ public class Armor extends Vestige{
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         if(slotContext.entity() instanceof Player player){
-            if(player.tickCount % 7000 == 0)
-                clearDamage(player.getUUID());
+            long time = player.getPersistentData().getLong("VPArmorAdapt");
+            if(time > 0) {
+                if (time < System.currentTimeMillis()) {
+                    clearDamage(player.getUUID());
+                    player.getPersistentData().putLong("VPArmorAdapt",0);
+                    VPUtil.sync(player);
+                }
+            } else player.getPersistentData().putLong("VPArmorAdapt",System.currentTimeMillis()+300000);
         }
         super.curioTick(slotContext, stack);
     }

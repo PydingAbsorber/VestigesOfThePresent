@@ -663,20 +663,21 @@ public class VPUtil {
 
     public static void initBuckets(){
         for(MobBucketItem bucketItem: getBuckets()){
-            EntityType<?> type = ((BucketVzlom)bucketItem).getFishSup().get();
-            if(type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
-                HashSet<String> tropicalFish = new HashSet<>();
-                for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
-                    tropicalFish.add(variant.pattern().getSerializedName());
-                bucketMap.put(bucketItem, tropicalFish);
-            }
-            else if(type.getDescriptionId().contains("entity.minecraft.axolotl")) {
-                HashSet<String> axolotl = new HashSet<>();
-                for (Axolotl.Variant variant: Axolotl.Variant.values())
-                    axolotl.add(variant.getName());
-                bucketMap.put(bucketItem, axolotl);
-            } else {
-                seaList.add(bucketItem.getDescriptionId());
+            if(((BucketVzlom)bucketItem).getFishSup() != null && ((BucketVzlom)bucketItem).getFishSup().get() != null) {
+                EntityType<?> type = ((BucketVzlom) bucketItem).getFishSup().get();
+                if (type.getDescriptionId().contains("entity.minecraft.tropical_fish")) {
+                    HashSet<String> tropicalFish = new HashSet<>();
+                    for (TropicalFish.Variant variant : TropicalFish.COMMON_VARIANTS)
+                        tropicalFish.add(variant.pattern().getSerializedName());
+                    bucketMap.put(bucketItem, tropicalFish);
+                } else if (type.getDescriptionId().contains("entity.minecraft.axolotl")) {
+                    HashSet<String> axolotl = new HashSet<>();
+                    for (Axolotl.Variant variant : Axolotl.Variant.values())
+                        axolotl.add(variant.getName());
+                    bucketMap.put(bucketItem, axolotl);
+                } else {
+                    seaList.add(bucketItem.getDescriptionId());
+                }
             }
         }
     }
