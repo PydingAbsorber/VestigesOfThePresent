@@ -225,6 +225,11 @@ public class ShieldOverlay {
                         if(number > 0)
                             info = String.valueOf(number);
                     }
+                    if(vestigeNumber == 11) {
+                        long time = (player.getPersistentData().getLong("VPArmorAdapt")-System.currentTimeMillis())/1000;
+                        if (time > 0)
+                            info = time+"";
+                    }
                     if(vestigeNumber == 26 && !durationUlt.isEmpty()){
                         info = (VPUtil.getNbtI(stack,"VPRadius") + "");
                     }

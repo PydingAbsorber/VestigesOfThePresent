@@ -329,7 +329,11 @@ public class EventHandler {
                         event.setAmount(event.getAmount()*(1-(float)absorb/100));
                         if(absorb == 85)
                             VPUtil.setNbt(stack,"VPArmor",VPUtil.scalePower(Armor.getPain(stack)+150,11,player));
-                        if (absorb < 90) armor.increaseAbsorb(event.getSource(),player.getUUID());
+                        if (absorb < 90) {
+                            armor.increaseAbsorb(event.getSource(), player.getUUID());
+                            player.getPersistentData().putLong("VPArmorAdapt",0);
+                            VPUtil.sync(player);
+                        }
                         if(!armor.isUltimateActive(stack)){
                             float cost = Math.min(event.getAmount(),Armor.getPain(stack)*0.1f);
                             VPUtil.setNbt(stack,"VPArmor",Armor.getPain(stack)-cost);
@@ -860,6 +864,7 @@ public class EventHandler {
                     int cost = 100+VPUtil.getMaxSoulIntegrity(player)/4;
                     if(VPUtil.getSoulIntegrity(player) > cost){
                         VPUtil.modifySoulIntegrity(player,player,-cost);
+                        entity.setHealth(entity.getMaxHealth());
                         event.setCanceled(true);
                         return;
                     } else {
