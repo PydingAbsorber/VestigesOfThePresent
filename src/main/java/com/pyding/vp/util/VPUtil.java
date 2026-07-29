@@ -4310,6 +4310,13 @@ public class VPUtil {
         }
     }
 
+    public static Map<Enchantment, Integer> getEnchantments(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return new HashMap<>();
+        }
+        return new HashMap<>(EnchantmentHelper.getEnchantments(stack));
+    }
+
     public static void clearEntities(MinecraftServer server, boolean ignoreConfig){
         if(ConfigHandler.COMMON_SPEC.isLoaded()){
             int time = ConfigHandler.COMMON.clearEntities.get();

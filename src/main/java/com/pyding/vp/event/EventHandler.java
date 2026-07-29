@@ -1808,18 +1808,36 @@ public class EventHandler {
 
 
     @SubscribeEvent
-    public void onAnvilUse(AnvilRepairEvent event) {
+    public static void onAnvilRepair(AnvilRepairEvent event) {
         Player player = event.getEntity();
+        if (player.level().isClientSide) {
+            return;
+        }
+        ItemStack left = event.getLeft();
         ItemStack right = event.getRight();
-        if (right.getItem() instanceof EnchantedBookItem book) {
-            for(Enchantment enchantment: book.getAllEnchantments(right).keySet()) {
-                if (enchantment.isCurse()) {
-                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                        cap.setChallenge(7, player);
-                    });
-                    break;
-                }
+        ItemStack output = event.getOutput();
+        if (!(right.getItem() instanceof EnchantedBookItem)) {
+            return;
+        }
+        Map<Enchantment, Integer> leftEnchantments = VPUtil.getEnchantments(left);
+        Map<Enchantment, Integer> bookEnchantments = VPUtil.getEnchantments(right);
+        Map<Enchantment, Integer> outputEnchantments = VPUtil.getEnchantments(output);
+        boolean curseApplied = bookEnchantments.entrySet().stream().anyMatch(entry -> {
+            Enchantment enchantment = entry.getKey();
+            if (!enchantment.isCurse()) {
+                return false;
             }
+            int previousLevel = leftEnchantments.getOrDefault(enchantment, 0);
+            int resultLevel = outputEnchantments.getOrDefault(enchantment, 0);
+            return resultLevel > previousLevel;
+        });
+        if (curseApplied) {
+            if (player.level().isClientSide) {
+                return;
+            }
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                cap.setChallenge(7, player);
+            });
         }
     }
 
