@@ -34,7 +34,8 @@ public abstract class ItemEntityMixin {
                 type = ParticleTypes.WAX_ON;
             else if(item instanceof CelestialMirror)
                 type = ParticleTypes.GLOW_SQUID_INK;
-            VPUtil.spawnAura((ItemEntity)(Object)this,3, type,0.1);
+            if(type != null)
+                VPUtil.spawnAura((ItemEntity)(Object)this,3, type,0.1);
         }
     }
 }

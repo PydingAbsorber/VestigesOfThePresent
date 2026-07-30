@@ -290,6 +290,7 @@ public class EventHandler {
                     VPUtil.modifySoulIntegrity(event.getEntity(),10);
                 if(ServerConfig.cruelMode.get() && ServerConfig.damageCruel.get() > 0 && ((event.getSource().is(DamageTypes.STARVE) && player.getFoodData().getFoodLevel() <= 1)
                 || (event.getSource().is(DamageTypes.DROWN) && player.getAirSupply() <= 1)
+                || (event.getSource().is(DamageTypes.DROWN) && player.getAirSupply() <= 1)
                 || (event.getSource().is(DamageTypes.LAVA))
                 || (event.getSource().is(DamageTypes.FELL_OUT_OF_WORLD) && player.getY() <= -30))){
                     VPUtil.dealParagonDamage(player,player,(float)(player.getMaxHealth()*ServerConfig.damageCruel.get()),0,false);
