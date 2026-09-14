@@ -2,6 +2,7 @@ package com.pyding.vp.network;
 
 import com.pyding.vp.VestigesOfThePresent;
 import com.pyding.vp.network.packets.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -47,7 +48,9 @@ public class PacketHandler {
         net.registerMessage(id(),SendStackToClient.class, SendStackToClient::encode, SendStackToClient::decode, SendStackToClient::handle);
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
-        INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        if(player.connection != null)
+            INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        else VestigesOfThePresent.LOGGER.error("From Vestiges of the Present: Connection error with server! \nThis prevented crash, but may greatly impact your gameplay, please be sure you have stable connection.");
     }
 
     public static <MSG> void sendToServer(MSG message) {

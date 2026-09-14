@@ -110,9 +110,9 @@ public class EventHandler {
                 return;
             boolean astralAttacker = (event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPAstral") > System.currentTimeMillis());
             if(entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis() || astralAttacker){
-                if(!event.getSource().is(DamageTypes.MAGIC) && !event.getSource().is(DamageTypes.INDIRECT_MAGIC)) {
-                    event.setAmount(0);
-                } else event.setAmount(event.getAmount()*10);
+                if(event.getSource().is(DamageTypes.MAGIC) || event.getSource().is(DamageTypes.INDIRECT_MAGIC)) {
+                    event.setAmount(event.getAmount()*10);
+                } else event.setAmount(0);
             }
             if(entity.getPersistentData().getLong("VPWhirlOther") > System.currentTimeMillis()){
                 event.setAmount(event.getAmount()*2);
@@ -389,8 +389,6 @@ public class EventHandler {
             }
             if (event.getAmount() <= 0)
                 return;
-            if(Float.isNaN(event.getAmount()))
-                event.setAmount(0);
             float overShield = VPUtil.getOverShield(entity);
             float shield = entity.getPersistentData().getFloat("VPShield");
             if((isNightmare || VPUtil.isBoss(entity)) && ServerConfig.COMMON.cruelMode.get()) {
@@ -921,11 +919,11 @@ public class EventHandler {
     public void onLootDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (event.getSource().getEntity() instanceof Player player && !event.isCanceled() && VPUtil.getRareDrops(entity) != null && !VPUtil.getRareDrops(entity).isEmpty()){
-            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challange -> {
+            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(challenge -> {
                 for(ItemEntity itemEntity: event.getDrops()){
                     for(Item item: VPUtil.getRareDrops(entity)){
                         if(itemEntity.getItem().getItem().getDescriptionId().equals(item.getDescriptionId())) {
-                            challange.addrareItems(item.getDescriptionId(),player);
+                            challenge.addrareItems(item.getDescriptionId(),player);
                         }
                     }
                 }
@@ -1328,10 +1326,6 @@ public class EventHandler {
     @SubscribeEvent
     public static void tick(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
-        if(Float.isNaN(entity.getHealth())) {
-            VPUtil.deadInside(entity);
-            return;
-        }
         CompoundTag tag = entity.getPersistentData();
         Random random = new Random();
         if(!entity.isAlive())
@@ -1392,14 +1386,6 @@ public class EventHandler {
                 entity.heal((float) (entity.getMaxHealth() * ServerConfig.COMMON.healPercent.get()));
             if(VPUtil.isNpc(entity.getType())){
                 VPUtil.antiTp(entity,99999);
-            }
-            if(Float.isNaN(entity.getHealth())) {
-                entity.setHealth(1);
-                entity.getPersistentData().putFloat("VPTry",entity.getPersistentData().getFloat("VPTry")+1);
-            }
-            if(Float.isNaN(entity.getMaxHealth()) || entity.getPersistentData().getFloat("VPTry") > 5) {
-                entity.getPersistentData().putFloat("VPTry",0);
-                VPUtil.deadInside(entity);
             }
             if(entity.getPersistentData().getLong("VPLyra1") != 0 && entity.getPersistentData().getLong("VPLyra1") < System.currentTimeMillis()){
                 entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(entity, Attributes.MAX_HEALTH, UUID.fromString("9548da03-e5f8-4cfd-be48-c4ae9b25d86d"),1.6f, AttributeModifier.Operation.MULTIPLY_TOTAL,"vp.lyra.1"));

@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -45,8 +46,14 @@ public class SendClientDataToServerPacket {
             if(msg.id == 1){
                 VPUtil.osMap.put(player.getUUID(),msg.message);
             } else if(msg.id == 2){
-                if((!ServerConfig.COMMON.usedBook.get() || player.isCreative())){
+                InteractionHand hand = null;
+                if(player.getMainHandItem().getItem() instanceof WelcomeBook)
+                    hand = InteractionHand.MAIN_HAND;
+                else if(player.getOffhandItem().getItem() instanceof WelcomeBook)
+                    hand = InteractionHand.OFF_HAND;
+                if((!ServerConfig.COMMON.usedBook.get() || player.isCreative()) && hand != null){
                     ServerConfig.COMMON.usedBook.set(true);
+                    player.getItemInHand(hand).shrink(1);
                     int challengeDifficulty = 0;
                     int vestigePower = 0;
                     int worldDifficulty = 0;
@@ -92,6 +99,18 @@ public class SendClientDataToServerPacket {
                     ServerConfig.COMMON.powerScales.set(scaleList);
                     if (worldDifficulty == 2) {
                         ServerConfig.COMMON.cruelMode.set(true);
+                        ServerConfig.COMMON.armorCruel.set(ServerConfig.COMMON.armorCruel.getDefault());
+                        ServerConfig.COMMON.damageCruel.set(ServerConfig.COMMON.damageCruel.getDefault());
+                        ServerConfig.COMMON.absorbCruel.set(ServerConfig.COMMON.absorbCruel.getDefault());
+                        ServerConfig.COMMON.shieldCruel.set(ServerConfig.COMMON.shieldCruel.getDefault());
+                        ServerConfig.COMMON.overShieldCruel.set(ServerConfig.COMMON.overShieldCruel.getDefault());
+                        ServerConfig.COMMON.expMultiplier.set(ServerConfig.COMMON.expMultiplier.getDefault());
+                        ServerConfig.COMMON.empoweredChance.set(ServerConfig.COMMON.empoweredChance.getDefault());
+                        ServerConfig.COMMON.healthBoost.set(ServerConfig.COMMON.healthBoost.getDefault());
+                        ServerConfig.COMMON.bossHP.set(ServerConfig.COMMON.bossHP.getDefault());
+                        ServerConfig.COMMON.bossAttack.set(ServerConfig.COMMON.bossAttack.getDefault());
+                        ServerConfig.COMMON.healPercent.set(ServerConfig.COMMON.healPercent.getDefault());
+                        ServerConfig.COMMON.cruelItemChance.set(ServerConfig.COMMON.cruelItemChance.getDefault());
                     } else if (worldDifficulty == 3) {
                         ServerConfig.COMMON.cruelMode.set(true);
                         ServerConfig.COMMON.armorCruel.set(120);
@@ -107,12 +126,12 @@ public class SendClientDataToServerPacket {
                         ServerConfig.COMMON.healPercent.set(0.01d);
                         ServerConfig.COMMON.cruelItemChance.set(0.002d);
                     }
+                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                        cap.initMaximum(player);
+                        cap.sync(player);
+                    });
+                    VPUtil.sync(player);
                 }
-                player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
-                    cap.initMaximum(player);
-                    cap.sync(player);
-                });
-                VPUtil.sync(player);
             }
         });
         return true;

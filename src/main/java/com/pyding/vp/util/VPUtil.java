@@ -1579,8 +1579,9 @@ public class VPUtil {
             if(!stack.getOrCreateTag().getBoolean("VPEnchant"))
                 continue;
             Map<Enchantment, Integer> enchantments = new HashMap<>(EnchantmentHelper.getEnchantments(stack));
+            Set<Enchantment> copy = new HashSet<>(enchantments.keySet());
             if(!enchantments.isEmpty()){
-                for(Enchantment enchantment: enchantments.keySet()){
+                for(Enchantment enchantment: copy){
                     if(stack.getEnchantmentLevel(enchantment) < 0 || enchantment.isCurse())
                         continue;
                     int lvl = enchantments.get(enchantment);
@@ -3827,10 +3828,7 @@ public class VPUtil {
         if(entity == null)
             return;
         if(time == -1){
-            roflan.put(entity.getUUID(),0l);
-            if(entity instanceof ServerPlayer serverPlayer){
-                PacketHandler.sendToClient(new PlayerFlyPacket(9),serverPlayer);
-            }
+            removeRoflan(entity);
             return;
         }
         if(entity instanceof ServerPlayer serverPlayer){
@@ -3840,11 +3838,32 @@ public class VPUtil {
     }
 
     public static boolean isRoflanEbalo(LivingEntity entity){
-        if(entity == null)
+        if(entity == null || roflan.isEmpty())
             return false;
-        if(roflan.containsKey(entity.getUUID()))
-            return roflan.get(entity.getUUID()) - System.currentTimeMillis() > 0;
+        Long time = System.currentTimeMillis();
+        if(roflan.size() > 20){
+            List<UUID> remove = new ArrayList<>();
+            for(UUID uuid: roflan.keySet()){
+                if(roflan.get(uuid) - time <= 0)
+                    remove.add(uuid);
+                if(uuid.equals(entity.getUUID())) {
+                    for(UUID uuid2: remove)
+                        roflan.remove(uuid2);
+                    return roflan.get(entity.getUUID()) - time > 0;
+                }
+            }
+            for(UUID uuid2: remove)
+                roflan.remove(uuid2);
+        } else if(roflan.containsKey(entity.getUUID()))
+            return roflan.get(entity.getUUID()) - time > 0;
         return false;
+    }
+
+    public static void removeRoflan(LivingEntity entity){
+        roflan.remove(entity.getUUID());
+        if(entity instanceof ServerPlayer serverPlayer){
+            PacketHandler.sendToClient(new PlayerFlyPacket(9),serverPlayer);
+        }
     }
 
     public static int getSoulIntegrity(LivingEntity entity){
