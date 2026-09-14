@@ -11,6 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.ArrayList;
@@ -31,15 +32,20 @@ public record SendClientDataToServerPacket(int id, String message) implements Cu
         return TYPE;
     }
 
-    // Обработка на стороне сервера
     public static void handle(final SendClientDataToServerPacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player) {
                 if (payload.id() == 1) {
                     VPUtil.osMap.put(player.getUUID(), payload.message());
                 } else if(payload.id() == 2){
-                    if((!ServerConfig.usedBook.get() || player.isCreative())){
+                    InteractionHand hand = null;
+                    if(player.getMainHandItem().getItem() instanceof WelcomeBook)
+                        hand = InteractionHand.MAIN_HAND;
+                    else if(player.getOffhandItem().getItem() instanceof WelcomeBook)
+                        hand = InteractionHand.OFF_HAND;
+                    if((!ServerConfig.usedBook.get() || player.isCreative()) && hand != null){
                         ServerConfig.usedBook.set(true);
+                        player.getItemInHand(hand).shrink(1);
                         int challengeDifficulty = 0;
                         int vestigePower = 0;
                         int worldDifficulty = 0;
@@ -85,6 +91,18 @@ public record SendClientDataToServerPacket(int id, String message) implements Cu
                         ServerConfig.powerScales.set(scaleList);
                         if(worldDifficulty == 2){
                             ServerConfig.cruelMode.set(true);
+                            ServerConfig.armorCruel.set(ServerConfig.armorCruel.getDefault());
+                            ServerConfig.damageCruel.set(ServerConfig.damageCruel.getDefault());
+                            ServerConfig.absorbCruel.set(ServerConfig.absorbCruel.getDefault());
+                            ServerConfig.shieldCruel.set(ServerConfig.shieldCruel.getDefault());
+                            ServerConfig.overShieldCruel.set(ServerConfig.overShieldCruel.getDefault());
+                            ServerConfig.expMultiplier.set(ServerConfig.expMultiplier.getDefault());
+                            ServerConfig.empoweredChance.set(ServerConfig.empoweredChance.getDefault());
+                            ServerConfig.healthBoost.set(ServerConfig.healthBoost.getDefault());
+                            ServerConfig.bossHP.set(ServerConfig.bossHP.getDefault());
+                            ServerConfig.bossAttack.set(ServerConfig.bossAttack.getDefault());
+                            ServerConfig.healPercent.set(ServerConfig.healPercent.getDefault());
+                            ServerConfig.cruelItemChance.set(ServerConfig.cruelItemChance.getDefault());
                         } else if(worldDifficulty == 3){
                             ServerConfig.cruelMode.set(true);
                             ServerConfig.armorCruel.set(120);
@@ -101,11 +119,11 @@ public record SendClientDataToServerPacket(int id, String message) implements Cu
                             ServerConfig.cruelItemChance.set(0.002d);
                         }
                         ServerConfig.SPEC.save();
+                        VestigeCap cap = VPUtil.getCap(player);
+                        cap.initMaximum(player);
+                        cap.sync(player);
+                        VPUtil.sync(player);
                     }
-                    VestigeCap cap = VPUtil.getCap(player);
-                    cap.initMaximum(player);
-                    cap.sync(player);
-                    VPUtil.sync(player);
                 }
             }
         });

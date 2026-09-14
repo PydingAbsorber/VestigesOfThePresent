@@ -118,7 +118,7 @@ public class PlayerFlyPacket implements CustomPacketPayload {
                 Minecraft.getInstance().forceSetScreen(new DeathScreen(Component.literal(message),false));
             }
             else if (number == 9) {
-                VPUtil.roflan.put(player.getUUID(), 0L);
+                VPUtil.roflan.remove(player.getUUID());
             }
             else if (number == 10) {
                 VPUtil.antiResurrect(player, -1);

@@ -115,9 +115,9 @@ public class EventHandler {
                 return;
             boolean astralAttacker = (event.getSource().getEntity() != null && event.getSource().getEntity().getPersistentData().getLong("VPAstral") > System.currentTimeMillis());
             if(entity.getPersistentData().getLong("VPAstral") > System.currentTimeMillis() || astralAttacker){
-                if(!event.getSource().is(DamageTypes.MAGIC) && !event.getSource().is(DamageTypes.INDIRECT_MAGIC)) {
-                    event.setAmount(0);
-                } else event.setAmount(event.getAmount()*10);
+                if(event.getSource().is(DamageTypes.MAGIC) || event.getSource().is(DamageTypes.INDIRECT_MAGIC)) {
+                    event.setAmount(event.getAmount()*10);
+                } else event.setAmount(0);
             }
             if(entity.getPersistentData().getLong("VPWhirlOther") > System.currentTimeMillis()){
                 event.setAmount(event.getAmount()*2);
@@ -393,8 +393,6 @@ public class EventHandler {
             }
             if (event.getAmount() <= 0)
                 return;
-            if(Float.isNaN(event.getAmount()))
-                event.setAmount(0);
             float overShield = VPUtil.getOverShield(entity);
             float shield = entity.getPersistentData().getFloat("VPShield");
             if((isNightmare || VPUtil.isBoss(entity)) && ServerConfig.cruelMode.get()) {
@@ -1295,10 +1293,6 @@ public class EventHandler {
     @SubscribeEvent
     public static void tick(EntityTickEvent.Pre event){
         if(event.getEntity() instanceof LivingEntity entity) {
-            if (Float.isNaN(entity.getHealth())) {
-                VPUtil.deadInside(entity);
-                return;
-            }
             CompoundTag tag = entity.getPersistentData();
             Random random = new Random();
             if (!entity.isAlive())
@@ -1363,14 +1357,6 @@ public class EventHandler {
                     entity.heal((float) (entity.getMaxHealth() * ServerConfig.healPercent.get()));
                 if (VPUtil.isNpc(entity.getType())) {
                     VPUtil.antiTp(entity, 99999);
-                }
-                if (Float.isNaN(entity.getHealth())) {
-                    entity.setHealth(1);
-                    entity.getPersistentData().putFloat("VPTry", entity.getPersistentData().getFloat("VPTry") + 1);
-                }
-                if (Float.isNaN(entity.getMaxHealth()) || entity.getPersistentData().getFloat("VPTry") > 5) {
-                    entity.getPersistentData().putFloat("VPTry", 0);
-                    VPUtil.deadInside(entity);
                 }
                 if (entity.getPersistentData().getLong("VPLyra1") != 0 && entity.getPersistentData().getLong("VPLyra1") < System.currentTimeMillis()) {
                     entity.getAttributes().removeAttributeModifiers(VPUtil.createAttributeMap(Attributes.MAX_HEALTH,  1.6f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, "vp.lyra.1"));

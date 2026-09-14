@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -35,7 +36,6 @@ public class WelcomeBook extends Item {
         if ((!ServerConfig.usedBook.get() || player.isCreative())) {
             Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new WelcomeScreen()));
             player.getCommandSenderWorld().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundRegistry.BOOK_OPEN.get(), SoundSource.MASTER, 1, 1, false);
-            player.getItemInHand(hand).shrink(1);
         }
         return super.use(level, player, hand);
     }
